@@ -1160,9 +1160,10 @@ then
 				
 				echo -e "\t[+] Web-buster ..  $ip:$port"
 				web-buster.pl -t $ip -p $port -a / -m username -q 1 | grep http > enumeration/$ip-$port-webusername.txt  &
-				web-buster.pl -t $ip -p $port -a / -m normal -q 1 | grep http > enumeration/$ip-$port-webnormal.txt  &
+				web-buster.pl -t $ip -p $port -a / -m directorios -q 1 | grep http > enumeration/$ip-$port-webdirectorios.txt  &
+				web-buster.pl -t $ip -p $port -a / -m archivos -q 1 | grep http > enumeration/$ip-$port-webarchivos.txt  &
 				web-buster.pl -t $ip -p $port -a / -m cgi  -q 1| grep http > enumeration/$ip-$port-webcgi.txt  &
-				web-buster.pl -t $ip -p $port -a / -m backup -q 1 | grep http > enumeration/$ip-$port-backup.txt  &				
+				web-buster.pl -t $ip -p $port -a / -m backup -q 1 | grep http > enumeration/$ip-$port-webbackup.txt  &				
 		
 				#echo -e "\t[+] nikto ..  $ip:$port"
 				#nikto -host http://$ip:$port > enumeration/$ip/nikto-$port.txt  2>/dev/null &					
