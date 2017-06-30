@@ -72,6 +72,6 @@ echo export PATH="$PATH:/usr/bin/pentest" >> ~/.zshrc
 echo ""
 chmod a+x /usr/bin/pentest/*
 
-echo -e "${GREEN} [+] LISTO!! "
-echo -e "${BLUE} [i] Para empezar a usar los scripts inicia otra terminal :V ${RESET}"
+echo -e "${GREEN} [+] LISTO!! TODO OK"
+echo -e "${RED} [i] IMPORTANTE: Para empezar a usar los scripts inicia otra terminal :V ${RED}"
 
