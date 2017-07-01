@@ -50,6 +50,7 @@ echo ""
 echo -e "${GREEN} [+] Copiando scripts a /usr/bin ${RESET}"
 cp -r pentest /usr/bin
 cp lanscanner.sh /usr/bin
+chmod a+x /usr/bin/lanscanner.sh
 echo ""
 
 
