@@ -121,7 +121,7 @@ read allports
     
      echo -e  "\n##############################################################################" 
      echo -e  "$OKRED \t Usando  ----> $FILE <----- $RESET" 
-     cat ../$FILE | cut -d "," -f 2  > $live_hosts
+     cat ../$FILE | cut -d "," -f 2 | uniq > $live_hosts
      #cat $live_hosts | cut -d . -f 1-3 | sort | uniq > .data/subnets.txt # get subnets 
      cat $live_hosts
      echo ""       
