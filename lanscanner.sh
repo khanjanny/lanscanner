@@ -1170,7 +1170,7 @@ then
 
 				echo -e "\t[+] whatweb $ip:$port"	
 				
-				whatweb --quiet --user-agent "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; Trident/5.0)" $ip:$port --log-brief enumeration/$ip-$port-whatweb.txt
+				whatweb --quiet --user-agent "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; Trident/5.0)" $ip:$port --log-brief enumeration/$ip-$port-whatweb.txt 2>/dev/null 
 	
 
 				#######  if the server is IIS ######
@@ -1225,7 +1225,7 @@ then
 			if [ "$free_ram" -gt 200 ]			
 			then						
 				echo -e "\n\t### $ip:$port (Enumeracion SSL)"	
-				whatweb --quiet --user-agent "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; Trident/5.0)" https://$ip:$port --log-brief enumeration/$ip-$port-whatweb.txt &
+				whatweb --quiet --user-agent "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; Trident/5.0)" https://$ip:$port --log-brief enumeration/$ip-$port-whatweb.txt 2>/dev/null &
 				nmap -n -sV -Pn -p $port $ip  --script=ssl-heartbleed  | grep "|" > vulnerabilities/$ip-$port-nmap.txt 2>/dev/null &
 				a2sv.sh -t $ip -p $port -d n | grep CVE > vulnerabilities/$ip-$port-a2sv.txt 2>/dev/null &
 				sleep 0.7				
