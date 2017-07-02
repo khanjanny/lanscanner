@@ -275,7 +275,7 @@ if [ $TYPE = "parcial" ] ; then
     read resp_voip
   fi
   
- if [[ $TYPE = "completo" || $resp_voip == "s" ) && (${FILE} = NULL )]];then 
+ if [[ ( ${TYPE} == "completo" || ${resp_voip} == "s" ) && (${FILE} = NULL )]];then 
 	echo -e "$OKBLUE\n\t#################### Buscando dispositivos VoIP: ######################$RESET"	  
 	
 	for subnet in $(cat .data/subnets.txt); do
