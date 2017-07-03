@@ -40,11 +40,12 @@ EOF
 print_ascii_art
  
 
-while getopts ":t:f:" OPTIONS
+while getopts ":t:f:o:" OPTIONS
 do
             case $OPTIONS in
             t)     TYPE=$OPTARG;;
             f)     FILE=$OPTARG;;
+            o)     OFFSEC=$OPTARG;;
             ?)     printf "Opcion invalida: -$OPTARG\n" $0
                           exit 2;;
            esac
@@ -52,6 +53,7 @@ done
 
 TYPE=${TYPE:=NULL}
 FILE=${FILE:=NULL}
+OFFSEC=${OFFSEC:=NULL}
 
 if [ $TYPE = NULL ] ; then
 
@@ -1144,9 +1146,7 @@ if [ -f .services/smtp.txt ]
 	fi
 
 
-
-if [ -f .services/web.txt ]
-then
+if [[ ( -f .services/web.txt && ${FILE} = NULL ) || ( ${OFFSEC} == "1" && -f .services/web.txt )]];then 
 	echo -e "$OKBLUE\n\t#################### WEB ######################$RESET"	    		
 
 	for line in $(cat .services/web.txt); do    
