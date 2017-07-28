@@ -270,6 +270,9 @@ echo -e "$OKGREEN################################## Escaneando #################
 
 echo -e "\n\t $OKBLUE Realizar screenshot remoto de RDP?. Un poco lento s/n $RESET"
 read rdp
+
+echo -e "\n\t $OKBLUE Realizar escaneo de vulnerabilidades (Un IDS puede bloquearnos)? s/n $RESET"
+read vuln
     
  ########### searching VoIP devices ##########
 if [ $TYPE = "parcial" ] ; then 	
@@ -598,7 +601,10 @@ then
 				
 				echo -e "\n\t### $ip (port 445)"
 				#nmap -Pn -p445 --script smb-security-mode,smbv2-enabled $ip > enumeration/$ip-smb-445.txt 2>/dev/null
-				nmap -n -Pn -p445 --script smb-vuln-ms10-061,smb-vuln-ms10-054,smb-vuln-ms08-067,smb-vuln-ms07-029,smb-vuln-ms06-025,smb-vuln-ms17-010 $ip | grep "|" > vulnerabilities/$ip-445-nmap.txt 2>/dev/null &					
+				if [ $vuln == "s" ] ; then	
+					nmap -n -Pn -p445 --script smb-vuln-ms10-061,smb-vuln-ms10-054,smb-vuln-ms08-067,smb-vuln-ms07-029,smb-vuln-ms06-025,smb-vuln-ms17-010 $ip | grep "|" > vulnerabilities/$ip-445-nmap.txt 2>/dev/null &					
+				fi					
+				
 				sleep 0.7				
 				break
 			else
@@ -634,7 +640,9 @@ then
 			then
 				
 				echo -e "\n\t### $ip (port 137) Revisando vulnerabilidades"
-				nmap -n -Pn -sU -p U:137 $ip --script smb-vuln-ms08-067 | grep "|" > vulnerabilities/$ip-137-nmap.txt 2>/dev/null	&
+				if [ $vuln == "s" ] ; then	
+					nmap -n -Pn -sU -p U:137 $ip --script smb-vuln-ms08-067 | grep "|" > vulnerabilities/$ip-137-nmap.txt 2>/dev/null	&
+				fi
 				sleep 0.7				
 				break
 			else
@@ -1159,14 +1167,14 @@ if [[ ( -f .services/web.txt && ${FILE} = NULL ) || ( ${OFFSEC} == "1" && -f .se
 			then						
 				
 				echo -e "\t[+] Web-buster ..  $ip:$port"
-				web-buster.pl -t $ip -p $port -a / -m username -q 1 | grep http > enumeration/$ip-$port-webusername.txt  &
-				web-buster.pl -t $ip -p $port -a / -m directorios -q 1 | grep http > enumeration/$ip-$port-webdirectorios.txt  &
-				web-buster.pl -t $ip -p $port -a / -m archivos -q 1 | grep http > enumeration/$ip-$port-webarchivos.txt  &
-				web-buster.pl -t $ip -p $port -a / -m cgi  -q 1| grep http > enumeration/$ip-$port-webcgi.txt  &
-				web-buster.pl -t $ip -p $port -a / -m backup -q 1 | grep http > enumeration/$ip-$port-webbackup.txt  &				
+				web-buster.pl -s $ip -p $port -t 33 -a / -m username -q 1 | grep http > enumeration/$ip-$port-webusername.txt  &
+				web-buster.pl -s $ip -p $port -t 33 -a / -m directorios -q 1 | grep http > enumeration/$ip-$port-webdirectorios.txt  &
+				web-buster.pl -s $ip -p $port -t 33 -a / -m archivos -q 1 | grep http > enumeration/$ip-$port-webarchivos.txt  &
+				web-buster.pl -s $ip -p $port -t 33 -a / -m cgi  -q 1| grep http > enumeration/$ip-$port-webcgi.txt  &
+				web-buster.pl -s $ip -p $port -t 33 -a / -m backup -q 1 | grep http > enumeration/$ip-$port-webbackup.txt  &				
 		
-				#echo -e "\t[+] nikto ..  $ip:$port"
-				#nikto -host http://$ip:$port > enumeration/$ip/nikto-$port.txt  2>/dev/null &					
+				echo -e "\t[+] nikto ..  $ip:$port"
+				nikto -host http://$ip:$port > enumeration/$ip-$port-nikto.txt  2>/dev/null &					
 
 				echo -e "\t[+] whatweb $ip:$port"	
 				
@@ -1224,10 +1232,13 @@ then
 			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
 			if [ "$free_ram" -gt 200 ]			
 			then						
-				echo -e "\n\t### $ip:$port (Enumeracion SSL)"	
+				echo -e "\n\t### $ip:$port (Enumeracion SSL)"			
 				whatweb --quiet --user-agent "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; Trident/5.0)" https://$ip:$port --log-brief enumeration/$ip-$port-whatweb.txt 2>/dev/null &
-				nmap -n -sV -Pn -p $port $ip  --script=ssl-heartbleed  | grep "|" > vulnerabilities/$ip-$port-nmap.txt 2>/dev/null &
-				a2sv.sh -t $ip -p $port -d n | grep CVE > vulnerabilities/$ip-$port-a2sv.txt 2>/dev/null &
+				
+				if [ $vuln == "s" ] ; then	
+					nmap -n -sV -Pn -p $port $ip  --script=ssl-heartbleed  | grep "|" > vulnerabilities/$ip-$port-nmap.txt 2>/dev/null &
+					a2sv.sh -t $ip -p $port -d n | grep CVE > vulnerabilities/$ip-$port-a2sv.txt 2>/dev/null &
+				fi							
 				sleep 0.7				
 				break
 			else
