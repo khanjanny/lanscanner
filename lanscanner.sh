@@ -9,8 +9,9 @@ RESET='\e[0m'
 
 ################## Config HERE ####################
 netA="10.0.X.0/24";
-netB="170.0.X.0/24";
+netB="172.16.X.0/24";
 netC="192.168.X.0/24";
+#netC="192.168.X.0/24";
 ####################################################
 
 
@@ -72,6 +73,7 @@ read project
 
 mkdir $project
 cd $project
+pwd
 
 mkdir -p .arp
 mkdir -p .scans
@@ -156,7 +158,13 @@ read allports
   echo -e $net2
   echo -e $net3
   echo -e "\t $OKBLUE Que redes escanear ? $RESET"
-  read num_nets_enum      
+  read num_nets_enum     
+  
+  echo -e "\t $OKBLUE Realizar escaneo de puertos 22,80,443 en busca de mas hosts vivos ? s/n $RESET"	  
+  read webport	  
+	  
+  echo -e "\t $OKBLUE Realizar escaneo ICMP (ping) en busca de mas hosts vivos ? (Mas lento aun ...) s/n $RESET"	  
+  read pingscan	 
       
     if [ $flat == 's' ]
     then    	
@@ -193,8 +201,6 @@ read allports
       
       
       #################################   PORT 80,443,22  SCAN #########################################
-      echo -e "\t $OKBLUE Realizar escaneo de puertos 22,80,443 en busca de mas hosts vivos ? s/n $RESET"	  
-	  read webport	  
 	  
 	  if [ $webport == 's' ]
       then 
@@ -213,8 +219,6 @@ read allports
 	  
 	  
 	   #################################   ICMP SCAN   ###########################################
-	  echo -e "\t $OKBLUE Realizar escaneo ICMP (ping) en busca de mas hosts vivos ? (Mas lento aun ...) s/n $RESET"	  
-	  read pingscan	  
 	  
 	  if [ $pingscan == 's' ]
       then 
@@ -342,8 +346,9 @@ if [ $TYPE = "parcial" ] ; then
 	mkdir -p .shared/	
 	cp $live_hosts .shared/
 	
-	echo -e "\t $OKBLUE Realizare la copia de archivos compartidos? s/n $RESET"
-	read copy_shared
+	#echo -e "\t $OKBLUE Realizare la copia de archivos compartidos? s/n $RESET"
+	#read copy_shared
+	copy_shared="n"
 
 	if [ $copy_shared == 's' ]
     then
@@ -450,10 +455,14 @@ fi
 if [[ $TYPE == "completo"  || $tcp_scan == "s"   || $udp_scan == "s" ]] ; then 
 	echo -e "\t#### Creando reporte nmap ###"      
 	# clean tcp wrapped
-	cd reports
-	cat nmap-tcp2.txt | grep -v tcpwrapped > nmap-tcp.txt    
-	rm nmap-tcp2.txt
-	cd ..
+	
+	if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then 
+		cd reports
+		cat nmap-tcp2.txt | grep -v tcpwrapped > nmap-tcp.txt    
+		rm nmap-tcp2.txt
+		cd ..
+	fi
+	
 		
 	# replace IP with subdomain
 	#cat nmap-tcp.grep  | grep -v "Status: Up" >nmap-tcp.grep
@@ -552,17 +561,19 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
 	#Misc      
 	grep ' 6000/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:6000\n"' >> ../.services/x11.txt
 	grep ' 631/open' nmap-tcp.grep | awk '{print $2}'  | perl -ne '$_ =~ s/\n//g; print "$_:631\n"' >> ../.services/cups.txt
+	grep ' 9100/open' nmap-tcp.grep | awk '{print $2}'  | perl -ne '$_ =~ s/\n//g; print "$_:9100\n"' >> ../.services/printers.txt	
 	grep ' 2049/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:2049\n"' >> ../.services/nfs.txt
 	grep ' 5723/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5723\n"' >> ../.services/SystemCenter.txt
 	grep ' 5724/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5724\n"' >> ../.services/SystemCenter.txt
 	grep ' 1099/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1099\n"' >> ../.services/rmi.txt
+	cd ..
 fi
     
   
   
  ##################UDP#########
 if [[ $TYPE = "completo" ]] || [ $udp_scan == "s" ]; then 
-
+	cd .nmap
 	grep 53/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:53\n"' >> ../.services/dns.txt
 	grep 161/open/ nmap-udp.grep | awk '{print $2}'  >> ../.services/snmp.txt
 	grep 139/open/ nmap-udp.grep | awk '{print $2}'  >> ../.services/smb-139.txt
@@ -572,9 +583,9 @@ if [[ $TYPE = "completo" ]] || [ $udp_scan == "s" ]; then
 	grep 1434/open nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' >> ../.services/mssql.txt 
 	grep 1604/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1604\n"' >> ../.services/citrix.txt
 	grep 1900/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1900\n"' >> ../.services/upnp.txt
+	cd ../
 fi
         
-cd ../
 find .services -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
  ################################
   
@@ -1060,7 +1071,7 @@ if [ -f .services/snmp.txt ]
 then
 	echo -e "$OKBLUE\n\t#################### SNMP ######################$RESET"	    
 	echo  "scan (snmp - onesixtyone)"
-	onesixtyone -c /usr/share/lanscanner/community.txt -i .services/snmp.txt | grep -v "error" | grep --color=never "\[" | sed 's/ \[/~/g' |  sed 's/\] /~/g' > banners-snmp2.txt
+	onesixtyone -c /usr/share/lanscanner/community.txt -i .services/snmp.txt  | grep --color=never "\[" | sed 's/ \[/~/g' |  sed 's/\] /~/g' > banners-snmp2.txt
 
 	while read line; do
 		ip=`echo $line | cut -f1 -d"~"`
@@ -1073,13 +1084,9 @@ then
 			then														
 				echo  "scan $ip (snmp - $community )"
 				### snmp write ##
-				write_snmp=`grep write enumeration/* | grep $ip`
-				if [[ ${write_snmp} == ""  ]];then # Proceder solo si NO tenemos una community string de escritura
-					snmp-write.pl -t $ip -c $community > enumeration/$ip-161-$community.txt 2>/dev/null &
-				fi											
+				snmp-write.pl -t $ip -c $community > enumeration/$ip-161-$community.txt 2>/dev/null &										
 				
-				### snmp bruteforce ##
-				if [ ! -f enumeration/$ip-161-enumerate.txt ]; then
+				### snmp bruteforce ##				
 				
 					if [[ ${device} == *"windows"*  ]];then 
 						echo  "scan $ip (snmp - enumerate - windows)"
@@ -1092,11 +1099,15 @@ then
 					fi								
 			
 					if [[ (${device} == *"linux"* || ${device} == *"Linux"* ) && (${device} != *"linux host"* )]];then 
+						echo  "scan $ip (snmp - enumerate - Linux)"
 						snmpbrute.py -t $ip -c $community --linux --auto > enumeration/$ip-161-enumerate.txt 2>/dev/null &			
-					fi	
-				fi							
-				sleep 0.7				
-				break
+					fi										
+					
+					if [ ! -f enumeration/$ip-161-enumerate.txt ]; then
+						echo  "scan $ip (snmp - enumerate - generic)"
+						snmpbrute.py -t $ip -c $community --linux --auto > enumeration/$ip-161-enumerate.txt 2>/dev/null &			
+					fi
+					break
 			else
 				python_instances=`pgrep python | wc -l`
 				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($python_instances )"
@@ -1105,7 +1116,7 @@ then
 		done	# done true	
 		
 	done <banners-snmp2.txt
-	rm banners-snmp2.txt
+	#rm banners-snmp2.txt
 	##################################
 fi
 
@@ -1154,12 +1165,23 @@ if [ -f .services/smtp.txt ]
 	fi
 
 
-if [[ ( -f .services/web.txt && ${FILE} = NULL ) || ( ${OFFSEC} == "1" && -f .services/web.txt )]];then 
+if [ -f .services/web.txt ]
+then
+      
 	echo -e "$OKBLUE\n\t#################### WEB ######################$RESET"	    		
 
 	for line in $(cat .services/web.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`	
+		port=`echo $line | cut -f2 -d":"`			
+		
+			
+		echo -e "\t[+] whatweb $ip:$port"	
+		whatweb --quiet --user-agent "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; Trident/5.0)" $ip:$port --log-brief enumeration/$ip-$port-whatweb.txt 2>/dev/null  ;
+		
+		echo -e "\t[+] Getting Title $ip:$port"	
+		curl -sL $ip:$port | grep '<title>' > enumeration/$ip-$port-title.txt 2>/dev/null  ;
+		
+		if [ $OFFSEC = "1" ] ; then	
 		
 		while true; do
 			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
@@ -1174,11 +1196,7 @@ if [[ ( -f .services/web.txt && ${FILE} = NULL ) || ( ${OFFSEC} == "1" && -f .se
 				web-buster.pl -s $ip -p $port -t 33 -a / -m backup -q 1 | grep http > enumeration/$ip-$port-webbackup.txt  &				
 		
 				echo -e "\t[+] nikto ..  $ip:$port"
-				nikto -host http://$ip:$port > enumeration/$ip-$port-nikto.txt  2>/dev/null &					
-
-				echo -e "\t[+] whatweb $ip:$port"	
-				
-				whatweb --quiet --user-agent "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; Trident/5.0)" $ip:$port --log-brief enumeration/$ip-$port-whatweb.txt 2>/dev/null 
+				nikto -host http://$ip:$port > enumeration/$ip-$port-nikto.txt  2>/dev/null &												
 	
 
 				#######  if the server is IIS ######
@@ -1213,9 +1231,10 @@ if [[ ( -f .services/web.txt && ${FILE} = NULL ) || ( ${OFFSEC} == "1" && -f .se
 				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($ruby_instances )"
 				sleep 3
 			fi
-		done	# done true												
+		done	# done true		
+	  fi # if scan web servers
 	done    #done file
-fi
+fi # file exists
 
 
 
@@ -1226,7 +1245,13 @@ then
 
 	for line in $(cat .services/web-ssl.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`	
+		port=`echo $line | cut -f2 -d":"`
+		
+		
+		echo -e "\t[+] Getting Title $ip:$port"	
+		curl --insecure -sL https://$ip:$port | grep '<title>' > enumeration/$ip-$port-title.txt 2>/dev/null  ;
+				
+			
 		
 		while true; do
 			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
