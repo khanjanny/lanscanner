@@ -118,7 +118,7 @@ echo -e "#####################################" | tee -a reports/info.txt
   
 echo -e "\t $OKBLUE Escanear los 65535 puertos? s/n? $RESET"
 read allports
-
+  
 # Using ip list    
   if [ $FILE != NULL ] ; then
     echo -e "\t "
@@ -165,6 +165,7 @@ read allports
 	  
   echo -e "\t $OKBLUE Realizar escaneo ICMP (ping) en busca de mas hosts vivos ? (Mas lento aun ...) s/n $RESET"	  
   read pingscan	 
+  
       
     if [ $flat == 's' ]
     then    	
@@ -400,7 +401,9 @@ if [ $TYPE = "parcial" ] ; then
 	echo -e "$OKBLUE\n\t#################### Escaneo de puertos ######################$RESET"	 
     echo "	## Realizando escaneo udp en segundo plano ##"
        
-	nmap -sU -sV -p 53,67,69,161,137,139,500,2049,5060,1434,1604,1900  -sT -iL $live_hosts -oG .nmap/nmap-udp.grep > reports/nmap-udp.txt 2>/dev/null &
+		
+	nmap -sU -sV -p 53,161,500  -iL $live_hosts -oG .nmap/nmap-udp.grep > reports/nmap-udp.txt 2>/dev/null 
+	
 	echo ""			
  fi	  
    
@@ -425,7 +428,10 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
         done                
      else   
      	echo "	## Realizando escaneo tcp en segundo plano (solo 1000 puertos) ##"  
-        nmap -n -Pn -iL $live_hosts -sV -O -oG .nmap/nmap-tcp.grep > reports/nmap-tcp2.txt 2>/dev/null  &             	
+     	
+     	nmap -n -Pn -iL $live_hosts -sV -O -oG .nmap/nmap-tcp.grep > reports/nmap-tcp2.txt 2>/dev/null       	
+    
+        
      fi		
  fi 
 #################################################  
@@ -484,7 +490,8 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
 	cd .nmap	
 					
 	find . -name "*.grep" | xargs -n 20 egrep -oi '[[:digit:]]{2,5}/open/tcp//http-proxy//[[:alpha:]]{2,5}' 2>/dev/null | sed 's/-tcp.grep//g' | cut -d "/" -f2 > ../.services/proxy-http.txt
-	find . -name "*.grep" | xargs -n 20 egrep -oi '[[:digit:]]{2,5}/open/tcp//rtsp//[[:alpha:]]{2,5}' 2>/dev/null | sed 's/-tcp.grep//g' | cut -d "/" -f2 >../.services/ip-cameras.txt
+	#find . -name "*.grep" | xargs -n 20 egrep -oi '[[:digit:]]{2,5}/open/tcp//rtsp//[[:alpha:]]{2,5}' 2>/dev/null | sed 's/-tcp.grep//g' | cut -d "/" -f2 >../.services/ip-cameras.txt
+	grep '/rtsp/' nmap-tcp.grep | grep --color=never -o -P '(?<=Host: ).*(?=\(\))'>../.services/ip-cameras.txt
 	
 	
 	#web
@@ -612,6 +619,7 @@ then
 				
 				echo -e "\n\t### $ip (port 445)"
 				#nmap -Pn -p445 --script smb-security-mode,smbv2-enabled $ip > enumeration/$ip-smb-445.txt 2>/dev/null
+				nmap -n -Pn -p445 --script smb-vuln-ms08-067,smb-vuln-ms17-010 $ip | grep "|" > vulnerabilities/$ip-445-nmap.txt 2>/dev/null &					
 				if [ $vuln == "s" ] ; then	
 					nmap -n -Pn -p445 --script smb-vuln-ms10-061,smb-vuln-ms10-054,smb-vuln-ms08-067,smb-vuln-ms07-029,smb-vuln-ms06-025,smb-vuln-ms17-010 $ip | grep "|" > vulnerabilities/$ip-445-nmap.txt 2>/dev/null &					
 				fi					
@@ -1307,7 +1315,7 @@ while true; do
 done	# done true	
 
 find vulnerabilities -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
-find enumeration -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
+#find enumeration -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
 find reports -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
 insert-data.py
 
