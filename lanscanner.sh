@@ -39,7 +39,7 @@ EOF
 
 
 print_ascii_art
- 
+
 
 while getopts ":t:f:o:" OPTIONS
 do
@@ -73,7 +73,6 @@ read project
 
 mkdir $project
 cd $project
-pwd
 
 mkdir -p .arp
 mkdir -p .scans
@@ -86,6 +85,9 @@ mkdir -p .masscan
 mkdir -p reports
 mkdir -p .services
 mkdir -p .tmp
+mkdir -p logs/cracking
+mkdir -p logs/enumeration
+mkdir -p logs/vulnerabilities
 
 touch $smb_list 
 touch $mass_scan_list 
@@ -104,6 +106,7 @@ then
 fi
 
 my_route=`route -n | grep UG | awk '{print $2}'`
+date=`date`
 current_ip=`ifconfig $iface | grep netmask | awk '{print $2}'`
 current_subnet=`ifconfig $iface | grep -i mask | awk '{print $2}' | cut -d . -f 1-3`
 
@@ -113,6 +116,7 @@ echo -e "\t $OKRED IP actual: $my_ip $RESET" | tee -a reports/info.txt
 echo -e "\t $OKRED MAC actual: $my_mac $RESET" | tee -a reports/info.txt
 echo -e "\t $OKRED Gateway actual: $my_route $RESET" | tee -a reports/info.txt
 echo -e "\t $OKRED Subnet: $current_subnet.0/24 $RESET" | tee -a reports/info.txt
+echo -e "\t $OKRED Date: $date $RESET" | tee -a reports/info.txt
 echo -e "#####################################" | tee -a reports/info.txt
 
   
@@ -402,7 +406,7 @@ if [ $TYPE = "parcial" ] ; then
     echo "	## Realizando escaneo udp en segundo plano ##"
        
 		
-	nmap -sU -sV -p 53,161,500  -iL $live_hosts -oG .nmap/nmap-udp.grep > reports/nmap-udp.txt 2>/dev/null 
+	nmap -n -Pn -sU -p 53,161,500,1604  -iL $live_hosts -oG .nmap/nmap-udp.grep > reports/nmap-udp.txt 2>/dev/null 
 	
 	echo ""			
  fi	  
@@ -560,8 +564,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
 	grep ' 5901/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5901\n"' >> ../.services/vnc.txt
    
    	#Virtual
-	grep ' 902/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:902\n"' >> ../.services/vmware.txt
-	grep ' 912/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:912\n"' >> ../.services/vmware.txt
+	grep ' 902/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:902\n"' >> ../.services/vmware.txt	
 	grep ' 1494/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1494\n"' >> ../.services/citrix.txt    
 		  
 		
@@ -573,6 +576,14 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
 	grep ' 5723/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5723\n"' >> ../.services/SystemCenter.txt
 	grep ' 5724/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5724\n"' >> ../.services/SystemCenter.txt
 	grep ' 1099/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1099\n"' >> ../.services/rmi.txt
+	grep ' 1433/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' >> ../.services/mssql.txt 
+	
+	#Esp
+	grep ' 16992/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' >> ../.services/intel.txt 
+	grep -i "ZKSoftware" nmap-tcp.grep | awk '{print $2}' >> ../.services/ZKSoftware.txt
+	grep -i "MikroTik" nmap-tcp.grep | awk '{print $2}' >> ../.services/MikroTik.txt
+	grep -i windows ../reports/OS-report.txt | cut -d ";" -f 1 >> ../.services/Windows.txt
+	
 	cd ..
 fi
     
@@ -586,8 +597,7 @@ if [[ $TYPE = "completo" ]] || [ $udp_scan == "s" ]; then
 	grep 139/open/ nmap-udp.grep | awk '{print $2}'  >> ../.services/smb-139.txt
 	grep 137/open/ nmap-udp.grep | awk '{print $2}'  >> ../.services/smb-137.txt
 	grep 500/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:500\n"' >> ../.services/vpn.txt
-	grep 5060/open nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5060\n"' >> ../.services/sip.txt
-	grep 1434/open nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' >> ../.services/mssql.txt 
+	grep 5060/open nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5060\n"' >> ../.services/sip.txt	
 	grep 1604/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1604\n"' >> ../.services/citrix.txt
 	grep 1900/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1900\n"' >> ../.services/upnp.txt
 	cd ../
@@ -611,65 +621,25 @@ echo -e "$OKBLUE\n\t#################### SMB ######################$RESET"
 if [ -f .services/smb-445.txt ]
 then  
 	for ip in $(cat .services/smb-445.txt); do		
-	
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then
-				
-				echo -e "\n\t### $ip (port 445)"
-				#nmap -Pn -p445 --script smb-security-mode,smbv2-enabled $ip > enumeration/$ip-smb-445.txt 2>/dev/null
-				nmap -n -Pn -p445 --script smb-vuln-ms08-067,smb-vuln-ms17-010 $ip | grep "|" > vulnerabilities/$ip-445-nmap.txt 2>/dev/null &					
-				if [ $vuln == "s" ] ; then	
-					nmap -n -Pn -p445 --script smb-vuln-ms10-061,smb-vuln-ms10-054,smb-vuln-ms08-067,smb-vuln-ms07-029,smb-vuln-ms06-025,smb-vuln-ms17-010 $ip | grep "|" > vulnerabilities/$ip-445-nmap.txt 2>/dev/null &					
-				fi					
-				
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true						
+						
+		echo -e "\n\t### $ip (port 445)"				
+		nmap -n -Pn -p445 --script smb-vuln-ms08-067,smb-vuln-ms17-010,smb-vuln-ms06-025 $ip > logs/vulnerabilities/$ip-445-nmap.txt 2>/dev/null
+		grep "|" logs/vulnerabilities/$ip-445-nmap.txt  > vulnerabilities/$ip-445-nmap.txt  
+		
+		if [ $vuln == "s" ] ; then	
+			nmap -n -Pn -p445 --script smb-vuln-ms10-061,smb-vuln-ms10-054,smb-vuln-ms07-029 $ip | grep "|" > vulnerabilities/$ip-445-nmap.txt 2>/dev/null &					
+		fi							
 	done
 fi
-
-#if [ -f .services/smb-139.txt ]
-#then
-	#for ip in $(cat .services/smb-139.txt); do
-		#mkdir -p enumeration/$ip
-		#echo -e "\n\t### $ip (port 139)"
-		#nmap -sU -sS  -p U:137,T:139 $ip --script smbv2-enabled $safe > enumeration/$ip/smb-139.txt 2>/dev/null
-		#if [ $vuln == "s" ]; then 
-			#echo -e "\n\t### $ip (port 139) Revisando vulnerabilidades"
-			#nmap -n -Pn -sU -sS  -p U:137,T:139  --script smb-vuln-ms07-029 $ip | grep "|" > vulnerabilities/$ip-139.txt 2>/dev/null
-		#fi				
-	#done
-#fi
 
 
 if [ -f .services/smb-137.txt ]
 then
 	for ip in $(cat .services/smb-137.txt); do		
 		
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then
-				
-				echo -e "\n\t### $ip (port 137) Revisando vulnerabilidades"
-				if [ $vuln == "s" ] ; then	
-					nmap -n -Pn -sU -p U:137 $ip --script smb-vuln-ms08-067 | grep "|" > vulnerabilities/$ip-137-nmap.txt 2>/dev/null	&
-				fi
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true	
+		nmap -n -Pn -sU -p U:137 --script smb-vuln-ms08-067 $ip > logs/vulnerabilities/$ip-137-nmap.txt 2>/dev/null
+		grep "|" logs/vulnerabilities/$ip-137-nmap.txt > vulnerabilities/$ip-137-nmap.txt 	
+		
 	done
 fi
 
@@ -682,22 +652,8 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`						
 		
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then
-				
-				echo -e "\n\t### $ip"
-				nmap -n -Pn -sV -p 554 --script=rtsp-url-brute $ip | grep "|"  > enumeration/$ip-554-openstreaming.txt 2>/dev/null &
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true	
-		
+		nmap -n -Pn -sV -p 554 --script=rtsp-url-brute $ip > logs/vulnerabilities/$ip-554-openstreaming.txt 2>/dev/null 
+		grep "|" logs/vulnerabilities/$ip-554-openstreaming.txt > enumeration/$ip-554-openstreaming.txt 		
 	done		
 fi
 
@@ -712,10 +668,10 @@ then
 		echo  "scan $ip (mysql)"
 	
 		# user=root password=''
-		mysql -uroot -h $ip -e 'select * from mysql.user;' > vulnerabilities/$ip-mysql-hashes1.txt 2>/dev/null &
+		mysql -uroot -h $ip -e 'select * from mysql.user;' > vulnerabilities/$ip-mysql-nopass.txt 2>/dev/null &
 	
 		# user=root password=root	
-		mysql -uroot -h $ip -proot -e 'select * from mysql.user;' > vulnerabilities/$ip-mysql-hashes2.txt  2>/dev/null &
+		mysql -uroot -h $ip -proot -e 'select * from mysql.user;' > vulnerabilities/$ip-mysql-password.txt  2>/dev/null &
 			
 		#nmap -sV -Pn -p $port $ip --script mysql-info > enumeration/$ip-mysql.txt 2>/dev/null &
 		#nmap -sV -Pn -p $port $ip --script=mysql-vuln-cve2012-2122 | grep "|" > enumeration/$ip-mysql-vuln.txt 2>/dev/null
@@ -731,20 +687,8 @@ then
 		port=`echo $line | cut -f2 -d":"`		
 		
 		
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then						
-				echo -e "\n\t\t### $ip"				
-				nmap -sV -Pn -p $port $ip --script=mongodb-databases,mongodb-info | grep "|" > enumeration/$ip-monogodb.txt 2>/dev/null &
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true	
+		nmap -n -sV -Pn -p $port --script=mongodb-databases,mongodb-info $ip  > logs/enumeration/$ip-monogodb.txt 2>/dev/null 
+		grep "|" logs/enumeration/$ip-monogodb.txt > enumeration/$ip-monogodb.txt 
 			
 		
 	done
@@ -758,20 +702,8 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
 		
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then						
-				echo -e "\n\t\t### $ip"
-				nmap -sV -Pn -p $port $ip --script=couchdb-databases,couchdb-stats | grep "|" > enumeration/$ip-couchdb.txt 2>/dev/null &
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true	
+		nmap -n -sV -Pn -p $port --script=couchdb-databases,couchdb-stats $ip > logs/enumeration/$ip-couchdb.txt 2>/dev/null
+		grep "|" logs/enumeration/$ip-couchdb.txt > enumeration/$ip-couchdb.txt 
 	done	
 fi
 
@@ -783,22 +715,10 @@ then
 	for line in $(cat .services/x11.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
+				
+		nmap -n -Pn $ip --script=x11-access.nse > logs/enumeration/$ip-x11.txt 2>/dev/null 
+		grep "|" logs/enumeration/$ip-x11.txt > enumeration/$ip-x11.txt 
 		
-		
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then						
-	
-				echo  "scan $ip"				
-				nmap -Pn $ip --script=x11-access.nse | grep "|" > enumeration/$ip-x11.txt 2>/dev/null &
-				break
-			else
-				python_instances=`pgrep python | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($python_instances )"
-				sleep 5
-			fi
-		done	# done true					
 	done	
 fi
 
@@ -808,23 +728,9 @@ then
 	for line in $(cat .services/rpc.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`	
-		
-		
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then						
-				echo -e "\n\t\t### $ip"				
-				nmap -Pn -p $port $ip --script=nfs-ls.nse,rpcinfo | grep "|" > enumeration/$ip-rpc.txt 2>/dev/null &
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true	
-			
+				
+		nmap -n -Pn -p $port $ip --script=nfs-ls.nse,rpcinfo > logs/enumeration/$ip-rpc.txt 2>/dev/null 
+		grep "|" logs/enumeration/$ip-rpc.txt > enumeration/$ip-rpc.txt 
 		
 	done	
 fi
@@ -838,74 +744,20 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
 		
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then						
-				echo -e "\n\t\t### $ip"								
-				nmap -sU -p $port $ip --script=upnp-info, broadcast-upnp-info > enumeration/$ip/upnp.txt 2>/dev/null &
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true	
+		nmap -n -Pn -sU -p $port $ip --script=upnp-info, broadcast-upnp-info > enumeration/$ip/upnp.txt 2>/dev/null &
 			
 	done
 fi
 
-
-
-
-if [ -f .services/citrix.txt ]
-then
-	echo -e "$OKBLUE\n\t#################### Citrix ######################$RESET"	    
-	for line in $(cat .services/citrix.txt); do
-		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`		
-			
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then						
-				echo -e "\n\t### $ip"
-				nmap -p -sU $port --script citrix-enum-servers,citrix-enum-apps.nse $ip | grep "|" > enumeration/$ip-citrix.txt 2>/dev/null &
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true	
-		
-		
-	done
-fi
 
 if [ -f .services/redis.txt ]
 then	
 	echo -e "$OKBLUE\n\t#################### Redis ######################$RESET"	    
 	for line in $(cat .services/redis.txt); do
 		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`		
-		
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then						
-				echo -e "\n\t### $ip"
-				nmap -p $port $ip --script redis-info | grep "|" > enumeration/$ip-redis.txt 2>/dev/null
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true					
+		port=`echo $line | cut -f2 -d":"`				
+		nmap -n -Pn -p $port $ip --script redis-info > logs/enumeration/$ip-redis.txt 2>/dev/null
+		grep "|" logs/enumeration/$ip-redis.txt  > enumeration/$ip-redis.txt						
 	done
 fi
 
@@ -916,21 +768,8 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
 		
-			
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then						
-				echo -e "\n\t### $ip"
-				nmap -p $port $ip --script rmi-vuln-classloader | grep "|"  > enumeration/$ip/rmi-vuln.txt 2>/dev/null &
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true										
+		nmap -n -Pn -p $port $ip --script rmi-vuln-classloader > logs/vulnerabilities/$ip/rmi-vuln.txt 2>/dev/null
+		grep "|" logs/vulnerabilities/$ip/rmi-vuln.txt  > vulnerabilities/$ip/rmi-vuln.txt
 		
 	done
 fi
@@ -966,6 +805,7 @@ then
 		echo  "scan $ip (telnet - banner)"
 		nc -w 3 $ip 23 <<<"print_debug" > enumeration/$ip-23-banner.txt 2>/dev/null
 		sed -i -e "1d" enumeration/$ip-23-banner.txt 2>/dev/null																
+		cp enumeration/$ip-23-banner.txt logs/enumeration/$ip-23-banner.txt
 	done <.services/telnet.txt
 fi
 
@@ -994,6 +834,7 @@ then
 		ike=`ike-scan -M $ip`
 		if [[ $ike == *"HDR"* ]]; then
 			echo $ike > enumeration/$ip-500-transforms.txt
+			cp enumeration/$ip-500-transforms.txt logs/enumeration/$ip-500-transforms.txt
 			ike-scan -A -M --pskcrack=enumeration/$ip-500-handshake.txt $ip 2>/dev/null &
 		fi	
 		
@@ -1019,30 +860,18 @@ fi
 
 
 # enumerate MS-SQL
-if [ -f .services/ms-sql.txt ]
+if [ -f .services/mssql.txt ]
 then
 	echo -e "$OKBLUE\n\t#################### MS-SQL ######################$RESET"	    
 	while read line           
 	do   	
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`	
-		
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then						
-				echo  "scan $ip (MS-SQL)"				
-				nmap -sU -n -Pn -sV -p 1434 --host-timeout 10s --script ms-sql-info $ip | grep "|" > enumeration/$ip-1434-info.txt &
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true	
+		echo -e "\n\t### $ip ($port)"	
+		nmap -sU -n -Pn -sV -p 1434 --host-timeout 10s --script ms-sql-info $ip > logs/enumeration/$ip-1434-info.txt  2>/dev/null
+		grep "|" logs/enumeration/$ip-1434-info.txt  > enumeration/$ip-1434-info.txt 
 					
-	done <.services/ms-sql.txt
+	done <.services/mssql.txt
 fi
 		
 
@@ -1054,24 +883,60 @@ then
 	do     				
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
-		
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then						
-				echo  "scan $ip (ldaps)"
-				nmap -n -Pn -p 636 --script ldap-rootdse $ip | grep -i namingContexts > enumeration/$ip-636-open.txt &
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true	
-									
-				  
+		echo -e "\n\t### $ip ($port)"	
+		nmap -n -Pn -p 636 --script ldap-rootdse $ip > logs/enumeration/$ip-636-open.txt 2>/dev/null
+		grep -i namingContexts logs/enumeration/$ip-636-open.txt > enumeration/$ip-636-open.txt 
+													 
 	done <.services/ldaps.txt
+fi
+
+#VMWARE
+if [ -f .services/vmware.txt ]
+then
+	echo -e "$OKBLUE\n\t#################### vmware ######################$RESET"	    
+	while read line       
+	do     				
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"`
+		echo -e "\n\t### $ip ($port)"	
+		nmap -n -Pn --script vmware-version -p443 $ip > logs/enumeration/$ip-vmware-version.txt 2>/dev/null
+		grep "|" logs/enumeration/$ip-vmware-version.txt > enumeration/$ip-vmware-version.txt 
+													 
+	done <.services/vmware.txt
+fi
+
+
+#CITRIX
+if [ -f .services/citrix.txt ]
+then
+	echo -e "$OKBLUE\n\t#################### citrix ######################$RESET"	    
+	while read line       
+	do     				
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"`
+		echo -e "\n\t### $ip ($port)"	
+		nmap -n -Pn -sU --script=citrix-enum-apps -p 1604 $ip > logs/enumeration/$ip-citrix-app.txt 2>/dev/null
+		nmap -n -Pn -sU --script=citrix-enum-servers -p 1604  $ip > logs/enumeration/$ip-citrix-servers.txt 2>/dev/null
+		
+		grep "|" logs/enumeration/$ip-citrix-app.txt > enumeration/$ip-citrix-app.txt 
+		grep "|" logs/enumeration/$ip-citrix-servers.txt > enumeration/$ip-citrix-servers.txt 
+													 
+	done <.services/citrix.txt
+fi
+
+#INTEL
+if [ -f .services/intel.txt ]
+then
+	echo -e "$OKBLUE\n\t#################### intel ######################$RESET"	    
+	while read line       
+	do     				
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"`
+		echo -e "\n\t### $ip ($port)"	
+		nmap -n -Pn -p 16992 --script http-vuln-cve2017-5689 $ip > logs/vulnerabilities/$ip-intel-bypass.txt 2>/dev/null			
+		grep "|" logs/vulnerabilities/$ip-intel-bypass.txt > vulnerabilities/$ip-intel-bypass.txt
+													 
+	done <.services/intel.txt
 fi
 
 
@@ -1086,42 +951,32 @@ then
 		community=`echo $line | cut -f2 -d"~"`
 		device=`echo $line | cut -f3 -d"~"`
 		
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then														
-				echo  "scan $ip (snmp - $community )"
-				### snmp write ##
-				snmp-write.pl -t $ip -c $community > enumeration/$ip-161-$community.txt 2>/dev/null &										
+		echo  "scan $ip (snmp - $community )"
+		### snmp write ##
+		snmp-write.pl -t $ip -c $community > enumeration/$ip-161-$community.txt 2>/dev/null &										
 				
-				### snmp bruteforce ##				
-				
-					if [[ ${device} == *"windows"*  ]];then 
-						echo  "scan $ip (snmp - enumerate - windows)"
-						snmpbrute.py -t $ip -c $community --windows --auto > enumeration/$ip-161-enumerate.txt 2>/dev/null &
-					fi	
-					
-					if [[ ${device} == *"SunOS"* || ${device} == *"SonicWALL"* || ${device} == *"SofaWare"* || ${device} == *"SRP521W"* || ${device} == *"RouterOS"* || ${device} == *"Cisco"* || ${device} == *"juniper"* ]];then 
-						echo  "scan $ip (snmp - enumerate - router)"
-						snmpbrute.py -t $ip -c $community --cisco --auto > enumeration/$ip-161-enumerate.txt 2>/dev/null &
-					fi								
+		### snmp bruteforce ##				
+		
+		if [[ ${device} == *"windows"*  ]];then 
+			echo  "scan $ip (snmp - enumerate - windows)"
+			snmpbrute.py -t $ip -c $community --windows --auto > enumeration/$ip-161-enumerate.txt 2>/dev/null 
+		fi	
+		
+		if [[ ${device} == *"SunOS"* || ${device} == *"SonicWALL"* || ${device} == *"SofaWare"* || ${device} == *"SRP521W"* || ${device} == *"RouterOS"* || ${device} == *"Cisco"* || ${device} == *"juniper"* ]];then 
+			echo  "scan $ip (snmp - enumerate - router)"
+			snmpbrute.py -t $ip -c $community --cisco --auto > enumeration/$ip-161-enumerate.txt 2>/dev/null 
+		fi								
 			
-					if [[ (${device} == *"linux"* || ${device} == *"Linux"* ) && (${device} != *"linux host"* )]];then 
-						echo  "scan $ip (snmp - enumerate - Linux)"
-						snmpbrute.py -t $ip -c $community --linux --auto > enumeration/$ip-161-enumerate.txt 2>/dev/null &			
-					fi										
+		if [[ (${device} == *"linux"* || ${device} == *"Linux"* ) && (${device} != *"linux host"* )]];then 
+			echo  "scan $ip (snmp - enumerate - Linux)"
+			snmpbrute.py -t $ip -c $community --linux --auto > enumeration/$ip-161-enumerate.txt 2>/dev/null 
+		fi										
 					
-					if [ ! -f enumeration/$ip-161-enumerate.txt ]; then
-						echo  "scan $ip (snmp - enumerate - generic)"
-						snmpbrute.py -t $ip -c $community --linux --auto > enumeration/$ip-161-enumerate.txt 2>/dev/null &			
-					fi
-					break
-			else
-				python_instances=`pgrep python | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($python_instances )"
-				sleep 3
-			fi
-		done	# done true	
+		if [ ! -f enumeration/$ip-161-enumerate.txt ]; then
+			echo  "scan $ip (snmp - enumerate - generic)"
+			snmpbrute.py -t $ip -c $community --linux --auto > enumeration/$ip-161-enumerate.txt 2>/dev/null 
+		fi
+		cp enumeration/$ip-161-enumerate.txt logs/enumeration/$ip-161-enumerate.txt
 		
 	done <banners-snmp2.txt
 	#rm banners-snmp2.txt
@@ -1137,20 +992,8 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"` 	
 		
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then						
-				echo  "scan $ip (ldap)"
-				nmap -n -Pn -p 389 --script ldap-rootdse $ip | grep -i namingContexts  > enumeration/$ip-389-open.txt &
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true	
+		nmap -n -Pn -p 389 --script ldap-rootdse $ip > logs/enumeration/$ip-389-open.txt 
+		grep -i namingContexts logs/enumeration/$ip-389-open.txt  > enumeration/$ip-389-open.txt 
 		
 	done <.services/ldap.txt
 fi	
@@ -1187,7 +1030,25 @@ then
 		whatweb --quiet --user-agent "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; Trident/5.0)" $ip:$port --log-brief enumeration/$ip-$port-whatweb.txt 2>/dev/null  ;
 		
 		echo -e "\t[+] Getting Title $ip:$port"	
-		curl -sL $ip:$port | grep '<title>' > enumeration/$ip-$port-title.txt 2>/dev/null  ;
+		webTitle.pl -t $ip -p $port > enumeration/$ip-$port-title.txt 2>/dev/null  ;
+		
+		#######  if the server is apache ######
+		grep -i apache enumeration/$ip-$port-whatweb.txt
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then			
+			
+			echo -e "\n\t### $ip:$port (Revisando vulnerabilidades apache)"
+			nmap -n -Pn -p $port $ip --script=http-vuln-cve2017-5638 > logs/vulnerabilities/$ip-$port-Struts.txt 2>/dev/null  					
+			grep "|" logs/vulnerabilities/$ip-$port-Struts.txt > vulnerabilities/$ip-$port-Struts.txt 2>/dev/null 	
+			
+			if [ $OFFSEC != "1" ] ; then	
+				echo -e "\n\t### $ip:$port (Revisando si apache tiene slowloris)"
+				nmap -n -sV -Pn -p $port --script=http-slowloris-check   $ip > logs/vulnerabilities/$ip-$port-slowloris.txt 2>/dev/null 
+				grep "|" logs/vulnerabilities/$ip-$port-slowloris.txt > vulnerabilities/$ip-$port-slowloris.txt 2>/dev/null 	
+			fi
+		fi						
+		####################################	
+				
 		
 		if [ $OFFSEC = "1" ] ; then	
 		
@@ -1203,8 +1064,8 @@ then
 				web-buster.pl -s $ip -p $port -t 33 -a / -m cgi  -q 1| grep http > enumeration/$ip-$port-webcgi.txt  &
 				web-buster.pl -s $ip -p $port -t 33 -a / -m backup -q 1 | grep http > enumeration/$ip-$port-webbackup.txt  &				
 		
-				echo -e "\t[+] nikto ..  $ip:$port"
-				nikto -host http://$ip:$port > enumeration/$ip-$port-nikto.txt  2>/dev/null &												
+				#echo -e "\t[+] nikto ..  $ip:$port"
+				#nikto -host http://$ip:$port > enumeration/$ip-$port-nikto.txt  2>/dev/null &												
 	
 
 				#######  if the server is IIS ######
@@ -1217,22 +1078,7 @@ then
 					#	nmap -sV -Pn -p $port $ip --script=http-iis-webdav-vuln,http-vuln-cve2015-1635 | grep "|"  > enumeration/$ip/http-iis-vuln-$port.txt 2>/dev/null
 				
 				#fi						
-				####################################
-		
-		
-				#######  if the server is apache ######
-				grep -i apache enumeration/$ip-$port-whatweb.txt
-				greprc=$?
-				if [[ $greprc -eq 0 ]] ; then
-					#echo -e "\n\t### $ip:$port (Enumerando Apache)"
-					#nmap -n -sV -Pn -p $port $ip --script=http-php-version,http-mobileversion-checker,http-robtex-reverse-ip > enumeration/$ip/http-apache-$port.txt 2>/dev/null  					
-					echo -e "\n\t### $ip:$port (Revisando vulnerabilidades apache)"
-					#nmap -n -sV -Pn -p $port $ip --script=http-vuln-cve2011-3368,http-vuln-cve2012-1823,http-slowloris-check  | grep "|" > enumeration/$ip-$port-vuln.txt 2>/dev/null &
-					nmap -n -sV -Pn -p $port $ip --script=http-slowloris-check  | grep "|" > vulnerabilities/$ip-$port-nmap.txt 2>/dev/null &
-						
-				fi						
-				####################################				
-				
+				####################################												
 				break
 			else
 				ruby_instances=`pgrep ruby | wc -l`
@@ -1257,8 +1103,7 @@ then
 		
 		
 		echo -e "\t[+] Getting Title $ip:$port"	
-		curl --insecure -sL https://$ip:$port | grep '<title>' > enumeration/$ip-$port-title.txt 2>/dev/null  ;
-				
+		webTitle.pl -t $ip -p $port > enumeration/$ip-$port-title.txt 2>/dev/null  ;
 			
 		
 		while true; do
@@ -1315,7 +1160,7 @@ while true; do
 done	# done true	
 
 find vulnerabilities -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
-#find enumeration -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
+find enumeration -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
 find reports -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
 insert-data.py
 
