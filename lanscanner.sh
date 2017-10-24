@@ -19,8 +19,9 @@ smb_list=".scans/smb-list.txt"
 mass_scan_list=".scans/mass-scan-list.txt"
 live_hosts=".data/all-live_hosts.txt"
 ping_list=".scans/ping-list.txt"
-allports="no"
-
+port_scan_num="n"
+vuln="n"
+rdp="n"
 
 function print_ascii_art {
 cat << "EOF"
@@ -59,12 +60,15 @@ OFFSEC=${OFFSEC:=NULL}
 if [ $TYPE = NULL ] ; then
 
 echo "|              														 			"
-echo "| USO: lanscanner.sh -t [completo/parcial]    "
+echo "| USO: lanscanner.sh -t [completo/parcial/enumerate]    "
 echo "|																		 			"
 echo ""
 exit
 fi
 ######################
+
+if [[ $TYPE == "completo" ]] || [ $TYPE == "parcial" ]; then
+
 
 echo -e "\n\n$OKRED ############################### Configurando los parametros ##################################### $RESET"
 
@@ -112,16 +116,14 @@ current_subnet=`ifconfig $iface | grep -i mask | awk '{print $2}' | cut -d . -f 
 
 rm  reports/info.txt 2>/dev/null
 echo -e "#####################################" | tee -a reports/info.txt
-echo -e "\t $OKRED IP actual: $my_ip $RESET" | tee -a reports/info.txt
-echo -e "\t $OKRED MAC actual: $my_mac $RESET" | tee -a reports/info.txt
-echo -e "\t $OKRED Gateway actual: $my_route $RESET" | tee -a reports/info.txt
+echo -e "\t $OKRED IP Origen: $my_ip $RESET" | tee -a reports/info.txt
+echo -e "\t $OKRED MAC : $my_mac $RESET" | tee -a reports/info.txt
+echo -e "\t $OKRED Gateway: $my_route $RESET" | tee -a reports/info.txt
 echo -e "\t $OKRED Subnet: $current_subnet.0/24 $RESET" | tee -a reports/info.txt
 echo -e "\t $OKRED Date: $date $RESET" | tee -a reports/info.txt
 echo -e "#####################################" | tee -a reports/info.txt
 
   
-echo -e "\t $OKBLUE Escanear los 65535 puertos? s/n? $RESET"
-read allports
   
 # Using ip list    
   if [ $FILE != NULL ] ; then
@@ -149,7 +151,14 @@ read allports
   echo -e "\n$OKRED [+] FASE 1: DESCUBRIR HOST VIVOS $RESET"
 
   echo -e "$OKGREEN\t ++ Obteniendo host vivos locales  $RESET"
-  arp-scan $iface $current_ip/24 $num_nets_enum | tee -a .arp/$current_subnet.0.arp 2>/dev/null
+  arp-scan $iface $current_ip/24 $num_nets_enum | tee -a .arp/$current_subnet.0.arp2 2>/dev/null
+  sleep 2
+  arp-scan $iface $current_ip/24 $num_nets_enum | tee -a .arp/$current_subnet.0.arp2 2>/dev/null
+  sleep 2
+  arp-scan $iface $current_ip/24 $num_nets_enum | tee -a .arp/$current_subnet.0.arp2 2>/dev/null
+  
+  sort .arp/$current_subnet.0.arp2 | uniq > .arp/$current_subnet.0.arp
+  rm .arp/$current_subnet.0.arp2
   echo -e "\t \n"
   
   echo -e "\t$OKBLUE Definir el numero de redes a escanear en busca de hosts vivos $RESET"    
@@ -164,32 +173,33 @@ read allports
   echo -e "\t $OKBLUE Que redes escanear ? $RESET"
   read num_nets_enum     
   
-  echo -e "\t $OKBLUE Realizar escaneo de puertos 22,80,443 en busca de mas hosts vivos ? s/n $RESET"	  
-  read webport	  
-	  
-  echo -e "\t $OKBLUE Realizar escaneo ICMP (ping) en busca de mas hosts vivos ? (Mas lento aun ...) s/n $RESET"	  
-  read pingscan	 
   
-      
-    if [ $flat == 's' ]
-    then    	
-	  	  	 	           
-       echo -e "\t $OKBLUE ##### Realizando escaneo ARP en busca de mas hosts vivos ##### $RESET "       
-       arp-scan.py $netA $netB $netC $iface .arp/allnets.txt $num_nets_enum
+if [ $flat == 'n' ]
+  then    	
+	  	  
+	echo -e "\t $OKBLUE Realizar escaneo de puertos 22,80,443 en busca de mas hosts vivos ? s/n $RESET"	  
+	read webport	  
+	  
+	echo -e "\t $OKBLUE Realizar escaneo ICMP (ping) en busca de mas hosts vivos ? (Mas lento aun ...) s/n $RESET"	  
+	read pingscan	 
 
-	   #getting live host
-	   echo -e  "$OKGREEN Con el escaneo ARP encontramos estos hosts vivos: $RESET" 
-       while IFS='' read -r network || [[ -n "$network" ]]; do
-  	    ip="${network/\/24/}"
-	    echo $network
-	    arp-scan $iface $network > .arp/$ip.arp 2>/dev/null	
-       done < .arp/allnets.txt	 
+else   	  	  	 	           
+     echo -e "\t $OKBLUE ##### Realizando escaneo ARP en busca de mas hosts vivos ##### $RESET "       
+     arp-scan.py $netA $netB $netC $iface .arp/allnets.txt $num_nets_enum
+
+	 #getting live host
+	 echo -e  "$OKGREEN Con el escaneo ARP encontramos estos hosts vivos: $RESET" 
+     while IFS='' read -r network || [[ -n "$network" ]]; do
+  	  ip="${network/\/24/}"
+	  echo $network
+	  arp-scan $iface $network > .arp/$ip.arp 2>/dev/null	
+     done < .arp/allnets.txt	 
        
-       #configurando de nuevo la IP       
-       echo -e "\t $OKBLUE Configurando $iface con la IP $my_ip y gateway $my_route $RESET"
-       ifconfig $iface $my_ip
-       route add default gw $my_route   	 
-	fi # flat
+     #configurando de nuevo la IP       
+     echo -e "\t $OKBLUE Configurando $iface con la IP $my_ip y gateway $my_route $RESET"
+     ifconfig $iface $my_ip
+     route add default gw $my_route   	 
+fi # flat
 	    	  	 
 	  	  	 	
 	  #################################   SMB    ###########################################
@@ -205,7 +215,7 @@ read allports
       
       
       
-      #################################   PORT 80,443,22  SCAN #########################################
+      #################################   PORT 23,80,443,22  SCAN #########################################
 	  
 	  if [ $webport == 's' ]
       then 
@@ -280,8 +290,6 @@ echo -e "$OKGREEN################################## Escaneando #################
 echo -e "\n\t $OKBLUE Realizar screenshot remoto de RDP?. Un poco lento s/n $RESET"
 read rdp
 
-echo -e "\n\t $OKBLUE Realizar escaneo de vulnerabilidades (Un IDS puede bloquearnos)? s/n $RESET"
-read vuln
     
  ########### searching VoIP devices ##########
 if [ $TYPE = "parcial" ] ; then 	
@@ -323,7 +331,10 @@ if [ $TYPE = "parcial" ] ; then
 		report-OS-domain.pl all-live_hosts.txt
 		
 		### users/groups ####
-		grep -ir "Local User" * > ../reports/users.txt
+		grep --color=never -ir "Local User" * > ../reports/users.txt
+		grep --color=never -ir "Account" * >> ../reports/users.txt
+		
+		
 		sed -i -e 's/.txt:/;/g' ../reports/users.txt
 		sed -i -e 's/ (Local User)//g' ../reports/users.txt
 		grep "Local Group" * > ../reports/groups.txt
@@ -374,9 +385,9 @@ if [ $TYPE = "parcial" ] ; then
     fi
 	
 	cd .shared/
-	scan_shared_docs.pl ../$smb_list 
+	scan_shared_docs.pl ../$live_hosts
 	
-	grep -i disk * | grep -v '\$|' | grep -v "\$ip =" > ../reports/shared_files.txt
+	grep --color=never -i disk * | grep -v '\$|' | grep -v "\$ip =" > ../reports/shared_files.txt
 	
 	if [ $copy_shared = "s" ] ; then
 	echo -e "\n	$OKBLUE Copiando recursos compartidos $RESET"	
@@ -401,9 +412,8 @@ if [ $TYPE = "parcial" ] ; then
   fi
   
 
- if [[ $TYPE = "completo" ]] || [ $udp_scan == "s" ]; then 
-	echo -e "$OKBLUE\n\t#################### Escaneo de puertos ######################$RESET"	 
-    echo "	## Realizando escaneo udp en segundo plano ##"
+ if [[ $TYPE = "completo" ]] || [ $udp_scan == "s" ]; then 	
+    echo -e "$OKBLUE\n\t#################### Escaneo de puertos UDP ######################$RESET"	  
        
 		
 	nmap -n -Pn -sU -p 53,161,500,1604  -iL $live_hosts -oG .nmap/nmap-udp.grep > reports/nmap-udp.txt 2>/dev/null 
@@ -412,9 +422,39 @@ if [ $TYPE = "parcial" ] ; then
  fi	  
    
 if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then 
-	echo -e "$OKBLUE\n\t#################### Escaneo de puertos ######################$RESET"	  
+	echo -e "$OKBLUE\n\t#################### Escaneo de puertos TCP ######################$RESET"	  
+	
+	echo -e "\t $OKBLUE Configurar escaneo de puertos TCP: $RESET"
+	echo -e "\t\t $OKGREEN Opcion 1: Solo puertos WEB (80,3306,etc): $RESET"
+	echo -e "\t\t $OKGREEN Opcion 2: Los 1000 puertos mas usados: $RESET"
+	echo -e "\t\t $OKGREEN Opcion 3: Los 65535 puertos: $RESET"
+	echo -e "\t $OKBLUE Escribe el numero de la opcion: $RESET"
+	
+	read port_scan_num
+	
+	if [ $port_scan_num == '1' ]        	    
+	then
+     	echo "	## Realizando escaneo de puertos especificos (Web, SSH, Telnet,SMB, etc) ##"  
+     	nmap -n -Pn -iL $live_hosts -p21,22,23,25,53,80,110,139,143,443,445,1433,1521,3306,3389 -oG .nmap/nmap-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null     	     	
+     fi	
+     
+     
+     if [ $port_scan_num == '2' ]   
+     then   	
+     	echo "	## Realizando escaneo de puertos especificos (informix, Web services) ##"  
+     	nmap -n -Pn -T2  -iL $live_hosts -p82,83,84,85,37777,5432,3306,1525,1530,1526,1433,8728,1521 -oG .nmap/nmap2-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null       	
+     	sleep 2;
+     	echo "	## Realizando escaneo tcp en (solo 1000 puertos) ##"       	
+     	nmap -n -Pn -iL $live_hosts -sV -oG .nmap/nmap1-tcp.grep > reports/nmap-tcp.txt 2>/dev/null       	
+     	
+     	
+     	cat .nmap/nmap1-tcp.grep .nmap/nmap2-tcp.grep > .nmap/nmap-tcp.grep
+     	rm .nmap/nmap1-tcp.grep .nmap/nmap2-tcp.grep           
+     fi	
+     
+     
 			
-	if [ $allports == 's' ]
+	if [ $port_scan_num == '3' ]
     then    			
 		for ip in $( cat $live_hosts  ); do        
 			echo "	[+] Escaneando todos los puertos de $ip con mass-scan (TCP)"   		
@@ -427,38 +467,16 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
 				echo "Sospechoso!!. Muchos puertos abiertos ($num_ports)"
 			else				
 				echo -e "	[+] Identificando servicios de $ip ($ports)"
-				nmap -n -Pn -sV -O -p $ports $ip -oG .scans/$ip-tcp.grep2 >> reports/nmap-tcp2.txt 2>/dev/null &						
+				nmap -n -Pn -sV -O -p $ports $ip -oG .scans/$ip-tcp.grep2 >> reports/nmap-tcp.txt 2>/dev/null &						
 			fi					                            			
-        done                
-     else   
-     	echo "	## Realizando escaneo tcp en segundo plano (solo 1000 puertos) ##"  
-     	
-     	nmap -n -Pn -iL $live_hosts -sV -O -oG .nmap/nmap-tcp.grep > reports/nmap-tcp2.txt 2>/dev/null       	
-    
+        done 
         
-     fi		
+        cat .scans/*.grep2 > .nmap/nmap-tcp.grep       
+                       
+     fi      
+     	
  fi 
-#################################################  
-  
-#### check nmap instances ###
- echo -e "$OKBLUE\n\t Finalizando escaneo $RESET"	  
- while true; do
-		nmap_instances=`pgrep nmap | wc -l`
-			if [ "$nmap_instances" -gt 0 ]
-		then
-			echo "Todavia hay escaneos de nmap activos ($nmap_instances)"  
-			sleep 20
-		else
-			break		  		 
-		fi				
-done
-
-if [ $allports == 's' ]
-then
-	cat .scans/*.grep2 > .nmap/nmap-tcp.grep       
-	sed -i 's/open\/tcp\/\/tcpwrapped/tcpwrapped/g' .nmap/nmap-tcp.grep 
-fi
-##################################################        
+    
     
     
 ########## making reports #######
@@ -466,12 +484,12 @@ if [[ $TYPE == "completo"  || $tcp_scan == "s"   || $udp_scan == "s" ]] ; then
 	echo -e "\t#### Creando reporte nmap ###"      
 	# clean tcp wrapped
 	
-	if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then 
-		cd reports
-		cat nmap-tcp2.txt | grep -v tcpwrapped > nmap-tcp.txt    
-		rm nmap-tcp2.txt
-		cd ..
-	fi
+	#if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then 
+	#	cd reports
+	#	cat nmap-tcp2.txt | grep -v tcpwrapped > nmap-tcp.txt    
+	#	rm nmap-tcp2.txt
+	#	cd ..
+	#fi
 	
 		
 	# replace IP with subdomain
@@ -493,15 +511,21 @@ fi
 if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then 
 	cd .nmap	
 					
-	find . -name "*.grep" | xargs -n 20 egrep -oi '[[:digit:]]{2,5}/open/tcp//http-proxy//[[:alpha:]]{2,5}' 2>/dev/null | sed 's/-tcp.grep//g' | cut -d "/" -f2 > ../.services/proxy-http.txt
-	#find . -name "*.grep" | xargs -n 20 egrep -oi '[[:digit:]]{2,5}/open/tcp//rtsp//[[:alpha:]]{2,5}' 2>/dev/null | sed 's/-tcp.grep//g' | cut -d "/" -f2 >../.services/ip-cameras.txt
 	grep '/rtsp/' nmap-tcp.grep | grep --color=never -o -P '(?<=Host: ).*(?=\(\))'>../.services/ip-cameras.txt
+	grep '/http-proxy/' nmap-tcp.grep | grep --color=never -o -P '(?<=Host: ).*(?=\(\))'>../.services/proxy-http.txt
 	
 	
 	#web
 	grep " 80/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:80\n"' > ../.services/web.txt	
 	grep " 81/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:81\n"' >> ../.services/web.txt	
 	grep " 82/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:82\n"' >> ../.services/web.txt	
+	grep " 83/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:83\n"' >> ../.services/web.txt	
+	grep " 84/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:84\n"' >> ../.services/web.txt	
+	grep " 85/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:85\n"' >> ../.services/web.txt	
+	grep " 86/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:86\n"' >> ../.services/web.txt	
+	grep " 87/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:87\n"' >> ../.services/web.txt	
+	grep " 88/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:88\n"' >> ../.services/web.txt	
+	grep " 89/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:89\n"' >> ../.services/web.txt	
 	grep " 8080/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8080\n"' >> ../.services/web.txt	
 	grep " 8081/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8081\n"' >> ../.services/web.txt	
 	grep " 8010/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8010\n"' >> ../.services/web.txt	
@@ -534,7 +558,11 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
   
   
 	### SMB 														   del newline       add port
-	grep ' 445/open' nmap-tcp.grep | awk '{print $2}' >> ../.services/smb-445.txt
+	grep ' 445/open' nmap-tcp.grep | awk '{print $2}' >> ../.services/smb2.txt
+	grep ' 139/open' nmap-tcp.grep | awk '{print $2}' >> ../.services/smb2.txt
+	sort ../.services/smb2.txt | uniq > ../.services/smb.txt
+	rm ../.services/smb2.txt
+	grep ' 139/open' nmap-tcp.grep | awk '{print $2}' >> ../.services/smb-139.txt
 			
 
     
@@ -542,9 +570,14 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
 	grep ' 8009/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8009\n"' >> ../.services/java.txt
 	grep ' 9001/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:9001\n"' >> ../.services/java.txt
 			# database ports 														   del newline       add port
-	grep ' 1521/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1521\n"' >> ../.services/oracle.txt
-	grep ' 5432/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5432\n"' >> ../.services/postgres.txt     
-	grep ' 3306/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3306\n"' >> ../.services/mysql.txt 
+	grep ' 1525/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1525\n"' >> ../.services/informix.txt
+	grep ' 1530/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1530\n"' >> ../.services/informix.txt
+	grep ' 1526/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1526\n"' >> ../.services/informix.txt	
+	
+	
+	grep ' 1521/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1521\n"' | uniq>> ../.services/oracle.txt
+	grep ' 5432/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5432\n"' | uniq>> ../.services/postgres.txt     
+	grep ' 3306/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3306\n"' | uniq >> ../.services/mysql.txt 
 	grep ' 27017/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:27017\n"' >> ../.services/mongoDB.txt 
 	grep ' 28017/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:28017\n"' >> ../.services/mongoDB.txt 
 	grep ' 27080/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:27080\n"' >> ../.services/mongoDB.txt 
@@ -576,14 +609,26 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
 	grep ' 5723/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5723\n"' >> ../.services/SystemCenter.txt
 	grep ' 5724/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5724\n"' >> ../.services/SystemCenter.txt
 	grep ' 1099/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1099\n"' >> ../.services/rmi.txt
-	grep ' 1433/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' >> ../.services/mssql.txt 
+	grep ' 1433/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' | uniq>> ../.services/mssql.txt 
+	grep ' 3777/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3777\n"' >> ../.services/dahua.txt 	
 	
 	#Esp
-	grep ' 16992/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' >> ../.services/intel.txt 
-	grep -i "ZKSoftware" nmap-tcp.grep | awk '{print $2}' >> ../.services/ZKSoftware.txt
-	grep -i "MikroTik" nmap-tcp.grep | awk '{print $2}' >> ../.services/MikroTik.txt
+	grep ' 16992/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' >> ../.services/intel.txt 	
+	
+	grep -i "ZKSoftware" nmap-tcp.grep | awk '{print $2}' >> ../.services/ZKSoftware2.txt
+	grep --color=never ZKSoftware ../.arp/* 2>/dev/null| awk '{print $1}' | cut -d ":" -f 2 >> ../.services/ZKSoftware2.txt
+	sort ../.services/ZKSoftware2.txt | uniq > ../.services/ZKSoftware.txt; rm ../.services/ZKSoftware2.txt	
+	
+	grep -i "MikroTik" nmap-tcp.grep | awk '{print $2}' >> ../.services/MikroTik2.txt
+	grep ' 8728/open' nmap-tcp.grep | awk '{print $2}' >> ../.services/MikroTik2.txt 
+	sort ../.services/MikroTik2.txt | uniq > ../.services/MikroTik.txt; rm ../.services/MikroTik2.txt		
+	
+	grep -i "ASA" nmap-tcp.grep | awk '{print $2}' >> ../.services/cisco.txt
+	grep -i samba nmap-tcp.grep | awk '{print $2}' >> ../.services/samba.txt
 	grep -i windows ../reports/OS-report.txt | cut -d ";" -f 1 >> ../.services/Windows.txt
 	
+	
+		
 	cd ..
 fi
     
@@ -594,10 +639,7 @@ if [[ $TYPE = "completo" ]] || [ $udp_scan == "s" ]; then
 	cd .nmap
 	grep 53/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:53\n"' >> ../.services/dns.txt
 	grep 161/open/ nmap-udp.grep | awk '{print $2}'  >> ../.services/snmp.txt
-	grep 139/open/ nmap-udp.grep | awk '{print $2}'  >> ../.services/smb-139.txt
-	grep 137/open/ nmap-udp.grep | awk '{print $2}'  >> ../.services/smb-137.txt
 	grep 500/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:500\n"' >> ../.services/vpn.txt
-	grep 5060/open nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5060\n"' >> ../.services/sip.txt	
 	grep 1604/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1604\n"' >> ../.services/citrix.txt
 	grep 1900/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1900\n"' >> ../.services/upnp.txt
 	cd ../
@@ -610,7 +652,7 @@ find .services -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
 echo "######################################################################################### "
 
 
-
+fi # enumerate
 
 # FASE: 3
 echo -e "\n\n$OKRED [+] FASE 3: ENUMERACION DE PUERTOS E IDENTIFICACION DE VULNERABILIDADES $RESET"
@@ -618,27 +660,33 @@ echo -e "\n\n$OKRED [+] FASE 3: ENUMERACION DE PUERTOS E IDENTIFICACION DE VULNE
 echo -e "$OKGREEN#################################### EMPEZANDO ENUMERACION ########################################$RESET"  
 
 echo -e "$OKBLUE\n\t#################### SMB ######################$RESET"	
-if [ -f .services/smb-445.txt ]
+if [ -f .services/smb.txt ]
 then  
-	for ip in $(cat .services/smb-445.txt); do		
+	for ip in $(cat .services/smb.txt); do		
 						
 		echo -e "\n\t### $ip (port 445)"				
-		nmap -n -Pn -p445 --script smb-vuln-ms08-067,smb-vuln-ms17-010,smb-vuln-ms06-025 $ip > logs/vulnerabilities/$ip-445-nmap.txt 2>/dev/null
+		nmap -n -Pn -p445 --script smb-vuln-ms08-067,smb-vuln-ms17-010,smb-vuln-ms06-025,smb-vuln-ms07-029,smb-vuln-ms10-061 $ip > logs/vulnerabilities/$ip-445-nmap.txt 2>/dev/null
 		grep "|" logs/vulnerabilities/$ip-445-nmap.txt  > vulnerabilities/$ip-445-nmap.txt  
 		
-		if [ $vuln == "s" ] ; then	
-			nmap -n -Pn -p445 --script smb-vuln-ms10-061,smb-vuln-ms10-054,smb-vuln-ms07-029 $ip | grep "|" > vulnerabilities/$ip-445-nmap.txt 2>/dev/null &					
-		fi							
+		smbmap -H $ip -u anonymous -p anonymous > logs/enumeration/$ip-445-shared.txt 2>/dev/null
+		egrep --color=never "READ|WRITE" logs/enumeration/$ip-445-shared.txt > enumeration/$ip-445-shared.txt
+		
+		smbmap -H $ip  >> logs/enumeration/$ip-445-shared.txt 2>/dev/null
+		egrep --color=never "READ|WRITE" logs/enumeration/$ip-445-shared.txt >> enumeration/$ip-445-shared.txt
+		
+		#if [ $vuln == "s" ] ; then	
+			#nmap -n -Pn -p445 --script smb-vuln-ms10-061 $ip | grep "|" > vulnerabilities/$ip-445-nmap.txt 2>/dev/null &					
+		#fi							
 	done
 fi
 
 
-if [ -f .services/smb-137.txt ]
+if [ -f .services/smb-139.txt ]
 then
-	for ip in $(cat .services/smb-137.txt); do		
+	for ip in $(cat .services/smb-139.txt); do		
 		
-		nmap -n -Pn -sU -p U:137 --script smb-vuln-ms08-067 $ip > logs/vulnerabilities/$ip-137-nmap.txt 2>/dev/null
-		grep "|" logs/vulnerabilities/$ip-137-nmap.txt > vulnerabilities/$ip-137-nmap.txt 	
+		nmap -n -Pn --script=samba-vuln-cve-2012-1182  -p 139 $ip > logs/vulnerabilities/$ip-139-vuln.txt 2>/dev/null
+		grep "|" logs/vulnerabilities/$ip-139-vuln.txt | egrep -v "failed|DENIED|ERROR|aborting|Couldnt" > vulnerabilities/$ip-139-vuln.txt	
 		
 	done
 fi
@@ -651,7 +699,7 @@ then
 	for line in $(cat .services/ip-cameras.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`						
-		
+		echo -e "\n\t### $ip"
 		nmap -n -Pn -sV -p 554 --script=rtsp-url-brute $ip > logs/vulnerabilities/$ip-554-openstreaming.txt 2>/dev/null 
 		grep "|" logs/vulnerabilities/$ip-554-openstreaming.txt > enumeration/$ip-554-openstreaming.txt 		
 	done		
@@ -665,16 +713,18 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
 		
-		echo  "scan $ip (mysql)"
+		echo -e "\n\t### $ip"	
 	
 		# user=root password=''
 		mysql -uroot -h $ip -e 'select * from mysql.user;' > vulnerabilities/$ip-mysql-nopass.txt 2>/dev/null &
 	
 		# user=root password=root	
 		mysql -uroot -h $ip -proot -e 'select * from mysql.user;' > vulnerabilities/$ip-mysql-password.txt  2>/dev/null &
-			
-		#nmap -sV -Pn -p $port $ip --script mysql-info > enumeration/$ip-mysql.txt 2>/dev/null &
-		#nmap -sV -Pn -p $port $ip --script=mysql-vuln-cve2012-2122 | grep "|" > enumeration/$ip-mysql-vuln.txt 2>/dev/null
+		
+		echo  -e "\tcheck vuln"
+		nmap -n -Pn -p $port --script=mysql-vuln-cve2012-2122 $ip > logs/vulnerabilities/$ip-mysql-vuln.txt 2>/dev/null
+		grep "|" logs/vulnerabilities/$ip-mysql-vuln.txt | grep -v "failed" > vulnerabilities/$ip-mysql-vuln.txt 	
+					
 	done
 fi
 
@@ -801,6 +851,10 @@ then
 	while read line; do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
+
+		echo -e "\t Default Pass (telnet)"
+		medusa -u root -p vizxv -h $ip -M telnet > logs/vulnerabilities/$ip-23-passwordDahua.txt 2>/dev/null
+		grep --color=never SUCCESS logs/vulnerabilities/$ip-23-passwordDahua.txt > vulnerabilities/$ip-23-passwordDahua.txt 					
 					
 		echo  "scan $ip (telnet - banner)"
 		nc -w 3 $ip 23 <<<"print_debug" > enumeration/$ip-23-banner.txt 2>/dev/null
@@ -835,7 +889,7 @@ then
 		if [[ $ike == *"HDR"* ]]; then
 			echo $ike > enumeration/$ip-500-transforms.txt
 			cp enumeration/$ip-500-transforms.txt logs/enumeration/$ip-500-transforms.txt
-			ike-scan -A -M --pskcrack=enumeration/$ip-500-handshake.txt $ip 2>/dev/null &
+			ike-scan -A -M --pskcrack=enumeration/$ip-500-handshake.txt $ip 2>/dev/null ;
 		fi	
 		
 		
@@ -854,6 +908,9 @@ then
 		if [[ ${vnc_response} == *"RFB 003.008"* ]];then
 			echo "VNC bypass ($vnc_response)" > vulnerabilities/$ip-$port-bypass.txt 
 		fi	
+		
+		nmap -n -Pn -p $port --script realvnc-auth-bypass $ip > logs/vulnerabilities/$ip-$port-bypass2.txt 2>/dev/null
+		grep "|" logs/vulnerabilities/$ip-$port-bypass2.txt > vulnerabilities/$ip-$port-bypass2.txt
 	
 	done
 fi
@@ -880,12 +937,29 @@ if [ -f .services/ldaps.txt ]
 then
 	echo -e "$OKBLUE\n\t#################### LDAPS ######################$RESET"	    
 	while read line       
-	do     				
+	do     					
 		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`
-		echo -e "\n\t### $ip ($port)"	
-		nmap -n -Pn -p 636 --script ldap-rootdse $ip > logs/enumeration/$ip-636-open.txt 2>/dev/null
-		grep -i namingContexts logs/enumeration/$ip-636-open.txt > enumeration/$ip-636-open.txt 
+		port=`echo $line | cut -f2 -d":"` 	
+		
+		echo -e "\n\t### $ip "			
+		domain=`nmap -n -Pn -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
+				
+		if [ -z "$domain" ]; then
+			domain=`nmap -n -Pn -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
+		fi
+		
+		
+		echo $domain > enumeration/$ip-$port-domain.txt
+		domain=`echo $domain | head -1`
+		ldapsearch -x -p $port -h $ip -b $domain -s sub "(objectclass=*)" > logs/enumeration/$ip-$port-directory.txt 
+		
+		egrep -i "successful bind must be completed|Not bind" logs/enumeration/$ip-$port-directory.txt 
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then			
+			echo -e "\t Requiere autenticacion"
+		else
+			cp logs/enumeration/$ip-$port-directory.txt enumeration/$ip-$port-directory.txt 
+		fi
 													 
 	done <.services/ldaps.txt
 fi
@@ -924,6 +998,21 @@ then
 	done <.services/citrix.txt
 fi
 
+#dahua
+
+if [ -f .services/dahua.txt ]
+then
+	echo -e "$OKBLUE\n\t#################### DAHUA ######################$RESET"	    
+	while read ip       
+	do     						
+		echo -e "\n\t### ($ip) "						
+		echo -e "\t Bypass"		
+		msfconsole -x "use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS $ip; set ACTION USER;run;exit" > logs/vulnerabilities/$ip-dahua-vuln.txt 2>/dev/null		
+		grep --color=never "3777" logs/vulnerabilities/$ip-dahua-vuln.txt  > vulnerabilities/$ip-dahua-vuln.txt 
+															
+	done <.services/dahua.txt
+fi
+
 #INTEL
 if [ -f .services/intel.txt ]
 then
@@ -938,6 +1027,38 @@ then
 													 
 	done <.services/intel.txt
 fi
+
+
+#samba
+if [ -f .services/samba.txt ]
+then
+	echo -e "$OKBLUE\n\t#################### samba ######################$RESET"	    
+	while read ip       
+	do     						
+		echo -e "\n\t### $ip "	
+		nmap -n -Pn --script smb-vuln-cve-2017-7494 -p 445 $ip > logs/vulnerabilities/$ip-samba-vuln.txt 2>/dev/null		
+		grep "|" logs/vulnerabilities/$ip-samba-vuln.txt  > vulnerabilities/$ip-samba-vuln.txt
+													 
+	done <.services/samba.txt
+fi
+
+#cisco
+if [ -f .services/cisco.txt ]
+then
+	echo -e "$OKBLUE\n\t#################### cisco ######################$RESET"	    
+	while ip line       
+	do     						
+		echo -e "\n\t### $ip "	
+		nmap -n -Pn  -p 443 --script http-vuln-cve2014-2128 $ip > logs/vulnerabilities/$ip-cisco-vuln.txt 2>/dev/null		
+		grep "|" logs/vulnerabilities/$ip-cisco-vuln.txt  > vulnerabilities/$ip-cisco-vuln.txt
+		
+		nmap -n -Pn  -p 443 --script http-vuln-cve2014-2129 $ip > logs/vulnerabilities/$ip-cisco-dos.txt 2>/dev/null		
+		grep "|" logs/vulnerabilities/$ip-cisco-dos.txt  > vulnerabilities/$ip-cisco-dos.txt
+													 
+	done <.services/cisco.txt
+fi
+
+
 
 
 if [ -f .services/snmp.txt ]
@@ -992,10 +1113,38 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"` 	
 		
-		nmap -n -Pn -p 389 --script ldap-rootdse $ip > logs/enumeration/$ip-389-open.txt 
-		grep -i namingContexts logs/enumeration/$ip-389-open.txt  > enumeration/$ip-389-open.txt 
+		echo -e "\n\t### $ip "			
+		domain=`nmap -n -Pn -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
+		echo $domain > enumeration/$ip-$port-domain.txt
+		domain=`echo $domain | head -1`
+		ldapsearch -x -p $port -h $ip -b $domain -s sub "(objectclass=*)" > logs/enumeration/$ip-$port-directory.txt 
+		
+		egrep -i "successful bind must be completed|Not bind" logs/enumeration/$ip-$port-directory.txt 
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then			
+			echo -e "\t Requiere autenticacion"
+		else
+			cp logs/enumeration/$ip-$port-directory.txt enumeration/$ip-$port-directory.txt 
+		fi
+		
 		
 	done <.services/ldap.txt
+fi	
+
+
+if [ -f .services/printers.txt ]
+then
+	echo -e "$OKBLUE\n\t#################### Printers ######################$RESET"	    
+	while read line          
+	do        
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"` 	
+		
+		echo -e "\n\t### $ip "	
+		pret.sh --safe $ip pjl  > logs/enumeration/$ip-9100-printer.txt ;
+		cp logs/enumeration/$ip-9100-printer.txt  enumeration/$ip-9100-printer.txt 
+		
+	done <.services/printers.txt
 fi	
 
 
@@ -1026,27 +1175,44 @@ then
 		port=`echo $line | cut -f2 -d":"`			
 		
 			
-		echo -e "\t[+] whatweb $ip:$port"	
-		whatweb --quiet --user-agent "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; Trident/5.0)" $ip:$port --log-brief enumeration/$ip-$port-whatweb.txt 2>/dev/null  ;
+		#echo -e "\t[+] whatweb $ip:$port"	
+		#whatweb --quiet --user-agent "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; Trident/5.0)" $ip:$port --log-brief enumeration/$ip-$port-whatweb.txt 2>/dev/null  ;
 		
-		echo -e "\t[+] Getting Title $ip:$port"	
-		webTitle.pl -t $ip -p $port > enumeration/$ip-$port-title.txt 2>/dev/null  ;
+		echo -e "\t[+] Getting webData $ip:$port"	
+		webData.pl -t $ip -p $port -s 2 > enumeration/$ip-$port-webData.txt 2>/dev/null  ;
 		
 		#######  if the server is apache ######
-		grep -i apache enumeration/$ip-$port-whatweb.txt
+		grep -i apache enumeration/$ip-$port-webData.txt
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			
-			echo -e "\n\t### $ip:$port (Revisando vulnerabilidades apache)"
+			echo -e "\n\t### $ip:$port (Revisando vulnerabilidad Struts)"
 			nmap -n -Pn -p $port $ip --script=http-vuln-cve2017-5638 > logs/vulnerabilities/$ip-$port-Struts.txt 2>/dev/null  					
-			grep "|" logs/vulnerabilities/$ip-$port-Struts.txt > vulnerabilities/$ip-$port-Struts.txt 2>/dev/null 	
+			grep "|" logs/vulnerabilities/$ip-$port-Struts.txt > vulnerabilities/$ip-$port-Struts.txt  	
+			
+			echo -e "\n\t### $ip:$port (Revisando vulnerabilidad cgi)"
+			nmap -n -Pn -p $port $ip --script=http-vuln-cve2012-1823 > logs/vulnerabilities/$ip-$port-cgi.txt 2>/dev/null  					
+			grep "|" logs/vulnerabilities/$ip-$port-cgi.txt > vulnerabilities/$ip-$port-cgi.txt  	
 			
 			if [ $OFFSEC != "1" ] ; then	
 				echo -e "\n\t### $ip:$port (Revisando si apache tiene slowloris)"
 				nmap -n -sV -Pn -p $port --script=http-slowloris-check   $ip > logs/vulnerabilities/$ip-$port-slowloris.txt 2>/dev/null 
-				grep "|" logs/vulnerabilities/$ip-$port-slowloris.txt > vulnerabilities/$ip-$port-slowloris.txt 2>/dev/null 	
+				grep "|" logs/vulnerabilities/$ip-$port-slowloris.txt | grep -v "nginx"  > vulnerabilities/$ip-$port-slowloris.txt 
 			fi
 		fi						
+		####################################
+		
+		#######  if the server is IIS ######
+		grep -i IIS enumeration/$ip-$port-webData.txt
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then
+			echo -e "\n\t### $ip:$port ( IIS)"
+			nmap -n -Pn -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilities/$ip-$port-HTTPsys.txt 2>/dev/null 
+			grep "|" logs/vulnerabilities/$ip-$port-HTTPsys.txt > vulnerabilities/$ip-$port-HTTPsys.txt 
+			echo -e "\t### web-buster"
+			web-buster.pl -s $ip -p $port -t 33 -a / -m archivos -q 1 | grep http > enumeration/$ip-$port-webarchivos.txt  
+		fi
+										
 		####################################	
 				
 		
@@ -1066,19 +1232,7 @@ then
 		
 				#echo -e "\t[+] nikto ..  $ip:$port"
 				#nikto -host http://$ip:$port > enumeration/$ip-$port-nikto.txt  2>/dev/null &												
-	
-
-				#######  if the server is IIS ######
-				#grep -i IIS enumeration/$ip/whatweb$port.txt
-				#greprc=$?
-				#if [[ $greprc -eq 0 ]] ; then
-					#echo -e "\n\t### $ip:$port (Enumerando IIS)"
-					#nmap -sV -Pn -p $port $ip --script=http-aspnet-debug,http-internal-ip-disclosure,http-mobileversion-checker,http-ntlm-info,http-robtex-reverse-ip | grep "|"  > enumeration/$ip/http-iis-$port.txt 2>/dev/null  
-					#	echo -e "\n\t### $ip:$port (Revisando vulnerabilidades IIS)"
-					#	nmap -sV -Pn -p $port $ip --script=http-iis-webdav-vuln,http-vuln-cve2015-1635 | grep "|"  > enumeration/$ip/http-iis-vuln-$port.txt 2>/dev/null
-				
-				#fi						
-				####################################												
+													
 				break
 			else
 				ruby_instances=`pgrep ruby | wc -l`
@@ -1101,30 +1255,47 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
 		
+		echo -e "\t[+] Getting webData $ip:$port"	
+		webData.pl -t $ip -p $port -s 1 > enumeration/$ip-$port-webData.txt 2>/dev/null  ;
 		
-		echo -e "\t[+] Getting Title $ip:$port"	
-		webTitle.pl -t $ip -p $port > enumeration/$ip-$port-title.txt 2>/dev/null  ;
+		#######  if the server is apache ######
+		grep -i apache enumeration/$ip-$port-webData.txt
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then			
 			
+			echo -e "\n\t### $ip:$port (Revisando vulnerabilidad Struts)"
+			nmap -n -Pn -p $port $ip --script=http-vuln-cve2017-5638 > logs/vulnerabilities/$ip-$port-Struts.txt 2>/dev/null  					
+			grep "|" logs/vulnerabilities/$ip-$port-Struts.txt > vulnerabilities/$ip-$port-Struts.txt  	
+			
+			echo -e "\n\t### $ip:$port (Revisando vulnerabilidad cgi)"
+			nmap -n -Pn -p $port $ip --script=http-vuln-cve2012-1823 > logs/vulnerabilities/$ip-$port-cgi.txt 2>/dev/null  					
+			grep "|" logs/vulnerabilities/$ip-$port-cgi.txt > vulnerabilities/$ip-$port-cgi.txt  	
+					
+		fi						
+		####################################
 		
-		while true; do
-			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
-			if [ "$free_ram" -gt 200 ]			
-			then						
-				echo -e "\n\t### $ip:$port (Enumeracion SSL)"			
-				whatweb --quiet --user-agent "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0; Trident/5.0)" https://$ip:$port --log-brief enumeration/$ip-$port-whatweb.txt 2>/dev/null &
-				
-				if [ $vuln == "s" ] ; then	
-					nmap -n -sV -Pn -p $port $ip  --script=ssl-heartbleed  | grep "|" > vulnerabilities/$ip-$port-nmap.txt 2>/dev/null &
-					a2sv.sh -t $ip -p $port -d n | grep CVE > vulnerabilities/$ip-$port-a2sv.txt 2>/dev/null &
-				fi							
-				sleep 0.7				
-				break
-			else
-				nmap_instances=`pgrep nmap | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($nmap_instances )"
-				sleep 3
-			fi
-		done	# done true	
+		#######  if the server is IIS ######
+		grep -i IIS enumeration/$ip-$port-webData.txt
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then
+			echo -e "\n\t### $ip:$port ( IIS - HTTPsys)"
+			nmap -n -Pn -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilities/$ip-$port-HTTPsys.txt 2>/dev/null 
+			grep "|" logs/vulnerabilities/$ip-$port-HTTPsys.txt > vulnerabilities/$ip-$port-HTTPsys.txt 
+			
+			echo -e "\t### web-buster"
+			web-buster.pl -s $ip -p $port -t 33 -a / -m archivos -q 1 | grep http > enumeration/$ip-$port-webarchivos.txt  
+		fi
+										
+		####################################
+			
+		#if [ $vuln == "s" ] ; then	
+		echo -e "\n\t### $ip:$port (Vulnerabilidades SSL)"	
+		nmap -n -sV -Pn -p $port $ip  --script=ssl-heartbleed  > logs/vulnerabilities/$ip-$port-nmap.txt 2>/dev/null 
+		grep "|" logs/vulnerabilities/$ip-$port-nmap.txt > vulnerabilities/$ip-$port-nmap.txt
+		
+		a2sv.sh -t $ip -p $port -d n | grep CVE > logs/vulnerabilities/$ip-$port-a2sv.txt 2>/dev/null 
+		cp logs/vulnerabilities/$ip-$port-a2sv.txt vulnerabilities/$ip-$port-a2sv.txt
+		#fi							
 	done   		
 fi
 
