@@ -84,7 +84,6 @@ mkdir -p .data
 mkdir -p .nmap
 mkdir -p enumeration
 mkdir -p vulnerabilities
-mkdir -p screenshots
 mkdir -p .masscan
 mkdir -p reports
 mkdir -p .services
@@ -132,7 +131,7 @@ echo -e "#####################################" | tee -a reports/info.txt
      echo -e  "\n##############################################################################" 
      echo -e  "$OKRED \t Usando  ----> $FILE <----- $RESET" 
      cat ../$FILE | cut -d "," -f 2 | uniq > $live_hosts
-     #cat $live_hosts | cut -d . -f 1-3 | sort | uniq > .data/subnets.txt # get subnets 
+     cat $live_hosts | cut -d . -f 1-3 | sort | uniq > .data/subnets.txt # get subnets      
      cat $live_hosts
      echo ""       
      echo -e  "\n##############################################################################" 
@@ -418,6 +417,13 @@ if [ $TYPE = "parcial" ] ; then
 		
 	nmap -n -Pn -sU -p 53,161,500,1604  -iL $live_hosts -oG .nmap/nmap-udp.grep > reports/nmap-udp.txt 2>/dev/null 
 	
+	for subnet in $(cat .data/subnets.txt); do
+	  echo -e "\t Escaneando $subnet.0/24"	  
+	  masscan -pU:161 $subnet".0/24" | grep --color=never -i Discovered  > .masscan/$subnet-snmp.txt 2>/dev/null 
+	  masscan -pU:500 $subnet".0/24" | grep --color=never -i Discovered  > .masscan/$subnet-vpn.txt 2>/dev/null 
+    done;
+	
+	
 	echo ""			
  fi	  
    
@@ -435,7 +441,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
 	if [ $port_scan_num == '1' ]        	    
 	then
      	echo "	## Realizando escaneo de puertos especificos (Web, SSH, Telnet,SMB, etc) ##"  
-     	nmap -n -Pn -iL $live_hosts -p21,22,23,25,53,80,110,139,143,443,445,1433,1521,3306,3389 -oG .nmap/nmap-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null     	     	
+     	nmap -n -Pn -iL $live_hosts -p21,22,23,25,53,80,110,139,143,443,445,993,995,1433,1521,3306,3389,8080 -oG .nmap/nmap-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null     	     	
      fi	
      
      
@@ -610,7 +616,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
 	grep ' 5724/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5724\n"' >> ../.services/SystemCenter.txt
 	grep ' 1099/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1099\n"' >> ../.services/rmi.txt
 	grep ' 1433/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' | uniq>> ../.services/mssql.txt 
-	grep ' 3777/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3777\n"' >> ../.services/dahua.txt 	
+	grep ' 37777/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3777\n"' >> ../.services/dahua.txt 	
 	
 	#Esp
 	grep ' 16992/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' >> ../.services/intel.txt 	
@@ -638,8 +644,15 @@ fi
 if [[ $TYPE = "completo" ]] || [ $udp_scan == "s" ]; then 
 	cd .nmap
 	grep 53/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:53\n"' >> ../.services/dns.txt
-	grep 161/open/ nmap-udp.grep | awk '{print $2}'  >> ../.services/snmp.txt
-	grep 500/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:500\n"' >> ../.services/vpn.txt
+	
+	grep 161/open/ nmap-udp.grep | awk '{print $2}'  >> ../.services/snmp2.txt	
+	grep '161/udp' ../.masscan/* | cut -d " " -f 6 >> ../.services/snmp2.txt
+	sort ../.services/snmp2.txt | uniq >../.services/snmp.txt; rm ../.services/snmp2.txt
+	
+	grep 500/open/ nmap-udp.grep | awk '{print $2}'  >> ../.services/vpn2.txt
+	grep '500/udp' ../.masscan/* | cut -d " " -f 6 >> ../.services/vpn2.txt
+	sort ../.services/vpn2.txt | uniq >../.services/vpn.txt; rm ../.services/vpn2.txt
+	
 	grep 1604/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1604\n"' >> ../.services/citrix.txt
 	grep 1900/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1900\n"' >> ../.services/upnp.txt
 	cd ../
@@ -659,14 +672,13 @@ echo -e "\n\n$OKRED [+] FASE 3: ENUMERACION DE PUERTOS E IDENTIFICACION DE VULNE
 ###################################  ENUMERACION ########################################
 echo -e "$OKGREEN#################################### EMPEZANDO ENUMERACION ########################################$RESET"  
 
-echo -e "$OKBLUE\n\t#################### SMB ######################$RESET"	
 if [ -f .services/smb.txt ]
 then  
-	for ip in $(cat .services/smb.txt); do		
-						
+	echo -e "$OKBLUE\n\t#################### SMB (`wc -l .services/smb.txt`) ######################$RESET"	
+	for ip in $(cat .services/smb.txt); do							
 		echo -e "\n\t### $ip (port 445)"				
 		nmap -n -Pn -p445 --script smb-vuln-ms08-067,smb-vuln-ms17-010,smb-vuln-ms06-025,smb-vuln-ms07-029,smb-vuln-ms10-061 $ip > logs/vulnerabilities/$ip-445-nmap.txt 2>/dev/null
-		grep "|" logs/vulnerabilities/$ip-445-nmap.txt  > vulnerabilities/$ip-445-nmap.txt  
+		grep "|" logs/vulnerabilities/$ip-445-nmap.txt | grep -v "NT_STATUS_ACCESS_DENIED" > vulnerabilities/$ip-445-nmap.txt  
 		
 		smbmap -H $ip -u anonymous -p anonymous > logs/enumeration/$ip-445-shared.txt 2>/dev/null
 		egrep --color=never "READ|WRITE" logs/enumeration/$ip-445-shared.txt > enumeration/$ip-445-shared.txt
@@ -686,7 +698,7 @@ then
 	for ip in $(cat .services/smb-139.txt); do		
 		
 		nmap -n -Pn --script=samba-vuln-cve-2012-1182  -p 139 $ip > logs/vulnerabilities/$ip-139-vuln.txt 2>/dev/null
-		grep "|" logs/vulnerabilities/$ip-139-vuln.txt | egrep -v "failed|DENIED|ERROR|aborting|Couldnt" > vulnerabilities/$ip-139-vuln.txt	
+		grep "|" logs/vulnerabilities/$ip-139-vuln.txt | egrep -vi "failed|DENIED|ERROR|aborting|Couldnt" > vulnerabilities/$ip-139-vuln.txt	
 		
 	done
 fi
@@ -695,7 +707,7 @@ fi
 
 if [ -f .services/ip-cameras.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### IP cameras ######################$RESET"	  
+	echo -e "$OKBLUE\n\t#################### IP cameras (`wc -l .services/ip-cameras.txt`) ######################$RESET"	  
 	for line in $(cat .services/ip-cameras.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`						
@@ -708,7 +720,7 @@ fi
 
 if [ -f .services/mysql.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### MY SQL ######################$RESET"	  
+	echo -e "$OKBLUE\n\t#################### MY SQL (`wc -l .services/mysql.txt`) ######################$RESET"	  
 	for line in $(cat .services/mysql.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
@@ -731,7 +743,7 @@ fi
 
 if [ -f .services/mongoDB.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### MongoDB ######################$RESET"
+	echo -e "$OKBLUE\n\t#################### MongoDB (`wc -l .services/mongoDB.txt`) ######################$RESET"
 	for line in $(cat .services/mongoDB.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
@@ -827,7 +839,7 @@ fi
 
 if [ -f .services/ftp.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### FTP ######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### FTP (`wc -l .services/ftp.txt`) ######################$RESET"	    
 	touch 68b329da9893e34099c7d8ad5cb9c940.txt # file to test upload
 	for line in $(cat .services/ftp.txt); do
 		ip=`echo $line | cut -f1 -d":"`
@@ -847,7 +859,7 @@ fi
 
 if [ -f .services/telnet.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### TELNET ######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### TELNET (`wc -l .services/telnet.txt`)######################$RESET"	    
 	while read line; do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
@@ -880,10 +892,9 @@ fi
 
 if [ -f .services/vpn.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### VPN ######################$RESET"	    
-	for line in $(cat .services/vpn.txt); do
-		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`		
+	echo -e "$OKBLUE\n\t#################### VPN (`wc -l .services/vpn.txt`) ######################$RESET"	    
+	for ip in $(cat .services/vpn.txt); do		
+			
 		echo -e "\n\t### $ip"
 		ike=`ike-scan -M $ip`
 		if [[ $ike == *"HDR"* ]]; then
@@ -899,7 +910,7 @@ fi
 
 if [ -f .services/vnc.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### VNC ######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### VNC (`wc -l .services/vnc.txt`) ######################$RESET"	    
 	for line in $(cat .services/vnc.txt); do		
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
@@ -919,7 +930,7 @@ fi
 # enumerate MS-SQL
 if [ -f .services/mssql.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### MS-SQL ######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### MS-SQL (`wc -l .services/mssql.txt`) ######################$RESET"	    
 	while read line           
 	do   	
 		ip=`echo $line | cut -f1 -d":"`
@@ -935,7 +946,7 @@ fi
 #LDAPS
 if [ -f .services/ldaps.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### LDAPS ######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### LDAPS (`wc -l .services/ldaps.txt`) ######################$RESET"	    
 	while read line       
 	do     					
 		ip=`echo $line | cut -f1 -d":"`
@@ -967,7 +978,7 @@ fi
 #VMWARE
 if [ -f .services/vmware.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### vmware ######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### vmware (`wc -l .services/vmware.txt`) ######################$RESET"	    
 	while read line       
 	do     				
 		ip=`echo $line | cut -f1 -d":"`
@@ -983,7 +994,7 @@ fi
 #CITRIX
 if [ -f .services/citrix.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### citrix ######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### citrix (`wc -l .services/citrix.txt`) ######################$RESET"	    
 	while read line       
 	do     				
 		ip=`echo $line | cut -f1 -d":"`
@@ -998,17 +1009,19 @@ then
 	done <.services/citrix.txt
 fi
 
-#dahua
+#	dahua
 
 if [ -f .services/dahua.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### DAHUA ######################$RESET"	    
-	while read ip       
-	do     						
+	echo -e "$OKBLUE\n\t#################### DAHUA (`wc -l .services/dahua.txt`)######################$RESET"	    
+	while read line       
+	do     			
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"`			
 		echo -e "\n\t### ($ip) "						
 		echo -e "\t Bypass"		
 		msfconsole -x "use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS $ip; set ACTION USER;run;exit" > logs/vulnerabilities/$ip-dahua-vuln.txt 2>/dev/null		
-		grep --color=never "3777" logs/vulnerabilities/$ip-dahua-vuln.txt  > vulnerabilities/$ip-dahua-vuln.txt 
+		grep --color=never "37777" logs/vulnerabilities/$ip-dahua-vuln.txt  > vulnerabilities/$ip-dahua-vuln.txt 
 															
 	done <.services/dahua.txt
 fi
@@ -1032,7 +1045,7 @@ fi
 #samba
 if [ -f .services/samba.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### samba ######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### samba (`wc -l .services/samba.txt`) ######################$RESET"	    
 	while read ip       
 	do     						
 		echo -e "\n\t### $ip "	
@@ -1045,7 +1058,7 @@ fi
 #cisco
 if [ -f .services/cisco.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### cisco ######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### cisco (`wc -l .services/cisco.txt`) ######################$RESET"	    
 	while ip line       
 	do     						
 		echo -e "\n\t### $ip "	
@@ -1063,7 +1076,7 @@ fi
 
 if [ -f .services/snmp.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### SNMP ######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### SNMP (`wc -l .services/snmp.txt`) ######################$RESET"	    
 	echo  "scan (snmp - onesixtyone)"
 	onesixtyone -c /usr/share/lanscanner/community.txt -i .services/snmp.txt  | grep --color=never "\[" | sed 's/ \[/~/g' |  sed 's/\] /~/g' > banners-snmp2.txt
 
@@ -1100,14 +1113,14 @@ then
 		cp enumeration/$ip-161-enumerate.txt logs/enumeration/$ip-161-enumerate.txt
 		
 	done <banners-snmp2.txt
-	#rm banners-snmp2.txt
+	rm banners-snmp2.txt
 	##################################
 fi
 
 
 if [ -f .services/ldap.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### LDAP ######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### LDAP (`wc -l .services/ldap.txt`) ######################$RESET"	    
 	while read line          
 	do        
 		ip=`echo $line | cut -f1 -d":"`
@@ -1134,24 +1147,38 @@ fi
 
 if [ -f .services/printers.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### Printers ######################$RESET"	    
-	while read line          
-	do        
-		ip=`echo $line | cut -f1 -d":"`
+	echo -e "$OKBLUE\n\t#################### Printers (`wc -l .services/printers.txt`) ######################$RESET"	    		
+	echo quit > command.txt
+	for line in $(cat .services/printers.txt); do
+        ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"` 	
 		
 		echo -e "\n\t### $ip "	
-		pret.sh --safe $ip pjl  > logs/enumeration/$ip-9100-printer.txt ;
-		cp logs/enumeration/$ip-9100-printer.txt  enumeration/$ip-9100-printer.txt 
 		
-	done <.services/printers.txt
+		echo -e "\t PJL "			
+		pret.sh --safe $ip pjl -i `pwd`/command.txt  > logs/enumeration/$ip-9100-PJL.txt 2>/dev/null ;
+		echo -e "\t PS "			
+		pret.sh --safe $ip ps -i `pwd`/command.txt > logs/enumeration/$ip-9100-PS.txt 2>/dev/null ;
+		echo -e "\t PCL "			
+		pret.sh --safe $ip pcl -i `pwd`/command.txt > logs/enumeration/$ip-9100-PCL.txt 2>/dev/null ;
+		
+		
+		grep -i --color=never "found" logs/enumeration/$ip-9100-PJL.txt | grep -iv "not" >> enumeration/$ip-9100-printer2.txt 
+		grep -i --color=never "found" logs/enumeration/$ip-9100-PS.txt | grep -iv "not" >> enumeration/$ip-9100-printer2.txt 
+		grep -i --color=never "found" logs/enumeration/$ip-9100-PCL.txt | grep -iv "not" >> enumeration/$ip-9100-printer2.txt 
+		sort enumeration/$ip-9100-printer2.txt  | uniq > enumeration/$ip-9100-printer.txt 
+		rm enumeration/$ip-9100-printer2.txt 
+			
+    done;   
+    rm command.txt
+    
 fi	
 
 
 
 if [ -f .services/smtp.txt ]
 	then
-		echo -e "$OKBLUE\n\t#################### SMTP ######################$RESET"	    
+		echo -e "$OKBLUE\n\t#################### SMTP (`wc -l .services/smtp.txt`) ######################$RESET"	    
 		while read line
 		do  	
 			ip=`echo $line | cut -f1 -d":"`
@@ -1168,7 +1195,7 @@ if [ -f .services/smtp.txt ]
 if [ -f .services/web.txt ]
 then
       
-	echo -e "$OKBLUE\n\t#################### WEB ######################$RESET"	    		
+	echo -e "$OKBLUE\n\t#################### WEB (`wc -l .services/web.txt`) ######################$RESET"	    		
 
 	for line in $(cat .services/web.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
@@ -1249,7 +1276,7 @@ fi # file exists
 if [ -f .services/web-ssl.txt ]
 then    
     
-    echo -e "$OKBLUE\n\t#################### WEB - SSL######################$RESET"	    		
+    echo -e "$OKBLUE\n\t#################### WEB - SSL (`wc -l .services/web-ssl.txt`) ######################$RESET"	    		
 
 	for line in $(cat .services/web-ssl.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
@@ -1294,7 +1321,7 @@ then
 		grep "|" logs/vulnerabilities/$ip-$port-nmap.txt > vulnerabilities/$ip-$port-nmap.txt
 		
 		a2sv.sh -t $ip -p $port -d n | grep CVE > logs/vulnerabilities/$ip-$port-a2sv.txt 2>/dev/null 
-		cp logs/vulnerabilities/$ip-$port-a2sv.txt vulnerabilities/$ip-$port-a2sv.txt
+		grep --color=never "Vulnerable" logs/vulnerabilities/$ip-$port-a2sv.txt | grep -iv "not"  > vulnerabilities/$ip-$port-a2sv.txt
 		#fi							
 	done   		
 fi
@@ -1306,8 +1333,8 @@ if [ -f .services/rdp.txt ]
 then
     
     if [ $rdp == "s" ] ; then	
-		
-		echo -e "$OKBLUE\n\t#################### RDP ######################$RESET"	  
+		mkdir -p screenshots
+		echo -e "$OKBLUE\n\t#################### RDP (`wc -l .services/rdp.txt`) ######################$RESET"	  
 		for line in $(cat .services/rdp.txt); do
 			ip=`echo $line | cut -f1 -d":"`
 			port=`echo $line | cut -f2 -d":"`				
