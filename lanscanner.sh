@@ -8,8 +8,8 @@ RESET='\e[0m'
 
 
 ################## Config HERE ####################
-netA="10.0.X.0/24";
-netB="172.16.X.0/24";
+netA="160.0.X.0/24";
+netB="160.80.X.0/24";
 netC="192.168.X.0/24";
 #netC="192.168.X.0/24";
 ####################################################
@@ -441,7 +441,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
 	if [ $port_scan_num == '1' ]        	    
 	then
      	echo "	## Realizando escaneo de puertos especificos (Web, SSH, Telnet,SMB, etc) ##"  
-     	nmap -n -Pn -iL $live_hosts -p21,22,23,25,53,80,110,139,143,443,445,993,995,1433,1521,3306,3389,8080 -oG .nmap/nmap-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null     	     	
+     	nmap -n -Pn -iL $live_hosts -sV -p21,22,23,25,53,80,110,139,143,443,445,993,995,1433,1521,3306,3389,8080 -oG .nmap/nmap-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null     	     	
      fi	
      
      
@@ -566,8 +566,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
 	### SMB 														   del newline       add port
 	grep ' 445/open' nmap-tcp.grep | awk '{print $2}' >> ../.services/smb2.txt
 	grep ' 139/open' nmap-tcp.grep | awk '{print $2}' >> ../.services/smb2.txt
-	sort ../.services/smb2.txt | uniq > ../.services/smb.txt
-	rm ../.services/smb2.txt
+	sort ../.services/smb2.txt | uniq > ../.services/smb.txt;rm ../.services/smb2.txt
 	grep ' 139/open' nmap-tcp.grep | awk '{print $2}' >> ../.services/smb-139.txt
 			
 
@@ -631,6 +630,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
 	
 	grep -i "ASA" nmap-tcp.grep | awk '{print $2}' >> ../.services/cisco.txt
 	grep -i samba nmap-tcp.grep | awk '{print $2}' >> ../.services/samba.txt
+	grep -i "Allegro RomPager 4.07" nmap-tcp.grep | awk '{print $2}' >> ../.services/RomPager.txt
 	grep -i windows ../reports/OS-report.txt | cut -d ";" -f 1 >> ../.services/Windows.txt
 	
 	
@@ -678,7 +678,7 @@ then
 	for ip in $(cat .services/smb.txt); do							
 		echo -e "\n\t### $ip (port 445)"				
 		nmap -n -Pn -p445 --script smb-vuln-ms08-067,smb-vuln-ms17-010,smb-vuln-ms06-025,smb-vuln-ms07-029,smb-vuln-ms10-061 $ip > logs/vulnerabilities/$ip-445-nmap.txt 2>/dev/null
-		grep "|" logs/vulnerabilities/$ip-445-nmap.txt | grep -v "NT_STATUS_ACCESS_DENIED" > vulnerabilities/$ip-445-nmap.txt  
+		grep "|" logs/vulnerabilities/$ip-445-nmap.txt | egrep -v "ACCESS_DENIED|false" > vulnerabilities/$ip-445-nmap.txt  
 		
 		smbmap -H $ip -u anonymous -p anonymous > logs/enumeration/$ip-445-shared.txt 2>/dev/null
 		egrep --color=never "READ|WRITE" logs/enumeration/$ip-445-shared.txt > enumeration/$ip-445-shared.txt
@@ -698,7 +698,7 @@ then
 	for ip in $(cat .services/smb-139.txt); do		
 		
 		nmap -n -Pn --script=samba-vuln-cve-2012-1182  -p 139 $ip > logs/vulnerabilities/$ip-139-vuln.txt 2>/dev/null
-		grep "|" logs/vulnerabilities/$ip-139-vuln.txt | egrep -vi "failed|DENIED|ERROR|aborting|Couldnt" > vulnerabilities/$ip-139-vuln.txt	
+		grep "|" logs/vulnerabilities/$ip-139-vuln.txt | egrep -vi "failed|DENIED|ERROR|aborting|Couldnt|Sorry" > vulnerabilities/$ip-139-vuln.txt	
 		
 	done
 fi
@@ -713,7 +713,7 @@ then
 		port=`echo $line | cut -f2 -d":"`						
 		echo -e "\n\t### $ip"
 		nmap -n -Pn -sV -p 554 --script=rtsp-url-brute $ip > logs/vulnerabilities/$ip-554-openstreaming.txt 2>/dev/null 
-		grep "|" logs/vulnerabilities/$ip-554-openstreaming.txt > enumeration/$ip-554-openstreaming.txt 		
+		grep "|" logs/vulnerabilities/$ip-554-openstreaming.txt > vulnerabilities/$ip-554-openstreaming.txt 		
 	done		
 fi
 
@@ -736,6 +736,22 @@ then
 		echo  -e "\tcheck vuln"
 		nmap -n -Pn -p $port --script=mysql-vuln-cve2012-2122 $ip > logs/vulnerabilities/$ip-mysql-vuln.txt 2>/dev/null
 		grep "|" logs/vulnerabilities/$ip-mysql-vuln.txt | grep -v "failed" > vulnerabilities/$ip-mysql-vuln.txt 	
+					
+	done
+fi
+
+if [ -f .services/postgres.txt ]
+then
+	echo -e "$OKBLUE\n\t#################### MY SQL (`wc -l .services/mysql.txt`) ######################$RESET"	  
+	for line in $(cat .services/postgres.txt); do
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"`
+		
+		echo -e "\n\t### $ip"	
+	
+		# user=root password=''
+		psql -h $ip -U postgres template0 -c 'select version()' > vulnerabilities/$ip-5432-postgresNOPASS.txt 2>/dev/null &
+		psql -h $ip -U pgsql template0 -c 'select version()' > vulnerabilities/$ip-5432-pgsqlNOPASS.txt  2>/dev/null &					
 					
 	done
 fi
@@ -1029,7 +1045,7 @@ fi
 #INTEL
 if [ -f .services/intel.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### intel ######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### intel (`wc -l .services/intel.txt`) ######################$RESET"	    
 	while read line       
 	do     				
 		ip=`echo $line | cut -f1 -d":"`
@@ -1069,6 +1085,18 @@ then
 		grep "|" logs/vulnerabilities/$ip-cisco-dos.txt  > vulnerabilities/$ip-cisco-dos.txt
 													 
 	done <.services/cisco.txt
+fi
+
+#RomPager
+if [ -f .services/RomPager.txt ]
+then
+	echo -e "$OKBLUE\n\t#################### RomPager (`wc -l .services/RomPager.txt`) ######################$RESET"	    
+	while ip line       
+	do     						
+		echo -e "\n\t### $ip "	
+		misfortune_cookie.pl -target $ip -port 80 > vulnerabilities/$ip-80-misfortune.txt 2>/dev/null &
+													 
+	done <.services/RomPager.txt
 fi
 
 
@@ -1159,13 +1187,11 @@ then
 		pret.sh --safe $ip pjl -i `pwd`/command.txt  > logs/enumeration/$ip-9100-PJL.txt 2>/dev/null ;
 		echo -e "\t PS "			
 		pret.sh --safe $ip ps -i `pwd`/command.txt > logs/enumeration/$ip-9100-PS.txt 2>/dev/null ;
-		echo -e "\t PCL "			
-		pret.sh --safe $ip pcl -i `pwd`/command.txt > logs/enumeration/$ip-9100-PCL.txt 2>/dev/null ;
+				
 		
 		
-		grep -i --color=never "found" logs/enumeration/$ip-9100-PJL.txt | grep -iv "not" >> enumeration/$ip-9100-printer2.txt 
-		grep -i --color=never "found" logs/enumeration/$ip-9100-PS.txt | grep -iv "not" >> enumeration/$ip-9100-printer2.txt 
-		grep -i --color=never "found" logs/enumeration/$ip-9100-PCL.txt | grep -iv "not" >> enumeration/$ip-9100-printer2.txt 
+		grep -i --color=never "found" logs/enumeration/$ip-9100-PJL.txt | wgrep -iv "not|http" >> enumeration/$ip-9100-printer2.txt 
+		grep -i --color=never "found" logs/enumeration/$ip-9100-PS.txt | wgrep -iv "not|http" >> enumeration/$ip-9100-printer2.txt 		
 		sort enumeration/$ip-9100-printer2.txt  | uniq > enumeration/$ip-9100-printer.txt 
 		rm enumeration/$ip-9100-printer2.txt 
 			
@@ -1186,8 +1212,9 @@ if [ -f .services/smtp.txt ]
 			
 			echo  "scan $ip (smtp - vrfy,openrelay)"		
 			vrfy-test.py $ip $port > enumeration/$ip-$port-vrfy.txt 2>/dev/null &
-			open-relay.py $ip $port > enumeration/$ip-$port-openrelay.txt 2>/dev/null &
-			sleep 2;
+			open-relay.py $ip $port > logs/enumeration/$ip-$port-openrelay.txt 2>/dev/null 
+			nc -w 3 $ip $port <<<"EHLO localhost"  enumeration/$ip-$port-EHLO.txt 2>/dev/null
+						
 		done <.services/smtp.txt
 	fi
 
@@ -1221,6 +1248,10 @@ then
 			nmap -n -Pn -p $port $ip --script=http-vuln-cve2012-1823 > logs/vulnerabilities/$ip-$port-cgi.txt 2>/dev/null  					
 			grep "|" logs/vulnerabilities/$ip-$port-cgi.txt > vulnerabilities/$ip-$port-cgi.txt  	
 			
+			echo -e "\t### web-buster"
+			web-buster.pl -s $ip -p $port -t 20 -a / -m archivos -q 1 | grep http >> enumeration/$ip-$port-webarchivos.txt  
+			web-buster.pl -s $ip -p $port -t 20 -a / -m cgi -q 1 | grep --color=never "200	" >> .services/cgi.txt   
+			
 			if [ $OFFSEC != "1" ] ; then	
 				echo -e "\n\t### $ip:$port (Revisando si apache tiene slowloris)"
 				nmap -n -sV -Pn -p $port --script=http-slowloris-check   $ip > logs/vulnerabilities/$ip-$port-slowloris.txt 2>/dev/null 
@@ -1237,7 +1268,7 @@ then
 			nmap -n -Pn -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilities/$ip-$port-HTTPsys.txt 2>/dev/null 
 			grep "|" logs/vulnerabilities/$ip-$port-HTTPsys.txt > vulnerabilities/$ip-$port-HTTPsys.txt 
 			echo -e "\t### web-buster"
-			web-buster.pl -s $ip -p $port -t 33 -a / -m archivos -q 1 | grep http > enumeration/$ip-$port-webarchivos.txt  
+			web-buster.pl -s $ip -p $port -t 33 -a / -m archivos -q 1 | grep http >> enumeration/$ip-$port-webarchivos.txt  
 		fi
 										
 		####################################	
@@ -1297,6 +1328,10 @@ then
 			echo -e "\n\t### $ip:$port (Revisando vulnerabilidad cgi)"
 			nmap -n -Pn -p $port $ip --script=http-vuln-cve2012-1823 > logs/vulnerabilities/$ip-$port-cgi.txt 2>/dev/null  					
 			grep "|" logs/vulnerabilities/$ip-$port-cgi.txt > vulnerabilities/$ip-$port-cgi.txt  	
+			
+			echo -e "\t### web-buster"
+			web-buster.pl -s $ip -p $port -t 20 -a / -m archivos -q 1 | grep http >> enumeration/$ip-$port-webarchivos.txt  
+			web-buster.pl -s $ip -p $port -t 20 -a / -m cgi -q 1 | grep --color=never "200	" >> .services/cgi.txt  
 					
 		fi						
 		####################################
@@ -1310,15 +1345,15 @@ then
 			grep "|" logs/vulnerabilities/$ip-$port-HTTPsys.txt > vulnerabilities/$ip-$port-HTTPsys.txt 
 			
 			echo -e "\t### web-buster"
-			web-buster.pl -s $ip -p $port -t 33 -a / -m archivos -q 1 | grep http > enumeration/$ip-$port-webarchivos.txt  
+			web-buster.pl -s $ip -p $port -t 33 -a / -m archivos -q 1 | grep http >> enumeration/$ip-$port-webarchivos.txt  
 		fi
 										
 		####################################
 			
 		#if [ $vuln == "s" ] ; then	
 		echo -e "\n\t### $ip:$port (Vulnerabilidades SSL)"	
-		nmap -n -sV -Pn -p $port $ip  --script=ssl-heartbleed  > logs/vulnerabilities/$ip-$port-nmap.txt 2>/dev/null 
-		grep "|" logs/vulnerabilities/$ip-$port-nmap.txt > vulnerabilities/$ip-$port-nmap.txt
+		 nmap -n -Pn -p 443 --script=ssl-heartbleed $ip > logs/vulnerabilities/$ip-$port-heartbleed.txt 2>/dev/null 
+		grep "|" logs/vulnerabilities/$ip-$port-heartbleed.txt > vulnerabilities/$ip-$port-heartbleed.txt
 		
 		a2sv.sh -t $ip -p $port -d n | grep CVE > logs/vulnerabilities/$ip-$port-a2sv.txt 2>/dev/null 
 		grep --color=never "Vulnerable" logs/vulnerabilities/$ip-$port-a2sv.txt | grep -iv "not"  > vulnerabilities/$ip-$port-a2sv.txt
@@ -1343,6 +1378,26 @@ then
 			rdpscreenshot -o `pwd`/screenshots/ $ip 2>/dev/null			
 		done	
 	fi    		
+fi
+
+
+
+if [ -f .services/cgi.txt ]
+then
+        		
+		echo -e "$OKBLUE\n\t#################### Shellsock (`wc -l .services/cgi.txt`) ######################$RESET"	  
+		for line in $(cat .services/cgi.txt); do
+			ip=`echo $line |  cut -d ":" -f 2 | tr -d /`
+			path=`echo $line | cut -d ":" -f 3 | sed 's/80//g'`				
+			if [ $ip != "200" ]
+			then 			
+				echo  "scan $ip (CGI -Shellsock)"				
+				nmap -sV -p80 --script http-shellshock.nse --script-args uri=$path $ip > logs/vulnerabilities/$ip-80-shellshock.txt
+				grep "|" logs/vulnerabilities/$ip-80-shellshock.txt  > vulnerabilities/$ip-80-shellshock.txt			
+			fi
+			
+						
+		done		 	
 fi
 
 # check if we have any script running
