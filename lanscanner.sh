@@ -8,8 +8,8 @@ RESET='\e[0m'
 
 
 ################## Config HERE ####################
-netA="160.0.X.0/24";
-netB="160.80.X.0/24";
+netA="10.0.X.0/24";
+netB="172.16.X.0/24";
 netC="192.168.X.0/24";
 #netC="192.168.X.0/24";
 ####################################################
@@ -142,8 +142,8 @@ echo -e "#####################################" | tee -a reports/info.txt
 # FASE: 1
 #######################################  Discover live hosts ##################################### 
   echo -e "\t $OKBLUE Es una red plana? s/n $RESET"
-  echo -e "$OKGREEN\t\t si = Buscar host vivos en otras redes usando ARP $RESET" 
-  echo -e "$OKGREEN\t\t no = Buscar host vivos en otras redes usando ICMP,SMB,TCP21,80,443  $RESET" 
+  echo -e "$OKGREEN\t\t s = Buscar host vivos en otras redes usando ARP $RESET" 
+  echo -e "$OKGREEN\t\t n = Buscar host vivos en otras redes usando ICMP,SMB,TCP21,80,443  $RESET" 
   read flat
 
 
@@ -330,16 +330,16 @@ if [ $TYPE = "parcial" ] ; then
 		report-OS-domain.pl all-live_hosts.txt
 		
 		### users/groups ####
-		grep --color=never -ir "Local User" * > ../reports/users.txt
-		grep --color=never -ir "Account" * >> ../reports/users.txt
+		grep --color=never -ir "Local User" * > ../enumeration/$subnet-users.txt
+		grep --color=never -ir "Account" * >> ../enumeration/$subnet-users.txt
 		
 		
-		sed -i -e 's/.txt:/;/g' ../reports/users.txt
-		sed -i -e 's/ (Local User)//g' ../reports/users.txt
-		grep "Local Group" * > ../reports/groups.txt
+		sed -i -e 's/.txt:/;/g'  ../enumeration/$subnet-users.txt
+		sed -i -e 's/ (Local User)//g'  ../enumeration/$subnet-users.txt
+		grep "Local Group" * > ../enumeration/$subnet-groups.txt
 		
 		#### delete ###		
-		find ../reports -size  0 -print0 |xargs -0 rm  # delete empty files
+		find ../enumeration -size  0 -print0 |xargs -0 rm  # delete empty files
 		cd ../
 		################################
    fi
@@ -547,7 +547,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_scan == "s" ]; then
 	## ssh																	del newline       add port
 	grep ' 22/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:22\n"' >> ../.services/ssh.txt
 	grep ' 6001/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:6001\n"' >> ../.services/ssh.txt
-	grep	 ' 23/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:23\n"' >> ../.services/telnet.txt
+	grep ' 23/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:23\n"' >> ../.services/telnet.txt
 	
 	## smtp																	del newline       add port
 	grep ' 25/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:25\n"' >> ../.services/smtp.txt
@@ -1349,15 +1349,13 @@ then
 		fi
 										
 		####################################
-			
-		#if [ $vuln == "s" ] ; then	
+					
 		echo -e "\n\t### $ip:$port (Vulnerabilidades SSL)"	
-		 nmap -n -Pn -p 443 --script=ssl-heartbleed $ip > logs/vulnerabilities/$ip-$port-heartbleed.txt 2>/dev/null 
+		 nmap -n -Pn -p $port --script=ssl-heartbleed $ip > logs/vulnerabilities/$ip-$port-heartbleed.txt 2>/dev/null 
 		grep "|" logs/vulnerabilities/$ip-$port-heartbleed.txt > vulnerabilities/$ip-$port-heartbleed.txt
 		
 		a2sv.sh -t $ip -p $port -d n | grep CVE > logs/vulnerabilities/$ip-$port-a2sv.txt 2>/dev/null 
-		grep --color=never "Vulnerable" logs/vulnerabilities/$ip-$port-a2sv.txt | grep -iv "not"  > vulnerabilities/$ip-$port-a2sv.txt
-		#fi							
+		grep --color=never "Vulnerable" logs/vulnerabilities/$ip-$port-a2sv.txt | grep -iv "not"  > vulnerabilities/$ip-$port-a2sv.txt							
 	done   		
 fi
 
