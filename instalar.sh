@@ -58,9 +58,9 @@ echo ""
 
 
 echo -e "${GREEN} [+] Instalando librerias de perl ${RESET}"
-sudo cpanm http://search.cpan.org/CPAN/authors/id/G/GR/GROMMEL/Math-Round-0.07.tar.gz
-sudo cpanm http://search.cpan.org/CPAN/authors/id/U/UR/URI/File-Slurp-9999.19.tar.gz
-sudo cpanm http://search.cpan.org/CPAN/authors/id/M/MA/MAKAMAKA/JSON-2.90.tar.gz
+sudo cpan G/GR/GROMMEL/Math-Round-0.07.tar.gz
+sudo cpan U/UR/URI/File-Slurp-9999.19.tar.gz
+sudo cpan M/MA/MAKAMAKA/JSON-2.90.tar.gz
 
 
 echo -e "${RED}[+]${GREEN} Instalando GeoIP ${RESET}"
