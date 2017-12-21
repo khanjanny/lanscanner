@@ -355,11 +355,11 @@ fi # scan_type
 total_hosts=`wc -l .data/all-live_hosts.txt | sed 's/.data\/all-live_hosts.txt//g' `
 echo -e  "$OKGREEN TOTAL HOST VIVOS ENCONTRADOS: $total_hosts hosts $RESET" 
 
-if [ $total_hosts -gt 470 ] ; then	  	 
-	echo "Muchos hosts. Dividir el archivo .data/all-live_hosts.txt y volver a ejecutar lanscanner"	
-	echo -e "\tlanscanner.sh -t completo -f lista.txt"
-	exit
-fi
+#if [ $total_hosts -gt 490 ] ; then	  	 
+	#echo "Muchos hosts. Dividir el archivo .data/all-live_hosts.txt y volver a ejecutar lanscanner"	
+	#echo -e "\tlanscanner.sh -t completo -f lista.txt"
+	#exit
+#fi
 #################################  
 
 ######################################### end discover live hosts #########################################
@@ -468,7 +468,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 	if [ $port_scan_num == '1' ]        	    
 	then
      	echo "	## Realizando escaneo de puertos especificos (Web, SSH, Telnet,SMB, etc) ##"  
-     	nmap -n -Pn -iL $live_hosts -sV -p21,22,23,25,53,80,110,139,143,443,445,993,995,1433,1521,3306,3389,8080 -oG .nmap/nmap-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null     	     	
+     	nmap -n -iL $live_hosts -sV -p21,22,23,25,53,80,110,139,143,443,445,993,995,1433,1521,3306,3389,8080 -oG .nmap/nmap-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null     	     	
      fi	
      
      
@@ -537,7 +537,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 				echo "Sospechoso!!. Muchos puertos abiertos ($num_ports)"
 			else				
 				echo -e "	[+] Identificando servicios de $ip ($ports)"
-				nmap -n -Pn -sV -O -p $ports $ip -oG .scans/$ip-tcp.grep2 >> reports/nmap-tcp.txt 2>/dev/null &						
+				nmap -n -sV -O -p $ports $ip -oG .scans/$ip-tcp.grep2 >> reports/nmap-tcp.txt 2>/dev/null &						
 			fi					                            			
         done 
         
@@ -564,7 +564,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
     echo -e "$OKBLUE\n\t#################### Escaneo de puertos UDP ######################$RESET"	  
        
 		
-	nmap -n -Pn -sU -p 53,161,500,67,1604  -iL $live_hosts -oG .nmap/nmap-udp.grep > reports/nmap-udp.txt 2>/dev/null 
+	nmap -n -sU -p 53,161,500,67,1604  -iL $live_hosts -oG .nmap/nmap-udp.grep > reports/nmap-udp.txt 2>/dev/null 
 		
 	#if [ $FILE = NULL ] ; then 
 	echo -e "$OKBLUE\n\t ¿Estamos escaneado IPs publicas? s/n $RESET"	  
@@ -773,7 +773,7 @@ then
 	for ip in $(cat .services/smb.txt); do							
 		echo -e "\n\t### $ip (port 445)"				
 		#,smb-vuln-ms10-061,,smb-vuln-ms06-025,smb-vuln-ms07-029 
-		nmap -n -Pn -p445 --script smb-vuln-ms08-067,smb-vuln-ms17-010 $ip > logs/vulnerabilities/$ip-445-nmap.txt 2>/dev/null
+		nmap -n -p445 --script smb-vuln-ms08-067,smb-vuln-ms17-010 $ip > logs/vulnerabilities/$ip-445-nmap.txt 2>/dev/null
 		grep "|" logs/vulnerabilities/$ip-445-nmap.txt | egrep -v "ACCESS_DENIED|false" > vulnerabilities/$ip-445-nmap.txt  
 		
 		smbmap -H $ip -u anonymous -p anonymous > logs/enumeration/$ip-445-shared.txt 2>/dev/null
@@ -821,7 +821,7 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`						
 		echo -e "\n\t### $ip"
-		nmap -n -Pn -sV -p 554 --script=rtsp-url-brute $ip > logs/vulnerabilities/$ip-554-openstreaming.txt 2>/dev/null 
+		nmap -n -sV -p 554 --script=rtsp-url-brute $ip > logs/vulnerabilities/$ip-554-openstreaming.txt 2>/dev/null 
 		grep "|" logs/vulnerabilities/$ip-554-openstreaming.txt > vulnerabilities/$ip-554-openstreaming.txt 		
 	done		
 fi
@@ -843,7 +843,7 @@ then
 		mysql -uroot -h $ip -proot -e 'select * from mysql.user;' > vulnerabilities/$ip-mysql-password.txt  2>/dev/null &
 		
 		echo  -e "\tRevisar vulnerabilidades"
-		nmap -n -Pn -p $port --script=mysql-vuln-cve2012-2122 $ip > logs/vulnerabilities/$ip-mysql-vuln.txt 2>/dev/null
+		nmap -n -p $port --script=mysql-vuln-cve2012-2122 $ip > logs/vulnerabilities/$ip-mysql-vuln.txt 2>/dev/null
 		grep "|" logs/vulnerabilities/$ip-mysql-vuln.txt | grep -v "failed" > vulnerabilities/$ip-mysql-vuln.txt 	
 					
 	done
@@ -874,7 +874,7 @@ then
 		port=`echo $line | cut -f2 -d":"`		
 		
 		
-		nmap -n -sV -Pn -p $port --script=mongodb-databases,mongodb-info $ip  > logs/enumeration/$ip-monogodb.txt 2>/dev/null 
+		nmap -n -sV -p $port --script=mongodb-databases,mongodb-info $ip  > logs/enumeration/$ip-monogodb.txt 2>/dev/null 
 		grep "|" logs/enumeration/$ip-monogodb.txt > enumeration/$ip-monogodb.txt 
 			
 		
@@ -889,7 +889,7 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
 		
-		nmap -n -sV -Pn -p $port --script=couchdb-databases,couchdb-stats $ip > logs/enumeration/$ip-couchdb.txt 2>/dev/null
+		nmap -n -sV -p $port --script=couchdb-databases,couchdb-stats $ip > logs/enumeration/$ip-couchdb.txt 2>/dev/null
 		grep "|" logs/enumeration/$ip-couchdb.txt > enumeration/$ip-couchdb.txt 
 	done	
 fi
@@ -903,7 +903,7 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
 				
-		nmap -n -Pn $ip --script=x11-access.nse > logs/enumeration/$ip-x11.txt 2>/dev/null 
+		nmap -n $ip --script=x11-access.nse > logs/enumeration/$ip-x11.txt 2>/dev/null 
 		grep "|" logs/enumeration/$ip-x11.txt > enumeration/$ip-x11.txt 
 		
 	done	
@@ -916,7 +916,7 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`	
 				
-		nmap -n -Pn -p $port $ip --script=nfs-ls.nse,rpcinfo > logs/enumeration/$ip-rpc.txt 2>/dev/null 
+		nmap -n -p $port $ip --script=nfs-ls.nse,rpcinfo > logs/enumeration/$ip-rpc.txt 2>/dev/null 
 		grep "|" logs/enumeration/$ip-rpc.txt > enumeration/$ip-rpc.txt 
 		
 	done	
@@ -931,7 +931,7 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
 		
-		nmap -n -Pn -sU -p $port $ip --script=upnp-info, broadcast-upnp-info > enumeration/$ip/upnp.txt 2>/dev/null &
+		nmap -n -sU -p $port $ip --script=upnp-info, broadcast-upnp-info > enumeration/$ip/upnp.txt 2>/dev/null &
 			
 	done
 fi
@@ -943,7 +943,7 @@ then
 	for line in $(cat .services/redis.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`				
-		nmap -n -Pn -p $port $ip --script redis-info > logs/enumeration/$ip-redis.txt 2>/dev/null
+		nmap -n -p $port $ip --script redis-info > logs/enumeration/$ip-redis.txt 2>/dev/null
 		grep "|" logs/enumeration/$ip-redis.txt  > enumeration/$ip-redis.txt						
 	done
 fi
@@ -955,7 +955,7 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
 		
-		nmap -n -Pn -p $port $ip --script rmi-vuln-classloader > logs/vulnerabilities/$ip-rmi-vuln.txt 2>/dev/null
+		nmap -n -p $port $ip --script rmi-vuln-classloader > logs/vulnerabilities/$ip-rmi-vuln.txt 2>/dev/null
 		grep "|" logs/vulnerabilities/$ip-rmi-vuln.txt  > vulnerabilities/$ip-rmi-vuln.txt
 		
 	done
@@ -1045,7 +1045,7 @@ then
 			echo "VNC bypass ($vnc_response)" > vulnerabilities/$ip-$port-bypass.txt 
 		fi	
 		
-		nmap -n -Pn -p $port --script realvnc-auth-bypass $ip > logs/vulnerabilities/$ip-$port-bypass2.txt 2>/dev/null
+		nmap -n -p $port --script realvnc-auth-bypass $ip > logs/vulnerabilities/$ip-$port-bypass2.txt 2>/dev/null
 		grep "|" logs/vulnerabilities/$ip-$port-bypass2.txt > vulnerabilities/$ip-$port-bypass2.txt
 	
 	done
@@ -1061,7 +1061,7 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`	
 		echo -e "\n\t### $ip ($port)"	
-		nmap -sU -n -Pn -sV -p 1434 --host-timeout 10s --script ms-sql-info $ip > logs/enumeration/$ip-1434-info.txt  2>/dev/null
+		nmap -sU -n -sV -p 1434 --host-timeout 10s --script ms-sql-info $ip > logs/enumeration/$ip-1434-info.txt  2>/dev/null
 		grep "|" logs/enumeration/$ip-1434-info.txt  > enumeration/$ip-1434-info.txt 
 					
 	done <.services/mssql.txt
@@ -1078,10 +1078,10 @@ then
 		port=`echo $line | cut -f2 -d":"` 	
 		
 		echo -e "\n\t### $ip "			
-		domain=`nmap -n -Pn -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
+		domain=`nmap -n -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
 				
 		if [ -z "$domain" ]; then
-			domain=`nmap -n -Pn -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
+			domain=`nmap -n -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
 		fi
 		
 		
@@ -1109,7 +1109,7 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
 		echo -e "\n\t### $ip ($port)"	
-		nmap -n -Pn --script vmware-version -p443 $ip > logs/enumeration/$ip-vmware-version.txt 2>/dev/null
+		nmap -n --script vmware-version -p443 $ip > logs/enumeration/$ip-vmware-version.txt 2>/dev/null
 		grep "|" logs/enumeration/$ip-vmware-version.txt > enumeration/$ip-vmware-version.txt 
 													 
 	done <.services/vmware.txt
@@ -1125,8 +1125,8 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
 		echo -e "\n\t### $ip ($port)"	
-		nmap -n -Pn -sU --script=citrix-enum-apps -p 1604 $ip > logs/enumeration/$ip-citrix-app.txt 2>/dev/null
-		nmap -n -Pn -sU --script=citrix-enum-servers -p 1604  $ip > logs/enumeration/$ip-citrix-servers.txt 2>/dev/null
+		nmap -n -sU --script=citrix-enum-apps -p 1604 $ip > logs/enumeration/$ip-citrix-app.txt 2>/dev/null
+		nmap -n -sU --script=citrix-enum-servers -p 1604  $ip > logs/enumeration/$ip-citrix-servers.txt 2>/dev/null
 		
 		grep "|" logs/enumeration/$ip-citrix-app.txt > enumeration/$ip-citrix-app.txt 
 		grep "|" logs/enumeration/$ip-citrix-servers.txt > enumeration/$ip-citrix-servers.txt 
@@ -1160,7 +1160,7 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
 		echo -e "\n\t### $ip ($port)"	
-		nmap -n -Pn -p 16992 --script http-vuln-cve2017-5689 $ip > logs/vulnerabilities/$ip-intel-bypass.txt 2>/dev/null			
+		nmap -n -p 16992 --script http-vuln-cve2017-5689 $ip > logs/vulnerabilities/$ip-intel-bypass.txt 2>/dev/null			
 		grep "|" logs/vulnerabilities/$ip-intel-bypass.txt > vulnerabilities/$ip-intel-bypass.txt
 													 
 	done <.services/intel.txt
@@ -1222,7 +1222,7 @@ then
 		port=`echo $line | cut -f2 -d":"` 	
 		
 		echo -e "\n\t### $ip "			
-		domain=`nmap -n -Pn -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
+		domain=`nmap -n -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
 		echo $domain > enumeration/$ip-$port-domain.txt
 		domain=`echo $domain | head -1`
 		ldapsearch -x -p $port -h $ip -b $domain -s sub "(objectclass=*)" > logs/enumeration/$ip-$port-directory.txt 
@@ -1340,11 +1340,11 @@ then
 		if [[ $greprc -eq 0 ]] ; then			
 			
 			echo -e "\n\t### $ip:$port (Revisando vulnerabilidad Struts)"
-			nmap -n -Pn -p $port $ip --script=http-vuln-cve2017-5638 > logs/vulnerabilities/$ip-$port-Struts.txt 2>/dev/null  					
+			nmap -n -p $port $ip --script=http-vuln-cve2017-5638 > logs/vulnerabilities/$ip-$port-Struts.txt 2>/dev/null  					
 			grep "|" logs/vulnerabilities/$ip-$port-Struts.txt > vulnerabilities/$ip-$port-Struts.txt  	
 			
 			echo -e "\n\t### $ip:$port (Revisando vulnerabilidad cgi)"
-			nmap -n -Pn -p $port $ip --script=http-vuln-cve2012-1823 > logs/vulnerabilities/$ip-$port-cgi.txt 2>/dev/null  					
+			nmap -n -p $port $ip --script=http-vuln-cve2012-1823 > logs/vulnerabilities/$ip-$port-cgi.txt 2>/dev/null  					
 			grep "|" logs/vulnerabilities/$ip-$port-cgi.txt > vulnerabilities/$ip-$port-cgi.txt  	
 			
 			echo -e "\t### web-buster"
@@ -1366,12 +1366,12 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then
 			echo -e "\n\t### $ip:$port ( IIS)"
-			nmap -n -Pn -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilities/$ip-$port-HTTPsys.txt 2>/dev/null 
+			nmap -n -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilities/$ip-$port-HTTPsys.txt 2>/dev/null 
 			grep "|" logs/vulnerabilities/$ip-$port-HTTPsys.txt > vulnerabilities/$ip-$port-HTTPsys.txt 
 			echo -e "\t### web-buster"
 			web-buster.pl -s $ip -p $port -t 20 -a / -m archivos -l 2 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  
 			web-buster.pl -s $ip -p $port -t 20 -a / -m admin -l 2 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
-			web-buster.pl -s $ip -p $port -t 20 -a / -m sharepoint -l 2 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
+			web-buster.pl -s $ip -p $port -t 20 -a / -m sharepoint -l 2 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-sharepoint.txt  &
 		fi
 										
 		####################################					
