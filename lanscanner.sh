@@ -121,12 +121,14 @@ my_route=`route -n | grep UG | awk '{print $2}'`
 date=`date`
 current_ip=`ifconfig $iface | grep netmask | awk '{print $2}'`
 current_subnet=`ifconfig $iface | grep -i mask | awk '{print $2}' | cut -d . -f 1-3`
+dns=`grep --color=never nameserver /etc/resolv.conf`
 
 rm  reports/info.txt 2>/dev/null
 echo -e "#####################################" | tee -a reports/info.txt
 echo -e "\t $OKRED IP Origen: $my_ip $RESET" | tee -a reports/info.txt
 echo -e "\t $OKRED MAC : $my_mac $RESET" | tee -a reports/info.txt
 echo -e "\t $OKRED Gateway: $my_route $RESET" | tee -a reports/info.txt
+echo -e "\t $OKRED DNS: $dns $RESET" | tee -a reports/info.txt
 echo -e "\t $OKRED Subnet: $current_subnet.0/24 $RESET" | tee -a reports/info.txt
 echo -e "\t $OKRED Date: $date $RESET" | tee -a reports/info.txt
 echo -e "#####################################" | tee -a reports/info.txt
@@ -242,27 +244,29 @@ fi # scan_type
       
       
       #################################   DNS    ###########################################
-	  echo -e "\t ##### Realizando escaneo DNS en busca de mas hosts vivos #####"	  
+
 	  
-	  if [ $SUBNET_FILE != NULL ] ; then	  	 
+	  if [ $SUBNET_FILE != NULL ] ; then	
+   	 	echo -e "\t ##### Realizando escaneo DNS en busca de mas hosts vivos #####"	  
+  	 
 		for subnet in `cat ../$SUBNET_FILE`;
 		do 
 			echo "scanning $subnet "
 			dnsrecon -r $subnet | tee -a .scans/escaneo-dns.txt
 		done
-			  
+
+	  	#cat .scans/escaneo-dns.txt | grep : | awk '{print $1}' > $smb_list 2>/dev/null	  
+		grep PTR .scans/escaneo-dns.txt 2>/dev/null| awk '{print $4}'  > $dns_list 2>/dev/null			  
+
+                                   
+	      echo -e  "\n##############################################################################" 
+	      echo -e  "$OKGREEN Con el escaneo DNS  encontramos estos hosts vivos: $RESET" 
+	      cat $dns_list
+	      echo ""      
+	      #####################################################################################
 	  fi
 	  
-	  #cat .scans/escaneo-dns.txt | grep : | awk '{print $1}' > $smb_list 2>/dev/null	  
-	  grep PTR .scans/escaneo-dns.txt | awk '{print $4}'  > $dns_list 2>/dev/null
-      
-                                   
-      echo -e  "\n##############################################################################" 
-      echo -e  "$OKGREEN Con el escaneo DNS  encontramos estos hosts vivos: $RESET" 
-      cat $dns_list
-      echo ""      
-      #####################################################################################
-      
+           
       
       #################################   PORT 23,80,443,22  escaneando #########################################
 	  
@@ -333,9 +337,9 @@ fi # scan_type
     done;      
     
      #join arp-list, ping & smb escaneando & mass scan, DNS
-	 cat $dns_list $smb_list $mass_scan_list $ping_list .data/arp-list.txt | sort | uniq > $live_hosts #2>/dev/null 
+	 cat $dns_list $smb_list $mass_scan_list $ping_list .data/arp-list.txt 2>dev/null | sort | uniq > $live_hosts #2>/dev/null 
 	 sed -i '/^\s*$/d' $live_hosts # delete empty lines	   
-     rm .data/all-live_hosts-1.txt      
+     rm .data/all-live_hosts-1.txt  2>/dev/null    
           
         
      if [ $scan_type == '1' ]
@@ -736,15 +740,15 @@ if [[ $TYPE = "completo" ]] || [ $udp_escaneando == "s" ]; then
 	grep 53/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:53\n"' >> ../.services/dns.txt
 	
 	grep 161/open/ nmap-udp.grep | awk '{print $2}'  >> ../.services/snmp2.txt	
-	grep '161/udp' ../.masscan/* | cut -d " " -f 6 >> ../.services/snmp2.txt
+	grep '161/udp' ../.masscan/* 2>/dev/null| cut -d " " -f 6 >> ../.services/snmp2.txt
 	sort ../.services/snmp2.txt | uniq >../.services/snmp.txt; rm ../.services/snmp2.txt
 	
 	grep 67/open/ nmap-udp.grep | awk '{print $2}'  >> ../.services/dhcp2.txt	
-	grep '67/udp' ../.masscan/* | cut -d " " -f 6 >> ../.services/dhcp2.txt
+	grep '67/udp' ../.masscan/* 2>/dev/null | cut -d " " -f 6 >> ../.services/dhcp2.txt
 	sort ../.services/dhcp2.txt | uniq >../.services/dhcp.txt; rm ../.services/dhcp2.txt
 	
 	grep 500/open/ nmap-udp.grep | awk '{print $2}'  >> ../.services/vpn2.txt
-	grep '500/udp' ../.masscan/* | cut -d " " -f 6 >> ../.services/vpn2.txt
+	grep '500/udp' ../.masscan/* 2>/dev/null | cut -d " " -f 6 >> ../.services/vpn2.txt
 	sort ../.services/vpn2.txt | uniq >../.services/vpn.txt; rm ../.services/vpn2.txt
 	
 	grep 1604/open/ nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1604\n"' >> ../.services/citrix.txt
@@ -769,7 +773,7 @@ echo -e "$OKGREEN#################################### EMPEZANDO ENUMERACION ####
 if [ -f .services/smb.txt ]
 then  
 	echo -e "$OKBLUE\n\t#################### SMB (`wc -l .services/smb.txt`) ######################$RESET"	
-	mkdir -p .smbclient/
+	mkdir -p .smbinfo/
 	for ip in $(cat .services/smb.txt); do							
 		echo -e "\n\t### $ip (port 445)"				
 		#,smb-vuln-ms10-061,,smb-vuln-ms06-025,smb-vuln-ms07-029 
@@ -788,13 +792,13 @@ then
 			
 		########## making reports #######
 		echo -e "\t Obteniendo OS/DOMAIN" 		
-		cp $live_hosts .smbclient/
-		smbclient //$ip/ipc\$ -U "%" -c 'q'  2> .smbclient/$ip.txt	
-		nmblookup -A $ip >> .smbclient/$ip.txt			
+		cp $live_hosts .smbinfo/
+		nmap -n -Pn --script smb-os-discovery.nse -p445 $ip | grep "|"> .smbinfo/$ip.txt	
+
 		################################										
 	done
 		echo -e "\t#### Creando reporte (OS/Domain/users) ###" 		
-		cd .smbclient/
+		cd .smbinfo/
 		report-OS-domain.pl all-live_hosts.txt 2>/dev/null
 		cd ..	
 fi
