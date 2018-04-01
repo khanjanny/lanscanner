@@ -54,13 +54,13 @@ Opciones:
 
 Ejemplo 1: Escanear la red local (completo)
 
-lanscanner.sh -t completo
+    lanscanner.sh -t completo
 
 Ejemplo 2: Escanear el listado de IPs (completo)
 
-lanscanner.sh -t completo -f lista.txt
+    lanscanner.sh -t completo -f lista.txt
 
 Ejemplo 3: Escanear el listadado de subredes (completo)
 
-lanscanner.sh -t completo -s subredes.txt
+    lanscanner.sh -t completo -s subredes.txt
 
