@@ -66,10 +66,26 @@ OFFSEC=${OFFSEC:=NULL}
 
 if [ $TYPE = NULL ] ; then
 
-echo "|              														 			"
-echo "| USO: lanscanner.sh -t [completo/parcial/enumerate]  -s subnets_file  "
-echo "|																		 			"
-echo ""
+cat << "EOF"
+
+Opciones: 
+
+-t : Tipo de escaneo [completo/parcial]
+
+Definicion del alcance (opcional):
+	-s : Lista con las subredes a escanear (Formato CIDR 0.0.0.0/24)
+	-f : Lista con las IP a escanear
+
+Ejemplo 1: Escanear la red local (completo)
+	lanscanner.sh -t completo
+
+Ejemplo 2: Escanear el listado de IPs (completo)
+	lanscanner.sh -t completo -f lista.txt
+
+Ejemplo 3: Escanear el listadado de subredes (completo)
+	lanscanner.sh -t completo -s subredes.txt
+EOF
+
 exit
 fi
 ######################
@@ -763,7 +779,7 @@ find .services -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
 echo "######################################################################################### "
 
 
-fi # enumerate
+fi # enumerar
 
 # FASE: 3
 echo -e "\n\n$OKRED [+] FASE 3: ENUMERACION DE PUERTOS E IDENTIFICACION DE VULNERABILIDADES $RESET"
@@ -841,10 +857,10 @@ then
 		echo -e "\n\t### $ip"	
 	
 		# user=root password=''
-		mysql -uroot -h $ip -e 'select * from mysql.user;' > vulnerabilities/$ip-mysql-nopass.txt 2>/dev/null &
+#		mysql -uroot -h $ip -e 'select * from mysql.user;' > vulnerabilities/$ip-mysql-nopass.txt 2>/dev/null &
 	
 		# user=root password=root	
-		mysql -uroot -h $ip -proot -e 'select * from mysql.user;' > vulnerabilities/$ip-mysql-password.txt  2>/dev/null &
+		#mysql -uroot -h $ip -proot -e 'select * from mysql.user;' > vulnerabilities/$ip-mysql-password.txt  2>/dev/null &
 		
 		echo  -e "\tRevisar vulnerabilidades"
 		nmap -n -p $port --script=mysql-vuln-cve2012-2122 $ip > logs/vulnerabilities/$ip-mysql-vuln.txt 2>/dev/null
@@ -853,21 +869,21 @@ then
 	done
 fi
 
-if [ -f .services/postgres.txt ]
-then
-	echo -e "$OKBLUE\n\t#################### Postgres (`wc -l .services/postgres.txt`) ######################$RESET"	  
-	for line in $(cat .services/postgres.txt); do
-		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`
+#if [ -f .services/postgres.txt ]
+#then
+	#echo -e "$OKBLUE\n\t#################### Postgres (`wc -l .services/postgres.txt`) ######################$RESET"	  
+#	for line in $(cat .services/postgres.txt); do
+		#ip=`echo $line | cut -f1 -d":"`
+#		port=`echo $line | cut -f2 -d":"`
 		
-		echo -e "\n\t### $ip"	
+		#echo -e "\n\t### $ip"	
 	
 		# user=root password=''
-		psql -h $ip -U postgres template0 -c 'select version()' > vulnerabilities/$ip-5432-postgresNOPASS.txt 2>/dev/null &
-		psql -h $ip -U pgsql template0 -c 'select version()' > vulnerabilities/$ip-5432-pgsqlNOPASS.txt  2>/dev/null &					
+		#psql -h $ip -U postgres template0 -c 'select version()' > vulnerabilities/$ip-5432-postgresNOPASS.txt 2>/dev/null &
+#		psql -h $ip -U pgsql template0 -c 'select version()' > vulnerabilities/$ip-5432-pgsqlNOPASS.txt  2>/dev/null &					
 					
-	done
-fi
+#	done
+#fi
 
 
 if [ -f .services/mongoDB.txt ]
@@ -1056,7 +1072,7 @@ then
 fi
 
 
-# enumerate MS-SQL
+# enumerar MS-SQL
 if [ -f .services/mssql.txt ]
 then
 	echo -e "$OKBLUE\n\t#################### MS-SQL (`wc -l .services/mssql.txt`) ######################$RESET"	    
