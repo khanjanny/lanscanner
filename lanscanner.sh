@@ -18,12 +18,13 @@ max_web_ins=10;
 port_scan_num=2;
 ####################################################
 
-
+live_hosts=".data/all-live_hosts.txt"
+arp_list=".data/arp-list.txt"
 smb_list=".scans/smb-list.txt"
 dns_list=".scans/dns-list.txt"
 mass_scan_list=".scans/mass-scan-list.txt"
-live_hosts=".data/all-live_hosts.txt"
 ping_list=".scans/ping-list.txt"
+smbclient_list=".scans/smbclient-list.txt"
 port_scan_num="n"
 vuln="n"
 rdp="n"
@@ -118,6 +119,7 @@ mkdir -p logs/enumeration
 mkdir -p logs/vulnerabilities
 
 touch $smb_list 
+touch $smbclient_list
 touch $mass_scan_list 
 touch $ping_list
 cp /usr/share/lanscanner/results.db .
@@ -160,6 +162,23 @@ xterm -hold -e monitor.sh &
      echo -e  "\n##############################################################################" 
      echo -e  "$OKRED \t Usando  ----> $FILE <----- $RESET" 
      cat ../$FILE | cut -d "," -f 2 | uniq > $live_hosts
+    
+    
+    ####### smbclient scan #
+    echo -e "$OKGREEN\t Buscando mas host vivos con smbclient  $RESET" 
+    for ip in `cat $live_hosts`;			
+	do 		
+		smbclient -L $ip -U "%"  | egrep -vi "comment|---|master|Error|reconnecting|failed" | awk '{print $1}' | tee -a .scans/smbclient.txt 2>/dev/null
+	done
+	cat .scans/smbclient.txt | uniq | sort > .scans/smbclient2.txt
+
+	for hostname in `cat .scans/smbclient2.txt`;
+	do 			
+			host $hostname | grep "has address" | cut -d " " -f 4 >> $smbclient_list
+	done
+	##################
+	
+     cat ../$FILE $smbclient_list | cut -d "," -f 2 | uniq  > $live_hosts # join file + smbclient_lis
      cat $live_hosts | cut -d . -f 1-3 | sort | uniq > .data/subnets.txt # get subnets      
      cat $live_hosts
      echo ""       
@@ -180,16 +199,22 @@ xterm -hold -e monitor.sh &
 
   echo -e "\n$OKRED [+] FASE 1: DESCUBRIR HOST VIVOS $RESET"
 
+  ######## ARP ########
   echo -e "$OKGREEN\t ++ Obteniendo host vivos locales  $RESET"
   arp-scan $iface $current_ip/24  | tee -a .arp/$current_subnet.0.arp2 2>/dev/null
   sleep 2
-  arp-scan $iface $current_ip/24  | tee -a .arp/$current_subnet.0.arp2 2>/dev/null
-  sleep 2
-  arp-scan $iface $current_ip/24  | tee -a .arp/$current_subnet.0.arp2 2>/dev/null
+  arp-scan $iface $current_ip/24  | tee -a .arp/$current_subnet.0.arp2 2>/dev/null  
   
   sort .arp/$current_subnet.0.arp2 | uniq > .arp/$current_subnet.0.arp
   rm .arp/$current_subnet.0.arp2
   echo -e "\t \n"
+  
+  	# ARP
+  for ip_list in $(ls .arp | egrep -v "all|done"); do      
+      cat .arp/$ip_list | egrep -v "DUP|packets" | grep ^1 | awk '{print $1}' | sort >> $arp_list
+      mv .arp/$ip_list .arp/$ip_list.done	
+   done;  
+  #######################  
   
   if [ $SUBNET_FILE = NULL ] ; then
 	echo -e "\t$OKBLUE Definir el numero de redes a escanear en busca de hosts vivos $RESET"    
@@ -246,6 +271,7 @@ fi # scan_type
 		done
 		
 	  else
+		# escaneo a redes definidas por el usuario
 		smb-scan.pl $netA $netB $netC $num_nets_enum | tee -a .scans/escaneo-smb.txt		
 	  fi
 	  
@@ -340,36 +366,60 @@ fi # scan_type
 	  #####################################################################################
 	           
     #fi #if scan_type
+      #################################   smbclient   ###########################################
+	  
+	  
+		echo -e "\t $OKBLUE ##### Realizando escaneo smclient en busca de mas hosts vivos ##### $RESET"	  
+		
+		######## preliminar join arp + ping +smb + mass scan + DNS to review more hosts
+		cat $dns_list $smb_list $mass_scan_list $ping_list $arp_list 2>/dev/null | sort | uniq > $live_hosts #2>/dev/null 
+		sed -i '/^\s*$/d' $live_hosts # delete empty lines	          
+		##################  
+     
+		for ip in `cat $live_hosts`;			
+		do 		
+			smbclient -L $ip -U "%"  | egrep -vi "comment|---|master|Error|reconnecting|failed" | awk '{print $1}' >> .scans/smbclient.txt 2>/dev/null
+		done
+		cat .scans/smbclient.txt | uniq | sort > .scans/smbclient2.txt
+
+		for hostname in `cat .scans/smbclient2.txt`;
+		do 			
+			host $hostname | grep "has address" | cut -d " " -f 4 >> $smbclient_list
+		done
+	
+		
+		
+                
+        
+        echo -e  "\n##############################################################################" 
+        echo -e  "$OKGREEN Con el escaneo de smbclient encontramos estos hosts vivos: $RESET" 
+        cat $smbclient_list
+        echo ""             
+	  #####################################################################################
+	           
         
     
     echo -e  "\n##############################################################################" 
     ############ Generando lista ###########
-
-	# ARP
-    for ip_list in $(ls .arp | egrep -v "all|done"); do
-       #cat .arp/$ip_list | grep ^1 |grep -v "DUP" | awk '{print $1}' | sort >> .data/all-live_hosts-1.txt                  
-       cat .arp/$ip_list | egrep -v "DUP|packets" | grep ^1 | awk '{print $1}' | sort >> .data/arp-list.txt
-       mv .arp/$ip_list .arp/$ip_list.done	
-    done;      
+   
     
-     #join arp-list, ping & smb escaneando & mass scan, DNS
-	 cat $dns_list $smb_list $mass_scan_list $ping_list .data/arp-list.txt 2>dev/null | sort | uniq > $live_hosts #2>/dev/null 
-	 sed -i '/^\s*$/d' $live_hosts # delete empty lines	   
-     rm .data/all-live_hosts-1.txt  2>/dev/null    
-          
+     ######## Final join arp + ping +smb + mass scan + DNS + smbclient
+	 cat $dns_list $smb_list $mass_scan_list $ping_list $arp_list $smbclient_list 2>/dev/null | sort | uniq > $live_hosts #2>/dev/null 
+	 sed -i '/^\s*$/d' $live_hosts # delete empty lines	          
+     ##################     
         
      if [ $scan_type == '1' ]
       then 
         echo "Revisar si hay host que no debemos escanear ($live_hosts). Presionar ENTER para continuar"
         read n	    
 	  fi	 
-	  cat $live_hosts | cut -d . -f 1-3 | uniq > .data/subnets.txt # get subnets 
+	  cat $live_hosts | cut -d . -f 1-3 | uniq > .data/subnets.txt # generate subnets 
 	  
 	  echo -e  "\n##############################################################################" 
       echo -e  "$OKGREEN TOTAL HOST VIVOS ENCONTRADOS: $RESET" 
       cat $live_hosts
       echo ""                  
-  fi
+ fi # if FILE
 
 ###### #check host number########
 total_hosts=`wc -l .data/all-live_hosts.txt | sed 's/.data\/all-live_hosts.txt//g' `

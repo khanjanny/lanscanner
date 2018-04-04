@@ -39,55 +39,6 @@ done
 echo ""
 
 
-echo -e "$OKBLUE[+] Revisando procesos de mysql $RESET"		
-for line in $( ps aux | grep --color=never mysql |grep -v color |  awk '{print $2,$9}' | tr " " ";" ); do
-	pid=`echo $line | cut -f1 -d";"`
-	time=`echo $line | cut -f2 -d";"`
-    #echo process time: $time
-    echo "pid: $pid time $time"
-               
-	diff=$(  echo "$current_time - $time"  | sed 's%:%+(1/60)*%g' | bc -l )	
-	diff=$(echo "($diff - $delta)*60" | bc  ) # fix with delta
-	diff=`printf "%.0f\n" "$diff"` # round
-	diff=`echo $diff | tr -d -`
-	echo "Idle time: $diff minutes"	
-	
-	if [[  $diff -gt 3 && $diff -lt 60 ]];then 
-		
-		echo -e "$OKRED[-] Killing $pid) $RESET"
-		kill -9 $pid		
-	else
-		echo -e "$OKGREEN[+] OK $RESET"		
-	fi
-	echo ""		
-done
-echo ""
-
-echo -e "$OKBLUE[+] Revisando procesos de psql $RESET"		
-for line in $( ps aux | grep --color=never psql | grep -v color | awk '{print $2,$9}' | tr " " ";" ); do
-	pid=`echo $line | cut -f1 -d";"`
-	time=`echo $line | cut -f2 -d";"`
-    #echo process time: $time
-    echo "pid: $pid time $time"
-               
-	diff=$(  echo "$current_time - $time"  | sed 's%:%+(1/60)*%g' | bc -l )	
-	diff=$(echo "($diff - $delta)*60" | bc  ) # fix with delta
-	diff=`printf "%.0f\n" "$diff"` # round
-	diff=`echo $diff | tr -d -`
-	echo "Idle time: $diff minutes"	
-	
-	if [[  $diff -gt 3 && $diff -lt 60 ]];then 
-		
-		echo -e "$OKRED[-] Killing $pid) $RESET"
-		kill -9 $pid		
-	else
-		echo -e "$OKGREEN[+] OK $RESET"		
-	fi
-	echo ""		
-done
-echo ""
-
-
 echo -e "$OKBLUE[+] Revisando procesos de snmpwalk $RESET"		
 for line in $( ps aux | grep --color=never snmpwalk | grep -v color | awk '{print $2,$9}' | tr " " ";" ); do
 	pid=`echo $line | cut -f1 -d";"`
@@ -139,7 +90,7 @@ echo ""
 
 
 echo -e "$OKBLUE[+] Revisando procesos de perl $RESET"		
-for line in $( ps aux | grep --color=never perl | egrep -v "getBanners|color" | awk '{print $2,$9}' | tr " " ";" ); do
+for line in $( ps aux | grep --color=never perl | egrep -v "getBanners|color|getDomainInfo|mass-scan" | awk '{print $2,$9}' | tr " " ";" ); do
 	pid=`echo $line | cut -f1 -d";"`
 	time=`echo $line | cut -f2 -d";"`
     #echo process time: $time
@@ -175,7 +126,7 @@ for line in $( ps aux | grep --color=never masscan | grep -v color | awk '{print
 	diff=`echo $diff | tr -d -`
 	echo "Idle time: $diff minutes"	
 	
-	if [[  $diff -gt 5 && $diff -lt 60 ]];then 
+	if [[  $diff -gt 10 && $diff -lt 60 ]];then 
 		
 		echo -e "$OKRED[-] Killing $pid) $RESET"
 		kill -9 $pid		
