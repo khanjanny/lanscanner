@@ -170,7 +170,7 @@ xterm -hold -e monitor.sh &
 	do 		
 		smbclient -L $ip -U "%"  | egrep -vi "comment|---|master|Error|reconnecting|failed" | awk '{print $1}' | tee -a .scans/smbclient.txt 2>/dev/null
 	done
-	cat .scans/smbclient.txt | uniq | sort > .scans/smbclient2.txt
+	cat .scans/smbclient.txt | sort | uniq > .scans/smbclient2.txt
 
 	for hostname in `cat .scans/smbclient2.txt`;
 	do 			
@@ -178,7 +178,7 @@ xterm -hold -e monitor.sh &
 	done
 	##################
 	
-     cat ../$FILE $smbclient_list | cut -d "," -f 2 | uniq  > $live_hosts # join file + smbclient_lis
+     cat ../$FILE $smbclient_list | cut -d "," -f 2 | sort | uniq > $live_hosts # join file + smbclient_lis
      cat $live_hosts | cut -d . -f 1-3 | sort | uniq > .data/subnets.txt # get subnets      
      cat $live_hosts
      echo ""       
@@ -444,9 +444,13 @@ echo -e "$OKGREEN################################## Escaneando #################
 echo -e "\n\t $OKBLUE Proceder con el escaneo? ENTER $RESET"
 read enter
 
-    
- ########### searching VoIP devices ##########
-if [ $TYPE = "parcial" ] ; then 	
+echo -e "$OKBLUE\n\t ¿Estamos escaneado IPs publicas? s/n $RESET"	  
+read internet
+      
+########### searching VoIP devices ##########
+if [ $internet == "n" ]; then 	
+
+  if [ $TYPE = "parcial" ] ; then 	
 	echo -e "\n\t $OKBLUE Realizar escaneo VoIP ? s/n $RESET"
     read resp_voip
   fi
@@ -458,9 +462,9 @@ if [ $TYPE = "parcial" ] ; then
 	for subnet in $(cat .data/subnets.txt); do
 	  echo -e "\t Escaneando $subnet.0/24"	  
 	  svmap $subnet".0/24" > enumeration/$subnet-voip.txt 2>/dev/null 
-    done;
-		
+    done;	
   fi
+fi  
  ############################################
   
  
@@ -628,7 +632,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 	echo -e "\n \t $OKBLUE Realizar escaneo de puertos TCP?: s/n $RESET"
     read tcp_scan
   fi
-  
+   
 
  if [[ $TYPE = "completo" ]] || [ $udp_escaneando == "s" ]; then 	
     echo -e "$OKBLUE\n\t#################### Escaneo de puertos UDP ######################$RESET"	  
@@ -636,9 +640,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 		
 	nmap -n -sU -p 53,161,500,67,1604  -iL $live_hosts -oG .nmap/nmap-udp.grep > reports/nmap-udp.txt 2>/dev/null 
 		
-	#if [ $FILE = NULL ] ; then 
-	echo -e "$OKBLUE\n\t ¿Estamos escaneado IPs publicas? s/n $RESET"	  
-	read internet
+	
 	if [ $internet == "n" ]; then 	
 	
 		for subnet in $(cat .data/subnets.txt); do
@@ -1369,7 +1371,7 @@ then
 		if [ "$perl_instances" -lt $max_web_ins ] #Max 5 instances
 		then						
 			echo -e "\t[+] Obteniendo informacion web $ip:$port"	
-			webData.pl -t $ip -p $port -s 2 -e all -l logs/enumeration/$ip-$port-webData.txt > enumeration/$ip-$port-webData.txt 2>/dev/null  &
+			webData.pl -t $ip -p $port -s 0 -e todo -l logs/enumeration/$ip-$port-webData.txt > enumeration/$ip-$port-webData.txt 2>/dev/null  &
 			echo ""	
 			sleep 0.1;	
 												
@@ -1380,7 +1382,7 @@ then
 				perl_instances=$((`ps aux | grep perl | wc -l` - 1)) 
 				if [ "$perl_instances" -lt $max_web_ins ] #Max 5 instances
 				then	
-					webData.pl -t $ip -p $port -s 2 -e all -l logs/enumeration/$ip-$port-webData.txt > enumeration/$ip-$port-webData.txt 2>/dev/null  &						
+					webData.pl -t $ip -p $port -s 0 -e todo -l logs/enumeration/$ip-$port-webData.txt > enumeration/$ip-$port-webData.txt 2>/dev/null  &						
 					break
 				fi							
 			done										
@@ -1418,10 +1420,10 @@ then
 			grep "|" logs/vulnerabilities/$ip-$port-cgi.txt > vulnerabilities/$ip-$port-cgi.txt  	
 			
 			echo -e "\t### web-buster"
-			web-buster.pl -s $ip -p $port -t 20 -a / -m archivos -l 2 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
-			web-buster.pl -s $ip -p $port -t 20 -a / -m webserver -l 2 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
-			web-buster.pl -s $ip -p $port -t 20 -a / -m admin -l 2 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
-			web-buster.pl -s $ip -p $port -t 20 -a / -m cgi -l 2 -q 1 | grep --color=never "200	" | awk '{print $2}' >> .services/cgi.txt   &
+			web-buster.pl -t $ip -p $port -h 20 -d / -m archivos -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
+			web-buster.pl -t $ip -p $port -h 20 -d / -m webserver -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
+			web-buster.pl -t $ip -p $port -h 20 -d / -m admin -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
+			web-buster.pl -t $ip -p $port -h 20 -d / -m cgi -s 0 -q 1 | grep --color=never "200	" | awk '{print $2}' >> .services/cgi.txt   &
 			
 			#if [ $OFFSEC != "1" ] ; then	
 				#echo -e "\n\t### $ip:$port (Revisando si apache tiene slowloris)"
@@ -1439,9 +1441,9 @@ then
 			nmap -n -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilities/$ip-$port-HTTPsys.txt 2>/dev/null 
 			grep "|" logs/vulnerabilities/$ip-$port-HTTPsys.txt > vulnerabilities/$ip-$port-HTTPsys.txt 
 			echo -e "\t### web-buster"
-			web-buster.pl -s $ip -p $port -t 20 -a / -m archivos -l 2 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  
-			web-buster.pl -s $ip -p $port -t 20 -a / -m admin -l 2 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
-			web-buster.pl -s $ip -p $port -t 20 -a / -m sharepoint -l 2 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-sharepoint.txt  &
+			web-buster.pl -t $ip -p $port -h 20 -d / -m archivos -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  
+			web-buster.pl -t $ip -p $port -h 20 -d / -m admin -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
+			web-buster.pl -t $ip -p $port -h 20 -d / -m sharepoint -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-sharepoint.txt  &
 		fi
 										
 		####################################					
@@ -1488,8 +1490,8 @@ then
 		if [ "$perl_instances" -lt $max_web_ins ] #Max 10 instances
 		then
 			echo -e "\t[+] Obteniendo informacion web $ip:$port"	
-			webData.pl -t $ip -p $port -s 1 -e all -l logs/enumeration/$ip-$port-webData.txt> enumeration/$ip-$port-webData.txt 2>/dev/null  &			
-			get_ssl_cert.py $ip $port | grep "("> enumeration/$ip-$port-cert.txt 2>/dev/null  &
+			webData.pl -t $ip -p $port -s 1 -e todo -l logs/enumeration/$ip-$port-webData.txt> enumeration/$ip-$port-webData.txt 2>/dev/null  &			
+			get_ssl_cert.py $ip $port  2>/dev/null | grep "("> enumeration/$ip-$port-cert.txt  &
 			echo ""	
 			sleep 0.1;	
 												
@@ -1500,8 +1502,8 @@ then
 				perl_instances=$((`ps aux | grep perl | wc -l` - 1)) 
 				if [ "$perl_instances" -lt $max_web_ins ] #Max 10 instances
 				then	
-					webData.pl -t $ip -p $port -s 1 -e all -l logs/enumeration/$ip-$port-webData.txt> enumeration/$ip-$port-webData.txt 2>/dev/null  &			
-					get_ssl_cert.py $ip $port | grep "("> enumeration/$ip-$port-cert.txt 2>/dev/null  &
+					webData.pl -t $ip -p $port -s 1 -e todo -l logs/enumeration/$ip-$port-webData.txt> enumeration/$ip-$port-webData.txt 2>/dev/null  &			
+					get_ssl_cert.py $ip $port 2>/dev/null | grep "("> enumeration/$ip-$port-cert.txt  &
 					break
 				fi							
 			done										
@@ -1539,10 +1541,10 @@ then
 			grep "|" logs/vulnerabilities/$ip-$port-cgi.txt > vulnerabilities/$ip-$port-cgi.txt  	
 			
 			#echo -e "\t### web-buster"
-			web-buster.pl -s $ip -p $port -t 10 -a / -m archivos -l 1 -q 1 | grep --color=never  200 >> enumeration/$ip-$port-webarchivos.txt  &
-			web-buster.pl -s $ip -p $port -t 10 -a / -m webserver -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
-			web-buster.pl -s $ip -p $port -t 10 -a / -m admin -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
-			web-buster.pl -s $ip -p $port -t 10 -a / -m cgi -l 1 -q 1 | grep --color=never "200	" | awk '{print $2}' >> .services/cgi-ssl.txt  
+			web-buster.pl -t $ip -p $port -h 10 -d / -m archivos -s 1 -q 1 | grep --color=never  200 >> enumeration/$ip-$port-webarchivos.txt  &
+			web-buster.pl -t $ip -p $port -h 10 -d / -m webserver -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
+			web-buster.pl -t $ip -p $port -h 10 -d / -m admin -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
+			web-buster.pl -t $ip -p $port -h 10 -d / -m cgi -s 1 -q 1 | grep --color=never "200	" | awk '{print $2}' >> .services/cgi-ssl.txt  
 					
 		fi						
 		####################################
@@ -1556,9 +1558,9 @@ then
 			grep "|" logs/vulnerabilities/$ip-$port-HTTPsys.txt > vulnerabilities/$ip-$port-HTTPsys.txt 
 			
 			#echo -e "\t### web-buster"
-			web-buster.pl -s $ip -p $port -t 10 -a / -m archivos -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
-			web-buster.pl -s $ip -p $port -t 10 -a / -m admin -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
-			web-buster.pl -s $ip -p $port -t 10 -a / -m sharepoint -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-sharepoint.txt  &
+			web-buster.pl -t $ip -p $port -h 10 -d / -m archivos -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
+			web-buster.pl -t $ip -p $port -h 10 -d / -m admin -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
+			web-buster.pl -t $ip -p $port -h 10 -d / -m sharepoint -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-sharepoint.txt  &
 		fi
 										
 		####################################
@@ -1573,7 +1575,7 @@ then
 		then									
 			echo -e "\n\t### $ip:$port (Vulnerabilidades SSL)"	
 			nmap -n -Pn -p $port --script=ssl-heartbleed $ip > logs/vulnerabilities/$ip-$port-heartbleed.txt 2>/dev/null &
-			a2sv.sh -t $ip -p $port -d n | grep CVE > logs/vulnerabilities/$ip-$port-a2sv.txt 2>/dev/null &
+			a2sv.sh -t 10.11.10.122 -p 443 -d n 2>/dev/null | grep CVE > logs/vulnerabilities/$ip-$port-a2sv.txt &
 			echo ""	
 			sleep 0.1;	
 												
@@ -1610,7 +1612,7 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`	
 		grep "|" logs/vulnerabilities/$ip-$port-heartbleed.txt > vulnerabilities/$ip-$port-heartbleed.txt				
-		grep --color=never "Vulnerable" logs/vulnerabilities/$ip-$port-a2sv.txt | grep -iv "not"  > vulnerabilities/$ip-$port-a2sv.txt							
+		grep --color=never "Vulnerable" logs/vulnerabilities/$ip-$port-a2sv.txt 2> /dev/null | grep -iv "not"  > vulnerabilities/$ip-$port-a2sv.txt							
 	done	   		
 fi
 
@@ -1627,10 +1629,23 @@ then
 			ip=`echo $line | cut -f1 -d":"`
 			port=`echo $line | cut -f2 -d":"`				
 			#nmap -Pn -p $port $ip --script=rdp-enum-encryption > enumeration/$ip/rdp.txt 2>/dev/null					
-			echo  "escaneando $ip (rdp -cert)"				
-			#rdpscreenshot -o `pwd`/screenshots/ $ip 2>/dev/null			
-			get_ssl_cert.py $ip $port | grep "("> enumeration/$ip-$port-cert.txt 2>/dev/null  &
-			sleep 0.2
+			
+			while true; do
+				free_ram=`free -m | grep -i mem | awk '{print $7}'`
+				if [ "$free_ram" -gt 300 ]			
+				then
+					echo  "escaneando $ip (rdp -cert)"				
+					#rdpscreenshot -o `pwd`/screenshots/ $ip 2>/dev/null			
+					get_ssl_cert.py $ip $port 2>/dev/null | grep "("> enumeration/$ip-$port-cert.txt  &
+					sleep 0.2
+					break
+				else
+					python_instances=`pgrep python | wc -l`
+					echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de python ($python_instances)"
+					sleep 3
+				fi
+			done	# done true	
+			
 		done	
 	#fi    		
 fi
