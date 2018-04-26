@@ -9,7 +9,8 @@ RESET='\e[0m'
 
 
 ################## Config HERE ####################
-netA="10.0.X.0/24";
+#netA="10.0.X.0/24";
+netA="60.16.X.0/24";
 netB="172.16.X.0/24";
 netC="192.168.X.0/24";
 #netC="192.168.X.0/24";
@@ -886,6 +887,7 @@ grep -i windows reports/OS-report.txt | cut -d ";" -f 1 >> .services/Windows.txt
 
 #####################################
 
+
 if [ -f .services/ip-cameras.txt ]
 then
 	echo -e "$OKBLUE\n\t#################### Camaras IP (`wc -l .services/ip-cameras.txt`) ######################$RESET"	  
@@ -1370,7 +1372,7 @@ then
 		perl_instances=$((`ps aux | grep perl | wc -l` - 1)) 
 		if [ "$perl_instances" -lt $max_web_ins ] #Max 5 instances
 		then						
-			echo -e "\t[+] Obteniendo informacion web $ip:$port"	
+			echo -e "\t[+] Obteniendo informacion web ($ip:$port)"	
 			webData.pl -t $ip -p $port -s 0 -e todo -l logs/enumeration/$ip-$port-webData.txt > enumeration/$ip-$port-webData.txt 2>/dev/null  &
 			echo ""	
 			sleep 0.1;	
@@ -1687,6 +1689,45 @@ then
 						
 		done		 	
 fi
+
+
+if [ -f .services/dns.txt ]
+then
+	echo -e "$OKBLUE\n\t#################### DNS (`wc -l .services/dns.txt`) ######################$RESET"	  
+	for line in $(cat .services/dns.txt); do
+		ip=`echo $line | cut -f1 -d":"`
+		
+		echo  "scan $ip (DNS - zone transfer)"
+		#resolve IP - domain
+		domain=`dig -x $ip @$ip| egrep "PTR|SOA" | egrep -iv ";|adsl|mobile|static|host-|LACNIC|tld" | head -1 | awk '{print $5}'`
+		
+		if [[ ${domain} != "" && ${domain} != *"local"*  && ${domain} != *"arpa"*  ]];then
+			#remove subdomain
+			set -- "$domain" 
+			IFS="."; declare -a Array=($*) 	
+			array_len=${#Array[@]}
+			IFS=" ";
+			sub2=${Array[$array_len - 2]} # dominio ó com
+			sub3=${Array[$array_len - 1]} # com ó bo
+	
+			if [[ ${sub3} == "bo" ]] && [[ "$sub2" == "com" || "$sub2" == "org" || "$sub2" == "gob" || "$sub2" == "edu" ]];then
+				sub1=${Array[$array_len - 3]}"." # dominio
+			fi				        		
+
+			domain=$sub1$sub2.$sub3
+			echo "Dominio = $domain"			
+			
+			### zone transfer ###
+			zone_transfer=`dig -tAXFR @$ip $domain`
+			if [[ ${zone_transfer} != *"failed"*  && ${zone_transfer} != *"timed out"* && ${zone_transfer} != *"error"* ]];then
+				echo $zone_transfer > vulnerabilities/$ip-53-transfer.txt 
+			fi													
+		fi					
+		
+	done		
+fi
+
+
 # check if we have any script running
 while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
