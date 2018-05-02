@@ -75,7 +75,9 @@ FASE 2: Escaneo de puertos y VoIP
 [![LANSCANNER - FASE 2](http://img.youtube.com/vi/mVgyNOdSsFM/0.jpg)](http://www.youtube.com/watch?v=mVgyNOdSsFM)
 
 FASE 3: Enumeracion y analisis de vulnerabilidades
+
 [![LANSCANNER - FASE 3](http://img.youtube.com/vi/Gsv_nnINUmQ/0.jpg)](http://www.youtube.com/watch?v=Gsv_nnINUmQ)
 
 RESULTADOS:
+
 [![LANSCANNER - Resultados](http://img.youtube.com/vi/hEc9bqgTKR0/0.jpg)](http://www.youtube.com/watch?v=hEc9bqgTKR0)
