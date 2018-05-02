@@ -64,3 +64,5 @@ Ejemplo 3: Escanear el listadado de subredes (completo)
 
     lanscanner.sh -t completo -s subredes.txt
 
+
+@[youtube](dQw4w9WgXcQ)
