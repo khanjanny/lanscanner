@@ -9,8 +9,8 @@ RESET='\e[0m'
 
 
 ################## Config HERE ####################
-#netA="10.0.X.0/24";
-netA="60.16.X.0/24";
+netA="10.0.X.0/24";
+#netA="60.16.X.0/24";
 netB="172.16.X.0/24";
 netC="192.168.X.0/24";
 #netC="192.168.X.0/24";
@@ -212,7 +212,7 @@ xterm -hold -e monitor.sh &
   
   	# ARP
   for ip_list in $(ls .arp | egrep -v "all|done"); do      
-      cat .arp/$ip_list | egrep -v "DUP|packets" | grep ^1 | awk '{print $1}' | sort >> $arp_list
+      cat .arp/$ip_list | egrep -v "DUP|packets" | grep ^1 | awk '{print $1}' | grep -iv "00:FE:C8:D1:1F:36"| sort >> $arp_list
       mv .arp/$ip_list .arp/$ip_list.done	
    done;  
   #######################  
@@ -550,7 +550,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
      if [ $port_scan_num == '2' ]   
      then   	
      	echo "	## Realizando escaneo de puertos especificos (informix, Web services) ##"  
-     	nmap -n -iL $live_hosts -p82,83,84,85,37777,5432,3306,1525,1530,1526,1433,8728,1521 -oG .nmap/nmap2-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null       	
+     	nmap -n -iL $live_hosts -p82,83,84,85,37777,5432,3306,1525,1530,1526,1433,8728,1521,4786 -oG .nmap/nmap2-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null       	
      	sleep 2;        			
 			
      	echo "	## Realizando escaneo tcp en (solo 1000 puertos) ##"       	
@@ -789,7 +789,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 	grep ' 37777/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3777\n"' >> ../.services/dahua.txt 	
 	
 	#Esp
-	grep ' 16992/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' >> ../.services/intel.txt 	
+	grep ' 16992/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:16992\n"' >> ../.services/intel.txt 	
 	
 	grep ' 47808/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:47808\n"' >> ../.services/scada.txt 	
 	grep ' 502/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:502\n"' >> ../.services/scada.txt 	
@@ -1560,9 +1560,9 @@ then
 			grep "|" logs/vulnerabilities/$ip-$port-HTTPsys.txt > vulnerabilities/$ip-$port-HTTPsys.txt 
 			
 			#echo -e "\t### web-buster"
-			web-buster.pl -t $ip -p $port -h 10 -d / -m archivos -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
-			web-buster.pl -t $ip -p $port -h 10 -d / -m admin -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
-			web-buster.pl -t $ip -p $port -h 10 -d / -m sharepoint -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-sharepoint.txt  &
+			web-buster.pl -t $ip -p $port -h 10 -d / -m archivos -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
+			web-buster.pl -t $ip -p $port -h 10 -d / -m admin -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
+			web-buster.pl -t $ip -p $port -h 10 -d / -m sharepoint -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-sharepoint.txt  &
 		fi
 										
 		####################################
