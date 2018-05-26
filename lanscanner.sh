@@ -542,8 +542,8 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 	
 	if [ $port_scan_num == '1' ]        	    
 	then
-     	echo "	## Realizando escaneo de puertos especificos (Web, SSH, Telnet,SMB, etc) ##"  
-     	nmap -n -iL $live_hosts -sV -p21,22,23,25,53,80,110,139,143,443,445,993,995,1433,1521,3306,3389,8080 -oG .nmap/nmap-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null     	     	
+     	echo "	## Realizando escaneo de puertos especificos (Web, SSH, Telnet,FTP, etc) ##"  
+     	nmap -n -iL $live_hosts -sV -p21,22,23,25,53,80,110,139,143,443,445,990,989,993,995,1433,1521,3306,3389,8080 -oG .nmap/nmap-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null     	     	
      fi	
      
      
@@ -1797,6 +1797,8 @@ getBanners.pl -l .data/all-live_hosts.txt -t .nmap/nmap-tcp.grep
 	grep -i samba nmap-tcp-banners.grep | awk '{print $2}' >> ../.services/samba.txt
 	grep -i "Allegro RomPager" nmap-tcp-banners.grep | awk '{print $2}' >> ../.services/RomPager.txt
 	cd ..
+	
+	grep --color=never level_15_access logs/enumeration/* | sed 's/logs\/enumeration\///g' | cut -d "-" -f 1 | sort | uniq > .services/cisco.txt
 
 find .services -size  0 -print0 |xargs -0 rm 2>/dev/null
 
