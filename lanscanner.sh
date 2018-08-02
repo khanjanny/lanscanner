@@ -9,8 +9,8 @@ RESET='\e[0m'
 
 
 ################## Config HERE ####################
-netA="10.0.X.0/24";
-#netA="60.16.X.0/24";
+#netA="10.0.X.0/24";
+netA="60.16.X.0/24";
 netB="172.16.X.0/24";
 netC="192.168.X.0/24";
 #netC="192.168.X.0/24";
@@ -154,7 +154,8 @@ echo -e "#####################################" | tee -a reports/info.txt
 
   
 echo -e "$OKGREEN Lanzando monitor $RESET" 
-xterm -hold -e monitor.sh &
+xterm -hold -e monitor.sh 2>/dev/null&
+sleep 5
 
 # Using ip list    
   if [ $FILE != NULL ] ; then
@@ -166,25 +167,31 @@ xterm -hold -e monitor.sh &
     
     
     ####### smbclient scan #
-    echo -e "$OKGREEN\t Buscando mas host vivos con smbclient  $RESET" 
-    for ip in `cat $live_hosts`;			
-	do 		
-		smbclient -L $ip -U "%"  | egrep -vi "comment|---|master|Error|reconnecting|failed" | awk '{print $1}' | tee -a .scans/smbclient.txt 2>/dev/null
-	done
-	cat .scans/smbclient.txt | sort | uniq > .scans/smbclient2.txt
+    echo -e "\t $OKBLUE Realizaremos escaneo con smbclient para descubrir mas host? s/n (Recomendado para LAN) $RESET"
+	read smbclient
 
-	for hostname in `cat .scans/smbclient2.txt`;
-	do 			
+    if [ $smbclient == 's' ]
+   then     
+		echo -e "$OKGREEN\t Buscando mas host vivos con smbclient  $RESET" 
+		for ip in `cat $live_hosts`;			
+		do 		
+			smbclient -L $ip -U "%"  | egrep -vi "comment|---|master|Error|reconnecting|failed" | awk '{print $1}' | tee -a .scans/smbclient.txt 2>/dev/null
+		done
+		cat .scans/smbclient.txt | sort | uniq > .scans/smbclient2.txt
+
+		for hostname in `cat .scans/smbclient2.txt`;
+		do 			
 			host $hostname | grep "has address" | cut -d " " -f 4 >> $smbclient_list
-	done
-	##################
+		done
+		
+		cat ../$FILE $smbclient_list | cut -d "," -f 2 | sort | uniq > $live_hosts # join file + smbclient_lis
+		cat $live_hosts | cut -d . -f 1-3 | sort | uniq > .data/subnets.txt # get subnets      
+		cat $live_hosts
+		echo ""       
+		echo -e  "\n##############################################################################" 
 	
-     cat ../$FILE $smbclient_list | cut -d "," -f 2 | sort | uniq > $live_hosts # join file + smbclient_lis
-     cat $live_hosts | cut -d . -f 1-3 | sort | uniq > .data/subnets.txt # get subnets      
-     cat $live_hosts
-     echo ""       
-     echo -e  "\n##############################################################################" 
-       
+   fi   
+	##################
     
   else
 
@@ -212,7 +219,7 @@ xterm -hold -e monitor.sh &
   
   	# ARP
   for ip_list in $(ls .arp | egrep -v "all|done"); do      
-      cat .arp/$ip_list | egrep -v "DUP|packets" | grep ^1 | awk '{print $1}' | grep -iv "00:FE:C8:D1:1F:36"| sort >> $arp_list
+      cat .arp/$ip_list | egrep -v "DUP|packets" | grep ^1 | awk '{print $1}' | sort >> $arp_list
       mv .arp/$ip_list .arp/$ip_list.done	
    done;  
   #######################  
@@ -542,15 +549,15 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 	
 	if [ $port_scan_num == '1' ]        	    
 	then
-     	echo "	## Realizando escaneo de puertos especificos (Web, SSH, Telnet,FTP, etc) ##"  
-     	nmap -n -iL $live_hosts -sV -p21,22,23,25,53,80,110,139,143,443,445,990,989,993,995,1433,1521,3306,3389,8080 -oG .nmap/nmap-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null     	     	
+     	echo "	## Realizando escaneo de puertos especificos (Web, SSH, Telnet,SMB, etc) ##"  
+     	nmap -n -iL $live_hosts -sV -p21,22,23,25,53,80,110,139,143,443,445,993,995,1433,1521,3306,3389,8080 -oG .nmap/nmap-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null     	     	
      fi	
      
      
      if [ $port_scan_num == '2' ]   
      then   	
      	echo "	## Realizando escaneo de puertos especificos (informix, Web services) ##"  
-     	nmap -n -iL $live_hosts -p82,83,84,85,37777,5432,3306,1525,1530,1526,1433,8728,1521,4786 -oG .nmap/nmap2-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null       	
+     	nmap -n -iL $live_hosts -p82,83,84,85,37777,5432,3306,1525,1530,1526,1433,8728,1521 -oG .nmap/nmap2-tcp.grep >> reports/nmap-tcp.txt 2>/dev/null       	
      	sleep 2;        			
 			
      	echo "	## Realizando escaneo tcp en (solo 1000 puertos) ##"       	
@@ -789,7 +796,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 	grep ' 37777/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3777\n"' >> ../.services/dahua.txt 	
 	
 	#Esp
-	grep ' 16992/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:16992\n"' >> ../.services/intel.txt 	
+	grep ' 16992/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' >> ../.services/intel.txt 	
 	
 	grep ' 47808/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:47808\n"' >> ../.services/scada.txt 	
 	grep ' 502/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:502\n"' >> ../.services/scada.txt 	
@@ -1247,7 +1254,7 @@ if [ -f .services/snmp.txt ]
 then
 	echo -e "$OKBLUE\n\t#################### SNMP (`wc -l .services/snmp.txt`) ######################$RESET"	    
 	echo  "escaneando (snmp - onesixtyone)"
-	onesixtyone -c /usr/share/lanscanner/community.txt -i .services/snmp.txt  | grep --color=never "\[" | sed 's/ \[/~/g' |  sed 's/\] /~/g' > banners-snmp2.txt
+	onesixtyone -c /usr/share/lanscanner/community.txt -i .services/snmp.txt  | grep --color=never "\[" | sed 's/ \[/~/g' |  sed 's/\] /~/g' | sort | uniq > banners-snmp2.txt
 
 	while read line; do
 		ip=`echo $line | cut -f1 -d"~"`
@@ -1408,11 +1415,40 @@ then
 	for line in $(cat .services/web.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
+		checked=0
+		#######  if the server is IIS ######
+		grep -i IIS enumeration/$ip-$port-webData.txt
+		greprc=$?
+		if [[ $greprc -eq 0 && $checked -eq 0  ]];then 		
+			checked=1
+			echo -e "\n\t### $ip:$port "
+			nmap -n -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilities/$ip-$port-HTTPsys.txt 2>/dev/null 
+			grep "|" logs/vulnerabilities/$ip-$port-HTTPsys.txt > vulnerabilities/$ip-$port-HTTPsys.txt 
+			echo -e "\t### web-buster (IIS)"
+			web-buster.pl -t $ip -p $port -h 20 -d / -m iis -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  			
+		fi
+										
+		####################################	
+		
+		
+		#######  if the server is java ######
+		egrep -i "GlassFish|Coyote|Tomcat|Resin|JBoss|WildFly" enumeration/$ip-$port-webData.txt
+		greprc=$?
+		if [[ $greprc -eq 0 && $checked -eq 0  ]];then 		
+			checked=1
+			echo -e "\n\t### $ip:$port "			
+			echo -e "\t### web-buster (JSP)"
+			web-buster.pl -t $ip -p $port -h 20 -d / -m jsp -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  			
+		fi
+										
+		####################################	
+		
+		
 		#######  if the server is apache ######
 		grep -i apache enumeration/$ip-$port-webData.txt
 		greprc=$?
-		if [[ $greprc -eq 0 ]] ; then			
-			
+		if [[ $greprc -eq 0 && $checked -eq 0  ]];then 		
+			checked=1			
 			echo -e "\n\t### $ip:$port (Revisando vulnerabilidad Struts)"
 			nmap -n -p $port $ip --script=http-vuln-cve2017-5638 > logs/vulnerabilities/$ip-$port-Struts.txt 2>/dev/null  					
 			grep "|" logs/vulnerabilities/$ip-$port-Struts.txt > vulnerabilities/$ip-$port-Struts.txt  	
@@ -1421,11 +1457,8 @@ then
 			nmap -n -p $port $ip --script=http-vuln-cve2012-1823 > logs/vulnerabilities/$ip-$port-cgi.txt 2>/dev/null  					
 			grep "|" logs/vulnerabilities/$ip-$port-cgi.txt > vulnerabilities/$ip-$port-cgi.txt  	
 			
-			echo -e "\t### web-buster"
-			web-buster.pl -t $ip -p $port -h 20 -d / -m archivos -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
-			web-buster.pl -t $ip -p $port -h 20 -d / -m webserver -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
-			web-buster.pl -t $ip -p $port -h 20 -d / -m admin -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
-			web-buster.pl -t $ip -p $port -h 20 -d / -m cgi -s 0 -q 1 | grep --color=never "200	" | awk '{print $2}' >> .services/cgi.txt   &
+			echo -e "\t### web-buster (apache)"
+			web-buster.pl -t $ip -p $port -h 20 -d / -m apache -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
 			
 			#if [ $OFFSEC != "1" ] ; then	
 				#echo -e "\n\t### $ip:$port (Revisando si apache tiene slowloris)"
@@ -1433,22 +1466,7 @@ then
 				#grep "|" logs/vulnerabilities/$ip-$port-slowloris.txt | grep -v "nginx"  > vulnerabilities/$ip-$port-slowloris.txt 
 			#fi
 		fi						
-		####################################
-		
-			#######  if the server is IIS ######
-		grep -i IIS enumeration/$ip-$port-webData.txt
-		greprc=$?
-		if [[ $greprc -eq 0 ]] ; then
-			echo -e "\n\t### $ip:$port ( IIS)"
-			nmap -n -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilities/$ip-$port-HTTPsys.txt 2>/dev/null 
-			grep "|" logs/vulnerabilities/$ip-$port-HTTPsys.txt > vulnerabilities/$ip-$port-HTTPsys.txt 
-			echo -e "\t### web-buster"
-			web-buster.pl -t $ip -p $port -h 20 -d / -m archivos -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  
-			web-buster.pl -t $ip -p $port -h 20 -d / -m admin -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
-			web-buster.pl -t $ip -p $port -h 20 -d / -m sharepoint -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-sharepoint.txt  &
-		fi
-										
-		####################################					
+		####################################				
 		
 		
 		if [ $OFFSEC = "1" ] ; then	
@@ -1560,9 +1578,9 @@ then
 			grep "|" logs/vulnerabilities/$ip-$port-HTTPsys.txt > vulnerabilities/$ip-$port-HTTPsys.txt 
 			
 			#echo -e "\t### web-buster"
-			web-buster.pl -t $ip -p $port -h 10 -d / -m archivos -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
-			web-buster.pl -t $ip -p $port -h 10 -d / -m admin -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
-			web-buster.pl -t $ip -p $port -h 10 -d / -m sharepoint -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-sharepoint.txt  &
+			web-buster.pl -t $ip -p $port -h 10 -d / -m archivos -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
+			web-buster.pl -t $ip -p $port -h 10 -d / -m admin -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
+			web-buster.pl -t $ip -p $port -h 10 -d / -m sharepoint -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-sharepoint.txt  &
 		fi
 										
 		####################################
@@ -1797,8 +1815,6 @@ getBanners.pl -l .data/all-live_hosts.txt -t .nmap/nmap-tcp.grep
 	grep -i samba nmap-tcp-banners.grep | awk '{print $2}' >> ../.services/samba.txt
 	grep -i "Allegro RomPager" nmap-tcp-banners.grep | awk '{print $2}' >> ../.services/RomPager.txt
 	cd ..
-	
-	grep --color=never level_15_access logs/enumeration/* | sed 's/logs\/enumeration\///g' | cut -d "-" -f 1 | sort | uniq > .services/cisco.txt
 
 find .services -size  0 -print0 |xargs -0 rm 2>/dev/null
 

@@ -151,7 +151,7 @@ for line in $( ps aux | grep --color=never nmap | egrep -v "getBanners|color|nma
 	echo "Idle time: $diff minutes"	
 	
 	
-	if [[  $diff -gt 5 && $diff -lt 60 ]];then 
+	if [[  $diff -gt 8 && $diff -lt 60 ]];then 
 		
 		echo -e "$OKRED[-] Killing $pid) $RESET"
 		kill -9 $pid		
