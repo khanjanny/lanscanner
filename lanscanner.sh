@@ -1380,7 +1380,7 @@ then
 		if [ "$perl_instances" -lt $max_web_ins ] #Max 5 instances
 		then						
 			echo -e "\t[+] Obteniendo informacion web ($ip:$port)"	
-			webData.pl -t $ip -p $port -s 0 -e todo -l logs/enumeration/$ip-$port-webData.txt > enumeration/$ip-$port-webData.txt 2>/dev/null  &
+			webData.pl -t $ip -p $port -s 0 -e todo -d / -l logs/enumeration/$ip-$port-webData.txt > enumeration/$ip-$port-webData.txt 2>/dev/null  &
 			echo ""	
 			sleep 0.1;	
 												
@@ -1391,7 +1391,7 @@ then
 				perl_instances=$((`ps aux | grep perl | wc -l` - 1)) 
 				if [ "$perl_instances" -lt $max_web_ins ] #Max 5 instances
 				then	
-					webData.pl -t $ip -p $port -s 0 -e todo -l logs/enumeration/$ip-$port-webData.txt > enumeration/$ip-$port-webData.txt 2>/dev/null  &						
+					webData.pl -t $ip -p $port -s 0 -e todo -d / -l logs/enumeration/$ip-$port-webData.txt > enumeration/$ip-$port-webData.txt 2>/dev/null  &						
 					break
 				fi							
 			done										
@@ -1424,8 +1424,9 @@ then
 			echo -e "\n\t### $ip:$port "
 			nmap -n -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilities/$ip-$port-HTTPsys.txt 2>/dev/null 
 			grep "|" logs/vulnerabilities/$ip-$port-HTTPsys.txt > vulnerabilities/$ip-$port-HTTPsys.txt 
-			echo -e "\t### web-buster (IIS)"
-			web-buster.pl -t $ip -p $port -h 20 -d / -m iis -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  			
+			echo -e "\t### web-buster (IIS)"			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m admin -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m archivos -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &								
 		fi
 										
 		####################################	
@@ -1437,8 +1438,10 @@ then
 		if [[ $greprc -eq 0 && $checked -eq 0  ]];then 		
 			checked=1
 			echo -e "\n\t### $ip:$port "			
-			echo -e "\t### web-buster (JSP)"
-			web-buster.pl -t $ip -p $port -h 20 -d / -m jsp -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  			
+			echo -e "\t### web-buster (JSP)"			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m admin -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m archivos -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &					
+			web-buster.pl -t $ip -p $port -h 20 -d / -m backup -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
 		fi
 										
 		####################################	
@@ -1458,7 +1461,11 @@ then
 			grep "|" logs/vulnerabilities/$ip-$port-cgi.txt > vulnerabilities/$ip-$port-cgi.txt  	
 			
 			echo -e "\t### web-buster (apache)"
-			web-buster.pl -t $ip -p $port -h 20 -d / -m apache -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m admin -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m archivos -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m cgi -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m backup -s 0 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
+			
 			
 			#if [ $OFFSEC != "1" ] ; then	
 				#echo -e "\n\t### $ip:$port (Revisando si apache tiene slowloris)"
@@ -1503,14 +1510,13 @@ then
 
 	for line in $(cat .services/web-ssl.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`
-		
+		port=`echo $line | cut -f2 -d":"`	
 		
 		perl_instances=$((`ps aux | grep perl | wc -l` - 1)) 
 		if [ "$perl_instances" -lt $max_web_ins ] #Max 10 instances
 		then
 			echo -e "\t[+] Obteniendo informacion web $ip:$port"	
-			webData.pl -t $ip -p $port -s 1 -e todo -l logs/enumeration/$ip-$port-webData.txt> enumeration/$ip-$port-webData.txt 2>/dev/null  &			
+			webData.pl -t $ip -p $port -s 1 -e todo -d / -l logs/enumeration/$ip-$port-webData.txt> enumeration/$ip-$port-webData.txt 2>/dev/null  &			
 			get_ssl_cert.py $ip $port  2>/dev/null | grep "("> enumeration/$ip-$port-cert.txt  &
 			echo ""	
 			sleep 0.1;	
@@ -1522,7 +1528,7 @@ then
 				perl_instances=$((`ps aux | grep perl | wc -l` - 1)) 
 				if [ "$perl_instances" -lt $max_web_ins ] #Max 10 instances
 				then	
-					webData.pl -t $ip -p $port -s 1 -e todo -l logs/enumeration/$ip-$port-webData.txt> enumeration/$ip-$port-webData.txt 2>/dev/null  &			
+					webData.pl -t $ip -p $port -s 1 -e todo -d / -l logs/enumeration/$ip-$port-webData.txt> enumeration/$ip-$port-webData.txt 2>/dev/null  &			
 					get_ssl_cert.py $ip $port 2>/dev/null | grep "("> enumeration/$ip-$port-cert.txt  &
 					break
 				fi							
@@ -1547,11 +1553,13 @@ then
 	for line in $(cat .services/web-ssl.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
+		checked=0
 		#######  if the server is apache ######
 		grep -i apache enumeration/$ip-$port-webData.txt
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			
+			checked=1
 			echo -e "\n\t### $ip:$port (Revisando vulnerabilidad Struts)"
 			nmap -n -Pn -p $port $ip --script=http-vuln-cve2017-5638 > logs/vulnerabilities/$ip-$port-Struts.txt 2>/dev/null  					
 			grep "|" logs/vulnerabilities/$ip-$port-Struts.txt > vulnerabilities/$ip-$port-Struts.txt  	
@@ -1560,11 +1568,12 @@ then
 			nmap -n -Pn -p $port $ip --script=http-vuln-cve2012-1823 > logs/vulnerabilities/$ip-$port-cgi.txt 2>/dev/null  					
 			grep "|" logs/vulnerabilities/$ip-$port-cgi.txt > vulnerabilities/$ip-$port-cgi.txt  	
 			
-			#echo -e "\t### web-buster"
-			web-buster.pl -t $ip -p $port -h 10 -d / -m archivos -s 1 -q 1 | grep --color=never  200 >> enumeration/$ip-$port-webarchivos.txt  &
-			web-buster.pl -t $ip -p $port -h 10 -d / -m webserver -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
-			web-buster.pl -t $ip -p $port -h 10 -d / -m admin -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
-			web-buster.pl -t $ip -p $port -h 10 -d / -m cgi -s 1 -q 1 | grep --color=never "200	" | awk '{print $2}' >> .services/cgi-ssl.txt  
+			#echo -e "\t### web-buster"					
+			web-buster.pl -t $ip -p $port -h 20 -d / -m admin -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m archivos -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m cgi -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m backup -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &		
+			
 					
 		fi						
 		####################################
@@ -1572,18 +1581,35 @@ then
 		#######  if the server is IIS ######
 		grep -i IIS enumeration/$ip-$port-webData.txt
 		greprc=$?
-		if [[ $greprc -eq 0 ]] ; then
+		if [[ $greprc -eq 0 && $checked -eq 0  ]];then 		
+			checked=1
 			echo -e "\n\t### $ip:$port ( IIS - HTTPsys)"
 			nmap -n -Pn -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilities/$ip-$port-HTTPsys.txt 2>/dev/null 
 			grep "|" logs/vulnerabilities/$ip-$port-HTTPsys.txt > vulnerabilities/$ip-$port-HTTPsys.txt 
 			
-			#echo -e "\t### web-buster"
-			web-buster.pl -t $ip -p $port -h 10 -d / -m archivos -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &
-			web-buster.pl -t $ip -p $port -h 10 -d / -m admin -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-admin.txt  &
-			web-buster.pl -t $ip -p $port -h 10 -d / -m sharepoint -l 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-sharepoint.txt  &
+			#echo -e "\t### web-buster"				
+			web-buster.pl -t $ip -p $port -h 20 -d / -m admin -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m archivos -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &								
+			
 		fi
 										
 		####################################
+		
+		
+		#######  if the server is java ######
+		egrep -i "GlassFish|Coyote|Tomcat|Resin|JBoss|WildFly" enumeration/$ip-$port-webData.txt
+		greprc=$?
+		if [[ $greprc -eq 0 && $checked -eq 0  ]];then 		
+			checked=1
+			echo -e "\n\t### $ip:$port "			
+			echo -e "\t### web-buster (JSP)"			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m admin -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &			
+			web-buster.pl -t $ip -p $port -h 20 -d / -m archivos -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &						
+			web-buster.pl -t $ip -p $port -h 20 -d / -m backup -s 1 -q 1 | grep --color=never 200 >> enumeration/$ip-$port-webarchivos.txt  &		
+		fi
+										
+		####################################	
+		
      done
 
 
@@ -1814,6 +1840,9 @@ getBanners.pl -l .data/all-live_hosts.txt -t .nmap/nmap-tcp.grep
 	grep -i "ASA" nmap-tcp-banners.grep | awk '{print $2}' >> ../.services/ciscoASA.txt
 	grep -i samba nmap-tcp-banners.grep | awk '{print $2}' >> ../.services/samba.txt
 	grep -i "Allegro RomPager" nmap-tcp-banners.grep | awk '{print $2}' >> ../.services/RomPager.txt
+	cd ..
+	cd enumeration
+	grep --color=never -i admin * | grep http | awk '{print $2}' >> ../.services/admin-web.txt
 	cd ..
 
 find .services -size  0 -print0 |xargs -0 rm 2>/dev/null
