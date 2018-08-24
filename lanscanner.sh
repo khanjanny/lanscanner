@@ -1861,8 +1861,11 @@ then
 					if [[ $greprc -eq 0 && $checked -eq 0  ]];then 		
 						checked=1
 						echo -e "\n\t### $ip:$port ( IIS - HTTPsys)"
-						nmap -n -Pn -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilidades/$ip-$port-HTTPsys.txt 2>/dev/null 
-						grep "|" logs/vulnerabilidades/$ip-$port-HTTPsys.txt > vulnerabilidades/$ip-$port-HTTPsys.txt 
+						#nmap -n -Pn -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilidades/$ip-$port-HTTPsys.txt 2>/dev/null 
+						#grep "|" logs/vulnerabilidades/$ip-$port-HTTPsys.txt > vulnerabilidades/$ip-$port-HTTPsys.txt 
+						nmap -n -p $port --script=http-iis-webdav-vuln $ip > logs/vulnerabilidades/$ip-$port-webdav.txt 2>/dev/null 
+						grep "|" logs/vulnerabilidades/$ip-$port-webdav.txt > vulnerabilidades/$ip-$port-webdav.txt 
+						
 				
 						#echo -e "\t### web-buster"				
 						web-buster.pl -t $ip -p $port -h 5 -d / -m admin -s 1 -q 1 | grep --color=never ^200 >> enumeracion/$ip-$port-webarchivos.txt  &			
