@@ -102,7 +102,7 @@ for line in $( ps aux | grep --color=never perl | egrep -v "getBanners|color|get
 	diff=`echo $diff | tr -d -`
 	echo "Idle time: $diff minutes"	
 	
-	if [[  $diff -gt 1 && $diff -lt 60 ]];then 
+	if [[  $diff -gt 4 && $diff -lt 60 ]];then 
 		
 		echo -e "$OKRED[-] Killing $pid) $RESET"
 		kill -9 $pid		

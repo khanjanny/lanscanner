@@ -41,7 +41,7 @@ echo -e "${GREEN} [+] Copiando archivos ${RESET}"
 mkdir /usr/share/lanscanner 2>/dev/null
 cd files
 cp community.txt /usr/share/lanscanner
-cp results.db /usr/share/lanscanner
+cp resultados.db /usr/share/lanscanner
 cp smb-vuln-ms17-010.nse /usr/share/nmap/scripts/
 cd ..
 echo ""
