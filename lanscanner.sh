@@ -59,12 +59,13 @@ function insert_data () {
 print_ascii_art
 
 
-while getopts ":t:a:s:o:" OPTIONS
+while getopts ":t:a:s:d:o:" OPTIONS
 do
             case $OPTIONS in
             t)     TYPE=$OPTARG;;
             s)     SUBNET_FILE=$OPTARG;;
             a)     FILE=$OPTARG;;
+            d)     dominio=$OPTARG;;
             o)     OFFSEC=$OPTARG;;
             ?)     printf "Opcion invalida: -$OPTARG\n" $0
                           exit 2;;
@@ -74,6 +75,7 @@ done
 TYPE=${TYPE:=NULL}
 SUBNET_FILE=${SUBNET_FILE:=NULL}
 FILE=${FILE:=NULL}
+dominio=${dominio:=NULL}
 OFFSEC=${OFFSEC:=NULL}
 
 if [ $TYPE = NULL ] ; then
@@ -83,6 +85,7 @@ cat << "EOF"
 Opciones: 
 
 -t : Tipo de escaneo [completo/parcial]
+-d : dominio
 
 Definicion del alcance (opcional):
 	-s : Lista con las subredes a escanear (Formato CIDR 0.0.0.0/24)
@@ -199,7 +202,7 @@ sleep 5
 		
 		cat ../$FILE $smbclient_list | cut -d "," -f 2 | sort | sort | uniq > $live_hosts # join file + smbclient_lis		
 		cat $live_hosts
-		echo ""       
+		echo -e "\t"       
 		echo -e  "\n##############################################################################" 
 	
    fi   
@@ -262,7 +265,7 @@ sleep 5
 	  if [ $SUBNET_FILE != NULL ] ; then	  	 
 		for subnet in `cat ../$SUBNET_FILE`;
 		do 
-			echo "scanning $subnet "
+			echo -e "\tscanning $subnet "
 			nbtscan $subnet | tee -a .escaneos/escaneo-smb.txt
 		done
 		
@@ -271,13 +274,13 @@ sleep 5
 		smb-scan.pl $netA $netB $netC $num_nets_enum | tee -a .escaneos/escaneo-smb.txt		
 	  fi
 	  
-	  cat .escaneos/escaneo-smb.txt | grep : | awk '{print $1}' > $smb_list 2>/dev/null	  
+	  cat .escaneos/escaneo-smb.txt | grep : | awk '{print $1}' | grep --color=never ^1 > $smb_list 2>/dev/null	  
       
                                    
       echo -e  "\n##############################################################################" 
       echo -e  "$OKGREEN Con el escaneo SMB  encontramos estos hosts vivos: $RESET" 
       cat $smb_list
-      echo ""      
+      echo -e "\t"      
       #####################################################################################
       
       
@@ -289,18 +292,18 @@ sleep 5
   	 
 		for subnet in `cat ../$SUBNET_FILE`;
 		do 
-			echo "scanning $subnet "
+			echo -e "\tscanning $subnet "
 			dnsrecon -r $subnet | tee -a .escaneos/escaneo-dns.txt
 		done
 
 	  	#cat .escaneos/escaneo-dns.txt | grep : | awk '{print $1}' > $smb_list 2>/dev/null	  
-		grep PTR .escaneos/escaneo-dns.txt 2>/dev/null| awk '{print $4}'  > $dns_list 2>/dev/null			  
+		grep PTR .escaneos/escaneo-dns.txt 2>/dev/null| awk '{print $4}' | grep --color=never ^1 > $dns_list 2>/dev/null			  
 
                                    
 	      echo -e  "\n##############################################################################" 
 	      echo -e  "$OKGREEN Con el escaneo DNS  encontramos estos hosts vivos: $RESET" 
 	      cat $dns_list
-	      echo ""      
+	      echo -e "\t"      
 	      #####################################################################################
 	  fi
 	  
@@ -315,7 +318,7 @@ sleep 5
 		if [ $SUBNET_FILE != NULL ] ; then	  	 
 			for subnet in `cat ../$SUBNET_FILE`;
 			do 
-				echo "scanning $subnet "				
+				echo -e "\tscanning $subnet "				
 				masscan -p21,22,23,80,443,445 --rate=150 $subnet | tee -a .escaneos/mass-scan.txt
 			done		
 		else
@@ -323,12 +326,12 @@ sleep 5
 		fi
 	               
 		
-		cat .escaneos/mass-scan.txt | cut -d " " -f 6 | sort | uniq > $mass_scan_list 2>/dev/null
+		cat .escaneos/mass-scan.txt | cut -d " " -f 6 | sort | uniq | grep --color=never ^1 > $mass_scan_list 2>/dev/null
 
 		echo -e  "\n##############################################################################" 
 		echo -e  "$OKRED Encontramos estos hosts vivos: $RESET" 
 		cat $mass_scan_list
-		echo ""             
+		echo -e "\t"             
       fi  	  	  
       
       #####################################################################################
@@ -344,7 +347,7 @@ sleep 5
 		if [ $SUBNET_FILE != NULL ] ; then	  	 
 			for subnet in `cat ../$SUBNET_FILE`;
 			do 
-				echo "scanning $subnet "								
+				echo -e "\tscanning $subnet "								
 				fping -a -g $subnet | tee -a .escaneos/escaneo-ping.txt 
 			done		
 		else
@@ -352,12 +355,12 @@ sleep 5
 		fi
 		
         
-        cat .escaneos/escaneo-ping.txt | grep -v Escaneando  | sort | sort | uniq > $ping_list 2>/dev/null
+        cat .escaneos/escaneo-ping.txt | grep -v Escaneando  | sort | sort | uniq | grep --color=never ^1 > $ping_list 2>/dev/null
         
         echo -e  "\n##############################################################################" 
         echo -e  "$OKGREEN Con el escaneo ICMP (ping) encontramos estos hosts vivos: $RESET" 
         cat $ping_list
-        echo ""       
+        echo -e "\t"       
       fi        
 	  #####################################################################################
 	           
@@ -393,7 +396,7 @@ sleep 5
         echo -e  "\n##############################################################################" 
         echo -e  "$OKGREEN Con el escaneo de smbclient encontramos estos hosts vivos: $RESET" 
         cat $smbclient_list
-        echo ""             
+        echo -e "\t"             
 	  ##################################################################################### 
 	
    fi   
@@ -410,14 +413,14 @@ sleep 5
 	 sed -i '/^\s*$/d' $live_hosts # delete empty lines	          
      ##################     
         
-     echo "Revisar si hay host que no debemos escanear ($live_hosts). Presionar ENTER para continuar"
+     echo -e "\tRevisar si hay host que no debemos escanear ($live_hosts). Presionar ENTER para continuar"
      read n	    	 
 	 cat $live_hosts | cut -d . -f 1-3 | sort | uniq > .datos/subnets.txt # generate subnets 
 	  
 	  echo -e  "\n##############################################################################" 
       echo -e  "$OKGREEN TOTAL HOST VIVOS ENCONTRADOS: $RESET" 
       cat $live_hosts
-      echo ""                  
+      echo -e "\t"                  
  fi # if FILE
 
 ###### #check host number########
@@ -425,7 +428,7 @@ total_hosts=`wc -l .datos/total-host-vivos.txt | sed 's/.datos\/total-host-vivos
 echo -e  "$OKGREEN TOTAL HOST VIVOS ENCONTRADOS: $total_hosts hosts $RESET" 
 
 #if [ $total_hosts -gt 490 ] ; then	  	 
-	#echo "Muchos hosts. Dividir el archivo .datos/total-host-vivos.txt y volver a ejecutar lanscanner"	
+	#echo -e "\tMuchos hosts. Dividir el archivo .datos/total-host-vivos.txt y volver a ejecutar lanscanner"	
 	#echo -e "\tlanscanner.sh -t completo -f lista.txt"
 	#exit
 #fi
@@ -503,7 +506,7 @@ fi
 
 	#if [ $FILE != NULL ] || [ $scan_type == 's' ] ; then
  
-  	  #echo "Realizando escaneo con nbtscan"
+  	  #echo -e "\tRealizando escaneo con nbtscan"
       #nbtscan -f .datos/total-host-vivos.txt | grep ^1 | awk '{print $1}' | tee -a $smb_list
     #fi
 	
@@ -535,35 +538,35 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 	
 	read port_scan_num
 	
-	echo "	## Cuantas instancias de nmap permitiremos (1-15) ##"       	
+	echo -e "\t	## Cuantas instancias de nmap permitiremos (1-15) ##"       	
 	read max_nmap_ins  
 	
 	if [ $port_scan_num == '1' ]        	    
 	then
-     	echo "	## Realizando escaneo de puertos especificos (Web, SSH, Telnet,SMB, etc) ##"  
+     	echo -e "\t	## Realizando escaneo de puertos especificos (Web, SSH, Telnet,SMB, etc) ##"  
      	nmap -n -iL $live_hosts -sV -p21,22,23,25,53,80,110,139,143,443,445,993,995,1433,1521,3306,3389,8080 -oG .nmap/nmap-tcp.grep >> reportes/nmap-tcp.txt 2>/dev/null     	     	
      fi	
      
      
      if [ $port_scan_num == '2' ]   
      then   	
-     	echo "	## Realizando escaneo de puertos especificos (informix, Web services) ##"  
+     	echo -e "\t	## Realizando escaneo de puertos especificos (informix, Web services) ##"  
      	nmap -n -Pn -iL $live_hosts -p21,22,23,110,80,443,8080,81,32764,82,83,84,85,37777,5432,3306,1525,1530,1526,1433,8728,1521 -oG .nmap/nmap2-tcp.grep >> reportes/nmap-tcp.txt 2>/dev/null       	
      	sleep 2;        			
 			
-     	echo "	## Realizando escaneo tcp en (solo 1000 puertos) ##"       	
+     	echo -e "\t	## Realizando escaneo tcp en (solo 1000 puertos) ##"       	
      	while read ip           
 		do    			
 			nmap_instances=$((`ps aux | grep nmap | wc -l` - 1)) 
-			#echo "instancias de nmap ($nmap_instances)"
+			#echo -e "\tinstancias de nmap ($nmap_instances)"
 			if [ "$nmap_instances" -lt $max_nmap_ins ] #Max 5 instances
 				then
-					#echo "nmap $ip"
+					#echo -e "\tnmap $ip"
 					nmap -n -Pn $ip -oG .nmap_1000p/$ip-tcp.grep > .nmap_1000p/$ip-tcp.txt 2>/dev/null &					
 					sleep 0.2;	
 				else				
 					while true; do
-						echo "Max instancias de nmap ($nmap_instances)"
+						echo -e "\tMax instancias de nmap ($nmap_instances)"
 						sleep 10;
 						nmap_instances=$((`ps aux | grep nmap | wc -l` - 1)) 
 						if [ "$nmap_instances" -lt $max_nmap_ins ] #Max 5 instances
@@ -573,7 +576,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 						fi							
 					done														
 			 fi		
-			 #echo "[+] Done $ip"
+			 #echo -e "\t[+] Done $ip"
 		done <$live_hosts
 		
 		
@@ -587,7 +590,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 		nmap_instances=`pgrep nmap | wc -l`			
 						
 		if [ "$nmap_instances" -gt 0  ];then	
-			echo "Todavia hay escaneos de nmap ($nmap_instances) activos"  
+			echo -e "\t [i] Todavia hay escaneos de nmap ($nmap_instances) activos"  
 			sleep 20
 		else
 			break		  		 
@@ -606,14 +609,14 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 	if [ $port_scan_num == '3' ]
     then    			
 		for ip in $( cat $live_hosts  ); do        
-			echo "	[+] Escaneando todos los puertos de $ip con mass-escaneando (TCP)"   		
+			echo -e "\t	[+] Escaneando todos los puertos de $ip con mass-escaneando (TCP)"   		
 			masscan -p1-65535 --rate 700 $ip --output-format grepable --output-filename .masscan/$ip.tcp 2>/dev/null ;
 			ports=`cat .masscan/$ip.tcp  | grep -o "[0-9][0-9]*/open" | tr '\n' ',	' | tr -d '/open'`		
 			num_ports=`echo $ports | tr -cd ',' | wc -c`		
 
 			if [ "$num_ports" -gt 35 ]
 			then
-				echo "Sospechoso!!. Muchos puertos abiertos ($num_ports)"
+				echo -e "\tSospechoso!!. Muchos puertos abiertos ($num_ports)"
 			else				
 				echo -e "	[+] Identificando servicios de $ip ($ports)"
 				nmap -n -sV -O -p $ports $ip -oG .escaneos/$ip-tcp.grep2 >> reportes/nmap-tcp.txt 2>/dev/null &						
@@ -656,7 +659,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 		done;    
     fi	
 	
-	echo ""			
+	echo -e "\t"			
  fi	      
     
 ########## making reportes #######
@@ -672,13 +675,13 @@ if [[ $TYPE == "completo"  || $tcp_escaneando == "s"   || $udp_escaneando == "s"
 	#fi
 	
 		
-	# replace IP with subdomain
+	# replace IP with subdominio
 	#cat nmap-tcp.grep  | grep -v "Status: Up" >nmap-tcp.grep
 	#rm nmap-tcp.grep
-	#for domain in `grep "Nmap escaneando reportes for" nmap-tcp.txt | cut -d " " -f 5`
+	#for dominio in `grep "Nmap escaneando reportes for" nmap-tcp.txt | cut -d " " -f 5`
 	#do	   	             
-		# echo "domain $domain"			
-		#sed -i "1,/[0-9]\{2,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/s/[0-9]\{2,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/$domain/g" nmap-tcp.grep
+		# echo -e "\tdominio $dominio"			
+		#sed -i "1,/[0-9]\{2,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/s/[0-9]\{2,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/$dominio/g" nmap-tcp.grep
 	#done	  
 	#### generar reporte nmap ######   
 	cd .nmap
@@ -691,7 +694,7 @@ fi
 if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then 
 	cd .nmap	
 					
-	grep '/rtsp/' nmap-tcp.grep | grep --color=never -o -P '(?<=Host: ).*(?=\(\))'>../.servicios/ip-cameras.txt
+	grep '/rtsp/' nmap-tcp.grep | grep --color=never -o -P '(?<=Host: ).*(?=\(\))'>../.servicios/camaras-ip.txt
 	grep '/http-proxy/' nmap-tcp.grep | grep --color=never -o -P '(?<=Host: ).*(?=\(\))'>../.servicios/proxy-http.txt
 	
 	
@@ -838,7 +841,7 @@ find .servicios -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
  ################################
   
    
-echo "######################################################################################### "
+echo -e "\t######################################################################################### "
 
 
 fi # enumerar
@@ -855,8 +858,11 @@ then
 	for ip in $(cat .servicios/smb.txt); do							
 		echo -e "\n\t### $ip (port 445)"				
 		#,smb-vuln-ms10-061,,smb-vuln-ms06-025,smb-vuln-ms07-029 
-		nmap -n -p445 --script smb-vuln-ms08-067,smb-vuln-ms17-010 $ip > logs/vulnerabilidades/$ip-445-nmap.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/$ip-445-nmap.txt | egrep -v "ACCESS_DENIED|false" > vulnerabilidades/$ip-445-nmap.txt  
+		nmap -n -p445 --script smb-vuln-ms08-067 $ip > logs/vulnerabilidades/$ip-445-ms08067.txt 2>/dev/null
+		grep "|" logs/vulnerabilidades/$ip-445-ms08067.txt | egrep -v "ACCESS_DENIED|false" > vulnerabilidades/$ip-445-ms08067.txt  
+		
+		nmap -n -p445 --script smb-vuln-ms17-010 $ip > logs/vulnerabilidades/$ip-445-ms17010.txt 2>/dev/null
+		grep "|" logs/vulnerabilidades/$ip-445-ms17010.txt | egrep -v "ACCESS_DENIED|false" > vulnerabilidades/$ip-445-ms17010.txt  
 		
 		smbmap -H $ip -u anonymous -p anonymous > logs/vulnerabilidades/$ip-445-compartido.txt 2>/dev/null
 		egrep --color=never "READ|WRITE" logs/vulnerabilidades/$ip-445-compartido.txt > vulnerabilidades/$ip-445-compartido.txt
@@ -866,15 +872,15 @@ then
 		
 			
 		########## making reportes #######
-		echo -e "\t Obteniendo OS/DOMAIN" 		
+		echo -e "\t [+] Obteniendo OS/dominio" 		
 		cp $live_hosts .smbinfo/
 		nmap -n -Pn --script smb-os-discovery.nse -p445 $ip | grep "|"> .smbinfo/$ip.txt	
 
 		################################										
 	done
-		echo -e "\t#### Creando reporte (OS/Domain/users) ###" 		
+		echo -e "\t#### Creando reporte (OS/dominio/users) ###" 		
 		cd .smbinfo/
-		report-OS-domain.pl total-host-vivos.txt 2>/dev/null
+		report-OS-dominio.pl total-host-vivos.txt 2>/dev/null
 		cd ..
 	
 	#insert clean data	
@@ -897,18 +903,28 @@ grep -i windows reportes/reporte-OS.txt 2> /dev/null | cut -d ";" -f 1 >> .servi
 #####################################
 
 
-if [ -f .servicios/ip-cameras.txt ]
+if [ -f .servicios/camaras-ip.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### Camaras IP (`wc -l .servicios/ip-cameras.txt`) ######################$RESET"	  
-	for line in $(cat .servicios/ip-cameras.txt); do
+	echo -e "$OKBLUE\n\t#################### Camaras IP (`wc -l .servicios/camaras-ip.txt`) ######################$RESET"	  
+	for line in $(cat .servicios/camaras-ip.txt); do
 		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`						
+		port=`echo $line | cut -f2 -d":"`
+		
+		
 		echo -e "\n\t### $ip"
-		nmap -n -sV -p 554 --script=rtsp-url-brute $ip > logs/vulnerabilidades/$ip-554-openstreaming.txt 2>/dev/null 
-		grep "|" logs/vulnerabilidades/$ip-554-openstreaming.txt > vulnerabilidades/$ip-554-openstreaming.txt 		
+		egrep -i $ip .servicios/Windows.txt
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then			
+			echo -e "\t [+] Es un dispositivo windows"
+		else
+			echo -e "\t [+] Testeando open stream"
+			nmap -n -sV -p 554 --script=rtsp-url-brute $ip > logs/vulnerabilidades/$ip-554-openstreaming.txt 2>/dev/null 
+			grep "|" logs/vulnerabilidades/$ip-554-openstreaming.txt > vulnerabilidades/$ip-554-openstreaming.txt 		
+		fi			
+		
 	done
 	
-		# check if we have any script running
+		# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'ftp|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -924,37 +940,6 @@ then
 	insert_data		
 fi
 
-
-if [ -f .servicios/mysql.txt ]
-then
-	echo -e "$OKBLUE\n\t#################### MY SQL (`wc -l .servicios/mysql.txt`) ######################$RESET"	  
-	for line in $(cat .servicios/mysql.txt); do
-		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`
-		
-		echo -e "\n\t### $ip"	
-				
-		#echo  -e "\tRevisar vulnerabilidades"
-		#nmap -n -p $port --script=mysql-vuln-cve2012-2122 $ip > logs/vulnerabilidades/$ip-mysql-vuln.txt 2>/dev/null
-		#grep "|" logs/vulnerabilidades/$ip-mysql-vuln.txt | grep -v "failed" > vulnerabilidades/$ip-mysql-vuln.txt 	
-					
-	done
-	
-		# check if we have any script running
-	while true; do
-	webbuster_instances=`ps aux | egrep 'ftp|nmap' | wc -l`		
-	if [ "$webbuster_instances" -gt 1 ]
-	then
-		echo -e "\t[-] Todavia hay scripts activos ($webbuster_instances)"				
-		sleep 20
-		else
-			break		
-		fi
-	done	# done true	
-	
-	#insert clean data	
-	insert_data	
-fi
 
 if [ -f .servicios/mongoDB.txt ]
 then
@@ -998,7 +983,7 @@ then
 		port=`echo $line | cut -f2 -d":"`		
 				
 		nmap -n $ip --script=x11-access.nse > logs/enumeracion/$ip-x11.txt 2>/dev/null 
-		grep "|" logs/enumeracion/$ip-x11.txt > enumeracion/$ip-x11.txt 
+		grep "|" logs/enumeracion/$ip-x11.txt | grep -v ERROR > enumeracion/$ip-x11.txt 
 	done	
 	
 	#insert clean data	
@@ -1016,10 +1001,7 @@ then
 		grep "|" logs/vulnerabilidades/$ip-rpc.txt > vulnerabilidades/$ip-rpc.txt 
 		
 		nmap -n -p $port $ip --script=rpcinfo > logs/enumeracion/$ip-rpc.txt 2>/dev/null 
-		grep "|" logs/enumeracion/$ip-rpc.txt > enumeracion/$ip-rpc.txt 
-		
-		
-		rpcinfo
+		grep "|" logs/enumeracion/$ip-rpc.txt > enumeracion/$ip-rpc.txt 				
 		
 	done	
 	
@@ -1071,12 +1053,12 @@ then
 		
 	done
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'ftp|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
 	then
-		echo -e "\t[-] Todavia hay scripts activos ($webbuster_instances)"				
+		echo -e "\t[i] Todavia hay scripts activos ($webbuster_instances)"				
 		sleep 20
 		else
 			break		
@@ -1087,41 +1069,6 @@ then
 	insert_data
 fi
 
-
-if [ -f .servicios/ftp.txt ]
-then
-	echo -e "$OKBLUE\n\t#################### FTP (`wc -l .servicios/ftp.txt`) ######################$RESET"	    
-	touch 68b329da9893e34099c7d8ad5cb9c940.txt # file to test upload
-	for line in $(cat .servicios/ftp.txt); do
-		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`
-		
-		echo -e "\n\t### $ip"				
-		#nmap -n -sV -Pn -p $port $ip --script=ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221 > enumeracion/$ip-ftp-vuln.txt 2>/dev/null &
-		echo  "escaneando $ip (ftp - banner)"
-		echo "LIST" | nc -w 3 $ip 21 > enumeracion/$ip-21-banner.txt 2>/dev/null &					
-		echo  "escaneando $ip (ftp - anonymous)"
-		ftp-anonymous.pl -t $ip -f 68b329da9893e34099c7d8ad5cb9c940.txt > vulnerabilidades/$ip-21-anonymous.txt 2>/dev/null &	
-		sleep 5
-	done	
-	rm 68b329da9893e34099c7d8ad5cb9c940.txt 2>/dev/null
-	
-	# check if we have any script running
-	while true; do
-	webbuster_instances=`ps aux | egrep 'ftp|nmap' | wc -l`		
-	if [ "$webbuster_instances" -gt 1 ]
-	then
-		echo -e "\t[-] Todavia hay scripts activos ($webbuster_instances)"				
-		sleep 20
-		else
-			break		
-		fi
-	done	# done true	
-	
-	#insert clean data	
-	insert_data
-	
-fi
 
 
 if [ -f .servicios/telnet.txt ]
@@ -1130,20 +1077,27 @@ then
 	while read line; do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
+		
+		echo -e "\t [+] Escaneando $ip (telnet - banner)"
+		#banner
+		echo -e "\tquit" | nc -w 4 $ip $port | strings > enumeracion/$ip-$port-banner.txt 2>/dev/null
+				
+		egrep -i "Printer|JetDirect" enumeracion/$ip-$port-banner.txt
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then			
+			echo -e "\t [+] Es una impresora"
+		else
+			echo -e "\t [+] Probando password por defecto (telnet)"
+			medusa -u root -p vizxv -h $ip -M telnet > logs/vulnerabilidades/$ip-23-passwordDahua.txt 2>/dev/null
+			medusa -e n -u root -h $ip -M telnet > logs/vulnerabilidades/$ip-23-password.txt 2>/dev/null
+			medusa -e n -u admin -h $ip -M telnet > logs/vulnerabilidades/$ip-23-password.txt 2>/dev/null
+			grep --color=never SUCCESS logs/vulnerabilidades/$ip-23-passwordDahua.txt > vulnerabilidades/$ip-23-passwordDahua.txt 
+		fi				
 
-		echo -e "\t Default Pass (telnet)"
-		medusa -u root -p vizxv -h $ip -M telnet > logs/vulnerabilidades/$ip-23-passwordDahua.txt 2>/dev/null
-		medusa -e n -u root -h $ip -M telnet > logs/vulnerabilidades/$ip-23-password.txt 2>/dev/null
-		medusa -e n -u admin -h $ip -M telnet > logs/vulnerabilidades/$ip-23-password.txt 2>/dev/null
-		grep --color=never SUCCESS logs/vulnerabilidades/$ip-23-passwordDahua.txt > vulnerabilidades/$ip-23-passwordDahua.txt 
-					
-		echo  "escaneando $ip (telnet - banner)"
-		nc -w 3 $ip 23 <<<"print_debug" > enumeracion/$ip-23-banner.txt 2>/dev/null
-		sed -i -e "1d" enumeracion/$ip-23-banner.txt 2>/dev/null																
-		cp enumeracion/$ip-23-banner.txt logs/enumeracion/$ip-23-banner.txt
+#		nc -w 3 $ip 23 <<<"print_debug" > enumeracion/$ip-23-banner.txt 2>/dev/null		
 	done <.servicios/telnet.txt
 
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'finger|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -1157,8 +1111,54 @@ then
 		
 	#insert clean data	
 	insert_data
+fi # telnet
+
+
+if [ -f .servicios/ftp.txt ]
+then
+	echo -e "$OKBLUE\n\t#################### FTP (`wc -l .servicios/ftp.txt`) ######################$RESET"	    
+	touch 68b329da9893e34099c7d8ad5cb9c940.txt # file to test upload
+	for line in $(cat .servicios/ftp.txt); do
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"`
 		
+		echo -e "\n\t### $ip"				
+		#nmap -n -sV -Pn -p $port $ip --script=ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221 > enumeracion/$ip-ftp-vuln.txt 2>/dev/null &
+		echo -e "\t Escaneando $ip (ftp - banner)"
+		echo -e "\tLIST" | nc -w 3 $ip 21 > enumeracion/$ip-$port-banner.txt 2>/dev/null &					
+		
+		######## revisar si no es impresora #####
+		egrep -iq "Printer|JetDirect" enumeracion/$ip-23-banner.txt 2>/dev/null
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then			
+			echo -e "\t [+] Es una impresora"
+		else			
+			echo -e "\t [+] Escaneando $ip (ftp - anonymous)"
+			ftp-anonymous.pl -t $ip -f 68b329da9893e34099c7d8ad5cb9c940.txt > vulnerabilidades/$ip-21-anonymous.txt 2>/dev/null &	
+			sleep 5
+		fi	
+		#######################################
+		
+	done	
+	rm 68b329da9893e34099c7d8ad5cb9c940.txt 2>/dev/null
+	
+	# revisar si hay scripts ejecutandose
+	while true; do
+	webbuster_instances=`ps aux | egrep 'ftp|nmap' | wc -l`		
+	if [ "$webbuster_instances" -gt 1 ]
+	then
+		echo -e "\t[i] Todavia hay scripts activos ($webbuster_instances)"				
+		sleep 20
+		else
+			break		
+		fi
+	done	# done true	
+	
+	#insert clean data	
+	insert_data
+	
 fi
+
 
 
 
@@ -1168,13 +1168,13 @@ then
 	echo -e "$OKBLUE\n\t#################### FINGER ######################$RESET"	    
 	while read line; do
 		ip=`echo $line | cut -f1 -d";"`		
-		echo  "escaneando $ip (finger)"
+		echo -e "\t [+]escaneando $ip (finger)"
 		finger @$ip > enumeracion/$ip-69-users.txt &
 		sleep 1
 					# done true				        	        				
 	done < .servicios/finger.txt
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'finger|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -1197,7 +1197,7 @@ then
 	for ip in $(cat .servicios/vpn.txt); do		
 			
 		echo -e "\n\t### $ip"
-		ike=`ike-scan -M $ip`
+		ike=`ike-scan -M $ip 2>/dev/null`
 		if [[ $ike == *"HDR"* ]]; then
 			echo $ike > enumeracion/$ip-500-transforms.txt
 			cp enumeracion/$ip-500-transforms.txt logs/enumeracion/$ip-500-transforms.txt
@@ -1218,9 +1218,9 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
 		echo -e "\n\t### $ip ($port)"					
-		#vnc_response=`echo "a" | nc -w 3 $ip $port`
+		#vnc_response=`echo -e "\ta" | nc -w 3 $ip $port`
 		#if [[ ${vnc_response} == *"RFB 003.008"* ]];then
-			#echo "VNC bypass ($vnc_response)" > vulnerabilidades/$ip-$port-bypass.txt 
+			#echo -e "\tVNC bypass ($vnc_response)" > vulnerabilidades/$ip-$port-bypass.txt 
 		#fi	
 		
 		msfconsole -x "use auxiliary/scanner/vnc/vnc_none_auth;set RHOSTS $ip; set rport $port;run;exit" > logs/vulnerabilidades/$ip-$port-nopass.txt 2>/dev/null		
@@ -1230,7 +1230,7 @@ then
 		grep "|" logs/vulnerabilidades/$ip-$port-bypass2.txt > vulnerabilidades/$ip-$port-bypass2.txt
 	done
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -1261,12 +1261,12 @@ then
 					
 	done <.servicios/mssql.txt
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
 	then
-		echo -e "\t[-] Todavia hay scripts activos ($webbuster_instances)"				
+		echo -e "\t[i] Todavia hay scripts activos ($webbuster_instances)"				
 		sleep 20
 		else
 			break		
@@ -1288,33 +1288,33 @@ then
 		port=`echo $line | cut -f2 -d":"` 	
 		
 		echo -e "\n\t### $ip "			
-		domain=`nmap -n -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
+		dominio=`nmap -n -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
 				
-		if [ -z "$domain" ]; then
-			domain=`nmap -n -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
+		if [ -z "$dominio" ]; then
+			dominio=`nmap -n -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
 		fi
 		
 		
-		echo $domain > enumeracion/$ip-$port-domain.txt
-		domain=`echo $domain | head -1`
-		ldapsearch -x -p $port -h $ip -b $domain -s sub "(objectclass=*)" > logs/enumeracion/$ip-$port-directory.txt 
+		echo $dominio > enumeracion/$ip-$port-dominio.txt
+		dominio=`echo $dominio | head -1`
+		ldapsearch -x -p $port -h $ip -b $dominio -s sub "(objectclass=*)" > logs/enumeracion/$ip-$port-directory.txt 
 		
-		egrep -i "successful bind must be completed|Not bind" logs/enumeracion/$ip-$port-directory.txt 
+		egrep -iq "successful bind must be completed|Not bind" logs/enumeracion/$ip-$port-directory.txt 
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
-			echo -e "\t Requiere autenticacion"
+			echo -e "\t [+] Requiere autenticacion"
 		else
 			cp logs/enumeracion/$ip-$port-directory.txt vulnerabilidades/$ip-$port-directory.txt 
 		fi
 													 
 	done <.servicios/ldaps.txt
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
 	then
-		echo -e "\t[-] Todavia hay scripts activos ($webbuster_instances)"				
+		echo -e "\t[i] Todavia hay scripts activos ($webbuster_instances)"				
 		sleep 20
 		else
 			break		
@@ -1339,12 +1339,12 @@ then
 													 
 	done <.servicios/vmware.txt
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
 	then
-		echo -e "\t[-] Todavia hay scripts activos ($webbuster_instances)"				
+		echo -e "\t[i] Todavia hay scripts activos ($webbuster_instances)"				
 		sleep 20
 		else
 			break		
@@ -1373,7 +1373,7 @@ then
 													 
 	done <.servicios/citrix.txt
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -1399,7 +1399,7 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`			
 		echo -e "\n\t### ($ip) "						
-		echo -e "\t Bypass"		
+		echo -e "\t [+] Probando vulnerabilidad de Dahua"		
 		msfconsole -x "use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS $ip; set ACTION USER;run;exit" > logs/vulnerabilidades/$ip-dahua-vuln.txt 2>/dev/null		
 		grep --color=never "37777" logs/vulnerabilidades/$ip-dahua-vuln.txt  > vulnerabilidades/$ip-dahua-vuln.txt 
 															
@@ -1415,13 +1415,13 @@ fi
 
 if [ -f .servicios/elasticsearch.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### DAHUA (`wc -l .servicios/elasticsearch.txt`)######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### Elastic search (`wc -l .servicios/elasticsearch.txt`)######################$RESET"	    
 	while read line       
 	do     			
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`			
 		echo -e "\n\t### ($ip) "						
-		echo -e "\t Bypass"		
+		echo -e "\t [+] Probando enumeracion de elasticsearch"		
 		msfconsole -x "use auxiliary/scanner/elasticsearch/indices_enum;set RHOSTS $ip; run;exit" > logs/vulnerabilidades/$ip-elasticsearch-vuln.txt 2>/dev/null
 		grep --color=never "Indices found" logs/vulnerabilidades/$ip-elasticsearch-vuln.txt  > vulnerabilidades/$ip-elasticsearch-vuln.txt 
 															
@@ -1446,7 +1446,7 @@ then
 													 
 	done <.servicios/intel.txt
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -1468,7 +1468,7 @@ fi
 if [ -f .servicios/snmp.txt ]
 then
 	echo -e "$OKBLUE\n\t#################### SNMP (`wc -l .servicios/snmp.txt`) ######################$RESET"	    
-	echo  "escaneando (snmp - onesixtyone)"
+	echo -e "\t [+] Escaneando (snmp - onesixtyone)"
 	onesixtyone -c /usr/share/lanscanner/community.txt -i .servicios/snmp.txt  | grep --color=never "\[" | sed 's/ \[/~/g' |  sed 's/\] /~/g' | sort | sort | uniq > banners-snmp2.txt
 
 	while read line; do
@@ -1476,42 +1476,50 @@ then
 		community=`echo $line | cut -f2 -d"~"`
 		device=`echo $line | cut -f3 -d"~"`
 		
-		echo  "escaneando $ip (snmp - $community )"
+#		echo  "escaneando $ip (snmp - $community )"
 		### snmp write ##
-		snmp-write.pl -t $ip -c $community > vulnerabilidades/$ip-161-$community.txt 2>/dev/null &										
+		#snmp-write.pl -t $ip -c $community > vulnerabilidades/$ip-161-$community.txt 2>/dev/null &										
 				
 		### snmp bruteforce ##				
 		
 		if [[ ${device} == *"windows"*  ]];then 
-			echo  "escaneando $ip (snmp - enumerate - windows)"
-			snmpbrute.py -t $ip -c $community --windows --auto > vulnerabilidades/$ip-161-enumerate.txt 2>/dev/null 
-		fi	
-		
-		if [[ ${device} == *"SunOS"* || ${device} == *"SonicWALL"* || ${device} == *"SofaWare"* || ${device} == *"SRP521W"* || ${device} == *"RouterOS"* || ${device} == *"Cisco"* || ${device} == *"juniper"* ]];then 
-			echo  "escaneando $ip (snmp - enumerate - router)"
-			snmpbrute.py -t $ip -c $community --cisco --auto > vulnerabilidades/$ip-161-enumerate.txt 2>/dev/null 
-		fi								
+			echo -e "\t [+] Escaneando $ip (snmp - enumerate - windows)"			
+			snmpbrute.py -t $ip -c $community --windows --auto >> logs/vulnerabilidades/$ip-snmp-$community.txt 2>/dev/null 
+		fi									
 			
 		if [[ (${device} == *"linux"* || ${device} == *"Linux"* ) && (${device} != *"linux host"* )]];then 
-			echo  "escaneando $ip (snmp - enumerate - Linux)"
-			snmpbrute.py -t $ip -c $community --linux --auto > vulnerabilidades/$ip-161-enumerate.txt 2>/dev/null 
+			echo -e "\t [+] Escaneando $ip (snmp - enumerate - Linux)"			
+			snmpbrute.py -t $ip -c $community --linux --auto >> logs/vulnerabilidades/$ip-snmp-$community.txt 2>/dev/null 
 		fi										
 					
-		if [ ! -f enumeracion/$ip-161-enumerate.txt ]; then
-			echo  "escaneando $ip (snmp - enumerate - generic)"
-			snmpbrute.py -t $ip -c $community --linux --auto > vulnerabilidades/$ip-161-enumerate.txt 2>/dev/null 
+		if [ ! -f logs/enumeracion/$ip-snmp-$community.txt ]; then
+			echo -e "\t [+] Escaneando $ip (snmp - enumerate - cisco)"			
+			snmpbrute.py -t $ip -c $community --cisco --auto >> logs/vulnerabilidades/$ip-snmp-$community.txt 2>/dev/null 
 		fi
-		cp vulnerabilidades/$ip-161-enumerate.txt logs/vulnerabilidades/$ip-161-enumerate.txt
+		
+		
+		###### Revisar si no es impresora ######
+		egrep -qi "MULTI-ENVIRONMENT" logs/vulnerabilidades/$ip-snmp-$community.txt
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then			
+			echo -e "\t [+] Es una impresora"
+		else
+			cp logs/vulnerabilidades/$ip-snmp-$community.txt vulnerabilidades/$ip-snmp-$community.txt	
+		fi		
+		#######################
+		
+			
+		
 		
 	done <banners-snmp2.txt
 	rm banners-snmp2.txt
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
 	then
-		echo -e "\t[-] Todavia hay scripts activos ($webbuster_instances)"				
+		echo -e "\t[i] Todavia hay scripts activos ($webbuster_instances)"				
 		sleep 20
 		else
 			break		
@@ -1533,23 +1541,36 @@ then
 		port=`echo $line | cut -f2 -d":"` 	
 		
 		echo -e "\n\t### $ip "			
-		domain=`nmap -n -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
-		echo $domain > enumeracion/$ip-$port-domain.txt
-		domain=`echo $domain | head -1`
-		ldapsearch -x -p $port -h $ip -b $domain -s sub "(objectclass=*)" > logs/enumeracion/$ip-$port-directory.txt 
+		dominio=`nmap -n -p $port --script ldap-rootdse $ip | grep --color=never namingContexts | sed 's/|       namingContexts: //g'`
+		echo $dominio > enumeracion/$ip-$port-dominio.txt
+		dominio=`echo $dominio | head -1`
+		###### LDAP ######
 		
-		egrep -i "successful bind must be completed|Not bind" logs/enumeracion/$ip-$port-directory.txt 
+		ldapsearch -x -p $port -h $ip -b $dominio -s sub "(objectclass=*)" > logs/vulnerabilidades/$ip-$port-directory.txt 
+				
+		egrep -iq "successful bind must be completed|Not bind|Operation unavailable" logs/vulnerabilidades/$ip-$port-directory.txt 
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
-			echo -e "\t Requiere autenticacion"
+			echo -e "\t [+] Requiere autenticacion"
 		else
-			cp logs/enumeracion/$ip-$port-directory.txt vulnerabilidades/$ip-$port-directory.txt 
+			cp logs/vulnerabilidades/$ip-$port-directory.txt vulnerabilidades/$ip-$port-directory.txt 
 		fi
+		####################
 		
+		###### Enum4linux ######
+		enum4linux $ip 2>/dev/null | grep -iv "unknown" > logs/vulnerabilidades/$ip-$port-enum4linux.txt 
+		egrep -qi "allows sessions using username" logs/vulnerabilidades/$ip-$port-enum4linux.txt 
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then			
+			cp logs/vulnerabilidades/$ip-$port-enum4linux.txt  vulnerabilidades/$ip-445-enum4linux.txt 
+		else
+			echo -e "\t [+] No null session"
+		fi		
+		#######################
 		
 	done <.servicios/ldap.txt
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -1570,28 +1591,21 @@ if [ -f .servicios/printers.txt ]
 then
 	echo -e "$OKBLUE\n\t#################### Printers (`wc -l .servicios/printers.txt`) ######################$RESET"	    		
 	echo ls >> command.txt
-	echo "nvram dump" >> command.txt	
+	echo -e "\tnvram dump" >> command.txt	
 	echo quit >> command.txt
 	for line in $(cat .servicios/printers.txt); do
         ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"` 	
 		
-		echo -e "\n\t### $ip "	
-		
-		echo -e "\t PJL "			
-		pret.sh --safe $ip pjl -i `pwd`/command.txt  > enumeracion/$ip-9100-PJL.txt 2>/dev/null ;
-		#echo -e "\t PS "			
-		#pret.sh --safe $ip ps -i `pwd`/command.txt > logs/enumeracion/$ip-9100-PS.txt 2>/dev/null ;				
-		
-		#grep -i --color=never "found" logs/enumeracion/$ip-9100-PJL.txt | egrep -iv "not|http" > enumeracion/$ip-9100-printer2.txt 
-		#grep -i --color=never "found" logs/enumeracion/$ip-9100-PS.txt | egrep -iv "not|http" >> enumeracion/$ip-9100-printer2.txt 		
-		#sort enumeracion/$ip-9100-printer2.txt  | sort | uniq > enumeracion/$ip-9100-printer.txt 
-		#rm enumeracion/$ip-9100-printer2.txt 
+		echo -e "\n\t### printer $ip "	
+				
+		pret.sh --safe $ip pjl -i `pwd`/command.txt | egrep -iv "\||Checking|ASCII|_|jan" | tail -n +4 > logs/enumeracion/$ip-9100-PJL.txt 2>/dev/null 		
+		cp logs/enumeracion/$ip-9100-PJL.txt enumeracion/$ip-9100-PJL.txt 
 			
     done;   
     rm command.txt
     
-    # check if we have any script running
+    # revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -1618,15 +1632,41 @@ if [ -f .servicios/smtp.txt ]
 			ip=`echo $line | cut -f1 -d":"`
 			port=`echo $line | cut -f2 -d":"`
 			
-			echo  "escaneando $ip (smtp - vrfy,openrelay)"		
-			vrfy-test.py $ip $port > enumeracion/$ip-$port-vrfy.txt 2>/dev/null &
-			open-relay.py $ip $port > logs/enumeracion/$ip-$port-openrelay.txt 2>/dev/null 
+			echo -e "\t [+] Escaneando $ip (smtp - vrfy,openrelay)"		
+			
+			
+			########## VRFY #######
+			vrfy-test.py $ip $port  > logs/vulnerabilidades/$ip-$port-vrfy.txt 2>/dev/null 
+			egrep -i "User unknown" logs/vulnerabilidades/$ip-$port-vrfy.txt 
+			greprc=$?
+			if [[ $greprc -eq 0 ]] ; then			
+				cp logs/vulnerabilidades/$ip-$port-vrfy.txt  vulnerabilidades/$ip-$port-vrfy.txt 
+				
+				smtp-user-enum -M VRFY -U /usr/share/wordlists/usuarios-es.txt -t $ip > logs/vulnerabilidades/$ip-$port-vrfyEnum.txt
+				grep --color=never "exists" logs/vulnerabilidades/$ip-$port-vrfyEnum.txt > vulnerabilidades/$ip-$port-vrfyEnum.txt
+			else
+				echo -e "\t [+] No VRFY "
+			fi		
+			#########################
+			
+			########## open relay #######
+			open-relay.py $ip $port $dominio > logs/vulnerabilidades/$ip-$port-openrelay.txt 2>/dev/null 			
+			egrep -i "queued as" logs/vulnerabilidades/$ip-$port-openrelay.txt 
+			greprc=$?
+			if [[ $greprc -eq 0 ]] ; then			
+				cp logs/vulnerabilidades/$ip-$port-openrelay.txt  vulnerabilidades/$ip-$port-openrelay.txt 
+			else
+				echo -e "\t [+] Relay access denied"
+				
+			fi		
+			#########################
+			
 			nc -w 3 $ip $port <<<"EHLO localhost"  enumeracion/$ip-$port-EHLO.txt 2>/dev/null
 						
 		done <.servicios/smtp.txt
 		
 		
-		# check if we have any script running
+		# revisar si hay scripts ejecutandose
 		while true; do
 		webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 		if [ "$webbuster_instances" -gt 1 ]
@@ -1658,33 +1698,33 @@ then
 		then						
 			echo -e "\t[+] Obteniendo informacion web ($ip:$port)"	
 			webData.pl -t $ip -p $port -s 0 -e todo -d / -l logs/enumeracion/$ip-$port-webData.txt > enumeracion/$ip-$port-webData.txt 2>/dev/null  &
-			echo ""	
+			echo -e "\t"	
 			sleep 0.1;	
 			
-			######## check by domain #######
-			if [ $FILE != NULL ] ; then
-				domain_list=`grep $ip ../$FILE | cut -d "," -f3`
-				for domian in $domain_list; do
-					echo -e "\t[+] Obteniendo informacion web ($domian)"	
-					webData.pl -t $domian -p $port -s 0 -e todo -d / -l logs/enumeracion/$domian-$port-webData.txt > enumeracion/$domian-$port-webData.txt 2>/dev/null  &									
+			######## revisar por dominio #######
+			if grep -q "," "../$FILE" 2>/dev/null; then			
+				dominio_list=`grep $ip ../$FILE | cut -d "," -f3`
+				for dominio in $dominio_list; do
+					echo -e "\t[+] Obteniendo informacion web (dominio: $dominio)"	
+					webData.pl -t $dominio -p $port -s 0 -e todo -d / -l logs/enumeracion/$dominio-$port-webData.txt > enumeracion/$dominio-$port-webData.txt 2>/dev/null  &									
 				done 					
 			fi
 			################################
 												
 		else				
 			while true; do
-				echo "Max instancias de perl ($max_web_ins)"
+				echo -e "\tMax instancias de perl ($max_web_ins)"
 				sleep 5;
 				perl_instances=$((`ps aux | grep perl | wc -l` - 1)) 
 				if [ "$perl_instances" -lt $max_web_ins ] #Max 5 instances
 				then	
 					webData.pl -t $ip -p $port -s 0 -e todo -d / -l logs/enumeracion/$ip-$port-webData.txt > enumeracion/$ip-$port-webData.txt 2>/dev/null  &
-					######## check by domain #######
-					if [ $FILE != NULL ] ; then
-						domain_list=`grep $ip ../$FILE | cut -d "," -f3`
-						for domian in $domain_list; do
-							echo -e "\t[+] Obteniendo informacion web ($domian)"	
-							webData.pl -t $domian -p $port -s 0 -e todo -d / -l logs/enumeracion/$domian-$port-webData.txt > enumeracion/$domian-$port-webData.txt 2>/dev/null  &									
+					######## revisar por dominio #######
+					if grep -q "," "../$FILE" 2>/dev/null; then
+						dominio_list=`grep $ip ../$FILE | cut -d "," -f3`
+						for dominio in $dominio_list; do
+							echo -e "\t[+] Obteniendo informacion web (dominio: $dominio)"	
+							webData.pl -t $dominio -p $port -s 0 -e todo -d / -l logs/enumeracion/$dominio-$port-webData.txt > enumeracion/$dominio-$port-webData.txt 2>/dev/null  &									
 						done 					
 					fi
 					################################					
@@ -1699,7 +1739,7 @@ then
 		perl_instances=$((`ps aux | grep perl | wc -l` - 1)) 
 		if [ "$perl_instances" -gt 0 ]
 		then
-			echo "Todavia hay escaneos de perl activos ($perl_instances)"  
+			echo -e "\t [i] Todavia hay escaneos de perl activos ($perl_instances)"  
 			sleep 30
 		else
 			break		  		 
@@ -1719,7 +1759,7 @@ then
 			if [[ $free_ram -gt $min_ram && $perl_instances -lt 80  ]];then 							
 					
 				#######  if the server is IIS ######
-				grep -i IIS enumeracion/$ip-$port-webData.txt
+				grep -iq IIS enumeracion/$ip-$port-webData.txt
 				greprc=$?
 				if [[ $greprc -eq 0 && $checked -eq 0  ]];then 		
 					checked=1
@@ -1732,13 +1772,13 @@ then
 					web-buster.pl -t $ip -p $port -h 5 -d / -m webserver -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$ip-$port-webarchivos.txt  &													
 					
 					
-					######## check by domain #######
-					if [ $FILE != NULL ] ; then
-						domain_list=`grep $ip ../$FILE | cut -d "," -f3`
-						for domian in $domain_list; do							
-							echo -e "\t### web-buster ($domian)"			
-							web-buster.pl -t $domian -p $port -h 5 -d / -m admin -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$domain-$port-webarchivos.txt  &			
-							web-buster.pl -t $domian -p $port -h 5 -d / -m webserver -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$domain-$port-webarchivos.txt  &		
+					######## revisar por dominio #######
+					if grep -q "," "../$FILE" 2>/dev/null; then
+						dominio_list=`grep $ip ../$FILE | cut -d "," -f3`
+						for dominio in $dominio_list; do							
+							echo -e "\t### web-buster (dominio: $dominio)"			
+							web-buster.pl -t $dominio -p 80 -h 5 -d / -m admin -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$dominio-$port-webarchivos.txt  &			
+							web-buster.pl -t $dominio -p 80 -h 5 -d / -m webserver -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$dominio-$port-webarchivos.txt  &		
 						done 					
 					fi
 					################################
@@ -1749,7 +1789,7 @@ then
 		
 		
 				#######  if the server is java ######
-				egrep -i "GlassFish|Coyote|Tomcat|Resin|JBoss|WildFly" enumeracion/$ip-$port-webData.txt
+				egrep -iq "GlassFish|Coyote|Tomcat|Resin|JBoss|WildFly" enumeracion/$ip-$port-webData.txt
 				greprc=$?
 				if [[ $greprc -eq 0 && $checked -eq 0  ]];then 		
 					checked=1
@@ -1759,13 +1799,13 @@ then
 					web-buster.pl -t $ip -p $port -h 5 -d / -m webserver -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$ip-$port-webarchivos.txt  &										
 					sleep 1
 					
-					######## check by domain #######
-					if [ $FILE != NULL ] ; then
-						domain_list=`grep $ip ../$FILE | cut -d "," -f3`
-						for domian in $domain_list; do						
-							echo -e "\t### web-buster ($domian)"			
-							web-buster.pl -t $domian -p $port -h 5 -d / -m admin -s 0 -q 1 | egrep --color=never "^200|^401" >> enumeracion/$domian-$port-webarchivos.txt  &
-						    web-buster.pl -t $domian -p $port -h 5 -d / -m webserver -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$domian-$port-webarchivos.txt  &
+					######## revisar por dominio #######
+					if grep -q "," "../$FILE" 2>/dev/null; then
+						dominio_list=`grep $ip ../$FILE | cut -d "," -f3`
+						for dominio in $dominio_list; do						
+							echo -e "\t### web-buster (dominio: $dominio)"			
+							web-buster.pl -t $dominio -p $port -h 5 -d / -m admin -s 0 -q 1 | egrep --color=never "^200|^401" >> enumeracion/$dominio-$port-webarchivos.txt  &
+						    web-buster.pl -t $dominio -p $port -h 5 -d / -m webserver -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$dominio-$port-webarchivos.txt  &
 						done 					
 					fi
 					################################
@@ -1776,7 +1816,7 @@ then
 		
 		
 				#######  if the server is apache ######
-				grep -i apache enumeracion/$ip-$port-webData.txt | egrep -iv "cisco|BladeSystem|oracle"
+				grep -qi apache enumeracion/$ip-$port-webData.txt | egrep -iv "cisco|BladeSystem|oracle"
 				greprc=$?
 				if [[ $greprc -eq 0 && $checked -eq 0  ]];then 		
 					checked=1			
@@ -1794,14 +1834,14 @@ then
 					web-buster.pl -t $ip -p $port -h 5 -d / -m cgi -s 0 -q 1 | grep --color=never ^200 | awk '{print $2}' >> .servicios/cgi.txt 					
 					sleep 1
 					
-					######## check by domain #######
-					if [ $FILE != NULL ] ; then
-						domain_list=`grep $ip ../$FILE | cut -d "," -f3`
-						for domian in $domain_list; do							
-							echo -e "\t### web-buster ($domian)"			
-							web-buster.pl -t $domian -p $port -h 5 -d / -m admin -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$ip-$port-webarchivos.txt  &			
-							web-buster.pl -t $domian -p $port -h 5 -d / -m webserver -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$ip-$port-webarchivos.txt  &			
-							web-buster.pl -t $domian -p $port -h 5 -d / -m cgi -s 0 -q 1 | grep --color=never ^200 | awk '{print $2}' >> .servicios/cgi.txt 					
+					######## revisar por dominio #######
+					if grep -q "," "../$FILE" 2>/dev/null; then
+						dominio_list=`grep $ip ../$FILE | cut -d "," -f3`
+						for dominio in $dominio_list; do							
+							echo -e "\t### web-buster (dominio: $dominio)"			
+							web-buster.pl -t $dominio -p $port -h 5 -d / -m admin -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$ip-$port-webarchivos.txt  &			
+							web-buster.pl -t $dominio -p $port -h 5 -d / -m webserver -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$ip-$port-webarchivos.txt  &			
+							web-buster.pl -t $dominio -p $port -h 5 -d / -m cgi -s 0 -q 1 | grep --color=never ^200 | awk '{print $2}' >> .servicios/cgi.txt 					
 						done 					
 					fi
 					################################
@@ -1811,7 +1851,7 @@ then
 				
 				
 				#######  DLINK backdoor ######
-				grep -i alphanetworks enumeracion/$ip-$port-webData.txt
+				grep -qi alphanetworks enumeracion/$ip-$port-webData.txt
 				greprc=$?
 				if [[ $greprc -eq 0 ]];then 		
 					cat enumeracion/$ip-$port-webData.txt >vulnerabilidades/$ip-$port-dlinkBackdoor.txt 
@@ -1820,7 +1860,7 @@ then
 			break
 		else
 			perl_instances=`ps aux | grep perl | wc -l`
-			echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de perl ($perl_instances) "
+			echo -e "\t[-] Poca RAM ($free_ram Mb). Maximo número de instancias de perl ($perl_instances) "
 			sleep 3
 		fi
 		done	# done true	
@@ -1843,14 +1883,14 @@ then
 				break
 			else
 				ruby_instances=`pgrep ruby | wc -l`
-				echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($ruby_instances )"
+				echo -e "\t[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($ruby_instances )"
 				sleep 3
 			fi
 		done	# done true	OFFSEC
 	    fi # if iffsec
 	done	# done for                       
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -1874,6 +1914,28 @@ then
     
     echo -e "$OKBLUE\n\t#################### WEB - SSL (`wc -l .servicios/web-ssl.txt`) ######################$RESET"	    		
 
+	######## heartbleed ####
+	for line in $(cat .servicios/web-ssl.txt); do    
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"`	
+		echo -e "\n\t### $ip:$port ( heartbleed)"	
+		nmap -n -Pn -p $port --script=ssl-heartbleed $ip > logs/vulnerabilidades/$ip-$port-heartbleed.txt 2>/dev/null 
+		
+		egrep -qi "VULNERABLE" logs/vulnerabilidades/$ip-$port-heartbleed.txt
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then						
+			grep "|" logs/vulnerabilidades/$ip-$port-heartbleed.txt > vulnerabilidades/$ip-$port-heartbleed.txt				
+			heartbleed.py $ip -p $port 2>/dev/null | head -100 | sed -e's/%\([0-9A-F][0-9A-F]\)/\\\\\x\1/g' > vulnerabilidades/$ip-$port-heartbleedRAM.txt						
+		fi
+		
+		
+		
+		#a2sv.sh -t $ip -p $port -d n 2>/dev/null | grep CVE > logs/vulnerabilidades/$ip-$port-a2sv.txt &
+		#grep --color=never "Vulnerable" logs/vulnerabilidades/$ip-$port-a2sv.txt 2> /dev/null | grep -iv "not"  > vulnerabilidades/$ip-$port-a2sv.txt
+	
+	done
+	########################
+
 	for line in $(cat .servicios/web-ssl.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`	
@@ -1884,34 +1946,34 @@ then
 			echo -e "\t[+] Obteniendo informacion web $ip:$port"	
 			webData.pl -t $ip -p $port -s 1 -e todo -d / -l logs/enumeracion/$ip-$port-webData.txt> enumeracion/$ip-$port-webData.txt 2>/dev/null  &			
 			get_ssl_cert.py $ip $port  2>/dev/null | grep "("> enumeracion/$ip-$port-cert.txt  &
-			echo ""	
+			echo -e "\t"	
 			sleep 0.1;	
 			
-			######## check by domain #######
-			if [ $FILE != NULL ] ; then
-				domain_list=`grep $ip ../$FILE | cut -d "," -f3`
-				for domian in $domain_list; do
-					echo -e "\t[+] Obteniendo informacion web ($domian)"	
-					webData.pl -t $domian -p $port -s 1 -e todo -d / -l logs/enumeracion/$domian-$port-webData.txt > enumeracion/$domian-$port-webData.txt 2>/dev/null  &									
+			######## revisar por dominio #######
+			if grep -q "," "../$FILE" 2>/dev/null; then
+				dominio_list=`grep $ip ../$FILE | cut -d "," -f3`
+				for dominio in $dominio_list; do
+					echo -e "\t[+] Obteniendo informacion web ($dominio)"	
+					webData.pl -t $dominio -p 443 -s 1 -e todo -d / -l logs/enumeracion/$dominio-$port-webData.txt > enumeracion/$dominio-$port-webData.txt 2>/dev/null  &									
 				done 					
 			fi
 			################################
 												
 		else				
 			while true; do
-				echo "Max instancias de perl ($max_web_ins)"
+				echo -e "\tMax instancias de perl ($max_web_ins)"
 				sleep 5;
 				perl_instances=$((`ps aux | grep perl | wc -l` - 1)) 
 				if [ "$perl_instances" -lt $max_web_ins ] #Max 10 instances
 				then	
 					webData.pl -t $ip -p $port -s 1 -e todo -d / -l logs/enumeracion/$ip-$port-webData.txt> enumeracion/$ip-$port-webData.txt 2>/dev/null  &			
 					get_ssl_cert.py $ip $port 2>/dev/null | grep "("> enumeracion/$ip-$port-cert.txt  &
-					######## check by domain #######
-					if [ $FILE != NULL ] ; then
-						domain_list=`grep $ip ../$FILE | cut -d "," -f3`
-						for domian in $domain_list; do
-							echo -e "\t[+] Obteniendo informacion web ($domian)"	
-							webData.pl -t $domian -p $port -s 1 -e todo -d / -l logs/enumeracion/$domian-$port-webData.txt > enumeracion/$domian-$port-webData.txt 2>/dev/null  &									
+					######## revisar por dominio #######
+					if grep -q "," "../$FILE" 2>/dev/null; then
+						dominio_list=`grep $ip ../$FILE | cut -d "," -f3`
+						for dominio in $dominio_list; do
+							echo -e "\t[+] Obteniendo informacion web ($dominio)"	
+							webData.pl -t $dominio -p 443 -s 1 -e todo -d / -l logs/enumeracion/$dominio-$port-webData.txt > enumeracion/$dominio-$port-webData.txt 2>/dev/null  &									
 						done 					
 					fi
 					################################
@@ -1926,7 +1988,7 @@ then
 		perl_instances=$((`ps aux | grep perl | wc -l` - 1)) 
 		if [ "$perl_instances" -gt 0 ]
 		then
-			echo "Todavia hay escaneos de perl activos ($perl_instances)"  
+			echo -e "\t [i] Todavia hay escaneos de perl activos ($perl_instances)"  
 			sleep 30
 		else
 			break		  		 
@@ -1947,7 +2009,7 @@ then
 				if [[ $free_ram -gt $min_ram && $perl_instances -lt 80  ]];then 											
 										
 					#######  if the server is apache ######
-					grep -i apache enumeracion/$ip-$port-webData.txt | egrep -iv "cisco|BladeSystem|oracle"
+					grep -iq apache enumeracion/$ip-$port-webData.txt | egrep -iv "cisco|BladeSystem|oracle"
 					greprc=$?
 					if [[ $greprc -eq 0 ]] ; then						
 						checked=1
@@ -1964,14 +2026,14 @@ then
 						web-buster.pl -t $ip -p $port -h 5 -d / -m webserver -s 1 -q 1 | grep --color=never ^200 >> enumeracion/$ip-$port-webarchivos.txt  &															
 						sleep 1;	
 						
-						######## check by domain #######
-						if [ $FILE != NULL ] ; then
-							domain_list=`grep $ip ../$FILE | cut -d "," -f3`
-							for domian in $domain_list; do
-								echo "domian $domian"
+						######## revisar por dominio #######
+						if grep -q "," "../$FILE" 2>/dev/null; then
+							dominio_list=`grep $ip ../$FILE | cut -d "," -f3`
+							for dominio in $dominio_list; do
+								echo -e "\tdominio $dominio"
 								echo -e "\t### web-buster (IIS)"			
-								web-buster.pl -t $domian -p $port -h 5 -d / -m admin -s 1 -q 1 | grep --color=never ^200 >> enumeracion/$domain-$port-webarchivos.txt  &			
-								web-buster.pl -t $domian -p $port -h 5 -d / -m webserver -s  -q 1 | grep --color=never ^200 >> enumeracion/$domain-$port-webarchivos.txt  &		
+								web-buster.pl -t $dominio -p 443 -h 5 -d / -m admin -s 1 -q 1 | grep --color=never ^200 >> enumeracion/$dominio-$port-webarchivos.txt  &			
+								web-buster.pl -t $dominio -p 443 -h 5 -d / -m webserver -s  -q 1 | grep --color=never ^200 >> enumeracion/$dominio-$port-webarchivos.txt  &		
 							done 					
 						fi
 					################################
@@ -1980,7 +2042,7 @@ then
 					####################################
 		
 					#######  if the server is IIS ######
-					grep -i IIS enumeracion/$ip-$port-webData.txt
+					grep -qi IIS enumeracion/$ip-$port-webData.txt
 					greprc=$?
 					if [[ $greprc -eq 0 && $checked -eq 0  ]];then 		
 						checked=1
@@ -1994,12 +2056,12 @@ then
 						echo -e "\t### web-buster"				
 						web-buster.pl -t $ip -p $port -h 5 -d / -m admin -s 1 -q 1 | grep --color=never ^200 >> enumeracion/$ip-$port-webarchivos.txt  &											
 						sleep 1
-						######## check by domain #######
-						if [ $FILE != NULL ] ; then
-							domain_list=`grep $ip ../$FILE | cut -d "," -f3`
-							for domian in $domain_list; do							
-								echo -e "\t### web-buster ($domian)"			
-								web-buster.pl -t $domian -p $port -h 5 -d / -m admin -s 1 -q 1 | grep --color=never ^200 >> enumeracion/$domian-$port-webarchivos.txt  &											
+						######## revisar por dominio #######
+						if grep -q "," "../$FILE" 2>/dev/null; then
+							dominio_list=`grep $ip ../$FILE | cut -d "," -f3`
+							for dominio in $dominio_list; do							
+								echo -e "\t### web-buster ($dominio)"			
+								web-buster.pl -t $dominio -p 443 -h 5 -d / -m admin -s 1 -q 1 | grep --color=never ^200 >> enumeracion/$dominio-$port-webarchivos.txt  &											
 							done 					
 						fi
 						################################
@@ -2010,7 +2072,7 @@ then
 		
 		
 					#######  if the server is java ######
-					egrep -i "GlassFish|Coyote|Tomcat|Resin|JBoss|WildFly" enumeracion/$ip-$port-webData.txt
+					egrep -iq "GlassFish|Coyote|Tomcat|Resin|JBoss|WildFly" enumeracion/$ip-$port-webData.txt
 					greprc=$?
 					if [[ $greprc -eq 0 && $checked -eq 0  ]];then 		
 						checked=1
@@ -2018,12 +2080,12 @@ then
 						echo -e "\t### web-buster (JSP)"			
 						web-buster.pl -t $ip -p $port -h 5 -d / -m admin -s 1 -q 1 | egrep --color=never "^200|^401">> enumeracion/$ip-$port-webarchivos.txt  &	
 						sleep 1
-						######## check by domain #######
-						if [ $FILE != NULL ] ; then
-							domain_list=`grep $ip ../$FILE | cut -d "," -f3`
-							for domian in $domain_list; do							
-								echo -e "\t### web-buster ($domian)"			
-								web-buster.pl -t $domian -p $port -h 5 -d / -m admin -s 1 -q 1 | grep --color=never ^200 >> enumeracion/$domian-$port-webarchivos.txt  &											
+						######## revisar por dominio #######
+						if grep -q "," "../$FILE" 2>/dev/null; then
+							dominio_list=`grep $ip ../$FILE | cut -d "," -f3`
+							for dominio in $dominio_list; do							
+								echo -e "\t### web-buster ($dominio)"			
+								web-buster.pl -t $dominio -p 443 -h 5 -d / -m admin -s 1 -q 1 | grep --color=never ^200 >> enumeracion/$dominio-$port-webarchivos.txt  &
 							done 					
 						fi
 						################################
@@ -2034,62 +2096,29 @@ then
 					break
 				else
 					perl_instances=`ps aux | grep perl | wc -l`
-					echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($perl_instances) "
+					echo -e "\t[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($perl_instances) "
 					sleep 3
 				fi
 		done	# done true					
      done #for
 
 
-	for line in $(cat .servicios/web-ssl.txt); do    
-		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`		
-		nmap_instances=$((`ps aux | grep nmap | wc -l` - 1)) 
-		if [ "$nmap_instances" -lt $max_nmap_ins ] #Max 5 instances
-		then									
-			echo -e "\n\t### $ip:$port (Vulnerabilidades SSL)"	
-			nmap -n -Pn -p $port --script=ssl-heartbleed $ip > logs/vulnerabilidades/$ip-$port-heartbleed.txt 2>/dev/null &
-			a2sv.sh -t $ip -p $port -d n 2>/dev/null | grep CVE > logs/vulnerabilidades/$ip-$port-a2sv.txt &
-			echo ""	
-			sleep 0.1;	
-												
-		else				
-			while true; do
-				echo "Max instancias de nmap ($max_nmap_ins)"
-				sleep 5;
-				perl_instances=$((`ps aux | grep perl | wc -l` - 1)) 
-				if [ "$perl_instances" -lt $max_web_ins ] #Max 5 instances
-				then	
-					nmap -n -Pn -p $port --script=ssl-heartbleed $ip > logs/vulnerabilidades/$ip-$port-heartbleed.txt 2>/dev/null &
-					#a2sv.sh -t $ip -p $port -d n | grep CVE > logs/vulnerabilidades/$ip-$port-a2sv.txt 2>/dev/null &						
-					break
-				fi							
-			done										
-		 fi		
-	done	 					
+					
 	
 	######## wait to finish########
 	  while true; do
-		nmap_instances=$((`ps aux | grep nmap | wc -l` - 1)) 
+		nmap_instances=$((`ps aux | grep buster | wc -l` - 1)) 
 		if [ "$nmap_instances" -gt 0 ]
 		then
-			echo "Todavia hay escaneos de nmap activos ($nmap_instances)"  
+			echo -e "\t [i] Todavia hay escaneos de nmap activos ($nmap_instances)"  
 			sleep 30
 		else
 			break		  		 
 		fi				
 	  done
 	  ##############################
-	  
-	#Filtrar solo equipos vulnerables
-	for line in $(cat .servicios/web-ssl.txt); do    
-		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`	
-		grep "|" logs/vulnerabilidades/$ip-$port-heartbleed.txt > vulnerabilidades/$ip-$port-heartbleed.txt				
-		grep --color=never "Vulnerable" logs/vulnerabilidades/$ip-$port-a2sv.txt 2> /dev/null | grep -iv "not"  > vulnerabilidades/$ip-$port-a2sv.txt							
-	done	
-	
-	# check if we have any script running
+	  	
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -2130,7 +2159,7 @@ then
 					break
 				else
 					python_instances=`pgrep python | wc -l`
-					echo "[-] Poca RAM ($free_ram Mb). Maximo número de instancias de python ($python_instances)"
+					echo -e "\t[-] Poca RAM ($free_ram Mb). Maximo número de instancias de python ($python_instances)"
 					sleep 3
 				fi
 			done	# done true	
@@ -2138,7 +2167,7 @@ then
 		done	
 	#fi   
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -2169,12 +2198,12 @@ then
 			
 			if [ -s vulnerabilidades/$ip-80-shellshock.txt ]
 			then 
-				echo "\n $path"  >> vulnerabilidades/$ip-80-shellshock.txt			
+				echo -e "\t\n $path"  >> vulnerabilidades/$ip-80-shellshock.txt			
 			fi
 			
 		done
 		
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -2207,7 +2236,7 @@ then
 						
 		done	
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -2230,14 +2259,14 @@ then
 	echo -e "$OKBLUE\n\t#################### DNS (`wc -l .servicios/dns.txt`) ######################$RESET"	  
 	for line in $(cat .servicios/dns.txt); do
 		ip=`echo $line | cut -f1 -d":"`
+		echo -e "\n\t### $ip "			
+		echo -e "\t [+] scan $ip (DNS - zone transfer)"
+		#resolve IP - dominio
+		dominio=`dig -x $ip @$ip| egrep "PTR|SOA" | egrep -iv ";|adsl|mobile|static|host-|LACNIC|tld" | head -1 | awk '{print $5}'`
 		
-		echo  "scan $ip (DNS - zone transfer)"
-		#resolve IP - domain
-		domain=`dig -x $ip @$ip| egrep "PTR|SOA" | egrep -iv ";|adsl|mobile|static|host-|LACNIC|tld" | head -1 | awk '{print $5}'`
-		
-		if [[ ${domain} != "" && ${domain} != *"local"*  && ${domain} != *"arpa"*  ]];then
-			#remove subdomain
-			set -- "$domain" 
+		if [[ ${dominio} != "" && ${dominio} != *"local"*  && ${dominio} != *"arpa"*  ]];then
+			#remove subdominio
+			set -- "$dominio" 
 			IFS="."; declare -a Array=($*) 	
 			array_len=${#Array[@]}
 			IFS=" ";
@@ -2248,19 +2277,19 @@ then
 				sub1=${Array[$array_len - 3]}"." # dominio
 			fi				        		
 
-			domain=$sub1$sub2.$sub3
-			echo "Dominio = $domain"			
+			dominio=$sub1$sub2.$sub3
+			echo -e "\t [+] Dominio = $dominio"			
 			
 			### zone transfer ###
-			zone_transfer=`dig -tAXFR @$ip $domain`
+			zone_transfer=`dig -tAXFR @$ip $dominio`
 			if [[ ${zone_transfer} != *"failed"*  && ${zone_transfer} != *"timed out"* && ${zone_transfer} != *"error"* ]];then
-				echo $zone_transfer > vulnerabilidades/$ip-53-transfer.txt 
+				echo $zone_transfer > vulnerabilidades/$ip-53-transferenciaDNS.txt 
 			fi													
 		fi					
 		
 	done
 	
-	# check if we have any script running
+	# revisar si hay scripts ejecutandose
 	while true; do
 	webbuster_instances=`ps aux | egrep 'buster|nmap' | wc -l`		
 	if [ "$webbuster_instances" -gt 1 ]
@@ -2306,7 +2335,7 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	nmap_instances=$((`ps aux | grep nmap | wc -l` - 1)) 
   if [ "$nmap_instances" -gt 0 ]
 	then
-		echo "Todavia hay escaneos de nmap activos ($nmap_instances)"  
+		echo -e "\t [i] Todavia hay escaneos de nmap activos ($nmap_instances)"  
 		sleep 30
 	else
 		break		  		 
@@ -2318,10 +2347,7 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	cat .nmap_banners/*.txt > reportes/nmap-tcp-banners.txt
 
 
-	cd .nmap
-	grep -i "ZK Web Server" nmap-tcp-banners.grep | awk '{print $2}' >> ../.servicios/ZKSoftware2.txt
-	grep --color=never ZKSoftware ../.arp/* 2>/dev/null| awk '{print $1}' | cut -d ":" -f 2 >> ../.servicios/ZKSoftware2.txt
-	sort ../.servicios/ZKSoftware2.txt | sort | uniq > ../.servicios/ZKSoftware.txt; rm ../.servicios/ZKSoftware2.txt	
+	cd .nmap	
 	
 	grep -i "MikroTik" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/MikroTik2.txt
 	grep ' 8728/open' nmap-tcp.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/MikroTik2.txt 
@@ -2337,12 +2363,18 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	cd ..
 	cd .enumeracion2/
 	#phpmyadmin
-	grep --color=never -i admin * 2>/dev/null| grep --color=never http | awk '{print $2}' | sort | uniq  >> ../.servicios/admin-web.txt
+	grep --color=never -i admin * 2>/dev/null| grep --color=never http | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt
+	#PRTG
+	grep --color=never -i PRTG * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/PRTG.txt
+	#ZKsoftware
+	grep --color=never -i ZK * 2>/dev/null | sort | cut -d "-" -f1 | uniq | tr "-" ":" >> ../.servicios/ZKSoftware.txt
 	#tomcat
-	grep --color=never -i manager * 2>/dev/null| grep --color=never http | awk '{print $2}' | sort | uniq >> ../.servicios/admin-web.txt
-	
+	grep --color=never -i manager * 2>/dev/null| grep --color=never http | awk '{print $2}' | sort | uniq >> ../.servicios/admin-web.txt	
 	#401
-	grep --color=never -i Unauthorized * 2>/dev/null| grep --color=never http | cut -d "-" -f1 | sort | uniq > ../.servicios/web401.txt
+	grep --color=never -i Unauthorized * 2>/dev/null| grep --color=never http | cut -d "-" -f1  > ../.servicios/web401-2.txt
+	grep --color=never -i Unauthorized * 2>/dev/null | cut -d "-" -f1  > ../.servicios/web401-2.txt
+	sort ../.servicios/web401-2.txt | uniq > ../.servicios/web401.txt
+	rm ../.servicios/web401-2.txt
 	
 	cd ..
 	################################
@@ -2443,7 +2475,7 @@ fi
 # Juniper backdoor
 if [ -f .servicios/NetScreen.txt ]
 then
-	echo -e "$OKBLUE\n\t#################### Juniper backdoor (`wc -l .servicios/NetScreen.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE\n\t#################### Juniper (`wc -l .servicios/NetScreen.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "\n\t### $ip "	

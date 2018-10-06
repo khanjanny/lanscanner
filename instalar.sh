@@ -76,6 +76,10 @@ echo export PATH="$PATH:/usr/bin/pentest" >> ~/.zshrc
 echo ""
 chmod a+x /usr/bin/pentest/*
 
+cd /usr/share/wordlists/
+wget https://raw.githubusercontent.com/DanielTorres1/passwords/master/usuarios-es.txt
+
 echo -e "${GREEN} [+] LISTO!! TODO OK"
 echo -e "${RED} [i] IMPORTANTE: Para empezar a usar los scripts inicia otra terminal :V ${RED}"
+
 
