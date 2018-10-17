@@ -862,7 +862,7 @@ then
 		grep "|" logs/vulnerabilidades/$ip-445-ms08067.txt | egrep -v "ACCESS_DENIED|false" > vulnerabilidades/$ip-445-ms08067.txt  
 		
 		nmap -n -p445 --script smb-vuln-ms17-010 $ip > logs/vulnerabilidades/$ip-445-ms17010.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/$ip-445-ms17010.txt | egrep -v "ACCESS_DENIED|false" > vulnerabilidades/$ip-445-ms17010.txt  
+		grep "|" logs/vulnerabilidades/$ip-445-ms17010.txt | egrep -v "ACCESS_DENIED|false|Could" > vulnerabilidades/$ip-445-ms17010.txt  
 		
 		smbmap -H $ip -u anonymous -p anonymous > logs/vulnerabilidades/$ip-445-compartido.txt 2>/dev/null
 		egrep --color=never "READ|WRITE" logs/vulnerabilidades/$ip-445-compartido.txt > vulnerabilidades/$ip-445-compartido.txt
@@ -880,7 +880,7 @@ then
 	done
 		echo -e "\t#### Creando reporte (OS/dominio/users) ###" 		
 		cd .smbinfo/
-		report-OS-dominio.pl total-host-vivos.txt 2>/dev/null
+		report-OS-domain.pl total-host-vivos.txt 2>/dev/null
 		cd ..
 	
 	#insert clean data	
@@ -1049,7 +1049,7 @@ then
 		port=`echo $line | cut -f2 -d":"`
 		
 		nmap -n -p $port $ip --script rmi-vuln-classloader > logs/vulnerabilidades/$ip-rmi-vuln.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/$ip-rmi-vuln.txt  > vulnerabilidades/$ip-rmi-vuln.txt
+		grep "|" logs/vulnerabilidades/$ip-rmi-vuln.txt  | egrep -v "ERROR" > vulnerabilidades/$ip-rmi-vuln.txt
 		
 	done
 	
@@ -1224,7 +1224,7 @@ then
 		#fi	
 		
 		msfconsole -x "use auxiliary/scanner/vnc/vnc_none_auth;set RHOSTS $ip; set rport $port;run;exit" > logs/vulnerabilidades/$ip-$port-nopass.txt 2>/dev/null		
-		grep --color=never -i "None" logs/vulnerabilidades/$ip-$port-nopass.txt  > vulnerabilidades/$ip-$port-nopass.txt 
+		egrep --color=never -i "None|No supported authentication" logs/vulnerabilidades/$ip-$port-nopass.txt  > vulnerabilidades/$ip-$port-nopass.txt 
 		
 		nmap -n -p $port --script realvnc-auth-bypass $ip > logs/vulnerabilidades/$ip-$port-bypass2.txt 2>/dev/null
 		grep "|" logs/vulnerabilidades/$ip-$port-bypass2.txt > vulnerabilidades/$ip-$port-bypass2.txt
