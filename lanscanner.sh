@@ -1114,6 +1114,26 @@ then
 fi # telnet
 
 
+if [ -f .servicios/ssh.txt ]
+then
+	echo -e "$OKBLUE\n\t#################### SSH (`wc -l .servicios/ssh.txt`)######################$RESET"	    
+	while read line; do
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"`		
+		
+		echo -e "\t [+] Escaneando $ip (SSH - banner)"
+		#banner
+		echo -e "\tquit" | nc -w 4 $ip $port | strings | uniq> enumeracion/$ip-$port-banner.txt 2>/dev/null
+				
+		grep --color=never "libssh" enumeracion/$ip-$port-banner.txt > vulnerabilidades/$ip-$port-SSHBypass.txt 
+				
+	done <.servicios/ssh.txt
+		
+	#insert clean data	
+	insert_data
+fi # ssh
+
+
 if [ -f .servicios/ftp.txt ]
 then
 	echo -e "$OKBLUE\n\t#################### FTP (`wc -l .servicios/ftp.txt`) ######################$RESET"	    
