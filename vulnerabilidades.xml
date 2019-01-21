@@ -1,0 +1,256 @@
+<?xml version="1.0"?>
+<vulnerabilidades>
+  <vuln>
+	<cod>ms17010</cod>  
+    <nombre>Vulnerabilidad en Microsoft Server Message Block 1.0 (MS17-010)</nombre>
+    <riesgo>Crítico</riesgo>
+    <descripcion>El sistema operativo presenta una vulnerabilidad de divulgación de información en el bloque de mensajes del servidor Microsoft (SMBv1) debido al manejo inadecuado de ciertas solicitudes. Un atacante remoto no autenticado puede explotar esta vulnerabilidad y ejecutar código arbitrario remotamente.</descripcion>
+   <recomendacion>Actualizar el sistema operativo con los últimos parches de seguridad proporcionados por el proveedor.</recomendacion> 
+  </vuln>
+  <vuln>
+	 <cod>ms08067</cod>
+    <nombre>Vulnerabilidad en Microsoft Server Message Block 1.0 (MS08-067) .</nombre>
+    <riesgo>Crítico</riesgo>
+    <descripcion> Los sistemas de Microsoft Windows son vulnerables a la ejecución remota de código explotando el puerto 445 (SMB). Un atacante remoto no autenticado puede explotar esta vulnerabilidad y tomar control del equipo. </descripcion>
+   <recomendacion> Actualizar el sistema operativo con los últimos parches de seguridad proporcionados por el proveedor. </recomendacion> 
+  </vuln>
+   <vuln>
+	<cod>sincod</cod>  
+    <nombre>WebDAV vulnerable.</nombre>
+    <riesgo>Crítico</riesgo>
+    <descripcion> El servidor permite subir archivos al host vulnerable </descripcion>
+   <recomendacion> Borrar el directorio webDAV ó actualizar XAMPP a su versión mas reciente </recomendacion> 
+  </vuln>
+  
+   <vuln>
+	<cod>sincod</cod>  
+    <nombre>Paneles de administración sin password.</nombre>
+    <riesgo>Crítico</riesgo>
+    <descripcion> Se identificaron tres paneles de administracion que permiten acceder a datos sensibles </descripcion>
+   <recomendacion> Asignar una password de acceso al panel de administración que sea dificil de adivinar. </recomendacion> 
+  </vuln>
+  <vuln>
+	<cod>sincod</cod>  
+    <nombre>Recursos compartidos (NFS)</nombre>
+    <riesgo>Crítico</riesgo>
+    <descripcion> Revisando los recursos compartidos mediante el protocolo NFS se pudo observar que se comparte información sensible accesible por cualquier usuario de la red </descripcion>
+   <recomendacion> Limitar el acceso de recursos compartido solo a usuarios autorizados</recomendacion> 
+  </vuln>
+  <vuln>
+	<cod>compartidoSMB</cod>  
+    <nombre>Recursos compartidos (SMB)</nombre>
+    <riesgo>Crítico</riesgo>
+    <descripcion>Revisando los recursos compartidos mediante el protocolo SMB  se pudo observar que se comparte información sensible accesible por cualquier usuario de la red </descripcion>
+   <recomendacion> Limitar el acceso de recursos compartido solo a usuarios autorizados </recomendacion> 
+  </vuln>
+
+ <vuln>
+	<cod>passwordHost</cod>
+    <nombre>Passwords basados en diccionario (estaciones de trabajo).</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> Las Passwords estan basadas en palabras de diccionarios </descripcion>
+   <recomendacion> Mejorar la politica de Passwords </recomendacion> 
+  </vuln>
+
+ <vuln>
+    <cod>sincod</cod>  	   
+    <nombre>Parche faltante MS04-036 </nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> El equipo puede sufrir una denegación de servicios </descripcion>
+   <recomendacion> Aplique el parche faltante MS04-036 </recomendacion> 
+  </vuln>
+  
+ <vuln>
+	<cod>heartbleed</cod>  
+    <nombre>Heartbleed.</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> Un atacante podria obtener cookies de autenticación, credenciales administrativas u otra dato sensible leyendo la memoria RAM del servidor afectado enviando peticiones modificadas al puerto 443. </descripcion>
+   <recomendacion> Actualizar la librería openssl </recomendacion> 
+  </vuln>
+
+ <vuln>
+	<cod>adminPassword</cod>  
+    <nombre>Passwords por defecto</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> El dispositivo aun tiene las credenciales por defecto </descripcion>
+   <recomendacion> Cambiar la password por defecto por otras dificil de adivinar </recomendacion> 
+  </vuln>
+  
+   <vuln>
+	<cod>rootPassword</cod>  
+    <nombre>Passwords por defecto</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion>El dispositivo aun tiene las credenciales por defecto </descripcion>
+   <recomendacion> Cambiar la password por defecto por otras dificil de adivinar </recomendacion> 
+  </vuln>
+  
+   <vuln>
+	<cod>ciscoPassword</cod>  
+    <nombre>Passwords por defecto</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion>El dispositivo aun tiene las credenciales por defecto </descripcion>
+   <recomendacion> Cambiar la password por defecto por otras dificil de adivinar </recomendacion> 
+  </vuln>
+  
+  
+  
+  <vuln>
+	<cod>sincod</cod>  
+    <nombre>Acceso VNC sin credenciales.</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> Se detectaron Servidores con acceso remoto sin credenciales </descripcion>
+   <recomendacion> Agregue credenciales para el acceso a VNC </recomendacion> 
+  </vuln>
+  
+  <vuln>
+	<cod>vulnDahua</cod>  
+    <nombre>DVR Dahua con vulnerabilidad </nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> El equipo DVR permite extraer todos sus usuarios y hashes </descripcion>
+   <recomendacion> Asignar el equipo DVR en otro segmento </recomendacion> 
+  </vuln>
+  
+     <vuln>
+	<cod>passwordDahua</cod>  
+    <nombre>DVR Dahua con password por defecto </nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> El equipo DVR tiene el usuario root y password vizxv (telnet) </descripcion>
+   <recomendacion> Asignar el equipo DVR en otro segmento </recomendacion> 
+  </vuln>
+  
+    <vuln>
+	<cod>passwordBD</cod>  
+    <nombre>Base de datos con password inseguro.</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> La base de datos aun presenta el usuario y password por defecto o es facil de adivinar </descripcion>
+   <recomendacion> Asignar una password a la base datos que sea dificil de adivinar. </recomendacion> 
+  </vuln>
+  
+   <vuln>
+	<cod>sincod</cod>  
+    <nombre>MS12-020: Vulnerabilidad en el escritorio remoto</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Un atacante podría aprovechar esta vulnerabilidad para provocar una denegación de servicios en el equipo. </descripcion>
+   <recomendacion> Actualizar el sistema operativo con los últimos parches de seguridad que incluya la actualización identificada como MS12-020. </recomendacion> 
+  </vuln>
+  
+  <vuln>
+    <cod>sincod</cod>  	   
+    <nombre>Denegación de servicio en servidor DNS (MS08-037).</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Existe una vulnerabilidad de denegación de servicio relacionada con el manejo inadecuado de la memoria no inicializada. Esto puede provocar que el servicio DNS deje de responder. </descripcion>
+   <recomendacion> Actualizar el sistema operativo con los últimos parches de seguridad que incluya la actualización identificada como MS08-037. </recomendacion> 
+  </vuln>
+  <vuln>
+    <cod>sincod</cod>  
+    <nombre>Parche faltante MS09-001 </nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> El equipo puede sufrir una denegación de servicios </descripcion>
+   <recomendacion> Aplique el parche faltante MS09-001 </recomendacion> 
+  </vuln>
+   <vuln>
+	<cod>sincod</cod>  
+    <nombre>Parche faltante MS06-035 </nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> El equipo puede sufrir una denegación de servicios </descripcion>
+   <recomendacion> Aplique el parche faltante MS06-035 </recomendacion> 
+  </vuln>  
+  <vuln>
+	<cod>sincod</cod>  
+    <nombre>Parche faltante MS16-047 </nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> El equipo puede sufrir una denegación de servicios </descripcion>
+   <recomendacion> Aplique el parche faltante MS16-047 </recomendacion> 
+  </vuln>
+ 
+  <vuln>
+	<cod>sincod</cod>  
+    <nombre>MS15-034: Vulnerability in HTTP.sys</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Una vulnerabilidad de denegación  de servicio mediante el abuso de la pila del protocolo HTTP en el servidor Internet Information Service (IIS) </descripcion>
+   <recomendacion> Instalar el parche correspondiente del fabricante </recomendacion> 
+  </vuln>
+  <vuln>
+	<cod>sincod</cod>  
+    <nombre>Exposición de datos del servidor.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Datos como versiones exactas de PHP, modulos cargados, nombre del servidor, etc son expuestos en la ruta phpinfo  </descripcion>
+   <recomendacion> Eliminar los archivos phpinfo </recomendacion> 
+  </vuln>
+  
+   <vuln>
+	<cod>sincod</cod>  
+    <nombre>Servidor de correo con configuración insegura.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> La configuración del servidor de correo permite el envió de correos falsos </descripcion>
+   <recomendacion> RECOMEDACION </recomendacion> 
+  </vuln>
+  
+  <vuln>
+	<cod>sincod</cod>  
+    <nombre>MS14-066 Vulnerabilidad Windows</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> El equipo puede sufrir una denegación de servicios </descripcion>
+   <recomendacion> Aplique el parche faltante MS14-066 </recomendacion> 
+  </vuln>
+  
+    <vuln>
+     <cod>sincod</cod>  
+    <nombre>Slowloris DOS attack.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> El Servidor Web es vulnerable a una denegación de servicio de tipo SlowLoris, el cual intenta mantener abiertas muchas conexiones al servidor web de destino y mantenerlas abiertas durante el mayor tiempo posible. Logra esto abriendo conexiones por medio de una petición parcial. De esta manera, se privan de los recursos del servidor http que provocan la denegación de servicio. </descripcion>
+   <recomendacion> Actualizar apache </recomendacion> 
+  </vuln>
+    
+    <vuln>
+    <cod>SNMP2</cod>  
+    <nombre>SNMP con cadena comunitaria por defecto</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> El Host tiene la cadena comunitaria por defecto habilitada, un atacante puude usarlo para obtener información del dispositivo com rangos de red, direcciones MAC, subredes, procesos ejecutandose, puertos abiertos, etc </descripcion>
+   <recomendacion> RECOMEDACION </recomendacion> 
+  </vuln>
+  
+    <vuln>
+    <cod>directorioLDAP</cod>  
+    <nombre>LDAP con acceso Null.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Se tiene habilitado el acceso Null a la Base de datos del LDAP </descripcion>
+   <recomendacion> RECOMEDACION </recomendacion> 
+  </vuln>
+        
+   <vuln>
+	 <cod>enum4linux</cod> 
+    <nombre>Sesion Nula en el controlador de dominio.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Con esta vulnerabilidad un atacante puede enumerar todos los usuarios del dominio y a que grupo pertenecen  </descripcion>
+   <recomendacion> En el archivo de configuracion smb.conf:
+					[global]
+					map to guest = Never
+	</recomendacion> 
+  </vuln>
+  
+   <vuln>
+	<cod>transferenciaDNS</cod> 
+    <nombre>Transferencia de zona.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Con esta vulnerabilidad un atacante puede enumerar a todos equipos del dominio  </descripcion>
+   <recomendacion> Configurar el servidor DNS de manera que no acepte peticiones AXFR https://www.cgii.gob.bo/es/publicaciones/transferencia-de-zona	</recomendacion> 
+  </vuln>
+  
+  <vuln>
+	<cod>sincod</cod>  
+    <nombre>Listado de directorio hablitado.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion>El servidor web no esta configurado de manera segura y lista el contenido de cualquier directorio. </descripcion>
+   <recomendacion>Denegar el listado de directorio. Puede seguir el tutorial: https://www.cgii.gob.bo/index.php/es/publicaciones/mitigar-exploracion-de-directorios </recomendacion> 
+  </vuln>  
+  
+    <vuln>
+	<cod>vrfy</cod>  
+    <nombre>Comando VRFY habilitado en el servidor de correos.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion>El servidor web no esta configurado de manera segura y lista el contenido de cualquier directorio. </descripcion>
+   <recomendacion>Denegar el listado de directorio. Puede seguir el tutorial: https://www.cgii.gob.bo/index.php/es/publicaciones/mitigar-exploracion-de-directorios </recomendacion> 
+  </vuln>  
+    
+</vulnerabilidades>

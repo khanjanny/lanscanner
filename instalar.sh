@@ -42,6 +42,7 @@ mkdir /usr/share/lanscanner 2>/dev/null
 cd files
 cp community.txt /usr/share/lanscanner
 cp resultados.db /usr/share/lanscanner
+cp vulnerabilidades.xml /usr/share/lanscanner
 cp smb-vuln-ms17-010.nse /usr/share/nmap/scripts/
 cd ..
 echo ""
@@ -51,7 +52,9 @@ echo -e "${GREEN} [+] Copiando scripts a /usr/bin ${RESET}"
 cp -r pentest /usr/bin
 cp lanscanner.sh /usr/bin
 cp monitor.sh /usr/bin
+cp generarReporte.pl /usr/bin
 
+chmod a+x /usr/bin/generarReporte.pl
 chmod a+x /usr/bin/monitor.sh
 chmod a+x /usr/bin/lanscanner.sh
 echo ""

@@ -1,3 +1,8 @@
+##
+# Adicionar struts check
+# webintruder.pl -f file.xml -t vuln
+##
+
 #!/bin/bash
 # Author: Daniel Torres
 # daniel.torres@owasp.org
@@ -867,12 +872,15 @@ then
 		nmap -n -p445 --script smb-vuln-ms17-010 $ip > logs/vulnerabilidades/$ip-445-ms17010.txt 2>/dev/null
 		grep "|" logs/vulnerabilidades/$ip-445-ms17010.txt | egrep -v "ACCESS_DENIED|false|Could" > vulnerabilidades/$ip-445-ms17010.txt  
 		
+		
 		smbmap -H $ip -u anonymous -p anonymous > logs/vulnerabilidades/$ip-445-compartido.txt 2>/dev/null
-		egrep --color=never "READ|WRITE" logs/vulnerabilidades/$ip-445-compartido.txt > vulnerabilidades/$ip-445-compartido.txt
+		egrep --color=never "READ|WRITE" logs/vulnerabilidades/$ip-445-compartido.txt > vulnerabilidades/$ip-445-compartido2.txt
 		
 		smbmap -H $ip  >> logs/vulnerabilidades/$ip-445-compartido.txt 2>/dev/null
-		egrep --color=never "READ|WRITE" logs/vulnerabilidades/$ip-445-compartido.txt >> vulnerabilidades/$ip-445-compartido.txt
+		egrep --color=never "READ|WRITE" logs/vulnerabilidades/$ip-445-compartido.txt >> vulnerabilidades/$ip-445-compartido2.txt
 		
+		sort vulnerabilidades/$ip-445-compartido2.txt | uniq | grep -v "\$"> vulnerabilidades/$ip-445-compartidoSMB.txt
+		rm vulnerabilidades/$ip-445-compartido2.txt
 			
 		########## making reportes #######
 		echo -e "\t [+] Obteniendo OS/dominio" 		
@@ -1322,7 +1330,7 @@ then
 		dominio=`echo $dominio | head -1`
 		ldapsearch -x -p $port -h $ip -b $dominio -s sub "(objectclass=*)" > logs/enumeracion/$ip-$port-directory.txt 
 		
-		egrep -iq "successful bind must be completed|Not bind" logs/enumeracion/$ip-$port-directory.txt 
+		egrep -iq "successful bind must be completed|Not bind|Invalid DN syntax" logs/enumeracion/$ip-$port-directory.txt 
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t [+] Requiere autenticacion"
@@ -1424,7 +1432,7 @@ then
 		echo -e "\n\t### ($ip) "						
 		echo -e "\t [+] Probando vulnerabilidad de Dahua"		
 		msfconsole -x "use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS $ip; set ACTION USER;run;exit" > logs/vulnerabilidades/$ip-dahua-vuln.txt 2>/dev/null		
-		grep --color=never "37777" logs/vulnerabilidades/$ip-dahua-vuln.txt  > vulnerabilidades/$ip-dahua-vuln.txt 
+		grep --color=never "37777" logs/vulnerabilidades/$ip-dahua-vuln.txt  > vulnerabilidades/$ip-37777-vulnDahua.txt 
 															
 	done <.servicios/dahua.txt		
 	
@@ -1499,9 +1507,9 @@ then
 		community=`echo $line | cut -f2 -d"~"`
 		device=`echo $line | cut -f3 -d"~"`
 		
-#		echo  "escaneando $ip (snmp - $community )"
+		echo  "escaneando $ip (snmp - $community )"
 		### snmp write ##
-		#snmp-write.pl -t $ip -c $community > vulnerabilidades/$ip-161-$community.txt 2>/dev/null &										
+		snmp-write.pl -t $ip -c $community > vulnerabilidades/$ip-161-SNMP2$community.txt 2>/dev/null &										
 				
 		### snmp bruteforce ##				
 		
@@ -1571,7 +1579,7 @@ then
 		
 		ldapsearch -x -p $port -h $ip -b $dominio -s sub "(objectclass=*)" > logs/vulnerabilidades/$ip-$port-directory.txt 
 				
-		egrep -iq "successful bind must be completed|Not bind|Operation unavailable" logs/vulnerabilidades/$ip-$port-directory.txt 
+		egrep -iq "successful bind must be completed|Not bind|Operation unavailable" logs/vulnerabilidades/$ip-$port-directorioLDAP.txt 
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t [+] Requiere autenticacion"
@@ -1789,7 +1797,7 @@ then
 					echo -e "\n\t### $ip:$port "
 				   #nmap -n -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilidades/$ip-$port-HTTPsys.txt 2>/dev/null 
 					nmap -n -p $port --script=http-iis-webdav-vuln $ip > logs/vulnerabilidades/$ip-$port-webdav.txt 2>/dev/null 
-					grep "|" logs/vulnerabilidades/$ip-$port-webdav.txt > vulnerabilidades/$ip-$port-webdav.txt 
+					grep "|" logs/vulnerabilidades/$ip-$port-webdav.txt | grep -v "WebDAV is DISABLED" > vulnerabilidades/$ip-$port-webdav.txt 
 					echo -e "\t### web-buster (IIS)"			
 					web-buster.pl -t $ip -p $port -h 5 -d / -m admin -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$ip-$port-webarchivos.txt  &			
 					web-buster.pl -t $ip -p $port -h 5 -d / -m webserver -s 0 -q 1 | grep --color=never ^200 >> enumeracion/$ip-$port-webarchivos.txt  &													
