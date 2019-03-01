@@ -15,32 +15,62 @@
    <recomendacion> Actualizar el sistema operativo con los últimos parches de seguridad proporcionados por el proveedor. </recomendacion> 
   </vuln>
    <vuln>
-	<cod>sincod</cod>  
+	<cod>webdav</cod>  
     <nombre>WebDAV vulnerable.</nombre>
     <riesgo>Crítico</riesgo>
     <descripcion> El servidor permite subir archivos al host vulnerable </descripcion>
-   <recomendacion> Borrar el directorio webDAV ó actualizar XAMPP a su versión mas reciente </recomendacion> 
-  </vuln>
-  
-   <vuln>
-	<cod>sincod</cod>  
-    <nombre>Paneles de administración sin password.</nombre>
+   <recomendacion> Borrar el directorio webDAV </recomendacion> 
+  </vuln>    
+  <vuln>
+	<cod>passwordBD</cod>  
+    <nombre>Base de datos con password inseguro.</nombre>
     <riesgo>Crítico</riesgo>
-    <descripcion> Se identificaron tres paneles de administracion que permiten acceder a datos sensibles </descripcion>
-   <recomendacion> Asignar una password de acceso al panel de administración que sea dificil de adivinar. </recomendacion> 
+    <descripcion> La base de datos aun presenta el usuario y password por defecto o es fácil de adivinar </descripcion>
+   <recomendacion> Asignar un password a la base datos que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
+  </vuln>  
+   <vuln>
+	<cod>phpmyadminPassword</cod>  
+    <nombre>Paneles de administración con password inseguro.</nombre>
+    <riesgo>Crítico</riesgo>
+    <descripcion> Se identificaron paneles de administración (phpMyAdmin) que no tienen un password robusto y permiten acceder a datos sensibles </descripcion>
+   <recomendacion> Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
   </vuln>
   <vuln>
-	<cod>sincod</cod>  
-    <nombre>Recursos compartidos (NFS)</nombre>
+	<cod>passTomcat</cod>  
+    <nombre>Paneles de administración de tomcat con password inseguro.</nombre>
     <riesgo>Crítico</riesgo>
+    <descripcion> Se identificaron paneles de administración (tomcat) que no tienen un password robusto y permiten acceder a datos sensibles </descripcion>
+   <recomendacion> Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
+  </vuln>
+  
+    <vuln>
+	<cod>shellshock</cod>  
+    <nombre>Vulnerabilidad en Bash (shellshock)</nombre>
+    <riesgo>Crítico</riesgo>
+    <descripcion> El problema con esta vulnerabilidad se viene produciendo porque Bash no valida de forma correcta los parámetros introducidos por el usuario. Lo que provoca que un atacante pueda ejecutar comandos remotamente.</descripcion>
+   <recomendacion> Actualizar GNU/Linux. En caso de no existir la actualización colocar los dispositivos en un segmento de red separado. </recomendacion> 
+  </vuln>
+  
+  <vuln>
+	<cod>archivosPeligrosos</cod>  
+    <nombre>Archivos/drectorios que presentan un riesgo de seguridad</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> Se identificaron archivos/directorios que representan un riesgo de seguridad por la información que exponen</descripcion>
+   <recomendacion> Eliminar los archivos/directorios listados </recomendacion> 
+  </vuln>
+  
+  <vuln>
+	<cod>compartidoNFS</cod>  
+    <nombre>Recursos compartidos (NFS)</nombre>
+    <riesgo>Alto</riesgo>
     <descripcion> Revisando los recursos compartidos mediante el protocolo NFS se pudo observar que se comparte información sensible accesible por cualquier usuario de la red </descripcion>
    <recomendacion> Limitar el acceso de recursos compartido solo a usuarios autorizados</recomendacion> 
   </vuln>
   <vuln>
 	<cod>compartidoSMB</cod>  
     <nombre>Recursos compartidos (SMB)</nombre>
-    <riesgo>Crítico</riesgo>
-    <descripcion>Revisando los recursos compartidos mediante el protocolo SMB  se pudo observar que se comparte información sensible accesible por cualquier usuario de la red </descripcion>
+    <riesgo>Alto</riesgo>
+    <descripcion>Revisando los recursos compartidos mediante el protocolo SMB se pudo observar que se comparte información sensible accesible por cualquier usuario de la red </descripcion>
    <recomendacion> Limitar el acceso de recursos compartido solo a usuarios autorizados </recomendacion> 
   </vuln>
 
@@ -48,23 +78,15 @@
 	<cod>passwordHost</cod>
     <nombre>Passwords basados en diccionario (estaciones de trabajo).</nombre>
     <riesgo>Alto</riesgo>
-    <descripcion> Las Passwords estan basadas en palabras de diccionarios </descripcion>
-   <recomendacion> Mejorar la politica de Passwords </recomendacion> 
+    <descripcion> Las contraseñas están basadas en palabras de diccionarios y estas no son dificiles de adivinar </descripcion>
+   <recomendacion> Reforzar la política de contraseñas para que incluya caracteres alfanuméricos y mayúsculos. Se puede usar reglas mnemotécnicas para generar contraseñas fáciles de recordar por los usuarios, pero robustos para que sean difíciles de suponer por los atacantes. También se puede ampliar el tiempo de expiración de contraseñas Windows hasta un máximo de 90 días para equilibrar la política de complejidad de contraseñas </recomendacion> 
   </vuln>
 
  <vuln>
-    <cod>sincod</cod>  	   
-    <nombre>Parche faltante MS04-036 </nombre>
-    <riesgo>Alto</riesgo>
-    <descripcion> El equipo puede sufrir una denegación de servicios </descripcion>
-   <recomendacion> Aplique el parche faltante MS04-036 </recomendacion> 
-  </vuln>
-  
- <vuln>
 	<cod>heartbleed</cod>  
-    <nombre>Heartbleed.</nombre>
+    <nombre>Vulnerabilidad en OpenSSL (Heartbleed).</nombre>
     <riesgo>Alto</riesgo>
-    <descripcion> Un atacante podria obtener cookies de autenticación, credenciales administrativas u otra dato sensible leyendo la memoria RAM del servidor afectado enviando peticiones modificadas al puerto 443. </descripcion>
+    <descripcion> Un atacante podría obtener cookies de autenticación, credenciales administrativas u otro dato sensible leyendo la memoria RAM del servidor afectado enviando peticiones modificadas al puerto 443. </descripcion>
    <recomendacion> Actualizar la librería openssl </recomendacion> 
   </vuln>
 
@@ -72,34 +94,41 @@
 	<cod>adminPassword</cod>  
     <nombre>Passwords por defecto</nombre>
     <riesgo>Alto</riesgo>
-    <descripcion> El dispositivo aun tiene las credenciales por defecto </descripcion>
-   <recomendacion> Cambiar la password por defecto por otras dificil de adivinar </recomendacion> 
+        <descripcion> Se identificaron paneles de administración que no tienen un password robusto y permiten acceder a datos sensibles (Usuario admin) </descripcion>
+   <recomendacion> Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
   </vuln>
   
    <vuln>
 	<cod>rootPassword</cod>  
     <nombre>Passwords por defecto</nombre>
     <riesgo>Alto</riesgo>
-    <descripcion>El dispositivo aun tiene las credenciales por defecto </descripcion>
-   <recomendacion> Cambiar la password por defecto por otras dificil de adivinar </recomendacion> 
+    <descripcion> Se identificaron paneles de administración que no tienen un password robusto y permiten acceder a datos sensibles (Usuario root) </descripcion>
+   <recomendacion> Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
   </vuln>
   
    <vuln>
 	<cod>ciscoPassword</cod>  
     <nombre>Passwords por defecto</nombre>
     <riesgo>Alto</riesgo>
-    <descripcion>El dispositivo aun tiene las credenciales por defecto </descripcion>
-   <recomendacion> Cambiar la password por defecto por otras dificil de adivinar </recomendacion> 
+    <descripcion> Se identificaron un panel de administración de Cisco que no tiene un password robusto y permiten acceder a datos sensibles (Usuario cisco) </descripcion>
+   <recomendacion> Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
   </vuln>
   
-  
-  
+   
   <vuln>
-	<cod>sincod</cod>  
+	<cod>VNCnopass</cod>  
     <nombre>Acceso VNC sin credenciales.</nombre>
     <riesgo>Alto</riesgo>
     <descripcion> Se detectaron Servidores con acceso remoto sin credenciales </descripcion>
-   <recomendacion> Agregue credenciales para el acceso a VNC </recomendacion> 
+   <recomendacion> Asignar un password al VNC que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
+  </vuln>
+  
+    <vuln>
+	<cod>VNCbypass</cod>  
+    <nombre>VNC vulnerable.</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> Se detectaron Servidores que utilizan una versión vulnerable de VNC </descripcion>
+   <recomendacion> Actualizar a versión de VNC </recomendacion> 
   </vuln>
   
   <vuln>
@@ -118,15 +147,139 @@
    <recomendacion> Asignar el equipo DVR en otro segmento </recomendacion> 
   </vuln>
   
+  <vuln>
+	<cod>openstreaming</cod>  
+    <nombre>Cámara de seguridad con open streaming habilitado</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> La camara de seguridad permite conectarse de manera anónima al mismo y visualizar el video en tiempo real  </descripcion>
+   <recomendacion> Deshabilitar open streaming   </recomendacion> 
+  </vuln>
+     
+  <vuln>
+	<cod>php</cod>  
+    <nombre>Configuración incorrecta de seguridad (PHP).</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Datos como versiones exactas de PHP, módulos cargados, nombre del servidor, etc son expuestos en la ruta phpinfo  </descripcion>
+   <recomendacion> Eliminar los archivos php que presentan un riesgo de seguridad </recomendacion> 
+  </vuln>
+   
+  <vuln>
+     <cod>slowloris</cod>  
+    <nombre>Slowloris DOS attack.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> El Servidor Web es vulnerable a una denegación de servicio de tipo SlowLoris, el cual intenta mantener abiertas muchas conexiones al servidor web de destino y mantenerlas abiertas durante el mayor tiempo posible. Logra esto abriendo conexiones por medio de una petición parcial. De esta manera, se privan de los recursos del servidor http que provocan la denegación de servicio. </descripcion>
+   <recomendacion> Actualizar el servidor web apache </recomendacion> 
+  </vuln>
+    
     <vuln>
-	<cod>passwordBD</cod>  
-    <nombre>Base de datos con password inseguro.</nombre>
-    <riesgo>Alto</riesgo>
-    <descripcion> La base de datos aun presenta el usuario y password por defecto o es facil de adivinar </descripcion>
-   <recomendacion> Asignar una password a la base datos que sea dificil de adivinar. </recomendacion> 
+    <cod>snmpCommunity</cod>  
+    <nombre>SNMP con cadena comunitaria por defecto</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> El Host tiene la cadena comunitaria por defecto habilitada, un atacante puede usarlo para obtener información del dispositivo con rangos de red, direcciones MAC, subredes, procesos ejecutándose, puertos abiertos, etc </descripcion>
+   <recomendacion> Cambiar la cadena de comunidad por defecto, por otra que sea personalizada y solo de conocimiento del personal autorizado por de la entidad. Esta deberá ser mayor a 8 caracteres y no contener palabras que hagan referencia a la entidad, marcas, modelos o cualquier otra palabra que se encuentre en diccionarios nacionales o internacionales </recomendacion> 
   </vuln>
   
+    <vuln>
+    <cod>directorioLDAP</cod>  
+    <nombre>LDAP con acceso anónimo.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Se tiene habilitado el acceso anónimo al directorio LDAP del cual se puede extraer información sobre los empleados de la entidad tales como ser nombre, correo electrónico, directorio home, etc </descripcion>
+   <recomendacion> Restringir conexiones anónimas al directorio LDAP. Sin embargo, como con cualquier remediación potencial, esto debe probarse en un entorno de desarrollo o control de calidad para garantizar que no haya efectos secundarios adversos. Se debe tener especial cuidado cuando las aplicaciones utilizan LDAP para la autenticación de usuarios o la búsqueda de información. El bloqueo del servidor LDAP sin probar las aplicaciones podría provocar el mal funcionamiento de varios servicios. </recomendacion> 
+  </vuln>
+        
    <vuln>
+	 <cod>enum4linux</cod> 
+    <nombre>Sesion nula en el servidor.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Con esta vulnerabilidad un atacante puede enumerar todos los usuarios del dominio y a que grupo pertenecen  </descripcion>
+   <recomendacion>  Linux:SALTOLINEA
+					En el archivo de configuración smb.conf: SALTOLINEA
+					[global] SALTOLINEA
+					map to guest = Never SALTOLINEA SALTOLINEA
+					
+					Windows: SALTOLINEA
+					Restringir conexiones anónimas al sistema. Puede seguir el tutorial: https://maniqui.ru/computadoras-y-software/administracin-y-redes-profesionales/hackeo-tico/223-ataques-sesin-nula-y-cmo-evitarlos.html
+	</recomendacion> 
+  </vuln>
+  
+    <vuln>
+	 <cod>spoof</cod> 
+    <nombre>Falsificación del dominio en correos electrónicos.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Con esta vulnerabilidad un atacante puede enviar correos con el dominio de la entidad. Haciendo el análisis inicial de la configuración DNS se observó que el mismo no tiene protección para evitar que terceros envíen correos a nombre de la entidad
+    </descripcion>
+   <recomendacion> Modificar el registro TXT en el servidor DNS con el siguiente contenido: SALTOLINEA
+					v=DMARC1; p=quarantine; rua=mailto:dmarc@DOMINIOENTIDAD; ruf=mailto:dmarc@DOMINIOENTIDAD; sp=quarantine SALTOLINEA SALTOLINEA									
+					Crear el registro TXT en el servidor DNS (registro SPF).  Crear el registro TXT en el servidor DNS (registro SPF).  Usar la herramienta en línea para generar el contenido del registro SPF: https://mxtoolbox.com/SPFRecordGenerator.aspx?domain=DOMINIOENTIDADAMPERSANDprefill=true . Elegir regla dura (Strict). SALTOLINEA  Más detalles: https://blog.mailfence.com/es/spf-dkim-y-dmarc-defensa-contra-la-suplantacion-spoofing-en-dominios-personalizados/
+	</recomendacion> 
+  </vuln>
+  
+    
+   <vuln>
+	<cod>transferenciaDNS</cod> 
+    <nombre>Transferencia de zona.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Con esta vulnerabilidad un atacante puede enumerar a todos hosts del dominio  </descripcion>
+   <recomendacion> Configurar el servidor DNS de manera que no acepte peticiones AXFR https://www.cgii.gob.bo/es/publicaciones/transferencia-de-zona	</recomendacion> 
+  </vuln>
+  
+  <vuln>
+	<cod>listadoDirectorio</cod>  
+    <nombre>Listado de directorio habilitado.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion>El servidor web no está configurado de manera segura y lista el contenido de cualquier directorio. </descripcion>
+   <recomendacion>Denegar el listado de directorio. Puede seguir el tutorial: https://www.cgii.gob.bo/index.php/es/publicaciones/mitigar-exploracion-de-directorios </recomendacion> 
+  </vuln>  
+  
+  <vuln>
+	<cod>vrfy</cod>  
+    <nombre>Comando VRFY habilitado en el servidor de correos.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion>El servidor de correo no está configurado de manera segura y se puede realizar la enumeración de usuarios. </descripcion>
+   <recomendacion>Deshabilitar el comando VRFY. Puede seguir el tutorial: http://www.elmundoenbits.com/2014/10/vrfy-postfix-account.html </recomendacion> 
+  </vuln>  
+  
+  <vuln>
+	<cod>enumeracionUsuarios</cod>  
+    <nombre>La instalación de wordpress permite enumerar a los usuarios administrativos.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> La enumeración de usuarios es una vulnerabilidad que podría ser utilizada por un atacante o un usuario malicioso para intentar obtener un listado de los usuarios de la plataforma y posteriormente utilizar dicha información para planificar y generar ataques de mayor impacto, como por ejemplo, ataques de averiguación de contraseñas por fuerza bruta o diccionario sobre usuarios existentes en el sistema. </descripcion>
+   <recomendacion>Denegar la enumeración de usuarios. Puede seguir el tutorial: https://desarrollowp.com/blog/tutoriales/evitar-la-enumeracion-usuarios-wordpress-parte-1/ </recomendacion> 
+  </vuln>  
+  
+  <vuln>	
+	<cod>googlehacking</cod>  
+    <nombre> Direcciones URL indexadas por motores de búsqueda.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> El motor de búsqueda indexo URL potencialmente sensibles y privadas. </descripcion>
+   <recomendacion> Desindexar las URL especificadas siguiendo la guia: https://blog.seigoo.com/como-eliminar-o-desindexar-una-url-de-google</recomendacion> 
+  </vuln>  
+    
+   <vuln>	
+	<cod>anonymous</cod>  
+    <nombre> Servidor FTP tiene el usuario anónimo habilitado.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Es posible acceder a información potencialmente sensible </descripcion>
+   <recomendacion> Deshabilitar el usuario anónimo. </recomendacion> 
+  </vuln>    
+    
+   <vuln>
+    <cod>sincod</cod>  	   
+    <nombre>Parche faltante MS04-036 </nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> El equipo puede sufrir una denegación de servicios </descripcion>
+   <recomendacion> Aplique el parche faltante MS04-036 </recomendacion> 
+  </vuln>
+   
+    <vuln>
+	<cod>sincod</cod>  
+    <nombre>MS14-066 Vulnerabilidad Windows</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> El equipo puede sufrir una denegación de servicios </descripcion>
+   <recomendacion> Aplique el parche faltante MS14-066 </recomendacion> 
+  </vuln> 
+    
+  <vuln>
 	<cod>sincod</cod>  
     <nombre>MS12-020: Vulnerabilidad en el escritorio remoto</nombre>
     <riesgo>Medio</riesgo>
@@ -167,90 +320,7 @@
 	<cod>sincod</cod>  
     <nombre>MS15-034: Vulnerability in HTTP.sys</nombre>
     <riesgo>Medio</riesgo>
-    <descripcion> Una vulnerabilidad de denegación  de servicio mediante el abuso de la pila del protocolo HTTP en el servidor Internet Information Service (IIS) </descripcion>
+    <descripcion> Una vulnerabilidad de denegación de servicio mediante el abuso de la pila del protocolo HTTP en el servidor Internet Information Service (IIS) </descripcion>
    <recomendacion> Instalar el parche correspondiente del fabricante </recomendacion> 
-  </vuln>
-  <vuln>
-	<cod>sincod</cod>  
-    <nombre>Exposición de datos del servidor.</nombre>
-    <riesgo>Medio</riesgo>
-    <descripcion> Datos como versiones exactas de PHP, modulos cargados, nombre del servidor, etc son expuestos en la ruta phpinfo  </descripcion>
-   <recomendacion> Eliminar los archivos phpinfo </recomendacion> 
-  </vuln>
-  
-   <vuln>
-	<cod>sincod</cod>  
-    <nombre>Servidor de correo con configuración insegura.</nombre>
-    <riesgo>Medio</riesgo>
-    <descripcion> La configuración del servidor de correo permite el envió de correos falsos </descripcion>
-   <recomendacion> RECOMEDACION </recomendacion> 
-  </vuln>
-  
-  <vuln>
-	<cod>sincod</cod>  
-    <nombre>MS14-066 Vulnerabilidad Windows</nombre>
-    <riesgo>Medio</riesgo>
-    <descripcion> El equipo puede sufrir una denegación de servicios </descripcion>
-   <recomendacion> Aplique el parche faltante MS14-066 </recomendacion> 
-  </vuln>
-  
-    <vuln>
-     <cod>sincod</cod>  
-    <nombre>Slowloris DOS attack.</nombre>
-    <riesgo>Medio</riesgo>
-    <descripcion> El Servidor Web es vulnerable a una denegación de servicio de tipo SlowLoris, el cual intenta mantener abiertas muchas conexiones al servidor web de destino y mantenerlas abiertas durante el mayor tiempo posible. Logra esto abriendo conexiones por medio de una petición parcial. De esta manera, se privan de los recursos del servidor http que provocan la denegación de servicio. </descripcion>
-   <recomendacion> Actualizar apache </recomendacion> 
-  </vuln>
-    
-    <vuln>
-    <cod>SNMP2</cod>  
-    <nombre>SNMP con cadena comunitaria por defecto</nombre>
-    <riesgo>Medio</riesgo>
-    <descripcion> El Host tiene la cadena comunitaria por defecto habilitada, un atacante puude usarlo para obtener información del dispositivo com rangos de red, direcciones MAC, subredes, procesos ejecutandose, puertos abiertos, etc </descripcion>
-   <recomendacion> RECOMEDACION </recomendacion> 
-  </vuln>
-  
-    <vuln>
-    <cod>directorioLDAP</cod>  
-    <nombre>LDAP con acceso Null.</nombre>
-    <riesgo>Medio</riesgo>
-    <descripcion> Se tiene habilitado el acceso Null a la Base de datos del LDAP </descripcion>
-   <recomendacion> RECOMEDACION </recomendacion> 
-  </vuln>
-        
-   <vuln>
-	 <cod>enum4linux</cod> 
-    <nombre>Sesion Nula en el controlador de dominio.</nombre>
-    <riesgo>Medio</riesgo>
-    <descripcion> Con esta vulnerabilidad un atacante puede enumerar todos los usuarios del dominio y a que grupo pertenecen  </descripcion>
-   <recomendacion> En el archivo de configuracion smb.conf:
-					[global]
-					map to guest = Never
-	</recomendacion> 
-  </vuln>
-  
-   <vuln>
-	<cod>transferenciaDNS</cod> 
-    <nombre>Transferencia de zona.</nombre>
-    <riesgo>Medio</riesgo>
-    <descripcion> Con esta vulnerabilidad un atacante puede enumerar a todos equipos del dominio  </descripcion>
-   <recomendacion> Configurar el servidor DNS de manera que no acepte peticiones AXFR https://www.cgii.gob.bo/es/publicaciones/transferencia-de-zona	</recomendacion> 
-  </vuln>
-  
-  <vuln>
-	<cod>sincod</cod>  
-    <nombre>Listado de directorio hablitado.</nombre>
-    <riesgo>Medio</riesgo>
-    <descripcion>El servidor web no esta configurado de manera segura y lista el contenido de cualquier directorio. </descripcion>
-   <recomendacion>Denegar el listado de directorio. Puede seguir el tutorial: https://www.cgii.gob.bo/index.php/es/publicaciones/mitigar-exploracion-de-directorios </recomendacion> 
   </vuln>  
-  
-    <vuln>
-	<cod>vrfy</cod>  
-    <nombre>Comando VRFY habilitado en el servidor de correos.</nombre>
-    <riesgo>Medio</riesgo>
-    <descripcion>El servidor web no esta configurado de manera segura y lista el contenido de cualquier directorio. </descripcion>
-   <recomendacion>Denegar el listado de directorio. Puede seguir el tutorial: https://www.cgii.gob.bo/index.php/es/publicaciones/mitigar-exploracion-de-directorios </recomendacion> 
-  </vuln>  
-    
 </vulnerabilidades>

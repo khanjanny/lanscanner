@@ -23,6 +23,9 @@ my $today = sprintf("%04d-%02d-%02d",$t->year + 1900, $t->mon + 1, $t->mday);
 my $debug = 0; 
 my $json =0; 
 
+
+getopts('d:h:', \%opts);
+
 sub banner
 {
 
@@ -30,12 +33,24 @@ sub banner
 	print "\n";
 }
 
+sub usage { 
+  
+  print "Uso:  \n";
+  print "Autor: Daniel Torres Sandi \n";
+  print  " generarReporte.pl -d ejemplo.com \n"; 
+  
+  
+}	
+# Print help message if required
+if ($opts{'h'} || !(%opts)) {
+	usage();
+	exit 0;
+}
 
 
-getopts('d:h:', \%opts);
 
 my $archivo_vulnerabilidades = "/usr/share/lanscanner/vulnerabilidades.xml";
-
+my $dominio = $opts{'d'} if $opts{'d'};
 
  
 if (! (-e "resultados.db")){	 
@@ -97,6 +112,11 @@ for (my $i=0; $i<$total_vulnerabilidades;$i++)
    my $riesgo = $vulnerabilidades->{vuln}->[$i]->{riesgo};     
    my $descripcion = $vulnerabilidades->{vuln}->[$i]->{descripcion};     
    my $recomendacion = $vulnerabilidades->{vuln}->[$i]->{recomendacion};     
+   $recomendacion =~ s/DOMINIOENTIDAD/$dominio/g; 
+   $recomendacion =~ s/SALTOLINEA/<br>/g; 
+   $recomendacion =~ s/AMPERSAND/\&/g; 
+   
+  
           
    my $sql = "SELECT * FROM VULNERABILIDADES WHERE TIPO=\"$cod\";";
    my $sth = $dbh->prepare($sql);
@@ -177,9 +197,11 @@ for (my $i=0; $i<$total_vulnerabilidades;$i++)
 	  while (my @row = $sth->fetchrow_array) {     		 
 		#	Users                                             	READ ONLY
 
-	     $vuln_detalles = $row[3];	     
+		 $ip = $row[0];	
+	     $vuln_detalles = $row[3];	 	            
 	     $vuln_detalles =~ s/                                             	/ /g; 	     
-	     $hosts = $hosts." $vuln_detalles <br>";
+	     $vuln_detalles =~ s/READ, WRITE|READ ONLY|READ, WRITE/<br>/g;
+	     $hosts = $hosts."\\\\$ip <br>    $vuln_detalles <br>";
 	     $filas++;
          ##### Contabilizar nivel de riesgos ######
           switch ($riesgo) {    	
@@ -192,15 +214,116 @@ for (my $i=0; $i<$total_vulnerabilidades;$i++)
    }
    
  
-  
-
-   if ($cod =~ m/SNMP2/) 
+   
+   if (($cod eq "googlehacking") || ($cod eq "listadoDirectorio") || ($cod eq "phpmyadminPassword"))
    {
-	print "";
+		while (my @row = $sth->fetchrow_array) {     		 
+		#	Users                                             	READ ONLY
+
+		 $ip = $row[0];	
+	     $vuln_detalles = $row[3];	 	            	     
+	     $vuln_detalles =~ s/http/<br>http/g;
+	     $hosts = $hosts." $vuln_detalles <br>";
+	     $filas++;
+         ##### Contabilizar nivel de riesgos ######
+          switch ($riesgo) {    	
+			case "Crítico"	{ $riesgos_criticos++ }
+			case "Alto"	{ $riesgos_altos++ }
+			case "Medio"	{ $riesgos_medios++ }
+         }
+         #############################################
+	  }  
    }
    
+   if ($cod =~ m/snmpCommunity/) 
+   {
+		while (my @row = $sth->fetchrow_array) {     		 
+		#	Users                                             	READ ONLY
+
+		 $ip = $row[0];	
+	     $vuln_detalles = $row[3];	
+	     my $community_string = `echo '$vuln_detalles' |grep --color=never "Community string"`;
+	    # print "community_string $community_string \n";
+	     $hosts = $hosts."$ip: $community_string <br>";
+	     $filas++;
+         ##### Contabilizar nivel de riesgos ######
+          switch ($riesgo) {    	
+			case "Crítico"	{ $riesgos_criticos++ }
+			case "Alto"	{ $riesgos_altos++ }
+			case "Medio"	{ $riesgos_medios++ }
+         }
+         #############################################
+	  }       
+   }
    
-   if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "webdav")|| ($cod eq "enum4linux")|| ($cod eq "heartbleed")	)
+   if ($cod =~ m/shellshock/) 
+   {
+		while (my @row = $sth->fetchrow_array) {     		 
+		#	Users                                             	READ ONLY
+
+		 $ip = $row[0];	
+	     $vuln_detalles = $row[3];	
+	     my $url_shellsock = `echo '$vuln_detalles' |grep --color=never "URL"`;	     
+	     $hosts = $hosts." $url_shellsock <br>";
+	     $filas++;
+         ##### Contabilizar nivel de riesgos ######
+          switch ($riesgo) {    	
+			case "Crítico"	{ $riesgos_criticos++ }
+			case "Alto"	{ $riesgos_altos++ }
+			case "Medio"	{ $riesgos_medios++ }
+         }
+         #############################################
+	  }       
+   }
+   
+   if ($cod =~ m/webdav/) 
+   {
+		while (my @row = $sth->fetchrow_array) {     		 
+		#	Users                                             	READ ONLY
+
+		 $ip = $row[0];	
+	     $vuln_detalles = $row[3];	
+	     my @vuln_detalles_array = split(" ",$vuln_detalles);	     
+	     my $url_webdav=@vuln_detalles_array[1];
+	     #print "url_webdav $url_webdav \n";
+	     
+	     $hosts = $hosts." $url_webdav <br>";
+	     $filas++;
+         ##### Contabilizar nivel de riesgos ######
+          switch ($riesgo) {    	
+			case "Crítico"	{ $riesgos_criticos++ }
+			case "Alto"	{ $riesgos_altos++ }
+			case "Medio"	{ $riesgos_medios++ }
+         }
+         #############################################
+	  }       
+   }
+   
+      
+   if ($cod =~ m/archivosPeligrosos/) 
+   {
+		while (my @row = $sth->fetchrow_array) {     		 
+		#	Users                                             	READ ONLY
+
+		 $ip = $row[0];	
+	     $vuln_detalles = $row[3];	
+	     #200	https://sigec.fonadin.gob.bo:443/.git/	, 
+	     my @vuln_detalles_array = split("\t",$vuln_detalles);	     
+	     my $current_url = @vuln_detalles_array[1];	     
+	     
+	     $hosts = $hosts." $current_url <br>";
+	     $filas++;
+         ##### Contabilizar nivel de riesgos ######
+          switch ($riesgo) {    	
+			case "Crítico"	{ $riesgos_criticos++ }
+			case "Alto"	{ $riesgos_altos++ }
+			case "Medio"	{ $riesgos_medios++ }
+          }
+         #############################################
+	  }       
+   }
+   
+   if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "enum4linux")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "transferenciaDNS") || ($cod eq "listadoDirectorio")  || ($cod eq "vrfy") || ($cod eq "anonymous") || ($cod eq "openstreaming") )  
    {
 	 #$hosts = "<table border='0' cellspacing='10'><tr>";	 	
 
@@ -248,10 +371,13 @@ for (my $i=0; $i<$total_vulnerabilidades;$i++)
 		print SALIDA_HTML "<div class='simditor-table'> <table border=1>  <colgroup><col width='20%'><col width='80%'></colgroup>\n";		
 		open (SALIDA_HTML,">>reporte.html") || die "ERROR: No puedo abrir el fichero reporte.html\n";
 		print SALIDA_HTML "<tr>\n";	
-		print SALIDA_HTML "<td class='' style='text-align: justify;'>Nombre:</td><td class='' style='text-align: justify;'>$nombre</td>\n";
+		print SALIDA_HTML "<td class='' style='text-align: justify;'>Nro:</td><td class='' style='text-align: justify;'>$contador</td>\n";
+		print SALIDA_HTML "</tr>\n";
+		print SALIDA_HTML "<tr>\n";	
+		print SALIDA_HTML "<td class='' style='text-align: justify;'>Vulnerabilidad:</td><td class='' style='text-align: justify;'>$nombre</td>\n";
 		print SALIDA_HTML "</tr>\n";	
 		print SALIDA_HTML "<tr>\n";	
-		print SALIDA_HTML "<td class='' style='text-align: justify;'>Riesgo:</td><td class='' style='text-align: justify;'>$riesgo</td>\n";
+		print SALIDA_HTML "<td class='' style='text-align: justify;'>Nivel de riesgo:</td><td class='' style='text-align: justify;'>$riesgo</td>\n";
 		print SALIDA_HTML "</tr>\n";	
 		print SALIDA_HTML "<tr>\n";	
 		print SALIDA_HTML "<td class='' style='text-align: justify;'>Descripción:</td><td class='' style='text-align: justify;'>$descripcion</td>\n";
@@ -263,10 +389,9 @@ for (my $i=0; $i<$total_vulnerabilidades;$i++)
 		print SALIDA_HTML "<td class='' style='text-align: justify;'>Recomendación:</td><td class='' style='text-align: justify;'>$recomendacion</td>\n";
 		print SALIDA_HTML "</tr>\n";
 		print SALIDA_HTML "<tr>\n";	
-		print SALIDA_HTML "<td class='' style='text-align: justify;'>Hosts:</td><td class='' style='text-align: justify;'>$hosts</td>\n";
-		print SALIDA_HTML "</tr>\n";								
-		print SALIDA_HTML "\n\n";
-	    print SALIDA_HTML "</table></div>\n\n <br><br>";	
+		print SALIDA_HTML "<td class='' style='text-align: justify;'>Hosts afectados:</td><td class='' style='text-align: justify;'>$hosts</td>\n";
+		print SALIDA_HTML "</tr>\n";										
+	    print SALIDA_HTML "</table></div>\n<div><br></div> <p></p> \n\n";	
 		close (SALIDA_HTML);
 		$contador++;
    }    
