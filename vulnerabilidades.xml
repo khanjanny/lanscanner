@@ -5,6 +5,8 @@
     <nombre>Vulnerabilidad en Microsoft Server Message Block 1.0 (MS17-010)</nombre>
     <riesgo>Crítico</riesgo>
     <descripcion>El sistema operativo presenta una vulnerabilidad de divulgación de información en el bloque de mensajes del servidor Microsoft (SMBv1) debido al manejo inadecuado de ciertas solicitudes. Un atacante remoto no autenticado puede explotar esta vulnerabilidad y ejecutar código arbitrario remotamente.</descripcion>
+    <verificacion>Herramienta: nmap SALTOLINEA
+				  Comando: nmap -p445 -script=smb-vuln-ms17-010.nse -iL listaips.txt</verificacion>
    <recomendacion>Actualizar el sistema operativo con los últimos parches de seguridad proporcionados por el proveedor.</recomendacion> 
   </vuln>
   <vuln>
@@ -12,13 +14,17 @@
     <nombre>Vulnerabilidad en Microsoft Server Message Block 1.0 (MS08-067) .</nombre>
     <riesgo>Crítico</riesgo>
     <descripcion> Los sistemas de Microsoft Windows son vulnerables a la ejecución remota de código explotando el puerto 445 (SMB). Un atacante remoto no autenticado puede explotar esta vulnerabilidad y tomar control del equipo. </descripcion>
+    <verificacion>Herramienta: nmap SALTOLINEA
+				  Comando: nmap -p445 -script=smb-vuln-ms08-067.nse -iL listaips.txt</verificacion>
    <recomendacion> Actualizar el sistema operativo con los últimos parches de seguridad proporcionados por el proveedor. </recomendacion> 
   </vuln>
    <vuln>
 	<cod>webdav</cod>  
     <nombre>WebDAV vulnerable.</nombre>
     <riesgo>Crítico</riesgo>
-    <descripcion> El servidor permite subir archivos al host vulnerable </descripcion>
+    <descripcion> El servidor permite subir archivos al host vulnerable con las credenciales por defecto:  wampp/xampp </descripcion>
+    <verificacion>Herramienta: cadaver SALTOLINEA
+				  cadaver 1.2.3.4 </verificacion>
    <recomendacion> Borrar el directorio webDAV </recomendacion> 
   </vuln>    
   <vuln>
@@ -26,6 +32,8 @@
     <nombre>Base de datos con password inseguro.</nombre>
     <riesgo>Crítico</riesgo>
     <descripcion> La base de datos aun presenta el usuario y password por defecto o es fácil de adivinar </descripcion>
+    <verificacion>Herramienta: mysql (Consola), pgadmin3 y navicat (gráficas) SALTOLINEA
+				  mysql 1.2.3.4 </verificacion>
    <recomendacion> Asignar un password a la base datos que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
   </vuln>  
    <vuln>
@@ -33,6 +41,8 @@
     <nombre>Paneles de administración con password inseguro.</nombre>
     <riesgo>Crítico</riesgo>
     <descripcion> Se identificaron paneles de administración (phpMyAdmin) que no tienen un password robusto y permiten acceder a datos sensibles </descripcion>
+    <verificacion>Herramienta: Navegador web SALTOLINEA
+				  Probar credenciales identificadas </verificacion>
    <recomendacion> Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
   </vuln>
   <vuln>
@@ -40,16 +50,41 @@
     <nombre>Paneles de administración de tomcat con password inseguro.</nombre>
     <riesgo>Crítico</riesgo>
     <descripcion> Se identificaron paneles de administración (tomcat) que no tienen un password robusto y permiten acceder a datos sensibles </descripcion>
+    <verificacion>Herramienta: Navegador web SALTOLINEA
+				  Probar credenciales identificadas </verificacion>
    <recomendacion> Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
   </vuln>
   
-    <vuln>
+  <vuln>
+	<cod>mailPass</cod>  
+    <nombre>Cuentas de correo con contraseñas inseguras</nombre>
+    <riesgo>Crítico</riesgo>
+    <descripcion>Se identificaron cuentas de correo que tienen contraseñas inseguras.</descripcion>
+    <verificacion>Herramienta: Navegador web SALTOLINEA
+				  Probar credenciales identificadas (CORREOENTIDAD) </verificacion>
+   <recomendacion> Asignar un password a las cuentas de correo que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
+  </vuln>
+  <vuln>
 	<cod>shellshock</cod>  
     <nombre>Vulnerabilidad en Bash (shellshock)</nombre>
     <riesgo>Crítico</riesgo>
     <descripcion> El problema con esta vulnerabilidad se viene produciendo porque Bash no valida de forma correcta los parámetros introducidos por el usuario. Lo que provoca que un atacante pueda ejecutar comandos remotamente.</descripcion>
+    <verificacion>Herramienta: nmap SALTOLINEA
+				  nmap -sV -p80 --script http-shellshock.nse --script-args uri=/ruta-cgi/ 1.2.3.4 </verificacion>
    <recomendacion> Actualizar GNU/Linux. En caso de no existir la actualización colocar los dispositivos en un segmento de red separado. </recomendacion> 
   </vuln>
+  
+    
+  <vuln>
+	<cod>winboxVuln</cod>  
+    <nombre>Mikrotik vulnerable</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> El equipo Mikrotik tiene una vulnerabilidad en el servicio WinBox que permite a un atacante leer los usuarios y contraseñas en texto plano.</descripcion>
+    <verificacion>Herramienta: WinboxExploit SALTOLINEA
+				  WinboxExploit.py 1.2.3.4 </verificacion>
+   <recomendacion>Actualice el router a una versión de RouterOS que incluya el parche (version > 6.42). Alternativamente puede deshabilitar el servicio WinBox en el router. </recomendacion> 
+  </vuln>
+  
   
   <vuln>
 	<cod>archivosPeligrosos</cod>  
@@ -79,7 +114,19 @@
     <nombre>Passwords basados en diccionario (estaciones de trabajo).</nombre>
     <riesgo>Alto</riesgo>
     <descripcion> Las contraseñas están basadas en palabras de diccionarios y estas no son dificiles de adivinar </descripcion>
+    <verificacion>Herramienta: pth-winexe SALTOLINEA
+				  pth-winexe -U usuario%password //1.2.3.4 cmd</verificacion>
    <recomendacion> Reforzar la política de contraseñas para que incluya caracteres alfanuméricos y mayúsculos. Se puede usar reglas mnemotécnicas para generar contraseñas fáciles de recordar por los usuarios, pero robustos para que sean difíciles de suponer por los atacantes. También se puede ampliar el tiempo de expiración de contraseñas Windows hasta un máximo de 90 días para equilibrar la política de complejidad de contraseñas </recomendacion> 
+  </vuln>
+  
+   <vuln>
+	<cod>logeoRemoto</cod>
+    <nombre>Logueo en red habilitado.</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> El logueo remoto esta habilitado (Puerto 445) y permite a un usuario que conozca la contraseña del administrador ingresar a otros equipos de red de manera remota</descripcion>
+    <verificacion>Herramienta: pth-winexe SALTOLINEA
+				  pth-winexe -U administrador%aad3b435b51404eeaad3b435b51404ee:3beb8dc3a68bfea6d0ebc248698cf820 //1.2.3.4 cmd</verificacion>
+   <recomendacion> Deshabilitar el logueo en red. https://support.microsoft.com/es-bo/help/555317 </recomendacion> 
   </vuln>
 
  <vuln>
@@ -87,6 +134,8 @@
     <nombre>Vulnerabilidad en OpenSSL (Heartbleed).</nombre>
     <riesgo>Alto</riesgo>
     <descripcion> Un atacante podría obtener cookies de autenticación, credenciales administrativas u otro dato sensible leyendo la memoria RAM del servidor afectado enviando peticiones modificadas al puerto 443. </descripcion>
+    <verificacion>Herramienta: nmap SALTOLINEA
+				  nmap -n -Pn -p 443 --script=ssl-heartbleed  1.2.3.4 </verificacion>
    <recomendacion> Actualizar la librería openssl </recomendacion> 
   </vuln>
 
@@ -94,7 +143,9 @@
 	<cod>adminPassword</cod>  
     <nombre>Passwords por defecto</nombre>
     <riesgo>Alto</riesgo>
-        <descripcion> Se identificaron paneles de administración que no tienen un password robusto y permiten acceder a datos sensibles (Usuario admin) </descripcion>
+    <descripcion> Se identificaron paneles de administración que no tienen un password robusto y permiten acceder a datos sensibles (Usuario admin) </descripcion>
+    <verificacion>Herramienta: Navegador web SALTOLINEA
+				  Probar credenciales identificadas </verificacion>
    <recomendacion> Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
   </vuln>
   
@@ -103,6 +154,8 @@
     <nombre>Passwords por defecto</nombre>
     <riesgo>Alto</riesgo>
     <descripcion> Se identificaron paneles de administración que no tienen un password robusto y permiten acceder a datos sensibles (Usuario root) </descripcion>
+    <verificacion>Herramienta: Navegador web SALTOLINEA
+				  Probar credenciales identificadas </verificacion>
    <recomendacion> Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
   </vuln>
   
@@ -110,7 +163,19 @@
 	<cod>ciscoPassword</cod>  
     <nombre>Passwords por defecto</nombre>
     <riesgo>Alto</riesgo>
-    <descripcion> Se identificaron un panel de administración de Cisco que no tiene un password robusto y permiten acceder a datos sensibles (Usuario cisco) </descripcion>
+    <descripcion> Se identificó un panel de administración de Cisco que no tiene un password robusto (Usuario cisco) </descripcion>
+    <verificacion>Herramienta: Navegador web SALTOLINEA
+				  Probar credenciales identificadas </verificacion>
+   <recomendacion> Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
+  </vuln>
+  
+  <vuln>
+	<cod>passwordMikroTik</cod>  
+    <nombre>Passwords no robustos (Mikrotik)</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> Se identificó un panel de administración de Mikrotik que no tiene un password robusto </descripcion>
+    <verificacion>Herramienta: mkbrutus SALTOLINEA
+				  mkbrutus.py -t 1.2.3.4 -u usuario --dictionary passwords.txt </verificacion>
    <recomendacion> Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
   </vuln>
   
@@ -120,6 +185,8 @@
     <nombre>Acceso VNC sin credenciales.</nombre>
     <riesgo>Alto</riesgo>
     <descripcion> Se detectaron Servidores con acceso remoto sin credenciales </descripcion>
+    <verificacion>Herramienta: vncviewer SALTOLINEA
+				  vncviewer 1.2.3.4 </verificacion>
    <recomendacion> Asignar un password al VNC que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
   </vuln>
   
@@ -127,7 +194,7 @@
 	<cod>VNCbypass</cod>  
     <nombre>VNC vulnerable.</nombre>
     <riesgo>Alto</riesgo>
-    <descripcion> Se detectaron Servidores que utilizan una versión vulnerable de VNC </descripcion>
+    <descripcion> Se detectaron servidores que utilizan una versión vulnerable de VNC </descripcion>
    <recomendacion> Actualizar a versión de VNC </recomendacion> 
   </vuln>
   
@@ -136,11 +203,31 @@
     <nombre>DVR Dahua con vulnerabilidad </nombre>
     <riesgo>Alto</riesgo>
     <descripcion> El equipo DVR permite extraer todos sus usuarios y hashes </descripcion>
+     <verificacion>Herramienta: metasploit SALTOLINEA
+				  msfconsole -x "use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS 1.2.3.4; set ACTION USER;run;exit" </verificacion>
    <recomendacion> Asignar el equipo DVR en otro segmento </recomendacion> 
   </vuln>
   
-     <vuln>
-	<cod>passwordDahua</cod>  
+  <vuln>
+	<cod>modoAgresivo</cod>  
+    <nombre>Configuración no segura de la VPN.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> El servidor VPN esta configurado con el modo agresivo (aggressive mode) habilitado. Lo cual permite extraer el handshake de la conexión para posteriormente crackear el mismo. </descripcion>
+   <recomendacion> Configurar la VPN en modo "main mode" </recomendacion> 
+  </vuln>
+   
+    <vuln>
+	<cod>passwordDefecto</cod>  
+    <nombre>Contraseña por defecto </nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> El equipo aun tiene la contraseña por defecto </descripcion>
+    <verificacion>Herramienta: Navegador web SALTOLINEA
+				  Probar credenciales identificadas </verificacion>
+   <recomendacion> Asignar un password al equipo que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
+  </vuln>
+  
+   <vuln>
+	<cod>passwordDahuaTelnet</cod>  
     <nombre>DVR Dahua con password por defecto </nombre>
     <riesgo>Alto</riesgo>
     <descripcion> El equipo DVR tiene el usuario root y password vizxv (telnet) </descripcion>
@@ -176,6 +263,8 @@
     <nombre>SNMP con cadena comunitaria por defecto</nombre>
     <riesgo>Medio</riesgo>
     <descripcion> El Host tiene la cadena comunitaria por defecto habilitada, un atacante puede usarlo para obtener información del dispositivo con rangos de red, direcciones MAC, subredes, procesos ejecutándose, puertos abiertos, etc </descripcion>
+    <verificacion>Herramienta: onesixtyone SALTOLINEA
+				  onesixtyone -c /usr/share/cisco-torch/community.txt -i listaIPs.txt  </verificacion>
    <recomendacion> Cambiar la cadena de comunidad por defecto, por otra que sea personalizada y solo de conocimiento del personal autorizado por de la entidad. Esta deberá ser mayor a 8 caracteres y no contener palabras que hagan referencia a la entidad, marcas, modelos o cualquier otra palabra que se encuentre en diccionarios nacionales o internacionales </recomendacion> 
   </vuln>
   
@@ -208,6 +297,8 @@
     <riesgo>Medio</riesgo>
     <descripcion> Con esta vulnerabilidad un atacante puede enviar correos con el dominio de la entidad. Haciendo el análisis inicial de la configuración DNS se observó que el mismo no tiene protección para evitar que terceros envíen correos a nombre de la entidad
     </descripcion>
+    <verificacion>Herramienta: spoofcheck.py SALTOLINEA
+				  spoofcheck.py DOMINIOENTIDAD  </verificacion>
    <recomendacion> Modificar el registro TXT en el servidor DNS con el siguiente contenido: SALTOLINEA
 					v=DMARC1; p=quarantine; rua=mailto:dmarc@DOMINIOENTIDAD; ruf=mailto:dmarc@DOMINIOENTIDAD; sp=quarantine SALTOLINEA SALTOLINEA									
 					Crear el registro TXT en el servidor DNS (registro SPF).  Crear el registro TXT en el servidor DNS (registro SPF).  Usar la herramienta en línea para generar el contenido del registro SPF: https://mxtoolbox.com/SPFRecordGenerator.aspx?domain=DOMINIOENTIDADAMPERSANDprefill=true . Elegir regla dura (Strict). SALTOLINEA  Más detalles: https://blog.mailfence.com/es/spf-dkim-y-dmarc-defensa-contra-la-suplantacion-spoofing-en-dominios-personalizados/
@@ -228,9 +319,14 @@
     <nombre>Listado de directorio habilitado.</nombre>
     <riesgo>Medio</riesgo>
     <descripcion>El servidor web no está configurado de manera segura y lista el contenido de cualquier directorio. </descripcion>
+    <verificacion>Herramienta: curl SALTOLINEA
+				  curl URL | grep "Index of"  </verificacion>
    <recomendacion>Denegar el listado de directorio. Puede seguir el tutorial: https://www.cgii.gob.bo/index.php/es/publicaciones/mitigar-exploracion-de-directorios </recomendacion> 
   </vuln>  
   
+  
+
+
   <vuln>
 	<cod>vrfy</cod>  
     <nombre>Comando VRFY habilitado en el servidor de correos.</nombre>
@@ -262,6 +358,22 @@
     <descripcion> Es posible acceder a información potencialmente sensible </descripcion>
    <recomendacion> Deshabilitar el usuario anónimo. </recomendacion> 
   </vuln>    
+  
+    <vuln>
+	<cod>erroresWeb</cod>  
+    <nombre>Errores en el sitio web</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Errores en el sitio web, que muestran información sobre la aplicación</descripcion>
+   <recomendacion> Validar las variables de entrada. </recomendacion> 
+  </vuln> 
+  
+    <vuln>
+	<cod>ACL</cod>  
+    <nombre>ACL no implementadas</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> La VLAN actual tiene acceso a otros segmentos que no deberia.</descripcion>
+   <recomendacion> Aplicar las ACLs correspondientes. </recomendacion> 
+  </vuln> 
     
    <vuln>
     <cod>sincod</cod>  	   
