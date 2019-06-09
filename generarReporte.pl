@@ -463,7 +463,7 @@ for my $resultados_db (@resultados_array)
 			}       
 		}
    
-		if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "enum4linux")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "transferenciaDNS") || ($cod eq "listadoDirectorio")  || ($cod eq "vrfy") || ($cod eq "anonymous") || ($cod eq "openstreaming") || ($cod eq "modoAgresivo") )  
+		if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "enum4linux")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "transferenciaDNS") || ($cod eq "listadoDirectorio")  || ($cod eq "vrfy") || ($cod eq "anonymous") || ($cod eq "openstreaming") || ($cod eq "modoAgresivo")  || ($cod eq "zimbraXXE") )
 		{
 			#$hosts = "<table border='0' cellspacing='10'><tr>";	 	
 		

@@ -29,7 +29,8 @@ Si el programa encuentra alguno de estos puertos abiertos procede a su enumeraci
 - VPN-IPsec (Verifica si esta en modo agresivo)
 - FTP (Verifica si el usuario anonymous esta activo)
 - VMWARE: (Obtiene la version)
-  Camaras DAHUA:  (Verifica si se puede extraer la lista de usuarios)
+- Camaras DAHUA:  (Verifica si se puede extraer la lista de usuarios)
+- Busqueda de backdoors
 
 
 ## ¿COMO INSTALAR?

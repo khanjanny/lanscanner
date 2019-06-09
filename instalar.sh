@@ -42,6 +42,7 @@ mkdir /usr/share/lanscanner 2>/dev/null
 cd files
 cp community.txt /usr/share/lanscanner
 cp resultados.db /usr/share/lanscanner
+cp -r postExploiter /usr/share/lanscanner
 cp vulnerabilidades.xml /usr/share/lanscanner
 cp smb-vuln-ms17-010.nse /usr/share/nmap/scripts/
 cd ..

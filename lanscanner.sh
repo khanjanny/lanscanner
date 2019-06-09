@@ -2,8 +2,11 @@
 # Author: Daniel Torres
 # daniel.torres@owasp.org
 ##
+# Identificar backdoors (archivos conocidos, expresiones regulares)
 # Adicionar struts check
 # cracker.sh admin/admin  wordpress,joomla,drupal
+# PoC Suite3
+# Identificar redes con  http://www.ip-calc.com/
 ##
 
 OKBLUE='\033[94m'
@@ -139,6 +142,8 @@ if [ ! -d ".servicios" ]; then # si ya ejecutamos recon.sh antes
 	mkdir reportes
 	mkdir archivos
 	mkdir webClone
+	mkdir metasploit
+	mkdir credenciales
 	mkdir .servicios
 	mkdir .tmp
 	mkdir -p logs/cracking
@@ -246,7 +251,7 @@ sleep 5
    done;  
   #######################  
   
-  if [ $SUBNET_FILE = NULL ] ; then
+ if [ $SUBNET_FILE = NULL ] ; then
 	echo -e "$OKBLUE Definir el numero de redes a escanear en busca de hosts vivos $RESET"    
 	echo -e "$OKYELLOW\t Ej:  Si escribe $OKRED 20$OKYELLOW se escaneara las redes :"  
 	#echo -e "10.0$OKRED.1-20$OKYELLOW.0/24  \n192.168$OKRED.1-20$OKYELLOW.0/24  \n172.16$OKRED.1-20$OKYELLOW.0/24  $RESET"   
@@ -426,13 +431,15 @@ sleep 5
      ##################     
         
      echo -e "Revisar si hay host que no debemos escanear ($live_hosts). Presionar ENTER para continuar"
-     read n	    	 
-	 cat $live_hosts | cut -d . -f 1-3 | sort | uniq > .datos/subnets.txt # generate subnets 
+     read n	    	       
 	  
 	  echo -e  " #######################################################" 
       echo -e  "[i] TOTAL HOST VIVOS ENCONTRADOS:" 
       echo -e "\t"                  
  fi # if FILE
+ 
+ # generate subnets 
+ cat $live_hosts | cut -d . -f 1-3 | sort | uniq > .datos/subnets.txt
 
 ###### #check host number########
 total_hosts=`wc -l .datos/total-host-vivos.txt | sed 's/.datos\/total-host-vivos.txt//g' `
@@ -801,22 +808,21 @@ fi
  ##################UDP#########
 if [[ $TYPE = "completo" ]] || [ $udp_escaneando == "s" ]; then 
 	cd .nmap
-	grep 53/open nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:53\n"' >> ../.servicios/dns.txt
+	grep "53/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:53\n"' >> ../.servicios/dns.txt
 	
-	grep 161/open nmap-udp.grep | awk '{print $2}'  >> ../.servicios/snmp2.txt	
+	grep "161/open/" nmap-udp.grep | awk '{print $2}'  >> ../.servicios/snmp2.txt	
 	grep '161/udp' ../.masscan/* 2>/dev/null| cut -d " " -f 6 >> ../.servicios/snmp2.txt
-	sort ../.servicios/snmp2.txt | sort | uniq >../.servicios/snmp.txt; rm ../.servicios/snmp2.txt
 	
-	grep 67/open nmap-udp.grep | awk '{print $2}'  >> ../.servicios/dhcp2.txt	
+	grep "67/open/" nmap-udp.grep | awk '{print $2}'  >> ../.servicios/dhcp2.txt	
 	grep '67/udp' ../.masscan/* 2>/dev/null | cut -d " " -f 6 >> ../.servicios/dhcp2.txt
 	sort ../.servicios/dhcp2.txt | sort | uniq >../.servicios/dhcp.txt; rm ../.servicios/dhcp2.txt
 	
-	grep 500/open nmap-udp.grep | awk '{print $2}'  >> ../.servicios/vpn2.txt
+	grep "500/open/" nmap-udp.grep | awk '{print $2}'  >> ../.servicios/vpn2.txt
 	grep '500/udp' ../.masscan/* 2>/dev/null | cut -d " " -f 6 >> ../.servicios/vpn2.txt
 	sort ../.servicios/vpn2.txt | sort | uniq >../.servicios/vpn.txt; rm ../.servicios/vpn2.txt
 	
-	grep 1604/open nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1604\n"' >> ../.servicios/citrix.txt
-	grep 1900/open nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1900\n"' >> ../.servicios/upnp.txt
+	grep "1604/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1604\n"' >> ../.servicios/citrix.txt
+	grep "1900/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1900\n"' >> ../.servicios/upnp.txt
 	cd ../
 fi
         
@@ -911,6 +917,11 @@ then
 		echo "nmap -n -p445 --script smb-vuln-ms17-010 $ip" > logs/vulnerabilidades/$ip-445-ms17010.txt 2>/dev/null
 		nmap -n -p445 --script smb-vuln-ms17-010 $ip >> logs/vulnerabilidades/$ip-445-ms17010.txt 2>/dev/null
 		grep "|" logs/vulnerabilidades/$ip-445-ms17010.txt | egrep -v "ACCESS_DENIED|false|Could" > .vulnerabilidades/$ip-445-ms17010.txt  
+		
+		echo "nmap -n -p445 --script smb-double-pulsar-backdoor $ip" > logs/vulnerabilidades/$ip-445-doublepulsar.txt 2>/dev/null
+		nmap -n -p445 --script smb-double-pulsar-backdoor $ip >> logs/vulnerabilidades/$ip-445-doublepulsar.txt 2>/dev/null
+		grep "|" logs/vulnerabilidades/$ip-445-doublepulsar.txt | egrep -v "ACCESS_DENIED|false|Could" > .vulnerabilidades/$ip-445-doublepulsar.txt  
+		
 		
 		
 		echo "smbmap -H $ip -u anonymous -p anonymous" > logs/vulnerabilidades/$ip-445-compartido.txt 2>/dev/null
@@ -1581,79 +1592,6 @@ fi
 
 
 
-if [ -f .servicios/snmp.txt ]
-then
-	echo -e "$OKBLUE #################### SNMP (`wc -l .servicios/snmp.txt`) ######################$RESET"	    
-	
-	echo -e "[+] Escaneando $ip"
-	echo -e "\t[+] Probando comunity string comunes"
-	onesixtyone -c /usr/share/lanscanner/community.txt -i .servicios/snmp.txt  | grep --color=never "\[" | sed 's/ \[/~/g' |  sed 's/\] /~/g' | sort | sort | uniq > .enumeracion2/dispositivos-snmp.txt
-
-	while read line; do
-		ip=`echo $line | cut -f1 -d"~"`
-		community=`echo $line | cut -f2 -d"~"`
-		device=`echo $line | cut -f3 -d"~"`
-		
-		echo -e "\t[i] Dispositivo identificado: $device"
-		echo -e "\t[+] Enumerando con el comunity string: $community"
-		### snmp write ##
-		snmp-write.pl -t $ip -c $community >> logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt 2>/dev/null
-		echo "" >>	logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt 2>/dev/null
-				
-		### snmp bruteforce ##				
-		
-		if [[ ${device} == *"windows"*  ]];then 			
-			echo -e "\t\t[+] Enumerando como dispositivo windows"
-			snmpbrute.py -t $ip --windows --auto >> logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt 2>/dev/null 
-		fi									
-			
-		if [[ (${device} == *"linux"* || ${device} == *"Linux"* ) && (${device} != *"linux host"* )]];then 
-			echo -e "\t\t[+] Enumerando como dispositivo Linux" 
-			snmpbrute.py -t $ip --linux --auto >> logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt 2>/dev/null 
-		fi										
-			
-		egrep -qi "HOSTNAME" logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt
-		greprc=$?
-		if [[ $greprc -eq 0 ]] ; then						
-			echo ""	# Ya fue enumerado
-		else
-			echo -e "\t\t[+] Enumerando como dispositivo cisco" 			
-			snmpbrute.py -t $ip --cisco --auto >> logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt 2>/dev/null 
-		fi		
-		
-		
-		###### Revisar si no es impresora ######
-		egrep -qi "MULTI-ENVIRONMENT" logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt
-		greprc=$?
-		if [[ $greprc -eq 0 ]] ; then						
-			echo -e "\t$OKGREEN[i] Es una impresora $RESET"
-			rm logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt
-		else
-			echo -e "\t$OKRED[!] Enumeración SNMP realizada \n $RESET"
-			cp logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt .vulnerabilidades/$ip-snmp-snmpCommunity.txt	
-		fi		
-		#######################						
-		
-	done <.enumeracion2/dispositivos-snmp.txt
-#	rm banners-snmp2.txt
-	
-	# revisar si hay scripts ejecutandose
-	while true; do
-	webbuster_instances=`ps aux | egrep 'web-buster|nmap' | wc -l`		
-	if [ "$webbuster_instances" -gt 1 ]
-	then
-		echo -e "\t[i] Todavia hay scripts activos ($webbuster_instances)"				
-		sleep 20
-		else
-			break		
-		fi
-	done	# done true	
-	
-	#insert clean data	
-	insert_data
-	##################################
-fi
-
 
 #	servers
 if [ -f .servicios/servers.txt ]
@@ -1794,7 +1732,8 @@ then
 			if [[ $free_ram -gt $min_ram && $perl_instances -lt 80  ]];then 											
 				echo -e "[+] Escaneando $ip:$port"	
 				echo -e "\t[+] Obteniendo informacion web"
-				webData.pl -t $ip -p $port -s 0 -e todo -d / -l logs/enumeracion/$ip-$port-webData.txt -r 4 > .enumeracion/$ip-$port-webData.txt 2>/dev/null  &				
+				curl http://$ip:$port/server-status 2>/dev/null | grep --color=never nowrap | sed 's/<\/td><td nowrap>/;/g' | sed 's/<\/td><td>//g'| sed 's/<\/td><\/tr>//g' > .enumeracion/$ip-$port-serverStatus.txt 
+				webData.pl -t $ip -p $port -s 0 -e todo -d / -l logs/enumeracion/$ip-$port-webData.txt -r 4 > .enumeracion/$ip-$port-webData.txt 2>/dev/null  &								
 				sleep 0.1;
 			
 				######## revisar por dominio #######
@@ -1854,6 +1793,7 @@ then
 							web-buster.pl -t $subdominio -p $port -d / -h 4 -m completo -s 0 -q 1 | egrep --color=never "^200|^401|^301|^302" > .enumeracion/$subdominio-$port-webbuster.txt 2>/dev/null  &
 							web-buster.pl -t $subdominio -p $port -d / -h 2 -m phpinfo -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' > .enumeracion/$subdominio-$port-phpinfo.txt 2>/dev/null &
 							web-buster.pl -t $subdominio -p $port -d / -h 1 -m dangerous -s 0 -q 1 | egrep --color=never "^200" > .vulnerabilidades/$subdominio-$port-archivosPeligrosos.txt 2>/dev/null &
+							web-buster.pl -t $subdominio -p $port -d / -h 1 -m backdoor -s 0 -q 1 | egrep --color=never "^200" > .vulnerabilidades/$subdominio-$port-backdoor.txt 2>/dev/null &
 						
 							#######  if the server is apache ######
 							egrep -i "apache" .enumeracion/$ip-$port-webData.txt | egrep -qiv "cisco|BladeSystem|oracle|302 Found"
@@ -2125,6 +2065,7 @@ then
 							web-buster.pl -t $subdominio -p $port -h 4 -d / -m completo -s 1 -q 1 | egrep --color=never "^200|^401|^301|^302" >> .enumeracion/$subdominio-$port-webarchivos.txt  &						
 							web-buster.pl -t $subdominio -p $port -d / -h 2 -m phpinfo -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' > .enumeracion/$subdominio-$port-phpinfo.txt 2>/dev/null &							
 							web-buster.pl -t $subdominio -p $port -d / -h 1 -m dangerous -s 1 -q 1 | egrep --color=never "^200" > .vulnerabilidades/$subdominio-$port-archivosPeligrosos.txt 2>/dev/null &
+							web-buster.pl -t $subdominio -p $port -d / -h 1 -m backdoor -s 1 -q 1 | egrep --color=never "^200" > .vulnerabilidades/$subdominio-$port-backdoor.txt 2>/dev/null &
 						
 							#######  wordpress (dominio) ######
 							grep -qi wordpress .enumeracion/$subdominio-$port-webData.txt
@@ -2363,7 +2304,7 @@ then
 			#nmap -Pn -p $port $ip --script=rdp-enum-encryption > .enumeracion/$ip/rdp.txt 2>/dev/null					
 			echo -e "[+] Escaneando $ip:$port"	
 			
-			RDP_RCE $ip >> logs/vulnerabilidades/$ip-3389-RDPvuln.txt
+			blueKeep $ip >> logs/vulnerabilidades/$ip-3389-RDPvuln.txt
 			grep "VULNERABLE" logs/vulnerabilidades/$ip-3389-RDPvuln.txt  > .vulnerabilidades/$ip-3389-RDPvuln.txt
 			
 			while true; do
@@ -2421,13 +2362,12 @@ for file in `ls .enumeracion2/*-phpinfo.txt 2>/dev/null;`; do
 
 #.enumeracion2/172.16.0.71-80-phpinfo.txt
  archivo_destino=$file
- archivo_destino=${archivo_destino/.enumeracion2/.vulnerabilidades}
- archivo_destino=${archivo_destino/phpinfo/serverinfo}
+ archivo_destino=${archivo_destino/.enumeracion2/.vulnerabilidades} 
 
 #.enumeracion2/172.16.0.71-80-phpinfo.txt 
  archivo_destino_log=$file
  archivo_destino_log=${archivo_destino_log/.enumeracion2/logs\/vulnerabilidades}
- archivo_destino_log=${archivo_destino_log/phpinfo/serverinfo}
+
   for url in `cat $file`; do	
 	phpinfo.pl -url "\"$url\"" >> $archivo_destino_log 2>/dev/null
   done
@@ -2460,7 +2400,7 @@ then
 		echo -e "\tLIST" | nc -w 3 $ip 21 > .enumeracion/$ip-$port-banner.txt 2>/dev/null &					
 		
 		######## revisar si no es impresora #####
-		egrep -iq "Printer|JetDirect|LaserJet|HP" .enumeracion2/$ip-80-webData.txt 2>/dev/null
+		egrep -iq "Printer|JetDirect|LaserJet|HP|KONICA|MULTI-ENVIRONMENT" .enumeracion2/$ip-80-webData.txt 2>/dev/null
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t$OKGREEN[i] Es una impresora $RESET"
@@ -2695,6 +2635,7 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	
 	grep -i "d-link" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/d-link2.txt
 	grep -i "forti" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/fortinet2.txt
+	grep -i "3com" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/3com2.txt
 	grep -i "linksys" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/linksys2.txt
 	grep -i "Netgear" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/Netgear.txt
 	grep -i "zyxel" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/zyxel.txt
@@ -2718,6 +2659,11 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	grep --color=never -i forti * 2>/dev/null | cut -d "-" -f1 >> ../.servicios/fortinet2.txt
 	sort ../.servicios/fortinet2.txt | uniq > ../.servicios/fortinet.txt
 	rm ../.servicios/fortinet2.txt
+	
+	#3com
+	grep --color=never -i 3com * 2>/dev/null | cut -d "-" -f1 >> ../.servicios/3com2.txt
+	sort ../.servicios/3com2.txt | uniq > ../.servicios/3com.txt
+	rm ../.servicios/3com2.txt
 	
 	#d-link
 	grep --color=never -i d-link * 2>/dev/null | cut -d "-" -f1 >> ../.servicios/d-link2.txt
@@ -2750,6 +2696,9 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	#tomcat
 	grep --color=never -i manager * 2>/dev/null| grep --color=never http | awk '{print $2}' | sort | uniq >> ../.servicios/admin-web.txt	
 	
+	#zimbra
+	grep --color=never -i zimbra * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/zimbra.txt		
+	
 	#jboss
 	grep --color=never -i jboss * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/jboss.txt
 	
@@ -2764,6 +2713,26 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	################################
 
 find .servicios -size  0 -print0 |xargs -0 rm 2>/dev/null
+
+
+#zimbra
+if [ -f .servicios/zimbra.txt ]
+then
+	echo -e "$OKBLUE #################### zimbra (`wc -l .servicios/zimbra.txt`) ######################$RESET"	    	
+	while read line
+	do     						
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"` 	
+		echo -e "[+] Escaneando $ip : $port"					
+		echo "zimbraXXE.py https://$ip:$port" > logs/vulnerabilidades/$ip-cisco-vuln.txt 2>/dev/null		
+		zimbraXXE.py https://$ip:$port  >> logs/vulnerabilidades/$ip-$port-zimbraXXE.txt 2>/dev/null		
+		grep -i "credenciales" logs/vulnerabilidades/$ip-$port-zimbraXXE.txt  > .vulnerabilidades/$ip-$port-zimbraXXE.txt 															
+		 echo ""
+ 	done <.servicios/zimbra.txt
+	#insert clean data	
+	insert_data	
+fi
+
 
 #cisco
 if [ -f .servicios/ciscoASA.txt ]
@@ -2852,7 +2821,7 @@ then
 fi
 
 
-# cisco backoor
+# cisco backdoor
 
 if [ -f .servicios/backdoor32764.txt ]
 then
@@ -2872,7 +2841,7 @@ then
 fi
 
 
-# fortigate backoor
+# fortigate backdoor
 
 if [ -f .servicios/fortinet.txt ]
 then
@@ -3326,6 +3295,74 @@ then
 	insert_data
 fi
 
+cat .servicios/snmp2.txt .servicios/linksys.txt .servicios/Netgear.txt .servicios/pfsense.txt .servicios/ubiquiti.txt .servicios/mikrotik.txt .servicios/NetScreen.txt  .servicios/fortinet.txt .servicios/cisco.txt  .servicios/ciscoASA.txt .servicios/3com.txt 2>/dev/null | sort | uniq > .servicios/snmp.txt; rm .servicios/snmp2.txt
+
+if [ -f .servicios/snmp.txt ]
+then
+	echo -e "$OKBLUE #################### SNMP (`wc -l .servicios/snmp.txt`) ######################$RESET"	    
+	
+	echo -e "[+] Escaneando $ip"
+	echo -e "\t[+] Probando comunity string comunes"
+	onesixtyone -c /usr/share/lanscanner/community.txt -i .servicios/snmp.txt > .enumeracion2/dispositivos-snmp2.txt
+	sed 's/] 1/] \n1/g' -i .enumeracion2/dispositivos-snmp2.txt	# corregir error de onesixtyone
+	cat .enumeracion2/dispositivos-snmp2.txt | grep --color=never "\[" | sed 's/ \[/~/g' |  sed 's/\] /~/g' | sort | sort | uniq > .enumeracion2/dispositivos-snmp.txt
+	
+
+	while read line; do
+		ip=`echo $line | cut -f1 -d"~"`
+		community=`echo $line | cut -f2 -d"~"`
+		device=`echo $line | cut -f3 -d"~"`
+		
+		echo -e "\t[i] Dispositivo identificado: $device"
+		echo -e "\t[+] Enumerando con el comunity string: $community"
+		### snmp write ##
+		snmp-write.pl -t $ip -c $community >> logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt 2>/dev/null
+		echo "" >>	logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt 2>/dev/null
+				
+		### snmp bruteforce ##				
+		
+		if [[ ${device} == *"windows"*  ]];then 			
+			echo -e "\t\t[+] Enumerando como dispositivo windows"
+			snmpbrute.py -t $ip --windows --auto >> logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt 2>/dev/null 
+		fi									
+			
+		if [[ (${device} == *"linux"* || ${device} == *"Linux"* ) && (${device} != *"linux host"* )]];then 
+			echo -e "\t\t[+] Enumerando como dispositivo Linux" 
+			snmpbrute.py -t $ip --linux --auto >> logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt 2>/dev/null 
+		fi										
+			
+		egrep -qi "HOSTNAME" logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then						
+			echo ""	# Ya fue enumerado
+		else
+			echo -e "\t\t[+] Enumerando como dispositivo cisco" 			
+			snmpbrute.py -t $ip --cisco --auto >> logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt 2>/dev/null 
+		fi		
+		
+		
+		###### Revisar si no es impresora ######
+		egrep -qi "Printer|JetDirect|LaserJet|HP|KONICA|MULTI-ENVIRONMENT" logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then						
+			echo -e "\t$OKGREEN[i] Es una impresora $RESET"
+			rm logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt
+		else
+			echo -e "\t$OKRED[!] Enumeración SNMP realizada \n $RESET"
+			cp logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt .vulnerabilidades/$ip-snmp-snmpCommunity.txt	
+		fi		
+		#######################						
+		
+	done <.enumeracion2/dispositivos-snmp.txt
+#	rm banners-snmp2.txt
+	
+	insert_data
+	##################################
+fi
+
+
+echo "spool `pwd`/metasploit/IP-creds.txt" > command-metasploit.txt
+echo "resource /usr/share/lanscanner/postExploiter/creds.rc" >> command-metasploit.txt
 
 echo -e "\t $OKBLUE REVISANDO ERRORES $RESET"
 grep -ira "timed out" * logs/enumeracion/*
