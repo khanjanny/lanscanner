@@ -61,7 +61,7 @@
     <riesgo>Crítico</riesgo>
     <descripcion>Se identificaron cuentas de correo que tienen contraseñas inseguras.</descripcion>
     <verificacion>Herramienta: Navegador web SALTOLINEA
-				  Probar credenciales identificadas (CORREOENTIDAD) </verificacion>
+				  Probar credenciales identificadas </verificacion>
    <recomendacion> Asignar un password a las cuentas de correo que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
   </vuln>
   <vuln>
@@ -114,6 +114,16 @@
     <descripcion> Revisando los recursos compartidos mediante el protocolo NFS se pudo observar que se comparte información sensible accesible por cualquier usuario de la red </descripcion>
    <recomendacion> Limitar el acceso de recursos compartido solo a usuarios autorizados</recomendacion> 
   </vuln>
+ 
+  <vuln>
+	<cod>BlueKeep</cod>  
+    <nombre>Vulnerabilidad en el escritorio remoto (BlueKeep)</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> La vulnerabilidad podría permitir a un atacante remoto no autenticado ejecutar código arbitrario y tomar el control de una computadora específica simplemente enviando solicitudes especialmente diseñadas al servicio de escritorio remoto (RDS) del dispositivo a través del RDP, sin necesidad de interacción alguna por parte del usuario. </descripcion>
+    <verificacion>blueKeep 1.2.3.4 </verificacion>
+   <recomendacion> Instalar los parches de seguridad del sitio oficial de Windows: https://support.microsoft.com/en-us/help/4500705/customer-guidance-for-cve-2019-0708 </recomendacion> 
+  </vuln>
+  
   <vuln>
 	<cod>compartidoSMB</cod>  
     <nombre>Recursos compartidos (SMB)</nombre>
@@ -256,11 +266,12 @@
   </vuln>
      
   <vuln>
-	<cod>php</cod>  
+	<cod>phpinfo</cod>  
     <nombre>Configuración incorrecta de seguridad (PHP).</nombre>
     <riesgo>Medio</riesgo>
-    <descripcion> Datos como versiones exactas de PHP, módulos cargados, nombre del servidor, etc son expuestos en la ruta phpinfo  </descripcion>
-   <recomendacion> Eliminar los archivos php que presentan un riesgo de seguridad </recomendacion> 
+    <descripcion>  El archivo phpinfo expone datos como versiones exactas de PHP, módulos cargados, nombre del servidor, etc.</descripcion>
+    <verificacion> wget http://IP/phpinfo.php </verificacion>
+   <recomendacion> Eliminar el archivo SCRIPT_FILENAME </recomendacion> 
   </vuln>
    
   <vuln>
@@ -324,6 +335,8 @@
     <nombre>Transferencia de zona.</nombre>
     <riesgo>Medio</riesgo>
     <descripcion> Con esta vulnerabilidad un atacante puede enumerar a todos hosts del dominio  </descripcion>
+    <verificacion>Herramienta: fierce SALTOLINEA
+				  fierce -dns dominio.gob,bo  </verificacion>
    <recomendacion> Configurar el servidor DNS de manera que no acepte peticiones AXFR https://www.cgii.gob.bo/es/publicaciones/transferencia-de-zona	</recomendacion> 
   </vuln>
   
@@ -337,9 +350,6 @@
    <recomendacion>Denegar el listado de directorio. Puede seguir el tutorial: https://www.cgii.gob.bo/index.php/es/publicaciones/mitigar-exploracion-de-directorios </recomendacion> 
   </vuln>  
   
-  
-
-
   <vuln>
 	<cod>vrfy</cod>  
     <nombre>Comando VRFY habilitado en el servidor de correos.</nombre>

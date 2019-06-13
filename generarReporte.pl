@@ -71,6 +71,10 @@ my $total_host_analizados = 0;
 my $total_host_con_vulnerabilidades = 0;
 my $total_host_con_vulnerabilidades_uniq = 0;
 
+my $total_vuln_criticas = 0;
+my $total_vuln_altas = 0;
+my $total_vuln_medias = 0;
+
 my $riesgos_criticos = 0;
 my $riesgos_altos = 0;
 my $riesgos_medios = 0;
@@ -136,7 +140,25 @@ for my $resultados_db (@resultados_array)
 	my @row = $sth->fetchrow_array;
 	my $host_con_vulnerabilidades = $row[0];
 	$total_host_con_vulnerabilidades = $total_host_con_vulnerabilidades + $host_con_vulnerabilidades;	
+	
+	
+	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='ms17010' or tipo ='ms08067' or tipo ='webdav' or tipo ='passwordBD' or tipo ='phpmyadminPassword' or tipo ='passTomcat' or tipo ='mailPass' or tipo ='shellshock' or tipo ='zimbraXXE' or tipo ='winboxVuln';");
+	$sth->execute();
+	my @row = $sth->fetchrow_array;
+	my $vul_criticas = $row[0];
+	$total_vuln_criticas = $total_vuln_criticas + $vul_criticas;	
 
+	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='archivosPeligrosos' or tipo ='compartidoNFS' or tipo ='BlueKeep' or tipo ='compartidoSMB' or tipo ='passwordHost' or tipo ='logeoRemoto' or tipo ='heartbleed' or tipo ='adminPassword' or tipo ='rootPassword' or tipo ='ciscoPassword' or tipo ='passwordMikroTik' or tipo ='VNCnopass' or tipo ='VNCbypass' or tipo ='vulnDahua';");
+	$sth->execute();
+	my @row = $sth->fetchrow_array;
+	my $vul_altos = $row[0];
+	$total_vuln_altas = $total_vuln_altas + $vul_altos;	
+
+	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='phpinfo' or tipo ='slowloris' or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='spoof' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL';");
+	$sth->execute();
+	my @row = $sth->fetchrow_array;
+	my $vul_medios = $row[0];
+	$total_vuln_medias = $total_vuln_medias + $vul_medios;	
 
    
 	# iterar por el archivo XML de vulnerabilidades
@@ -148,12 +170,12 @@ for my $resultados_db (@resultados_array)
 		my $riesgo = $vulnerabilidades->{vuln}->[$i]->{riesgo};     
 		my $descripcion = $vulnerabilidades->{vuln}->[$i]->{descripcion};     
 		my $recomendacion = $vulnerabilidades->{vuln}->[$i]->{recomendacion};		
-		$recomendacion =~ s/DOMINIOENTIDAD/$dominio/g; 
+		$recomendacion =~ s/DOMINIOENTIDAD/$dominio/g; 				
 		$recomendacion =~ s/SALTOLINEA/<br>/g; 
 		$recomendacion =~ s/AMPERSAND/\&/g; 
 		my $verificacion = $vulnerabilidades->{vuln}->[$i]->{verificacion}; 		
    		$verificacion =~ s/SALTOLINEA/<br>/g; 
-		$verificacion =~ s/AMPERSAND/\&/g; 
+		$verificacion =~ s/AMPERSAND/\&/g; 		
 		$verificacion =~ s/DOMINIOENTIDAD/$dominio/g; 
 
   
@@ -416,6 +438,30 @@ for my $resultados_db (@resultados_array)
 			}       
 		}
 		
+		if ($cod =~ m/phpinfo/) 
+		{
+				while (my @row = $sth->fetchrow_array) {     		 
+				#	Users                                             	READ ONLY
+		
+				$ip = $row[0];	
+				$vuln_detalles = $row[3];	
+				my $file = `echo '$vuln_detalles' |grep --color=never "SCRIPT_FILENAME"`;
+				$hosts = $ip;
+				$file =~ s/PATH \(SCRIPT_FILENAME\)://g; 
+				$recomendacion =~ s/SCRIPT_FILENAME/$file/g; 				
+				$verificacion =~ s/IP/$ip/g; 
+				$filas++;
+				##### Contabilizar nivel de riesgos ######
+				switch ($riesgo) {    	
+					case "Crítico"	{ $riesgos_criticos++ }
+					case "Alto"	{ $riesgos_altos++ }
+					case "Medio"	{ $riesgos_medios++ }
+				}
+				#############################################
+			}       
+		}
+				
+		
 		if ($cod =~ m/webdav/) 
 		{
 				while (my @row = $sth->fetchrow_array) {     		 
@@ -463,7 +509,7 @@ for my $resultados_db (@resultados_array)
 			}       
 		}
    
-		if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "enum4linux")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "transferenciaDNS") || ($cod eq "listadoDirectorio")  || ($cod eq "vrfy") || ($cod eq "anonymous") || ($cod eq "openstreaming") || ($cod eq "modoAgresivo")  || ($cod eq "zimbraXXE") )
+		if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "enum4linux")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "transferenciaDNS") || ($cod eq "listadoDirectorio")  || ($cod eq "vrfy") || ($cod eq "anonymous") || ($cod eq "openstreaming") || ($cod eq "modoAgresivo")  || ($cod eq "zimbraXXE") || ($cod eq "BlueKeep"))
 		{
 			#$hosts = "<table border='0' cellspacing='10'><tr>";	 	
 		
@@ -540,15 +586,23 @@ for my $resultados_db (@resultados_array)
 	} #for 
 } # fin for
 
+my $total_vuln = $riesgos_criticos + $riesgos_altos + $riesgos_medios;
+my $total_vuln_uniq = $total_vuln_criticas + $total_vuln_altas + $total_vuln_medias;
 open (SALIDA,">>reporte.csv") || die "ERROR: No puedo abrir el fichero google.html\n";
 	print SALIDA "\n\nTotal hosts analizados:;$total_host_analizados\n";
-	print SALIDA "Vulnerabilidades identificadas descritas en reporte técnico:;$total_host_con_vulnerabilidades\n";
-	print SALIDA "Vulnerabilidades identificadas descritas en reporte técnico (host unicos):;$total_host_con_vulnerabilidades_uniq\n";
-	print SALIDA "Total riesgos críticos:; $riesgos_criticos;\n";
-	print SALIDA "Total riesgos altos:;$riesgos_altos\n";
-	print SALIDA "Total riesgos medios:;$riesgos_medios\n";
+	print SALIDA "Vulnerabilidades identificadas descritas en reporte tecnico:;$total_host_con_vulnerabilidades\n";
+	print SALIDA "Vulnerabilidades identificadas descritas en reporte tecnico (host unicos):;$total_host_con_vulnerabilidades_uniq\n\n";
+	print SALIDA "Total vulnerabilidades criticas:; $riesgos_criticos;\n";
+	print SALIDA "Total vulnerabilidades altas:;$riesgos_altos\n";
+	print SALIDA "Total vulnerabilidades medias:;$riesgos_medios\n";
+	print SALIDA "Total vulnerabilidades:;$total_vuln\n\n";
+	print SALIDA "Total vulnerabilidades criticas(unicos):; $total_vuln_criticas;\n";
+	print SALIDA "Total vulnerabilidades altas(unicos):;$total_vuln_altas\n";
+	print SALIDA "Total vulnerabilidades medias(unicos):;$total_vuln_medias\n";
+	print SALIDA "Total vulnerabilidades (unicos):;$total_vuln_uniq\n\n";
 	print SALIDA "\n\n";
 close (SALIDA);
+
 		
 	#print "host_analizados ($host_analizados)\n";   
 	#print "host_con_vulnerabilidades ($host_con_vulnerabilidades)\n";

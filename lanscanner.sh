@@ -6,6 +6,7 @@
 # Adicionar struts check
 # cracker.sh admin/admin  wordpress,joomla,drupal
 # PoC Suite3
+# https://medium.com/tenable-techblog/gpon-home-gateway-rce-threatens-tens-of-thousands-users-c4a17fd25b97
 # Identificar redes con  http://www.ip-calc.com/
 ##
 
@@ -1545,8 +1546,8 @@ then
 		port=`echo $line | cut -f2 -d":"`	
 		echo -e "[+] Escaneando $ip:$port"																	
 		echo -e "\t[+] Enumerando juniper"		
-		juniperXML.pl -url "http://$ip:$port" > logs/enumeracion/$ip-$port-juniperData.txt 2>/dev/null
-		cp logs/enumeracion/$ip-$port-juniperData.txt .enumeracion/$ip-$port-juniperData.txt
+		juniperXML.pl -url "http://$ip:$port" > logs/enumeracion/$ip-juniper-hostname.txt 2>/dev/null
+		cp logs/enumeracion/$ip-juniper-hostname.txt .enumeracion/$ip-juniper-hostname.txt
 																		
 		 echo ""
  	done <.servicios/juniper.txt
@@ -1919,7 +1920,7 @@ then
 				greprc=$?				
 				if [[ $greprc -eq 0 && ! -f .enumeracion/$ip-$port-webarchivos.txt  ]];then # si el banner es Java y no se enumero antes
 					echo -e "\t[+] Revisando directorios y archivos comunes (JSP)"
-					web-buster.pl -t $ip -p $port -h 5 -d / -m tomcat -s 0 -q 1 | egrep --color=never "^200|^301|^302" >> .enumeracion/$ip-$port-webarchivos.txt  &			
+					web-buster.pl -t $ip -p $port -h 5 -d / -m tomcat -s 0 -q 1 | egrep --color=never "^200|^301|^401|^302" >> .enumeracion/$ip-$port-webarchivos.txt  &			
 					web-buster.pl -t $ip -p $port -h 5 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200|^401|^301|^302" >> .enumeracion/$ip-$port-webarchivos.txt  &										
 					sleep 1										
 				fi
@@ -2655,6 +2656,10 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	#phpmyadmin
 	grep --color=never -i admin *webarchivos.txt 2>/dev/null| grep --color=never http | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt
 	
+	#tomcat
+	grep --color=never -i "/manager/html" * 2>/dev/null| grep --color=never http | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt
+	
+	
 	#fortinet
 	grep --color=never -i forti * 2>/dev/null | cut -d "-" -f1 >> ../.servicios/fortinet2.txt
 	sort ../.servicios/fortinet2.txt | uniq > ../.servicios/fortinet.txt
@@ -2692,9 +2697,7 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	grep --color=never -i ZTE * 2>/dev/null | sort | cut -d "-" -f1 | uniq | tr "-" ":" >> ../.servicios/ZTE2.txt
 	sort ../.servicios/ZTE2.txt | uniq > ../.servicios/ZTE.txt 
 	rm ../.servicios/ZTE2.txt
-	
-	#tomcat
-	grep --color=never -i manager * 2>/dev/null| grep --color=never http | awk '{print $2}' | sort | uniq >> ../.servicios/admin-web.txt	
+		
 	
 	#zimbra
 	grep --color=never -i zimbra * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/zimbra.txt		

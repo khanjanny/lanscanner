@@ -90,7 +90,7 @@ echo ""
 
 
 echo -e "$OKBLUE[+] Revisando procesos de perl $RESET"		
-for line in $( ps aux | grep --color=never perl | egrep -v "joomscan|web-buster|getBanners|color|getDomainInfo|mass-scan|smtp-user-enum" | awk '{print $2,$9}' | tr " " ";" ); do
+for line in $( ps aux | grep --color=never perl  | grep -v color | egrep -v "joomscan|web-buster|getBanners|color|getDomainInfo|mass-scan|smtp-user-enum" | awk '{print $2,$9}' | tr " " ";" ); do
 	pid=`echo $line | cut -f1 -d";"`
 	time=`echo $line | cut -f2 -d";"`
     #echo process time: $time
@@ -115,7 +115,7 @@ echo ""
 
 
 echo -e "$OKBLUE[+] Revisando procesos de web-buster $RESET"		
-for line in $( ps aux | grep --color=never web-buster | awk '{print $2,$9}' | tr " " ";" ); do
+for line in $( ps aux | grep --color=never web-buster | grep -v color | awk '{print $2,$9}' | tr " " ";" ); do
 	pid=`echo $line | cut -f1 -d";"`
 	time=`echo $line | cut -f2 -d";"`
     #echo process time: $time
