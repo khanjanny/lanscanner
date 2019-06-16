@@ -800,6 +800,9 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 	
 	#backdoor
 	grep ' 32764/open' nmap-tcp.grep | awk '{print $2}'  >> ../.servicios/backdoor32764.txt
+	
+	#pptp
+	grep ' 1723/open' nmap-tcp.grep | awk '{print $2}'  >> ../.servicios/pptp.txt
 		
 	cd ..
 fi
@@ -821,6 +824,7 @@ if [[ $TYPE = "completo" ]] || [ $udp_escaneando == "s" ]; then
 	grep "500/open/" nmap-udp.grep | awk '{print $2}'  >> ../.servicios/vpn2.txt
 	grep '500/udp' ../.masscan/* 2>/dev/null | cut -d " " -f 6 >> ../.servicios/vpn2.txt
 	sort ../.servicios/vpn2.txt | sort | uniq >../.servicios/vpn.txt; rm ../.servicios/vpn2.txt
+		
 	
 	grep "1604/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1604\n"' >> ../.servicios/citrix.txt
 	grep "1900/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1900\n"' >> ../.servicios/upnp.txt
@@ -1001,6 +1005,23 @@ fi
 
 
 
+if [ -f .servicios/pptp.txt ]
+then
+	echo -e "$OKBLUE #################### pptp (`wc -l .servicios/pptp.txt`) ######################$RESET"
+	for line in $(cat .servicios/pptp.txt); do
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"`		
+		echo -e "[+] Escaneando $ip"
+		touch pass.txt
+		echo "thc-pptp-bruter -u 'hn_csm' -n 4 $ip < pass.txt"  > logs/enumeracion/$ip-pptp-hostname.txt 2>/dev/null 
+		thc-pptp-bruter -u 'hn_csm' -n 4 $ip < pass.txt  >> logs/enumeracion/$ip-pptp-hostname.txt 2>/dev/null 
+		grep "Hostname" logs/enumeracion/$ip-pptp-hostname.txt > .enumeracion/$ip-pptp-hostname.txt 				
+		rm pass.txt
+	done
+	
+	#insert clean data	
+	insert_data	
+fi
 
 if [ -f .servicios/mongoDB.txt ]
 then
@@ -1218,8 +1239,7 @@ then
 			echo -e "\t$OKRED[!] Modo agresivo detectado \n $RESET"
 			echo $ike > .enumeracion/$ip-vpn-transforms.txt
 			cp .enumeracion/$ip-vpn-transforms.txt logs/enumeracion/$ip-vpn-transforms.txt					
-			ike-scan -A -M --pskcrack=.vulnerabilidades/$ip-vpn-handshake.txt $ip > logs/vulnerabilidades/$ip-vpn-agresivo.txt 2>/dev/null ;			
-			grep "1 returned handshake" logs/vulnerabilidades/$ip-vpn-agresivo.txt
+			ike-scan --aggressive --multiline --id=vpn --pskcrack=.vulnerabilidades/$ip-vpn-handshake.txt $ip > logs/vulnerabilidades/$ip-vpn-agresivo.txt 2>/dev/null ;						
 		fi			
 	done
 	#insert clean data	
