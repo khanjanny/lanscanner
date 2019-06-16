@@ -66,12 +66,12 @@ function insert_data () {
 print_ascii_art
 
 
-while getopts ":t:a:s:d:o:" OPTIONS
+while getopts ":t:i:s:d:o:" OPTIONS
 do
             case $OPTIONS in
             t)     TYPE=$OPTARG;;
             s)     SUBNET_FILE=$OPTARG;;
-            a)     FILE=$OPTARG;;
+            i)     FILE=$OPTARG;;
             d)     DOMAIN=$OPTARG;;
             o)     OFFSEC=$OPTARG;;
             ?)     printf "Opcion invalida: -$OPTARG\n" $0
@@ -96,15 +96,15 @@ Opciones:
 -t : Tipo de escaneo [completo/parcial]
 -d : dominio
 
-Definicion del alcance (opcional):
+Definicion del alcance:
 	-s : Lista con las subredes a escanear (Formato CIDR 0.0.0.0/24)
-	-f : Lista con las IP a escanear
+	-i : Lista con las IP a escanear
 
 Ejemplo 1: Escanear la red local (completo)
 	lanscanner.sh -t completo -d ejemplo.com
 
 Ejemplo 2: Escanear el listado de IPs (completo)
-	lanscanner.sh -t completo -a lista.txt -d ejemplo.com
+	lanscanner.sh -t completo -i lista.txt -d ejemplo.com
 
 Ejemplo 3: Escanear el listadado de subredes (completo)
 	lanscanner.sh -t completo -s subredes.txt -d ejemplo.com
