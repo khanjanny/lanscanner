@@ -1729,7 +1729,7 @@ then
 							#######  clone site (domain) ####### 									
 							cd webClone
 								echo -e "\t\t[+] Clonando sitio ($subdominio)"	
-								wget -m -k -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp  -T 5 -t 1 -K -E  http://$subdominio
+								wget -mirror --convert-links -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp --exclude-directories /calendar,/noticias --timeout=5 --tries=1 --adjust-extension  --level=3 --no-check-certificate http://$subdominio
 								rm index.html.orig 2>/dev/null
 							cd ..										
 							###################################							
@@ -1740,6 +1740,7 @@ then
 					
 					#######  extract URLs ####### 
 					cd webClone
+						echo -e "\t\t[+] Extrayendo URL de los sitios clonados"	
 						grep --color=never -irao "http://[^ ]*"  * | cut -d ":" -f3 | grep --color=never -ia "$DOMAIN" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > http.txt 				     
 						lines=`wc -l http.txt  | cut -d " " -f1`
 						perl -E "say \"http://\n\" x $lines" > prefijo.txt # file with the domain (n times)
@@ -1751,6 +1752,49 @@ then
 						perl -E "say \"https://\n\" x $lines" > prefijo.txt # file with the domain (n times)
 						paste -d '' prefijo.txt https.txt >> ../logs/enumeracion/$DOMAIN-web-wget2.txt  # adicionar https:// a cada linea
 						rm https.txt
+						
+						# buscar archivos sin extension
+						find . -type f ! \( -iname \*.pdf -o -iname \*.html -o -iname \*.htm -o -iname \*.doc -o -iname \*.docx -o -iname \*.xls -o -iname \*.ppt -o -iname \*.pptx -o -iname \*.xlsx -o -iname \*.js -o -iname \*.css -o -iname \*.orig \) > archivos-sin-extension.txt
+						contador=1
+						mkdir documentos_renombrados
+						for archivo in `cat archivos-sin-extension.txt`;
+						do 		
+							tipo_archivo=`file $archivo`
+							# tipos de archivos : https://docs.microsoft.com/en-us/previous-versions//cc179224(v=technet.10)
+							if [[ ${tipo_archivo} == *"PDF"*  ]];then 													
+								mv $archivo documentos_renombrados/$contador.pdf 
+							fi		
+	 
+							if [[ ${tipo_archivo} == *"Creating Application: Microsoft Word"*  ]];then 												
+								mv $archivo documentos_renombrados/$contador.doc 
+							fi		
+		
+							if [[ ${tipo_archivo} == *"Microsoft Word 2007"*  ]];then 												
+								mv $archivo documentos_renombrados/$contador.docx 
+							fi		
+	 
+							if [[ ${tipo_archivo} == *"Creating Application: Microsoft Excel"*  ]];then 				
+								mv $archivo documentos_renombrados/$contador.xls 
+							fi				 
+	 
+							if [[ ${tipo_archivo} == *"Office Excel 2007"*  ]];then 							
+								mv $archivo documentos_renombrados/$contador.xlsx 
+							fi			 	
+	 		 
+							if [[ ${tipo_archivo} == *"Creating Application: Microsoft PowerPoint"*  ]];then 								
+								mv $archivo documentos_renombrados/$contador.ppt 
+							fi			 
+	 		 
+							if [[ ${tipo_archivo} == *"Office PowerPoint 2007"*  ]];then 				
+								mv $archivo documentos_renombrados/$contador.pptx 
+							fi		
+	 
+							if [[ ${tipo_archivo} == *"RAR archive data"*  ]];then 						
+								mv $archivo documentos_renombrados/$contador.rar 
+							fi		
+							let "contador=contador+1"	 
+						done # fin revisar archivos sin extension
+
 					cd ../
 					###################################				    
 					#done 					
@@ -2071,9 +2115,15 @@ then
 						
 							#######  clone site (domain) ####### 						
 							cd webClone
-								echo -e "\t\t[+] Clonando sitio"	
-								wget -m -k -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp -T 5 -t 1 -K -E  https://$subdominio
-								rm index.html.orig 2>/dev/null
+								echo -e "\t\t[+] Clonando sitio"
+								
+								if [ -d "$subdominio" ]; then
+									echo -e "\t\t[+] Ya clonamos este sitio"
+								else
+									wget -mirror --convert-links -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp --exclude-directories /calendar,/noticias --timeout=5 --tries=1 --adjust-extension  --level=3 --no-check-certificate https://$subdominio
+									rm index.html.orig 2>/dev/null
+								fi
+								
 							cd ..						
 							###################################												
 						else
