@@ -90,7 +90,7 @@ echo ""
 
 
 echo -e "$OKBLUE[+] Revisando procesos de perl $RESET"		
-for line in $( ps aux | grep --color=never perl  | grep -v color | egrep -v "joomscan|web-buster|getBanners|color|getDomainInfo|mass-scan|smtp-user-enum" | awk '{print $2,$9}' | tr " " ";" ); do
+for line in $( ps aux | grep --color=never perl  | grep -v color | egrep -v "passWeb|joomscan|web-buster|getBanners|color|getDomainInfo|mass-scan|smtp-user-enum" | awk '{print $2,$9}' | tr " " ";" ); do
 	pid=`echo $line | cut -f1 -d";"`
 	time=`echo $line | cut -f2 -d";"`
     #echo process time: $time
@@ -186,8 +186,8 @@ for line in $( ps aux | grep --color=never masscan | grep -v color | awk '{print
 done
 echo ""
 
-echo -e "$OKBLUE[+] Revisando procesos de reaver $RESET"		
-for line in $( ps aux | grep --color=never reaver | grep -v color | awk '{print $2,$9}' | tr " " ";" ); do
+echo -e "$OKBLUE[+] Revisando procesos de reaver/snmp $RESET"		
+for line in $( ps aux | egrep --color=never "reaver|snmp" | grep -v color | awk '{print $2,$9}' | tr " " ";" ); do
 	pid=`echo $line | cut -f1 -d";"`
 	time=`echo $line | cut -f2 -d";"`
     #echo process time: $time
