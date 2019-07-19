@@ -75,9 +75,13 @@ my $total_vuln_criticas = 0;
 my $total_vuln_altas = 0;
 my $total_vuln_medias = 0;
 
-my $riesgos_criticos = 0;
-my $riesgos_altos = 0;
-my $riesgos_medios = 0;
+my $host_afectados_vulCriticas = 0;
+my $host_afectados_vulAltas = 0;
+my $host_afectados_vulMedias = 0;
+
+my $vulnerabilidades_criticas = 0;
+my $vulnerabilidades_altas = 0;
+my $vulnerabilidades_medias = 0;
 
 for my $resultados_db (@resultados_array)
 {
@@ -148,13 +152,13 @@ for my $resultados_db (@resultados_array)
 	my $vul_criticas = $row[0];
 	$total_vuln_criticas = $total_vuln_criticas + $vul_criticas;	
 
-	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='archivosPeligrosos' or tipo ='compartidoNFS' or tipo ='BlueKeep' or tipo ='compartidoSMB' or tipo ='passwordHost' or tipo ='logeoRemoto' or tipo ='heartbleed' or tipo ='adminPassword' or tipo ='rootPassword' or tipo ='ciscoPassword' or tipo ='passwordMikroTik' or tipo ='VNCnopass' or tipo ='VNCbypass' or tipo ='vulnDahua';");
+	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='archivosPeligrosos' or tipo ='compartidoNFS' or tipo ='BlueKeep' or tipo ='compartidoSMB' or tipo ='passwordHost' or tipo ='logeoRemoto' or tipo ='heartbleed' or tipo ='adminPassword' or tipo ='rootPassword' or tipo ='ciscoPassword' or tipo ='passwordMikroTik' or tipo ='VNCnopass' or tipo ='VNCbypass' or tipo ='vulnDahua' or tipo ='openrelay';");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_altos = $row[0];
 	$total_vuln_altas = $total_vuln_altas + $vul_altos;	
 
-	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='phpinfo' or tipo ='slowloris' or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='spoof' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL';");
+	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='phpinfo' or tipo ='slowloris' or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='spoof' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL'  or tipo ='malware' ;");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_medios = $row[0];
@@ -201,9 +205,9 @@ for my $resultados_db (@resultados_array)
 	     
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}  
@@ -224,9 +228,9 @@ for my $resultados_db (@resultados_array)
 	     
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}  
@@ -250,9 +254,9 @@ for my $resultados_db (@resultados_array)
 				
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}  
@@ -271,9 +275,9 @@ for my $resultados_db (@resultados_array)
 				
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}  
@@ -288,9 +292,9 @@ for my $resultados_db (@resultados_array)
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}  
@@ -307,9 +311,9 @@ for my $resultados_db (@resultados_array)
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}  
@@ -328,34 +332,37 @@ for my $resultados_db (@resultados_array)
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}  
 		}      	
-      	
-      	
-      	if ($cod eq "passwordDefecto") 
+      	      	
+      	if (($cod eq "passwordDefecto") || ($cod eq "passwordAdivinado"))
 		{
 			while (my @row = $sth->fetchrow_array) {     		 				
 				$ip = $row[0];	
-				$port = $row[1];	
+				$port = $row[1];				
 				$vuln_detalles = $row[3];	 	            								
+				#ACCOUNT FOUND: [telnet] Host: 192.168.6.1 User: admin Password:  [SUCCESS]
+				$vuln_detalles =~ s/ACCOUNT FOUND://g; 
+				$vuln_detalles =~ s/Password encontrado://g; 
+				$vuln_detalles =~ s/\[SUCCESS\]//g; 				
 				$hosts = $hosts." $ip:$port ".$vuln_detalles."<br>";
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}  
 		}
       	
-   	if (($cod eq "mailPass") || ($cod eq "erroresWeb") || ($cod eq "ACL") || ($cod eq "ACL") )
+   	if (($cod eq "mailPass") || ($cod eq "erroresWeb") || ($cod eq "ACL")  )
 		{
 			while (my @row = $sth->fetchrow_array) {     		 				
 				$ip = $row[0];
@@ -367,9 +374,9 @@ for my $resultados_db (@resultados_array)
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}  
@@ -377,7 +384,7 @@ for my $resultados_db (@resultados_array)
    
 
    
-		if (($cod eq "googlehacking") || ($cod eq "listadoDirectorio") || ($cod eq "phpmyadminPassword"))
+		if (($cod eq "googlehacking") || ($cod eq "listadoDirectorio") || ($cod eq "phpmyadminPassword") )
 		{
 				while (my @row = $sth->fetchrow_array) {     		 
 				#	Users                                             	READ ONLY
@@ -385,17 +392,20 @@ for my $resultados_db (@resultados_array)
 				$ip = $row[0];	
 				$vuln_detalles = $row[3];	 	            	     
 				$vuln_detalles =~ s/http/<br>http/g;
+				$vuln_detalles =~ s/Password encontrado://g;
 				$hosts = $hosts." $vuln_detalles <br>";
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}  
 		}
+		
+		
    
 		if ($cod =~ m/snmpCommunity/) 
 		{
@@ -410,9 +420,9 @@ for my $resultados_db (@resultados_array)
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}       
@@ -430,9 +440,9 @@ for my $resultados_db (@resultados_array)
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}       
@@ -453,9 +463,9 @@ for my $resultados_db (@resultados_array)
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}       
@@ -477,9 +487,9 @@ for my $resultados_db (@resultados_array)
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}       
@@ -501,15 +511,15 @@ for my $resultados_db (@resultados_array)
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 				#############################################
 			}       
 		}
    
-		if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "enum4linux")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "transferenciaDNS") || ($cod eq "listadoDirectorio")  || ($cod eq "vrfy") || ($cod eq "anonymous") || ($cod eq "openstreaming") || ($cod eq "modoAgresivo")  || ($cod eq "zimbraXXE") || ($cod eq "BlueKeep"))
+		if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "enum4linux")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "transferenciaDNS") || ($cod eq "listadoDirectorio")  || ($cod eq "vrfy") || ($cod eq "anonymous") || ($cod eq "openstreaming") || ($cod eq "modoAgresivo")  || ($cod eq "zimbraXXE") || ($cod eq "BlueKeep") || ($cod eq "slowloris") || ($cod eq "openresolver") || ($cod eq "openrelay") || ($cod eq "malware") ) 
 		{
 			#$hosts = "<table border='0' cellspacing='10'><tr>";	 	
 		
@@ -526,9 +536,9 @@ for my $resultados_db (@resultados_array)
       
 			##### Contabilizar nivel de riesgos ######
 			switch ($riesgo) {    	
-					case "Crítico"	{ $riesgos_criticos++ }
-					case "Alto"	{ $riesgos_altos++ }
-					case "Medio"	{ $riesgos_medios++ }
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
 				}
 			#############################################
 			}	   
@@ -586,15 +596,15 @@ for my $resultados_db (@resultados_array)
 	} #for 
 } # fin for
 
-my $total_vuln = $riesgos_criticos + $riesgos_altos + $riesgos_medios;
+my $total_vuln = $host_afectados_vulCriticas + $host_afectados_vulAltas + $host_afectados_vulMedias;
 my $total_vuln_uniq = $total_vuln_criticas + $total_vuln_altas + $total_vuln_medias;
 open (SALIDA,">>reporte.csv") || die "ERROR: No puedo abrir el fichero google.html\n";
 	print SALIDA "\n\nTotal hosts analizados:;$total_host_analizados\n";
 	print SALIDA "Vulnerabilidades identificadas descritas en reporte tecnico:;$total_host_con_vulnerabilidades\n";
 	print SALIDA "Vulnerabilidades identificadas descritas en reporte tecnico (host unicos):;$total_host_con_vulnerabilidades_uniq\n\n";
-	print SALIDA "Total vulnerabilidades criticas:; $riesgos_criticos;\n";
-	print SALIDA "Total vulnerabilidades altas:;$riesgos_altos\n";
-	print SALIDA "Total vulnerabilidades medias:;$riesgos_medios\n";
+	print SALIDA "Total vulnerabilidades criticas:; $host_afectados_vulCriticas;\n";
+	print SALIDA "Total vulnerabilidades altas:;$host_afectados_vulAltas\n";
+	print SALIDA "Total vulnerabilidades medias:;$host_afectados_vulMedias\n";
 	print SALIDA "Total vulnerabilidades:;$total_vuln\n\n";
 	print SALIDA "Total vulnerabilidades criticas(unicos):; $total_vuln_criticas;\n";
 	print SALIDA "Total vulnerabilidades altas(unicos):;$total_vuln_altas\n";
@@ -607,7 +617,7 @@ close (SALIDA);
 	#print "host_analizados ($host_analizados)\n";   
 	#print "host_con_vulnerabilidades ($host_con_vulnerabilidades)\n";
 	#print "host_con_vulnerabilidades_uniq ($host_con_vulnerabilidades_uniq)\n";
-	#print "riesgos_criticos ($riesgos_criticos)\n";
-	#print "riesgos_altos ($riesgos_altos)\n";
-	#print "riesgos_medios ($riesgos_medios)\n";
+	#print "riesgos_criticos ($host_afectados_vulCriticas)\n";
+	#print "riesgos_altos ($host_afectados_vulAltas)\n";
+	#print "riesgos_medios ($host_afectados_vulMedias)\n";
 	#$dbh->disconnect;

