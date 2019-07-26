@@ -1,0 +1,15 @@
+pluginbase
+html5lib
+
+[dev]
+prospector
+
+[docs]
+Sphinx
+
+[test]
+httpretty
+coverage
+coveralls
+python-coveralls
+nose
