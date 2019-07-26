@@ -158,7 +158,7 @@ for my $resultados_db (@resultados_array)
 	my $vul_altos = $row[0];
 	$total_vuln_altas = $total_vuln_altas + $vul_altos;	
 
-	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='phpinfo' or tipo ='slowloris' or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='spoof' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL'  or tipo ='malware' ;");
+	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='divulgacionInformacion' or tipo ='slowloris' or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='spoof' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL'  or tipo ='malware' ;");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_medios = $row[0];
@@ -448,7 +448,7 @@ for my $resultados_db (@resultados_array)
 			}       
 		}
 		
-		if ($cod =~ m/phpinfo/) 
+		if ($cod =~ m/divulgacionInformacion/) 
 		{
 				while (my @row = $sth->fetchrow_array) {     		 
 				#	Users                                             	READ ONLY
@@ -519,7 +519,7 @@ for my $resultados_db (@resultados_array)
 			}       
 		}
    
-		if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "enum4linux")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "transferenciaDNS") || ($cod eq "listadoDirectorio")  || ($cod eq "vrfy") || ($cod eq "anonymous") || ($cod eq "openstreaming") || ($cod eq "modoAgresivo")  || ($cod eq "zimbraXXE") || ($cod eq "BlueKeep") || ($cod eq "slowloris") || ($cod eq "openresolver") || ($cod eq "openrelay") || ($cod eq "malware") ) 
+		if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "enum4linux")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "transferenciaDNS") || ($cod eq "listadoDirectorio")  || ($cod eq "vrfy") || ($cod eq "anonymous") || ($cod eq "openstreaming") || ($cod eq "modoAgresivo")  || ($cod eq "zimbraXXE") || ($cod eq "BlueKeep") || ($cod eq "slowloris") || ($cod eq "openresolver") || ($cod eq "openrelay") || ($cod eq "malware") || ($cod eq "CVE15473") )   
 		{
 			#$hosts = "<table border='0' cellspacing='10'><tr>";	 	
 		

@@ -186,8 +186,8 @@ for line in $( ps aux | grep --color=never masscan | grep -v color | awk '{print
 done
 echo ""
 
-echo -e "$OKBLUE[+] Revisando procesos de reaver/snmp $RESET"		
-for line in $( ps aux | egrep --color=never "reaver|snmp" | grep -v color | awk '{print $2,$9}' | tr " " ";" ); do
+echo -e "$OKBLUE[+] Revisando procesos de reaver/snmp/pptp $RESET"		
+for line in $( ps aux | egrep --color=never "reaver|snmp|pptp" | grep -v color | awk '{print $2,$9}' | tr " " ";" ); do
 	pid=`echo $line | cut -f1 -d";"`
 	time=`echo $line | cut -f2 -d";"`
     #echo process time: $time

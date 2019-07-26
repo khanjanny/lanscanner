@@ -75,6 +75,14 @@ bash instalar.sh
 echo ""
 cd ../
 
+
+
+echo -e "${RED}[+]${GREEN} Instalando wafw00f ${RESET}"
+cd wafw00f
+python setup.py install
+echo ""
+cd ../
+
 echo -e "${GREEN} [+] Modificando PATH ${RESET}"
 echo export PATH="$PATH:/usr/bin/pentest" >> ~/.bashrc
 echo export PATH="$PATH:/usr/bin/pentest" >> ~/.zshrc

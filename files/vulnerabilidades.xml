@@ -299,13 +299,13 @@
   </vuln>
      
   <vuln>
-	<cod>phpinfo</cod>  
-    <nombre>Configuración incorrecta de seguridad (PHP).</nombre>
+	<cod>divulgacionInformacion</cod>  
+    <nombre>Configuración incorrecta de seguridad.</nombre>
     <riesgo>Medio</riesgo>
-    <descripcion>  El archivo phpinfo expone datos como versiones exactas de PHP, módulos cargados, nombre del servidor, etc.</descripcion>
+    <descripcion>  El archivos que exponen datos del servidor como versiones exactas de PHP, módulos cargados, direcciones IP, etc.</descripcion>
     <verificacion> Herramienta: wget SALTOLINEA
-					wget "URL-phpinfo" </verificacion>
-   <recomendacion> Eliminar el archivo SCRIPT_FILENAME </recomendacion> 
+					wget "URL" </verificacion>
+   <recomendacion> Eliminar los archivos </recomendacion> 
   </vuln>
    
   <vuln>
@@ -407,6 +407,15 @@
     <riesgo>Medio</riesgo>
     <descripcion>El servidor de correo no está configurado de manera segura y se puede realizar la enumeración de usuarios. </descripcion>
    <recomendacion>Deshabilitar el comando VRFY. Puede seguir el tutorial: http://www.elmundoenbits.com/2014/10/vrfy-postfix-account.html </recomendacion> 
+  </vuln>  
+  
+  <vuln>
+	<cod>CVE15473</cod>  
+    <nombre>Enumeración de usuarios SSH.</nombre>
+    <riesgo>Medio</riesgo>
+    <descripcion> Un atacante remoto podría probar fácilmente si un determinado usuario existe o no (enumeración de nombres de usuario). Vulnerabilidad identificada como CVE-2018-15473. </descripcion>
+    <verificacion> enumeracionUsuariosSSH.py --username root 1.2.3.4  </verificacion>
+   <recomendacion> Actualizar a la última versión del servidor OpenSSH. </recomendacion> 
   </vuln>  
   
   <vuln>

