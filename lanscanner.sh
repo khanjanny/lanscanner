@@ -1671,7 +1671,7 @@ then
 					lista_subdominios=`grep $ip -a $prefijo$FILE | cut -d "," -f2`
 					for subdominio in $lista_subdominios; do													
 						echo -e "\t[+] subdominio: $subdominio"							
-						egrep -qi "302 Found|500 Proxy Error|HTTPSredirect" .enumeracion/"$subdominio"_"$port"_webData.txt
+						egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect" .enumeracion/"$subdominio"_"$port"_webData.txt
 						greprc=$?	
 						if [[ $greprc -eq 1 ]];then # no redirecciona a otro dominio o es error de proxy
 																				
@@ -1850,7 +1850,7 @@ then
 				
 				
 				#################  Realizar el escaneo por IP  ##############	
-				egrep -qi "302 Found|500 Proxy Error|HTTPSredirect" .enumeracion/"$ip"_"$port"_webData.txt
+				egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect" .enumeracion/"$ip"_"$port"_webData.txt
 				greprc=$?	
 				if [[ $greprc -eq 1 ]];then # no redirecciona o es error de proxy
 				
@@ -1896,7 +1896,7 @@ then
 						
 						echo -e "\t[+] Revisando directorios comunes ($ip -IIS)"
 						web-buster.pl -t $ip -p $port -h 2 -d / -m directorios -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/"$ip"_"$port"_webarchivos.txt  &
-						slee	p 2
+						sleep 2
 						echo -e "\t[+] Revisando paneles administrativos ($ip -IIS)"
 						web-buster.pl -t $ip -p $port -h 2 -d / -m admin -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/"$ip"_"$port"_webarchivos.txt 
 						sleep 2
@@ -2096,7 +2096,7 @@ then
 					lista_subdominios=`grep $ip -a $prefijo$FILE | cut -d "," -f2`
 					for subdominio in $lista_subdominios; do
 						echo -e "\t[+] subdominio: $subdominio"	
-						egrep -iq "302 Found|500 Proxy Error|HTTPSredirect" .enumeracion/"$subdominio"_"$port"_webData.txt
+						egrep -iq "500 Proxy Error" .enumeracion/"$subdominio"_"$port"_webData.txt
 						greprc=$?
 						if [[ $greprc -eq 1 ]];then # no redirecciona a otro dominio o es error de proxy							
 														
@@ -2257,7 +2257,7 @@ then
 				################################
 				
 				############### Escaneo por IP ############
-				egrep -qi "302 Found|500 Proxy Error|HTTPSredirect" .enumeracion/"$ip"_"$port"_webData.txt
+				egrep -qi "500 Proxy Error" .enumeracion/"$ip"_"$port"_webData.txt
 				greprc=$?	
 				if [[ $greprc -eq 1 ]];then # no redirecciona o es error de proxy																
 					
