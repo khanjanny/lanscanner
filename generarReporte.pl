@@ -171,12 +171,28 @@ for my $resultados_db (@resultados_array)
      
 		my $cod = $vulnerabilidades->{vuln}->[$i]->{cod};     
 		my $nombre = $vulnerabilidades->{vuln}->[$i]->{nombre};
-		my $riesgo = $vulnerabilidades->{vuln}->[$i]->{riesgo};     
-		my $descripcion = $vulnerabilidades->{vuln}->[$i]->{descripcion};     
+		my $riesgoAgetic = $vulnerabilidades->{vuln}->[$i]->{riesgoAgetic};        
+		my $descripcion = $vulnerabilidades->{vuln}->[$i]->{descripcion}; 
+		my $detalles = $vulnerabilidades->{vuln}->[$i]->{detalles}; 
+		    
+		
+		my $probabilidad = $vulnerabilidades->{vuln}->[$i]->{probabilidad};     
+		my $impacto = $vulnerabilidades->{vuln}->[$i]->{impacto};     
+		my $riesgoInforme = $vulnerabilidades->{vuln}->[$i]->{riesgoInforme};     
+		
+		my $agente_amenaza = $vulnerabilidades->{vuln}->[$i]->{agente_amenaza};
+		my $impacto_tecnico = $vulnerabilidades->{vuln}->[$i]->{impacto_tecnico};     
+		my $impacto_negocio = $vulnerabilidades->{vuln}->[$i]->{impacto_negocio};     
+		
+		my $referencias = $vulnerabilidades->{vuln}->[$i]->{referencias};     
+		
+		$referencias =~ s/SALTOLINEA//g; 
+		
 		my $recomendacion = $vulnerabilidades->{vuln}->[$i]->{recomendacion};		
 		$recomendacion =~ s/DOMINIOENTIDAD/$dominio/g; 				
 		$recomendacion =~ s/SALTOLINEA/<br>/g; 
 		$recomendacion =~ s/AMPERSAND/\&/g; 
+		
 		my $verificacion = $vulnerabilidades->{vuln}->[$i]->{verificacion}; 		
    		$verificacion =~ s/SALTOLINEA/<br>/g; 
 		$verificacion =~ s/AMPERSAND/\&/g; 		
@@ -204,7 +220,7 @@ for my $resultados_db (@resultados_array)
 				$filas++;
 	     
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -227,7 +243,7 @@ for my $resultados_db (@resultados_array)
 				$filas++;
 	     
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -253,7 +269,7 @@ for my $resultados_db (@resultados_array)
 				$filas++;
 				
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -274,7 +290,7 @@ for my $resultados_db (@resultados_array)
 				$filas++;
 				
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -291,7 +307,7 @@ for my $resultados_db (@resultados_array)
 				$hosts = $hosts." $ip ($vuln_detalles) <br>";
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -310,7 +326,7 @@ for my $resultados_db (@resultados_array)
 				$hosts = $hosts.$vuln_detalles."<br>";
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -331,7 +347,7 @@ for my $resultados_db (@resultados_array)
 				$hosts = $hosts."\\\\$ip <br>    $vuln_detalles <br>";
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -353,7 +369,7 @@ for my $resultados_db (@resultados_array)
 				$hosts = $hosts." $ip:$port ".$vuln_detalles."<br>";
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -373,7 +389,7 @@ for my $resultados_db (@resultados_array)
 				$hosts = $hosts.$vuln_detalles."<br>";
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -384,7 +400,7 @@ for my $resultados_db (@resultados_array)
    
 
    
-		if (($cod eq "googlehacking") || ($cod eq "listadoDirectorio") || ($cod eq "phpmyadminPassword") )
+		if (($cod eq "googlehacking") || ($cod eq "phpmyadminPassword") )
 		{
 				while (my @row = $sth->fetchrow_array) {     		 
 				#	Users                                             	READ ONLY
@@ -396,7 +412,35 @@ for my $resultados_db (@resultados_array)
 				$hosts = $hosts." $vuln_detalles <br>";
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
+				}
+				#############################################
+			}  
+		}
+		
+		if (($cod eq "listadoDirectorio") || ($cod eq "divulgacionInformacion") )		
+		{
+				while (my @row = $sth->fetchrow_array) {     		 
+				#	Users                                             	READ ONLY
+		
+				$ip = $row[0];	
+				$port = $row[1];	
+				$vuln_detalles = $row[3];	
+				
+				if($vuln_detalles =~ /index/i)
+					{
+					$hosts = $hosts." http://$ip:$port <br>" if ($port eq "80" ||  $port eq "81" ||  $port eq "82" ||  $port eq "83" ||  $port eq "84" ||  $port eq "85" ||  $port eq "86" ||  $port eq "8080" ||  $port eq "8081" ||  $port eq "8082"  || $port eq "8010"  ||  $port eq "8800");
+					$hosts = $hosts." https://$ip:$port <br>" if ($port eq "443" ||  $port eq "8443" ||  $port eq "4443" ||  $port eq "4433" );
+					}
+				else
+					{$vuln_detalles =~ s/200 //g; ;$hosts = $hosts." $vuln_detalles <br>";}
+								 	            	     							
+				$filas++;
+				##### Contabilizar nivel de riesgos ######
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -419,7 +463,7 @@ for my $resultados_db (@resultados_array)
 				$hosts = $hosts."$ip: $community_string <br>";
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -439,7 +483,7 @@ for my $resultados_db (@resultados_array)
 				$hosts = $hosts." $url_shellsock <br>";
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -448,29 +492,7 @@ for my $resultados_db (@resultados_array)
 			}       
 		}
 		
-		if ($cod =~ m/divulgacionInformacion/) 
-		{
-				while (my @row = $sth->fetchrow_array) {     		 
-				#	Users                                             	READ ONLY
-		
-				$ip = $row[0];	
-				$vuln_detalles = $row[3];	
-				my $file = `echo '$vuln_detalles' |grep --color=never "SCRIPT_FILENAME"`;
-				$hosts = $ip;
-				$file =~ s/PATH \(SCRIPT_FILENAME\)://g; 
-				$recomendacion =~ s/SCRIPT_FILENAME/$file/g; 				
-				$verificacion =~ s/IP/$ip/g; 
-				$filas++;
-				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
-					case "Crítico"	{ $host_afectados_vulCriticas++ }
-					case "Alto"	{ $host_afectados_vulAltas++ }
-					case "Medio"	{ $host_afectados_vulMedias++ }
-				}
-				#############################################
-			}       
-		}
-				
+	
 		
 		if ($cod =~ m/webdav/) 
 		{
@@ -486,7 +508,7 @@ for my $resultados_db (@resultados_array)
 				$hosts = $hosts." $url_webdav <br>";
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -503,14 +525,11 @@ for my $resultados_db (@resultados_array)
 		
 				$ip = $row[0];	
 				$vuln_detalles = $row[3];	
-				#200	https://sigec.fonadin.gob.bo:443/.git/	, 
-				my @vuln_detalles_array = split("\t",$vuln_detalles);	     
-				my $current_url = @vuln_detalles_array[1];	     
-	     
-				$hosts = $hosts." $current_url <br>";
+				#https://sigec.fonadin.gob.bo:443/.git/	, 				    	    
+				$hosts = $hosts." $vuln_detalles <br>";
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
-				switch ($riesgo) {    	
+				switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -535,7 +554,7 @@ for my $resultados_db (@resultados_array)
 			$filas++;
       
 			##### Contabilizar nivel de riesgos ######
-			switch ($riesgo) {    	
+			switch ($riesgoAgetic) {    	
 					case "Crítico"	{ $host_afectados_vulCriticas++ }
 					case "Alto"	{ $host_afectados_vulAltas++ }
 					case "Medio"	{ $host_afectados_vulMedias++ }
@@ -551,17 +570,9 @@ for my $resultados_db (@resultados_array)
 		{	   
 				print "cod $cod\n";
 				print "nombre $nombre\n\n";
-		
-			#    open (SALIDA,">>reporte.csv") || die "ERROR: No puedo abrir el fichero google.html\n";
-			#		print SALIDA "Nombre:;$nombre\n";
-				#print SALIDA "Riesgo:;$riesgo\n";
-				#print SALIDA "Descripcion:;$descripcion\n";
-				#print SALIDA "Evidencia;Evidencia $contador;\n";
-				#print SALIDA "Recomendacion:;$recomendacion\n";
-				#print SALIDA "Hosts:;$hosts\n";
-				#print SALIDA "\n\n";
-				#close (SALIDA);
-		
+				
+			
+						
 				open (SALIDA_HTML,">>reporte.html") || die "ERROR: No puedo abrir el fichero reporte.html\n";
 				print SALIDA_HTML "<div class='simditor-table'> <table border=1>  <colgroup><col width='20%'><col width='80%'></colgroup>\n";		
 				open (SALIDA_HTML,">>reporte.html") || die "ERROR: No puedo abrir el fichero reporte.html\n";
@@ -581,7 +592,7 @@ for my $resultados_db (@resultados_array)
 				print SALIDA_HTML "<td class='' style='text-align: justify;'>Evidencia:</td><td class='' style='text-align: justify;'> Evidencia $contador</td>\n";
 				print SALIDA_HTML "</tr>\n";	
 				print SALIDA_HTML "<tr>\n";	
-				print SALIDA_HTML "<td class='' style='text-align: justify;'>Verificación:</td><td class='' style='text-align: justify;'> $verificacion</td>\n";
+				print SALIDA_HTML "<td class='' style='text-align: justify;'>Verificación:</td><td class='' style='text-align: justify;'> $verificacion</td>\n" if ($verificacion ne "");
 				print SALIDA_HTML "</tr>\n";	
 				print SALIDA_HTML "<tr>\n";	
 				print SALIDA_HTML "<td class='' style='text-align: justify;'>Recomendación:</td><td class='' style='text-align: justify;'>$recomendacion</td>\n";
@@ -591,14 +602,42 @@ for my $resultados_db (@resultados_array)
 				print SALIDA_HTML "</tr>\n";										
 				print SALIDA_HTML "</table></div>\n<div><br></div> <p></p> \n\n";	
 				close (SALIDA_HTML);
-				$contador++;
+								
+				$hosts =~ s/<br>//g;
+				$hosts =~ s/\n<br>/\n/g;
+				$hosts =~ s/&nbsp;&nbsp;&nbsp;/\t/g;
+				$hosts =~ s/<\/tr><\/table>//g;			
+				$hosts =~ s/\n\n/\n/g;
+				$nombre= uc $nombre;
+				
+				
+				$recomendacion =~ s/<br>//g;
+				print "hosts ($hosts) \n";
+				open (SALIDA_CSV,">>reporte.csv") || die "ERROR: No puedo abrir el reporte.csv\n";			
+				print SALIDA_CSV "$contador|$nombre\n";	
+				print SALIDA_CSV "||\n";	
+				print SALIDA_CSV "$agente_amenaza|$impacto_tecnico|$impacto_negocio\n";	
+				print SALIDA_CSV "ANALISIS DE RIESGO\n";	
+				print SALIDA_CSV "PROBABILIDAD: $probabilidad|IMPACTO: $impacto|RIESGO: $riesgoInforme\n";	
+				print SALIDA_CSV "DETALLES DE LA PRUEBA\n";	
+				print SALIDA_CSV "Host afectados:|\"$hosts\"\n";	
+				print SALIDA_CSV "\"$detalles\"\n";	
+				print SALIDA_CSV "CONTRAMEDIDAS\n";	
+				print SALIDA_CSV "\"$recomendacion\"\n";	
+				print SALIDA_CSV "REFERENCIAS\n";	
+				print SALIDA_CSV "$referencias\n";	
+				print SALIDA_CSV "\n";	
+				print SALIDA_CSV "\n";								
+				close (SALIDA_CSV);
+				
+				$contador++;#contador vulnerabilidades
 		}#if filas    
 	} #for 
 } # fin for
 
 my $total_vuln = $host_afectados_vulCriticas + $host_afectados_vulAltas + $host_afectados_vulMedias;
 my $total_vuln_uniq = $total_vuln_criticas + $total_vuln_altas + $total_vuln_medias;
-open (SALIDA,">>reporte.csv") || die "ERROR: No puedo abrir el fichero google.html\n";
+open (SALIDA,">>reporte-resumen.csv") || die "ERROR: No puedo abrir el fichero google.html\n";
 	print SALIDA "\n\nTotal hosts analizados:;$total_host_analizados\n";
 	print SALIDA "Vulnerabilidades identificadas descritas en reporte tecnico:;$total_host_con_vulnerabilidades\n";
 	print SALIDA "Vulnerabilidades identificadas descritas en reporte tecnico (host unicos):;$total_host_con_vulnerabilidades_uniq\n\n";
