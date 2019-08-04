@@ -1283,7 +1283,7 @@ then
 		echo -e "\t[+] Obtener banner"
 		echo -e "\tquit" | nc -w 4 $ip $port | strings | uniq> .banners/"$ip"_"$port".txt 2>/dev/null
 		#SSHBypass
-		grep --color=never "libssh" .enumeracion/"$ip"_"$port"_banner.txt > .vulnerabilidades/"$ip"_"$port"_SSHBypass.txt 
+		grep --color=never "libssh" .banners/"$ip"_"$port"_banner.txt > .vulnerabilidades/"$ip"_"$port"_SSHBypass.txt 
 		
 		echo -e "\t[+] Probando vulnerabilidad CVE-2018-15473"	
 		enumeracionUsuariosSSH.py --username root --port $port $ip > logs/vulnerabilidades/"$ip"_"$port"_CVE15473.txt 2>/dev/null
