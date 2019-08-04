@@ -14,8 +14,8 @@ delta=$(echo "($delta*2)/60" | bc -l )
 echo "Delta: $delta"
 echo ""
 
-echo -e "$OKBLUE[+] Revisando procesos de python $RESET"		
-for line in $( ps aux | grep --color=never get_ssl_cert | grep -v color | awk '{print $2,$9}' | tr " " ";" ); do
+echo -e "$OKBLUE[+] Revisando procesos de get_ssl_cert/lbd $RESET"		
+for line in $( ps aux | egrep --color=never "get_ssl_cert|bin\/lbd" | grep -v color | awk '{print $2,$9}' | tr " " ";" ); do
 	pid=`echo $line | cut -f1 -d";"`
 	time=`echo $line | cut -f2 -d";"`
     #echo process time: $time
@@ -27,7 +27,7 @@ for line in $( ps aux | grep --color=never get_ssl_cert | grep -v color | awk '{
 	diff=`echo $diff | tr -d -`
 	echo "Idle time: $diff minutes"	
 	
-	if [[  $diff -gt 2 && $diff -lt 60 ]];then 
+	if [[  $diff -gt 1 && $diff -lt 60 ]];then 
 		
 		echo -e "$OKRED[-] Killing $pid) $RESET"
 		kill -9 $pid		
