@@ -27,8 +27,7 @@ RESET="\033[00m"       # Normal
 
 echo -e "${GREEN} [+] Instalando herramientas disponibles en repositorio ${RESET}" 
 sudo apt-get update
-sudo apt-get -y install bc nbtscan nfs-common snmp finger sqlite3 sqlitebrowser python-pip nmap masscan onesixtyone whatweb libssl-dev python-qt4 ike-scan postgresql-client-* elinks smbclient bc libcurl4-openssl-dev xterm ipmitool
-sudo apt-get -y install mysql-client-core-*
+sudo apt-get -y install bc nbtscan nfs-common snmp finger sqlite3 sqlitebrowser python-pip nmap masscan onesixtyone whatweb libssl-dev python-qt4 ike-scan postgresql-client-* elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd mysql-client-core-*
 
 
 echo -e "${GREEN} [+] Instalando webhacks ${RESET}"
