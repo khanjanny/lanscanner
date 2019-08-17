@@ -2848,8 +2848,16 @@ then
 			#nmap -Pn -p $port $ip --script=rdp_enum-encryption > .enumeracion/$ip/rdp.txt 2>/dev/null					
 			echo -e "[+] Escaneando $ip:$port"	
 			echo -e "\t[+] Revisando vulnerabilidad blueKeep"
-			blueKeep $ip >> logs/vulnerabilidades/"$ip"_3389_BlueKeep.txt
-			grep "VULNERABLE" logs/vulnerabilidades/"$ip"_3389_BlueKeep.txt  > .vulnerabilidades/"$ip"_3389_BlueKeep.txt
+			
+			kernel=`uname -a`
+			if [[ $kernel == *"aarch64"* ]]; then #rasberry
+				blueKeep $ip >> logs/vulnerabilidades/"$ip"_3389_BlueKeep.txt
+				grep "VULNERABLE" logs/vulnerabilidades/"$ip"_3389_BlueKeep.txt  > .vulnerabilidades/"$ip"_3389_BlueKeep.txt
+			else
+				msfconsole -x "use auxiliary/scanner/rdp/cve_2019_0708_bluekeep;set RHOSTS $ip;run;exit" > logs/vulnerabilidades/"$ip"_3389_BlueKeep.txt
+				grep "target is vulnerable" logs/vulnerabilidades/"$ip"_3389_BlueKeep.txt  > .vulnerabilidades/"$ip"_3389_BlueKeep.txt
+			fi
+
 			
 			echo -e "\t[+] Revisando vulnerabilidad MS12-020"
 			nmap -sV -Pn --script=rdp-vuln-ms12-020 -p 3389 $ip > logs/vulnerabilidades/"$ip"_3389_ms12020.txt
