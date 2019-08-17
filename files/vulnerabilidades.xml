@@ -32,7 +32,7 @@
 	<cod>passwordBD</cod>  
     <nombre>Base de datos con password inseguro.</nombre>
     <riesgoAgetic>Crítico</riesgoAgetic>
-    <descripcion> La base de datos aun presenta el usuario y password por defecto o es fácil de adivinar </descripcion>
+    <descripcion> La base de datos aun presenta el usuario y password por defecto o es fácil de adivinar. </descripcion>
     <verificacion>Herramienta: mysql (Consola), pgadmin3 y navicat (gráficas) SALTOLINEA
 				  mysql 1.2.3.4 </verificacion>
    <recomendacion> Asignar un password a la base datos que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial. </recomendacion> 
@@ -116,18 +116,31 @@
     <detalles> Se realizo un escaneo web, mediante la técnica de navegación forzada para identificar directorios con informacion sensible</detalles>    
 
     <descripcion>Se identificaron archivos/directorios que representan un riesgo de seguridad por la información que exponen </descripcion>
-    <verificacion></verificacion>
+    <verificacion>ninguna</verificacion>
     <recomendacion> Eliminar los archivos/directorios identificados </recomendacion> 
-	<referencias>SALTOLINEA</referencias>     	   
+	<referencias>ninguna</referencias>     	   
   </vuln>
+  
+  
+  
   
   <vuln>
 	<cod>compartidoNFS</cod>  
     <nombre>Recursos compartidos (NFS)</nombre>
     <riesgoAgetic>Alto</riesgoAgetic>
+    <verificacion>nmap -Pn -n -p 445 --script=nfs-ls.nse 1.2.3.4 </verificacion>
     <descripcion> Revisando los recursos compartidos mediante el protocolo NFS se pudo observar que se comparte información sensible accesible por cualquier usuario de la red </descripcion>
    <recomendacion> Limitar el acceso de recursos compartido solo a usuarios autorizados</recomendacion> 
   </vuln>
+  
+  <vuln>
+	<cod>perdidaAutenticacion</cod> 
+    <nombre>Perdida de autenticación.</nombre>
+    <riesgoAgetic>Alto</riesgoAgetic>
+    <descripcion> La aplicación permite acceder a partes del sistema sin necesidad de proporcionar las credenciales respectivas. </descripcion>
+    <verificacion>ninguna</verificacion>
+   <recomendacion> Asegurarse que la aplicación compruebe el uso de una sesión valida para todas las partes del sistema .</recomendacion> 
+  </vuln>  
  
   <vuln>
 	<cod>BlueKeep</cod>  
@@ -143,11 +156,12 @@
     <nombre>Recursos compartidos (SMB)</nombre>
     <riesgoAgetic>Alto</riesgoAgetic>
     <descripcion>Revisando los recursos compartidos mediante el protocolo SMB se pudo observar que se comparte información sensible accesible por cualquier usuario de la red </descripcion>
-    <verificacion>smbmap SALTOLINEA
-				  smbmap 1.2.3.4 </verificacion>
+    <verificacion>smbmap -H 1.2.3.4 -u anonymous -p anonymous SALTOLINEA
+				  smbmap -H 1.2.3.4 </verificacion>
    <recomendacion> Limitar el acceso de recursos compartido solo a usuarios autorizados </recomendacion> 
   </vuln>
-
+  
+ 
  <vuln>
 	<cod>passwordHost</cod>
     <nombre>Passwords basados en diccionario (estaciones de trabajo).</nombre>
@@ -238,6 +252,33 @@
    <recomendacion> Asignar un password al VNC que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
   </vuln>
   
+  <vuln>
+	 <cod>spoof</cod> 
+    <nombre>Suplantacion de correos electrónicos.</nombre>
+    <riesgoAgetic>Alto</riesgoAgetic>
+	
+    <probabilidad>Posible</probabilidad>
+    <impacto>Moderada</impacto>
+    <riesgoInforme>MEDIO</riesgoInforme>   
+     
+    <agente_amenaza>USUARIO EXTERNO (Internet)</agente_amenaza>    
+    <impacto_tecnico>Enviar correos a nombre de la entidad</impacto_tecnico>
+    <impacto_negocio>La reputación de la entidad se puede ver afectada </impacto_negocio>
+    
+    <detalles>Haciendo el análisis inicial de la configuración DNS se observó que el mismo no daba la protección suficiente para un ataque de suplantación de correos. El registro SPF está configurado para aplicar una regla suave (~all): ---IMAGEN---
+    Se realizó la prueba de concepto enviando un correo falso a nombre de sistemas@DOMINIOENTIDAD  El correo llego a la bandeja de entrada: ---IMAGEN---
+    </detalles>    
+
+
+    <descripcion> Con esta vulnerabilidad un atacante puede enviar correos con el dominio de la entidad. Haciendo el análisis inicial de la configuración DNS se observó que el mismo no tiene protección para evitar que terceros envíen correos a nombre de la entidad </descripcion>
+    <verificacion>Herramienta: spoofcheck.py SALTOLINEA
+				  spoofcheck.py DOMINIOENTIDAD  </verificacion>
+    <recomendacion> Modificar el registro TXT en el servidor DNS con el siguiente contenido: SALTOLINEA
+					v=DMARC1; p=quarantine; rua=mailto:dmarc@DOMINIOENTIDAD; ruf=mailto:dmarc@DOMINIOENTIDAD; sp=quarantine SALTOLINEA SALTOLINEA									
+					Crear el registro TXT en el servidor DNS (registro SPF).  Usar la herramienta en línea para generar el contenido del registro SPF: https://mxtoolbox.com/SPFRecordGenerator.aspx?domain=DOMINIOENTIDADAMPERSANDprefill=true . Elegir regla dura (Strict). SALTOLINEA  
+	</recomendacion> 
+	<referencias>https://blog.mailfence.com/es/spf-dkim-y-dmarc-defensa-contra-la-suplantacion-spoofing-en-dominios-personalizados/</referencias> 
+  </vuln>
   
   <vuln>
 	<cod>malware</cod>  
@@ -246,6 +287,15 @@
     <descripcion> Malware en archivos compartidos</descripcion>
     <verificacion>Escaneo con antivirus actualizado</verificacion>
    <recomendacion> Eliminar el malware identificado con un antivirus actualizado. </recomendacion> 
+  </vuln> 
+  
+  <vuln>
+	<cod>openrelay2</cod> 
+    <nombre>Suplantación de correo electrónico.</nombre>
+    <riesgoAgetic>Alto</riesgoAgetic>
+    <descripcion> Es posible acceder al servidor de correos mediante el puerto 25,  y enviar correos anónimos o a nombre de otras cuentas. Esto implica que cualquier usuario que conozca esta vulnerabilidad podría enviar correos con mensajes fraudulentos o elaborados para un determinado fin a otros usuarios dentro del dominio. </descripcion>
+    <verificacion>Herramienta: telnet SALTOLINEA</verificacion>
+   <recomendacion> Deshabilitar o bloquear la funcionalidad de envío de correos anónimos. Revisar la instalación y configuración del servidor de correo e identificar configuraciones por defecto. Forzar la autenticación de usuarios previa interacción con el servidor. Servicio 25/tcp.</recomendacion> 
   </vuln> 
   
   
@@ -266,6 +316,17 @@
 				  msfconsole -x "use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS 1.2.3.4; set ACTION USER;run;exit" </verificacion>
    <recomendacion> Asignar el equipo DVR en otro segmento </recomendacion> 
   </vuln>
+  
+    <vuln>
+     <cod>slowloris</cod>  
+    <nombre>Slowloris DOS attack.</nombre>
+    <riesgoAgetic>Alto</riesgoAgetic>
+    <descripcion> El Servidor Web es vulnerable a una denegación de servicio de tipo SlowLoris, el cual intenta mantener abiertas muchas conexiones al servidor web de destino y mantenerlas abiertas durante el mayor tiempo posible. Logra esto abriendo conexiones por medio de una petición parcial. De esta manera, se privan de los recursos del servidor http que provocan la denegación de servicio. </descripcion>
+    <verificacion>Herramienta: nmap SALTOLINEA
+				  nmap -p80 --script http-slowloris-check 1.2.3.4 </verificacion>
+   <recomendacion> Actualizar el servidor web apache </recomendacion> 
+  </vuln>
+    
   
   <vuln>
 	<cod>modoAgresivo</cod>  
@@ -332,16 +393,7 @@
   
   
    
-  <vuln>
-     <cod>slowloris</cod>  
-    <nombre>Slowloris DOS attack.</nombre>
-    <riesgoAgetic>Medio</riesgoAgetic>
-    <descripcion> El Servidor Web es vulnerable a una denegación de servicio de tipo SlowLoris, el cual intenta mantener abiertas muchas conexiones al servidor web de destino y mantenerlas abiertas durante el mayor tiempo posible. Logra esto abriendo conexiones por medio de una petición parcial. De esta manera, se privan de los recursos del servidor http que provocan la denegación de servicio. </descripcion>
-    <verificacion>Herramienta: nmap SALTOLINEA
-				  nmap -p80 --script http-slowloris-check 1.2.3.4 </verificacion>
-   <recomendacion> Actualizar el servidor web apache </recomendacion> 
-  </vuln>
-    
+
     <vuln>
     <cod>snmpCommunity</cod>  
     <nombre>SNMP con cadena comunitaria por defecto</nombre>
@@ -356,7 +408,7 @@
         
    <vuln>
 	 <cod>enum4linux</cod> 
-    <nombre>Sesion nula en el servidor.</nombre>
+    <nombre>Enumeración de usuarios (Sesion nula en el servidor).</nombre>
     <riesgoAgetic>Medio</riesgoAgetic>
     <descripcion> Con esta vulnerabilidad un atacante puede enumerar todos los usuarios del dominio y a que grupo pertenecen  </descripcion>
     <verificacion>Herramienta: enum4linux SALTOLINEA
@@ -371,35 +423,19 @@
 	</recomendacion> 
   </vuln>
   
-   <vuln>
-	 <cod>spoof</cod> 
-    <nombre>Suplantacion de correos electrónicos.</nombre>
-    <riesgoAgetic>Medio</riesgoAgetic>
-	
-    <probabilidad>Posible</probabilidad>
-    <impacto>Moderada</impacto>
-    <riesgoInforme>MEDIO</riesgoInforme>   
-     
-    <agente_amenaza>USUARIO EXTERNO (Internet)</agente_amenaza>    
-    <impacto_tecnico>Enviar correos a nombre de la entidad</impacto_tecnico>
-    <impacto_negocio>La reputación de la entidad se puede ver afectada </impacto_negocio>
-    
-    <detalles>Haciendo el análisis inicial de la configuración DNS se observó que el mismo no daba la protección suficiente para un ataque de suplantación de correos. El registro SPF está configurado para aplicar una regla suave (~all): ---IMAGEN---
-    Se realizó la prueba de concepto enviando un correo falso a nombre de sistemas@DOMINIOENTIDAD  El correo llego a la bandeja de entrada: ---IMAGEN---
-    </detalles>    
-
-
-    <descripcion> Con esta vulnerabilidad un atacante puede enviar correos con el dominio de la entidad. Haciendo el análisis inicial de la configuración DNS se observó que el mismo no tiene protección para evitar que terceros envíen correos a nombre de la entidad </descripcion>
-    <verificacion>Herramienta: spoofcheck.py SALTOLINEA
-				  spoofcheck.py DOMINIOENTIDAD  </verificacion>
-    <recomendacion> Modificar el registro TXT en el servidor DNS con el siguiente contenido: SALTOLINEA
-					v=DMARC1; p=quarantine; rua=mailto:dmarc@DOMINIOENTIDAD; ruf=mailto:dmarc@DOMINIOENTIDAD; sp=quarantine SALTOLINEA SALTOLINEA									
-					Crear el registro TXT en el servidor DNS (registro SPF).  Usar la herramienta en línea para generar el contenido del registro SPF: https://mxtoolbox.com/SPFRecordGenerator.aspx?domain=DOMINIOENTIDADAMPERSANDprefill=true . Elegir regla dura (Strict). SALTOLINEA  
-	</recomendacion> 
-	<referencias>https://blog.mailfence.com/es/spf-dkim-y-dmarc-defensa-contra-la-suplantacion-spoofing-en-dominios-personalizados/</referencias> 
-  </vuln>
+   
   
     	
+    <vuln>
+	 <cod>listadoDirectorios</cod> 
+    <nombre>Listado de directorios activo</nombre>
+    <riesgoAgetic>Medio</riesgoAgetic>               
+
+    <descripcion>Se identifico que el listado de directorios esta activo y puede exponer información sensible </descripcion>
+    <verificacion>ninguna</verificacion>
+    <recomendacion> Deshabilitar el listado de directorios: https://www.cgii.gob.bo/index.php/es/publicaciones/deshabilitar-listado-de-directorio-index-en-servidores-apache </recomendacion> 
+	<referencias>ninguna</referencias>     	   
+  </vuln>
   
     
    <vuln>
@@ -428,8 +464,20 @@
     <riesgoAgetic>Medio</riesgoAgetic>
     <descripcion> El servidor de correos permite enviar correos a usuarios internos sin necesidad de autenticación. </descripcion>
     <verificacion>Herramienta: telnet SALTOLINEA</verificacion>
-   <recomendacion> Configurar el servidor de correo de manera que no pueda usarse para mandar correos sin autenticación.</recomendacion> 
-  </vuln>  
+   <recomendacion> Deshabilitar el modo pasarela (open relay) en el servidor de correo.</recomendacion> 
+  </vuln> 
+  
+  
+   <vuln>
+	<cod>ms12020</cod> 
+    <nombre>Denegación de servicio - RDP (Remote Desktop Protocol).</nombre>
+    <riesgoAgetic>Medio</riesgoAgetic>
+    <descripcion>  Por la manipulación de un input desconocido se causa una vulnerabilidad de clase denegación de servicio. Esto tiene repercusión sobre la la disponibilidad del equipo </descripcion>
+    <verificacion>nmap -sV -Pn --script=rdp-vuln-ms12-020 -p 3389 1.2.3.4 </verificacion>
+   <recomendacion> Instalar el parche de seguridad.</recomendacion> 
+  </vuln>   
+ 
+   
   
   <vuln>
 	<cod>listadoDirectorio</cod>  
@@ -448,6 +496,15 @@
     <descripcion>El servidor de correo no está configurado de manera segura y se puede realizar la enumeración de usuarios. </descripcion>
    <recomendacion>Deshabilitar el comando VRFY. Puede seguir el tutorial: http://www.elmundoenbits.com/2014/10/vrfy-postfix-account.html </recomendacion> 
   </vuln>  
+  
+    <vuln>
+	<cod>archivosDefecto</cod>  
+    <nombre>Archivos y directorios por defecto</nombre>
+    <riesgoAgetic>medio</riesgoAgetic>
+    <descripcion>El servidor web aun tiene los archivos/directorios por defecto. Los mismos exponen la version del software usado</descripcion>
+    <verificacion>ninguna</verificacion>
+   <recomendacion> Borrar los archivos y directorios por defecto</recomendacion> 
+  </vuln>
   
   <vuln>
 	<cod>CVE15473</cod>  
@@ -471,6 +528,7 @@
     <nombre> Direcciones URL indexadas por motores de búsqueda.</nombre>
     <riesgoAgetic>Medio</riesgoAgetic>
     <descripcion> El motor de búsqueda indexo URL potencialmente sensibles y privadas. </descripcion>
+    <verificacion>ninguna</verificacion>
    <recomendacion> Desindexar las URL especificadas siguiendo la guia: https://blog.seigoo.com/como-eliminar-o-desindexar-una-url-de-google</recomendacion> 
   </vuln>  
     
@@ -488,7 +546,7 @@
     <riesgoAgetic>Medio</riesgoAgetic>
     <descripcion> Errores en el sitio web, que muestran información sobre la aplicación</descripcion>
     <verificacion>Herramienta: BurpSuite, Navegador web</verificacion>
-   <recomendacion> Validar las variables de entrada. </recomendacion> 
+   <recomendacion> Validar las variables de entrada | Deshabilitar el modo "debug" | Implementar sentencias try and catch para controlar los errores que se vayan a producir o deshabilitar el modo debug en el framework que se utiliza. </recomendacion> 
   </vuln> 
     
     <vuln>

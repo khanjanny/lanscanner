@@ -145,20 +145,22 @@ for my $resultados_db (@resultados_array)
 	my $host_con_vulnerabilidades = $row[0];
 	$total_host_con_vulnerabilidades = $total_host_con_vulnerabilidades + $host_con_vulnerabilidades;	
 	
-	
+	#Vulnerabilidades criticas
 	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='ms17010' or tipo ='ms08067' or tipo ='webdav' or tipo ='passwordBD' or tipo ='phpmyadminPassword' or tipo ='passTomcat' or tipo ='mailPass' or tipo ='shellshock' or tipo ='zimbraXXE' or tipo ='winboxVuln';");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_criticas = $row[0];
 	$total_vuln_criticas = $total_vuln_criticas + $vul_criticas;	
 
-	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='archivosPeligrosos' or tipo ='compartidoNFS' or tipo ='BlueKeep' or tipo ='compartidoSMB' or tipo ='passwordHost' or tipo ='logeoRemoto' or tipo ='heartbleed' or tipo ='adminPassword' or tipo ='rootPassword' or tipo ='ciscoPassword' or tipo ='passwordMikroTik' or tipo ='VNCnopass' or tipo ='VNCbypass' or tipo ='vulnDahua' or tipo ='openrelay';");
+	#vulnerabilidades altas
+	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='archivosPeligrosos' or tipo ='compartidoNFS' or tipo ='BlueKeep' or tipo ='compartidoSMB' or tipo ='passwordHost' or tipo ='logeoRemoto' or tipo ='heartbleed' or tipo ='adminPassword' or tipo ='rootPassword' or tipo ='ciscoPassword' or tipo ='passwordMikroTik' or tipo ='VNCnopass' or tipo ='VNCbypass' or tipo ='vulnDahua' or tipo ='openrelay' or tipo ='perdidaAutenticacion';");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_altos = $row[0];
 	$total_vuln_altas = $total_vuln_altas + $vul_altos;	
 
-	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='divulgacionInformacion' or tipo ='slowloris' or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='spoof' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL'  or tipo ='malware' ;");
+	#vulnerabilidades medias
+	my $sth = $dbh->prepare("select COUNT (DISTINCT IP) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='divulgacionInformacion' or tipo ='slowloris' or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='spoof' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL'  or tipo ='malware' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='ms12020' ;");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_medios = $row[0];
@@ -193,7 +195,7 @@ for my $resultados_db (@resultados_array)
 		$recomendacion =~ s/SALTOLINEA/<br>/g; 
 		$recomendacion =~ s/AMPERSAND/\&/g; 
 		
-		my $verificacion = $vulnerabilidades->{vuln}->[$i]->{verificacion}; 		
+		my $verificacion = $vulnerabilidades->{vuln}->[$i]->{verificacion}; 				
    		$verificacion =~ s/SALTOLINEA/<br>/g; 
 		$verificacion =~ s/AMPERSAND/\&/g; 		
 		$verificacion =~ s/DOMINIOENTIDAD/$dominio/g; 
@@ -335,7 +337,33 @@ for my $resultados_db (@resultados_array)
 			}  
 		}
    
-		if ($cod eq "compartidoSMB")
+      
+		if ($cod eq "compartidoNFS")  
+		{
+			while (my @row = $sth->fetchrow_array) {     		 
+				#	Users                                             	READ ONLY
+
+				$ip = $row[0];	
+				$vuln_detalles = $row[3];
+				print "vuln_detalles $vuln_detalles \n";
+				$vuln_detalles2=`echo '$vuln_detalles' | grep --color=never "dr" | awk '{print \$7}'`;
+				$vuln_detalles2 =~ s/\n/<br>/g; 	
+				
+				#my $usuarios_grupos = `echo '$vuln_detalles' |egrep --color=never "Domain Group|Local User" | grep -vi body`;
+					 	            								
+				$hosts = $hosts."\\\\$ip <br>    $vuln_detalles2 <br>";
+				$filas++;
+				##### Contabilizar nivel de riesgos ######
+				switch ($riesgoAgetic) {    	
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
+				}
+				#############################################
+			}  
+		}  
+		
+		if ($cod eq "compartidoSMB")  
 		{
 			while (my @row = $sth->fetchrow_array) {     		 
 				#	Users                                             	READ ONLY
@@ -420,8 +448,8 @@ for my $resultados_db (@resultados_array)
 				#############################################
 			}  
 		}
-		
-		if (($cod eq "listadoDirectorio") || ($cod eq "divulgacionInformacion") )		
+				
+		if ($cod eq "listadoDirectorio") 
 		{
 				while (my @row = $sth->fetchrow_array) {     		 
 				#	Users                                             	READ ONLY
@@ -448,6 +476,59 @@ for my $resultados_db (@resultados_array)
 				#############################################
 			}  
 		}
+		
+		if ($cod eq "divulgacionInformacion") 		
+		{
+				while (my @row = $sth->fetchrow_array) {     		 
+				#	Users                                             	READ ONLY
+		
+				$ip = $row[0];	
+				$port = $row[1];	
+				$vuln_detalles = $row[3];	
+				# URL  http://192.168.50.52:80/dashboard/phpinfo.php
+				$vuln_detalles =~ /URL(.*?)\n/;				
+				$hosts = $hosts." $1 <br>";
+				
+				
+				
+				$filas++;
+				##### Contabilizar nivel de riesgos ######
+				switch ($riesgoAgetic) {    	
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
+				}
+				#############################################
+			}  
+		}
+		
+		if ($cod eq "enum4linux") 		
+		{
+				while (my @row = $sth->fetchrow_array) {     		 
+				#	Users                                             	READ ONLY
+		
+				$ip = $row[0];	
+				$port = $row[1];	
+				$vuln_detalles = $row[3];									
+				my $usuarios_grupos = `echo '$vuln_detalles' |egrep --color=never "Domain Group|Local User" | grep -vi body`;
+				#print "enum4linux usuarios_grupos $usuarios_grupos \n";
+				$usuarios_grupos =~ s/\n/<br>/g; 
+				$hosts = $hosts."IP: ".$ip." usuarios/grupos identificados:<br> $usuarios_grupos<br><br>";
+				
+				
+				
+				$filas++;
+				##### Contabilizar nivel de riesgos ######
+				switch ($riesgoAgetic) {    	
+					case "Crítico"	{ $host_afectados_vulCriticas++ }
+					case "Alto"	{ $host_afectados_vulAltas++ }
+					case "Medio"	{ $host_afectados_vulMedias++ }
+				}
+				#############################################
+			}  
+		}
+		
+				
 		
 		
    
@@ -517,16 +598,17 @@ for my $resultados_db (@resultados_array)
 			}       
 		}
    
-      
-		if ($cod =~ m/archivosPeligrosos/) 
+      		
+		if (($cod eq "archivosPeligrosos") || ($cod eq "archivosDefecto") || ($cod eq "listadoDirectorios") || ($cod eq "perdidaAutenticacion") )
 		{
 				while (my @row = $sth->fetchrow_array) {     		 
 				#	Users                                             	READ ONLY
 		
 				$ip = $row[0];	
 				$vuln_detalles = $row[3];	
+				$vuln_detalles =~ s/\n/<br>/g; 
 				#https://sigec.fonadin.gob.bo:443/.git/	, 				    	    
-				$hosts = $hosts." $vuln_detalles <br>";
+				$hosts = $hosts." $vuln_detalles ";
 				$filas++;
 				##### Contabilizar nivel de riesgos ######
 				switch ($riesgoAgetic) {    	
@@ -538,7 +620,7 @@ for my $resultados_db (@resultados_array)
 			}       
 		}
    
-		if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "enum4linux")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "transferenciaDNS") || ($cod eq "listadoDirectorio")  || ($cod eq "vrfy") || ($cod eq "anonymous") || ($cod eq "openstreaming") || ($cod eq "modoAgresivo")  || ($cod eq "zimbraXXE") || ($cod eq "BlueKeep") || ($cod eq "slowloris") || ($cod eq "openresolver") || ($cod eq "openrelay") || ($cod eq "malware") || ($cod eq "CVE15473") )   
+		if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "transferenciaDNS") || ($cod eq "listadoDirectorio")  || ($cod eq "vrfy") || ($cod eq "anonymous") || ($cod eq "openstreaming") || ($cod eq "modoAgresivo")  || ($cod eq "zimbraXXE") || ($cod eq "BlueKeep") || ($cod eq "slowloris") || ($cod eq "openresolver") || ($cod eq "openrelay") || ($cod eq "openrelay2") || ($cod eq "malware") || ($cod eq "CVE15473") || ($cod eq "ms12020")  )   
 		{
 			#$hosts = "<table border='0' cellspacing='10'><tr>";	 	
 		
@@ -583,7 +665,7 @@ for my $resultados_db (@resultados_array)
 				print SALIDA_HTML "<td class='' style='text-align: justify;'>Vulnerabilidad:</td><td class='' style='text-align: justify;'>$nombre</td>\n";
 				print SALIDA_HTML "</tr>\n";	
 				print SALIDA_HTML "<tr>\n";	
-				print SALIDA_HTML "<td class='' style='text-align: justify;'>Criticidad:</td><td class='' style='text-align: justify;'>$riesgo</td>\n";
+				print SALIDA_HTML "<td class='' style='text-align: justify;'>Criticidad:</td><td class='' style='text-align: justify;'>$riesgoAgetic</td>\n";
 				print SALIDA_HTML "</tr>\n";	
 				print SALIDA_HTML "<tr>\n";	
 				print SALIDA_HTML "<td class='' style='text-align: justify;'>Descripción:</td><td class='' style='text-align: justify;'>$descripcion</td>\n";
@@ -592,7 +674,7 @@ for my $resultados_db (@resultados_array)
 				print SALIDA_HTML "<td class='' style='text-align: justify;'>Evidencia:</td><td class='' style='text-align: justify;'> Evidencia $contador</td>\n";
 				print SALIDA_HTML "</tr>\n";	
 				print SALIDA_HTML "<tr>\n";	
-				print SALIDA_HTML "<td class='' style='text-align: justify;'>Verificación:</td><td class='' style='text-align: justify;'> $verificacion</td>\n" if ($verificacion ne "");
+				print SALIDA_HTML "<td class='' style='text-align: justify;'>Verificación:</td><td class='' style='text-align: justify;'> $verificacion</td>\n" if ($verificacion ne "ninguna");
 				print SALIDA_HTML "</tr>\n";	
 				print SALIDA_HTML "<tr>\n";	
 				print SALIDA_HTML "<td class='' style='text-align: justify;'>Recomendación:</td><td class='' style='text-align: justify;'>$recomendacion</td>\n";
@@ -612,7 +694,7 @@ for my $resultados_db (@resultados_array)
 				
 				
 				$recomendacion =~ s/<br>//g;
-				print "hosts ($hosts) \n";
+#				print "hosts ($hosts) \n";
 				open (SALIDA_CSV,">>reporte.csv") || die "ERROR: No puedo abrir el reporte.csv\n";			
 				print SALIDA_CSV "$contador|$nombre\n";	
 				print SALIDA_CSV "||\n";	

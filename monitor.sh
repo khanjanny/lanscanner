@@ -151,7 +151,7 @@ for line in $( ps aux | egrep --color=never "hydra|medusa|patator" | grep -v col
 	diff=`echo $diff | tr -d -`
 	echo "Idle time: $diff minutes"	
 	
-	if [[  $diff -gt 3 && $diff -lt 60 ]];then 
+	if [[  $diff -gt 5 && $diff -lt 60 ]];then 
 		
 		echo -e "$OKRED[-] Killing $pid) $RESET"
 		kill -9 $pid		
