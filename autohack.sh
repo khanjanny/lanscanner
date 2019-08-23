@@ -37,7 +37,9 @@ EOF
 exit
 fi
 ######################
-
+mkdir INTERNO
+mkdir EXTERNO
+cd EXTERNO
 recon.sh -d $DOMAIN -n "$NOMBRE"
 cd $DOMAIN
 lanscanner.sh -t completo -i reportes/subdominios.csv -d $DOMAIN
