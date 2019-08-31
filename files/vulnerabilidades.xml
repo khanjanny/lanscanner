@@ -452,6 +452,23 @@
   </vuln>
   
   
+  <vuln>	  
+   	<cod>exposicionUsuarios</cod> 
+    <nombre> Exposicion de usuarios de la base de datos</nombre>
+    <riesgoAgetic> Medio </riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Moderado </impacto>
+    <riesgoInforme> MEDIO </riesgoInforme>        
+    <agente_amenaza> USUARIO EXTERNO </agente_amenaza>    
+    <impacto_tecnico> Exposicion del usuario de la base de datos del sitio web</impacto_tecnico>
+    <impacto_negocio> Ninguno </impacto_negocio>    
+    <detalles> El sitio web muestra un mensaje de error y expone el usuario de la base de datos del sitio web</detalles>    
+    <descripcion> El sitio web muestra un mensaje de error y expone el usuario de la base de datos del sitio web</descripcion>
+    <verificacion>ninguna</verificacion>
+    <recomendacion> Validar las variables de entrada | Implementar sentencias try and catch para controlar los errores que se vayan a producir o deshabilitar el modo debug en el framework que se utiliza.</recomendacion> 
+	<referencias>ninguna</referencias>    
+  </vuln>
+  
    <vuln>	  
    	<cod>wpusers</cod> 
     <nombre> Enumeración de usuarios de wordpress</nombre>

@@ -236,7 +236,7 @@ for my $resultados_db (@resultados_array)
 	$total_vul_altas_agetic = $total_vul_altas_agetic + $vul_altos;	
 
 	#Total vulnerabilidades medias
-	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='ms12020' or tipo ='debugHabilitado' or tipo ='wpusers' or tipo ='CVE15473' ;");
+	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='ms12020' or tipo ='debugHabilitado' or tipo ='wpusers' or tipo ='CVE15473' or tipo ='exposicionUsuarios'  ;");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_medios = $row[0];
@@ -259,7 +259,7 @@ for my $resultados_db (@resultados_array)
 	$total_servicios_vuln_altas_agetic = $total_servicios_vuln_altas_agetic + $servicios_vuln_altos;	
 
 	#Servicios afectados por vulnerabilidades medias
-	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='ms12020' or tipo ='wpusers' or tipo ='CVE15473' ;");
+	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='ms12020' or tipo ='wpusers' or tipo ='CVE15473' or tipo ='exposicionUsuarios' ;");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $servicios_vuln_medios = $row[0];
@@ -276,7 +276,7 @@ for my $resultados_db (@resultados_array)
 	
 	###### Vulnerabilidades por activos ####
 	# aplicacionWeb
-	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='debugHabilitado' or TIPO='listadoDirectorios' or TIPO='archivosDefecto' or TIPO='divulgacionInformacion' or TIPO='archivosPeligrosos' or TIPO='googlehacking' or TIPO='perdidaAutenticacion' or TIPO='erroresWeb' or TIPO='wpusers';  ");
+	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='debugHabilitado' or TIPO='listadoDirectorios' or TIPO='archivosDefecto' or TIPO='divulgacionInformacion' or TIPO='archivosPeligrosos' or TIPO='googlehacking' or TIPO='perdidaAutenticacion' or TIPO='erroresWeb' or TIPO='wpusers' or TIPO='exposicionUsuarios' ;  ");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vuln_app = $row[0];
@@ -547,13 +547,13 @@ for my $resultados_db (@resultados_array)
 			}  						
 		}
       	
-   	if (($cod eq "erroresWeb") || ($cod eq "debugHabilitado")  )
+   	if (($cod eq "erroresWeb") || ($cod eq "debugHabilitado" || ($cod eq "exposicionUsuarios" ))
 		{
 			while (my @row = $sth->fetchrow_array) 
 			{
 				$ip = $row[0];				
 				$vuln_detalles = $row[3];	 	            				
-				$vuln_detalles =~ s/\n/<br>\n/g; 
+				$vuln_detalles =~ s/\n/<br>\n/g; #http://dominio.com/user
 				$hosts = $hosts.$vuln_detalles."<br>";
 				$filas++;			
 			}  					
