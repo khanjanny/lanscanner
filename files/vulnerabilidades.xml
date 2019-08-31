@@ -7,7 +7,7 @@
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
-    <agente_amenaza> USUARIO INTERNO/Malware </agente_amenaza>    
+    <agente_amenaza> USUARIO INTERNO/MALWARE </agente_amenaza>    
     <impacto_tecnico> Tomar control de los equipos vulnerables </impacto_tecnico>
     <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
     <detalles> Realizando un escaneo con nmap se obtuvo el siguiente resultado: IMAGEN SALTOLINEA
@@ -79,10 +79,25 @@
   </vuln>  
   
    <vuln>
-	<cod>webdav</cod>  
+	 <cod>webdav</cod> 
     <nombre>WebDAV vulnerable.</nombre>
-    <riesgoAgetic>Crítico</riesgoAgetic>
-    <descripcion> El servidor permite subir archivos al host vulnerable con las credenciales por defecto:  wampp/xampp </descripcion>
+    <riesgoAgetic>Crítico</riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Significativo </impacto>
+    <riesgoInforme> ALTO </riesgoInforme>        
+    <agente_amenaza>USUARIO INTERNO</agente_amenaza>    
+    <impacto_tecnico> Acceso al motor de base de datos informix </impacto_tecnico>
+    <impacto_negocio> Acceder y modificar información crítica  </impacto_negocio>    
+    <detalles>Realizando un escaneo se obtuvo el siguiente resultado: IMAGEN SALTOLINEA
+			La imagen  expone que el equipo tiene habilitado el módulo WEBDAV. SALTOLINEA
+			Como prueba de concepto se exploto la vulnerabilidad para subir un archivo al servidor: IMAGEN SALTOLINEA</detalles>    
+    <descripcion>El servidor permite subir archivos al host vulnerable con las credenciales por defecto:  wampp/xampp </descripcion>
+    <verificacion>Herramienta: mysql (Consola), pgadmin3 y navicat (gráficas) SALTOLINEA
+				  mysql 1.2.3.4</verificacion>
+    <recomendacion>Asignar un password a la base datos que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial.</recomendacion> 
+	<referencias>ninguna</referencias> 
+	   	       
+    <descripcion> </descripcion>
     <verificacion>Herramienta: cadaver SALTOLINEA
 				  cadaver 1.2.3.4 </verificacion>
    <recomendacion> Borrar el directorio webDAV </recomendacion> 
@@ -100,13 +115,23 @@
   </vuln>
   
   <vuln>
-	<cod>shellshock</cod>  
+	<cod>shellshock</cod> 
     <nombre>Vulnerabilidad en Bash (shellshock)</nombre>
-    <riesgoAgetic>Crítico</riesgoAgetic>
-    <descripcion> El problema con esta vulnerabilidad se viene produciendo porque Bash no valida de forma correcta los parámetros introducidos por el usuario. Lo que provoca que un atacante pueda ejecutar comandos remotamente.</descripcion>
+    <riesgoAgetic>Crítico</riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Significativo </impacto>
+    <riesgoInforme> ALTO </riesgoInforme>        
+    <agente_amenaza>USUARIO INTERNO</agente_amenaza>    
+    <impacto_tecnico>Tomar control de los equipos vulnerables </impacto_tecnico>
+    <impacto_negocio> Acceder y modificar información crítica  </impacto_negocio>    
+    <detalles>Realizando un escaneo con nmap se obtuvo el siguiente resultado: IMAGEN SALTOLINEA
+			La imagen  expone que el equipo es VULNERABLE según el boletín CVE-2014-6271. SALTOLINEA
+			Como prueba de concepto se exploto la vulnerabilidad para tomar el control del equipo: IMAGEN SALTOLINEA</detalles>    
+    <descripcion>El problema con esta vulnerabilidad se viene produciendo porque Bash no valida de forma correcta los parámetros introducidos por el usuario. Lo que provoca que un atacante pueda ejecutar comandos remotamente.</descripcion>
     <verificacion>Herramienta: nmap SALTOLINEA
-				  nmap -sV -p80 --script http-shellshock.nse --script-args uri=/ruta-cgi/ 1.2.3.4 </verificacion>
-   <recomendacion> Actualizar GNU/Linux. En caso de no existir la actualización colocar los dispositivos en un segmento de red separado. </recomendacion> 
+				  nmap -sV -p80 --script http-shellshock.nse --script-args uri=/ruta-cgi/ 1.2.3.4</verificacion>
+    <recomendacion>Actualizar GNU/Linux. En caso de no existir la actualización colocar los dispositivos en un segmento de red separado.</recomendacion> 
+	<referencias>ninguna</referencias> 
   </vuln>
   
   <vuln>
@@ -424,6 +449,25 @@
 					nmap -n -sV -p 554 --script=rtsp-url-brute 1.2.3.4 </verificacion>
     <recomendacion> Deshabilitar open streaming </recomendacion> 
 	<referencias>ninguna</referencias>    
+  </vuln>
+  
+  
+   <vuln>	  
+   	<cod>wpusers</cod> 
+    <nombre> Enumeración de usuarios de wordpress</nombre>
+    <riesgoAgetic> Medio </riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Moderado </impacto>
+    <riesgoInforme> MEDIO </riesgoInforme>        
+    <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
+    <impacto_tecnico> Obterner el listado de usuarios administradores de wordpress</impacto_tecnico>
+    <impacto_negocio> Ninguno </impacto_negocio>    
+    <detalles> Se identificó que es posible enumerar a todos los usuarios que son administradores del sitio web. Esta información puede ser usada para realizar un ataque de diccionario al sitio web. </detalles>    
+    <descripcion> Se identificó que es posible enumerar a todos los usuarios que son administradores del sitio web. Esta información puede ser usada para realizar un ataque de diccionario al sitio web. </descripcion>
+    <verificacion> Herramienta: wpscan SALTOLINEA
+				   wpscan --random-agent --url http://www.dominio.com --enumerate u </verificacion>
+    <recomendacion> Instalar el plugin "Stop user enumeration" </recomendacion> 
+	<referencias>https://wordpress.org/plugins/stop-user-enumeration/</referencias>    
   </vuln>
      
   <vuln>
