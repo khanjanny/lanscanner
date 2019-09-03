@@ -90,7 +90,7 @@ echo ""
 
 
 echo -e "$OKBLUE[+] Revisando procesos de perl $RESET"		
-for line in $( ps aux | grep --color=never perl  | grep -v color | egrep -v "passWeb|joomscan|web-buster|getBanners|color|getDomainInfo|mass-scan|smtp-user-enum" | awk '{print $2,$9}' | tr " " ";" ); do
+for line in $( ps aux | grep --color=never perl  | grep -v color | egrep -v "passWeb|joomscan|buster|getBanners|color|getDomainInfo|mass-scan|smtp-user-enum" | awk '{print $2,$9}' | tr " " ";" ); do
 	pid=`echo $line | cut -f1 -d";"`
 	time=`echo $line | cut -f2 -d";"`
     #echo process time: $time
@@ -127,7 +127,7 @@ for line in $( ps aux | grep --color=never web-buster | grep -v color | awk '{pr
 	diff=`echo $diff | tr -d -`
 	echo "Idle time: $diff minutes"	
 	
-	if [[  $diff -gt 40 && $diff -lt 70 ]];then 
+	if [[  $diff -gt 60 && $diff -lt 70 ]];then 
 		
 		echo -e "$OKRED[-] Killing $pid) $RESET"
 		kill -9 $pid		
@@ -151,7 +151,7 @@ for line in $( ps aux | egrep --color=never "hydra|medusa|patator" | grep -v col
 	diff=`echo $diff | tr -d -`
 	echo "Idle time: $diff minutes"	
 	
-	if [[  $diff -gt 5 && $diff -lt 60 ]];then 
+	if [[  $diff -gt 2 && $diff -lt 60 ]];then 
 		
 		echo -e "$OKRED[-] Killing $pid) $RESET"
 		kill -9 $pid		
@@ -225,6 +225,31 @@ for line in $( ps aux | grep --color=never nmap | egrep -v "getBanners|color|nma
 	
 	
 	if [[  $diff -gt 8 && $diff -lt 60 ]];then 
+		
+		echo -e "$OKRED[-] Killing $pid) $RESET"
+		kill -9 $pid		
+	else
+		echo -e "$OKGREEN[+] OK $RESET"		
+	fi
+	echo ""		
+done
+
+
+echo -e "$OKBLUE[+] Revisando procesos de wpscan/joomscan $RESET"		
+for line in $( ps aux | egrep --color=never "wpscan|joomscan"  | awk '{print $2,$9}' | tr " " ";" ); do
+	pid=`echo $line | cut -f1 -d";"`
+	time=`echo $line | cut -f2 -d";"`
+    #echo process time: $time
+    echo "pid: $pid time $time"
+               
+	diff=$(  echo "$current_time - $time"  | sed 's%:%+(1/60)*%g' | bc -l )	
+	diff=$(echo "($diff - $delta)*60" | bc  ) # fix with delta
+	diff=`printf "%.0f\n" "$diff"` # round
+	diff=`echo $diff | tr -d -`
+	echo "Idle time: $diff minutes"	
+	
+	
+	if [[  $diff -gt 4 && $diff -lt 60 ]];then 
 		
 		echo -e "$OKRED[-] Killing $pid) $RESET"
 		kill -9 $pid		

@@ -159,9 +159,34 @@ for my $resultados_db (@resultados_array)
 	####
 	#EXTERNO/senamhi.gob.bo
 	# total pruebas por vector
-	my $pruebas = `ls $ruta/logs/vulnerabilidades | wc -l`;
-	$totalPruebas = $totalPruebas + $pruebas;
+	my $pruebasVulnerabilidades = `ls $ruta/logs/vulnerabilidades | wc -l`;
+	my $pruebasPassword = `ls $ruta/logs/cracking | wc -l`;
+	$totalPruebas = $totalPruebas + $pruebasVulnerabilidades + $pruebasPassword ;
 	######################
+	
+	my $pruebasVulnerabilidades = `ls $ruta/logs/vulnerabilidades`;
+	my @pruebasVulnerabilidades_array = split("\n",$pruebasVulnerabilidades);
+		
+	open (SALIDA,">>reporte-pruebas.csv") || die "ERROR: reporte-pruebas.csv\n";
+	print SALIDA "\n\nVector: $vector\n";
+	print SALIDA "IP;Puerto;Código;Descripción\n";
+	close (SALIDA);	
+	
+	foreach ( @pruebasVulnerabilidades_array ) {
+		#10.0.0.141_25_openrelay.txt
+		my @vulnerabilidad_array = split("_",$_);
+		my $ip = @vulnerabilidad_array[0];
+		my $port = @vulnerabilidad_array[1];
+		my $vuln = @vulnerabilidad_array[2];
+		$vuln =~ s/.txt//g; 		
+		my ($codVul,$vuln_descripcion) =  buscarDescripcion($vuln);				
+		$codVul="" if ($codVul eq "ninguna");
+		
+		open (SALIDA,">>reporte-pruebas.csv") || die "ERROR: reporte-pruebas.csv\n";
+		print SALIDA "$ip;$port;$codVul;$vuln_descripcion;$vuln\n";
+		close (SALIDA);	
+	}
+	
 	
 	if($ruta =~ /EXTERNO/m){	
 		my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES");
@@ -229,7 +254,7 @@ for my $resultados_db (@resultados_array)
 	$total_vul_criticas_agetic = $total_vul_criticas_agetic + $vul_criticas;	
 
 	#Total vulnerabilidades altas
-	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='archivosPeligrosos' or tipo ='compartidoNFS' or tipo ='BlueKeep' or tipo ='compartidoSMB' or tipo ='passwordHost' or tipo ='logeoRemoto' or tipo ='heartbleed' or tipo ='passwordAdivinado' or tipo ='passwordMikroTik' or tipo ='VNCnopass' or tipo ='VNCbypass' or tipo ='vulnDahua' or tipo ='openrelay' or tipo ='perdidaAutenticacion' or tipo ='spoof' or tipo ='slowloris';");
+	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='archivosPeligrosos' or tipo ='compartidoNFS' or tipo ='BlueKeep' or tipo ='compartidoSMB' or tipo ='passwordHost' or tipo ='logeoRemoto' or tipo ='heartbleed' or tipo ='passwordAdivinado' or tipo ='passwordMikroTik' or tipo ='VNCnopass' or tipo ='VNCbypass' or tipo ='vulnDahua' or tipo ='openrelay' or tipo ='perdidaAutenticacion' or tipo ='spoof' or tipo ='slowloris' or tipo ='wordpressPass'; ");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_altos = $row[0];
@@ -252,7 +277,7 @@ for my $resultados_db (@resultados_array)
 	$total_servicios_vuln_criticas_agetic = $total_servicios_vuln_criticas_agetic + $servicios_vuln_criticas;	
 
 	#Servicios afectados por vulnerabilidades altas
-	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='archivosPeligrosos' or tipo ='compartidoNFS' or tipo ='BlueKeep' or tipo ='compartidoSMB' or tipo ='passwordHost' or tipo ='logeoRemoto' or tipo ='heartbleed' or tipo ='adminPassword' or tipo ='rootPassword' or tipo ='ciscoPassword' or tipo ='passwordMikroTik' or tipo ='VNCnopass' or tipo ='VNCbypass' or tipo ='vulnDahua' or tipo ='openrelay' or tipo ='perdidaAutenticacion' or tipo ='spoof' or tipo ='slowloris';");
+	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='archivosPeligrosos' or tipo ='compartidoNFS' or tipo ='BlueKeep' or tipo ='compartidoSMB' or tipo ='passwordHost' or tipo ='logeoRemoto' or tipo ='heartbleed' or tipo ='adminPassword' or tipo ='rootPassword' or tipo ='ciscoPassword' or tipo ='passwordMikroTik' or tipo ='VNCnopass' or tipo ='VNCbypass' or tipo ='vulnDahua' or tipo ='openrelay' or tipo ='perdidaAutenticacion' or tipo ='spoof' or tipo ='slowloris' or tipo ='wordpressPass' ;");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $servicios_vuln_altos = $row[0];
@@ -276,7 +301,7 @@ for my $resultados_db (@resultados_array)
 	
 	###### Vulnerabilidades por activos ####
 	# aplicacionWeb
-	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='debugHabilitado' or TIPO='listadoDirectorios' or TIPO='archivosDefecto' or TIPO='divulgacionInformacion' or TIPO='archivosPeligrosos' or TIPO='googlehacking' or TIPO='perdidaAutenticacion' or TIPO='erroresWeb' or TIPO='wpusers' or TIPO='exposicionUsuarios' ;  ");
+	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='debugHabilitado' or TIPO='listadoDirectorios' or TIPO='archivosDefecto' or TIPO='divulgacionInformacion' or TIPO='archivosPeligrosos' or TIPO='googlehacking' or TIPO='perdidaAutenticacion' or TIPO='erroresWeb' or TIPO='wpusers' or TIPO='exposicionUsuarios'  or TIPO='wordpressPass' ;  ");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vuln_app = $row[0];
@@ -450,11 +475,24 @@ for my $resultados_db (@resultados_array)
 				$vuln_detalles =~ s/[445]//g;				
 				$hosts = $hosts."$host $vuln_detalles<br>";
 				
-				if($vuln_detalles =~ /Tomcat|Pentaho|AdminWeb/i){$servidores++;}
-				if($vuln_detalles =~ /Cisco|PRTG/i){$dispositivosRed++;}				
-				if($vuln_detalles =~ /smb/i){$estacionesTrabajo++;}				
+				#if($vuln_detalles =~ /Tomcat|Pentaho|AdminWeb/i){$servidores++;}
+				#if($vuln_detalles =~ /Cisco|PRTG/i){$dispositivosRed++;}				
+				#if($vuln_detalles =~ /smb/i){$estacionesTrabajo++;}				
 				$filas++;
 			}			
+		}
+		
+				
+		if ($cod eq "wordpressPass")
+		{
+			while (my @row = $sth->fetchrow_array) {     
+											
+				$ip = $row[0];							 
+				$port = $row[1];
+				$vuln_detalles = $row[3];		          	
+				$hosts = $hosts."$ip:$port - $vuln_detalles<br>";
+				$filas++;								
+			}  						
 		}
 		
 		if ($cod eq "winboxVuln")
@@ -547,7 +585,7 @@ for my $resultados_db (@resultados_array)
 			}  						
 		}
       	
-   	if (($cod eq "erroresWeb") || ($cod eq "debugHabilitado" || ($cod eq "exposicionUsuarios" ))
+   	if (($cod eq "erroresWeb") || ($cod eq "debugHabilitado") || ($cod eq "exposicionUsuarios" ))
 		{
 			while (my @row = $sth->fetchrow_array) 
 			{
@@ -851,4 +889,19 @@ open (SALIDA,">>reporte-resumen.csv") || die "ERROR: No puedo abrir el fichero g
 	
 	
 close (SALIDA);
-		
+
+sub buscarDescripcion
+{
+	my ($cod) = @_;
+	my $descripcion;
+	for (my $i=0; $i<$total_vulnerabilidades;$i++)
+	{     
+		my $current_cod = $vulnerabilidades->{vuln}->[$i]->{cod};     		       
+		$descripcion = $vulnerabilidades->{vuln}->[$i]->{nombre}; 
+		$codVul = $vulnerabilidades->{vuln}->[$i]->{codVul}; 
+		#print "cod $cod current_cod $current_cod \n";
+		if ($cod eq $current_cod)
+			{last;}	
+	}	
+	return ($codVul,$descripcion);
+}		
