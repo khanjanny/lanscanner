@@ -886,7 +886,7 @@ if [ -f .servicios/smtp.txt ]
 			#### probar con root@$DOMAIN
 			echo -e "\t\t[+] Probando con el correo root@$DOMAIN"
 			if [ $internet == "s" ]; then 
-				hackWeb.pl -t $ip -p $port -m openrelay -c "root@$DOMAIN" > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
+				hackWeb.pl -t $ip -p $port -m openrelay -c "root@$DOMAIN" -s 0 > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
 			else	
 				open-relay.py $ip $port "root@$DOMAIN" > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
 			fi	
@@ -899,7 +899,7 @@ if [ -f .servicios/smtp.txt ]
 			if [[ $greprc -eq 0 ]] ; then	
 				echo -e "\t\t[+] Upps el correo root@$DOMAIN no existe probando con info@$DOMAIN"
 				if [ $internet == "s" ]; then 
-					hackWeb.pl -t $ip -p $port -m openrelay -c "info@$DOMAIN" > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
+					hackWeb.pl -t $ip -p $port -m openrelay -c "info@$DOMAIN" -s 0> logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
 				else	
 					open-relay.py $ip $port "info@$DOMAIN" > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
 				fi							
@@ -911,7 +911,7 @@ if [ -f .servicios/smtp.txt ]
 			if [[ $greprc -eq 0 ]] ; then			
 				echo -e "\t\t[+] Upps el correo info@$DOMAIN no existe probando con sistemas@$DOMAIN"
 				if [ $internet == "s" ]; then 
-					hackWeb.pl -t $ip -p $port -m openrelay -c "sistemas@$DOMAIN" > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
+					hackWeb.pl -t $ip -p $port -m openrelay -c "sistemas@$DOMAIN" -s 0> logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
 				else	
 					open-relay.py $ip $port "sistemas@$DOMAIN" > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
 				fi							
@@ -1662,7 +1662,7 @@ then
       
     echo -e "$OKBLUE #################### WEB (`wc -l .servicios/web.txt`) ######################$RESET"	    
     ################ Obtener Informacion tipo de servidor, CMS, framework, etc ###########3
-    echo -e "[i] Identificacion de técnologia usada en los servidores web"
+    echo -e "$OKGREEN[i] Identificacion de técnologia usada en los servidores web$RESET"
 	for line in $(cat .servicios/web.txt); do  
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`					
@@ -1710,7 +1710,8 @@ then
 	###########################################################
 
   # Web buster & clone
-   echo -e "\n[i] Realizando la navegacion forzada"
+   echo -e ""
+   echo -e "$OKGREEN\n[i] Realizando la navegacion forzada $RESET"
 	for line in $(cat .servicios/web.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`				
@@ -1731,7 +1732,14 @@ then
 						sed -i "s/https/http/g" webClone/http-$subdominio.html
 						prefijoDominio="${subdominio/$DOMAIN/}" # mail.  www. 						
 						sed -i "s/$prefijoDominio//g" webClone/http-$subdominio.html 2>/dev/null		
-						sed -i "s/www.//g" webClone/http-$subdominio.html																	
+						sed -i "s/www.//g" webClone/http-$subdominio.html	
+						
+						#Borrar lineas que cambian en cada peticion
+						egrep -v "lae-portfolio-header|\.js" webClone/http-$subdominio.html > webClone/http2-$subdominio.html
+						mv webClone/http2-$subdominio.html webClone/http-$subdominio.html
+						
+						
+																						
 						checksumline=`md5sum webClone/http-$subdominio.html` 							
 						md5=`echo $checksumline | awk {'print $1'}` 													
 						egrep -iq $md5 webClone/checksumsEscaneados.txt
@@ -1748,7 +1756,7 @@ then
 								wafw00f http://$subdominio:$port > logs/enumeracion/"$subdominio"_"$port"_wafw00f.txt
 								grep "is behind" logs/enumeracion/"$subdominio"_"$port"_wafw00f.txt > .enumeracion/"$subdominio"_"$port"_wafw00f.txt								
 	
-								echo -e "\t[+] Detectando si hay balanceador de carga  "							
+								echo -e "\t\t[+] Detectando si hay balanceador de carga"							
 								lbd $subdominio > logs/enumeracion/"$subdominio"_web_balanceador.txt
 								grep "does Load-balancing" logs/enumeracion/"$subdominio"_web_balanceador.txt > .enumeracion/"$subdominio"_web_balanceador.txt								
 							fi	
@@ -1756,7 +1764,7 @@ then
 							
 
   							###  if the server is apache ######
-							egrep -i "apache|nginx" .enumeracion/"$subdominio"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud" # solo el segundo egrep poner "-q"
+							egrep -i "apache|nginx" .enumeracion/"$subdominio"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud" # solo el segundo egrep poner "-q"
 							greprc=$?
 							if [[ $greprc -eq 0  ]];then # si el banner es Apache y no se enumero antes				
 												
@@ -1826,11 +1834,13 @@ then
 								echo "nmap --script http-slowloris-check -p $port $subdominio" > logs/vulnerabilidades/"$subdominio"_"$port"_slowloris.txt 2>/dev/null
 								nmap --script http-slowloris-check -p $port $subdominio >> logs/vulnerabilidades/"$subdominio"_"$port"_slowloris.txt 2>/dev/null
 								grep "|" logs/vulnerabilidades/"$subdominio"_"$port"_slowloris.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/"$subdominio"_"$port"_slowloris.txt
+							else
+								echo -e "\t\t[+] Uppps el sitio es cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud"
 							fi						
 							####################################	
 							
 							#######  if the server is IIS ######
-							grep -i IIS .enumeracion/"$subdominio"_"$port"_webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud"  # no redirecciona
+							grep -i IIS .enumeracion/"$subdominio"_"$port"_webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud"  # no redirecciona
 							greprc=$?
 							if [[ $greprc -eq 0  ]];then # si el banner es IIS y no se enumero antes							
 								
@@ -1843,7 +1853,7 @@ then
 								echo -e "\t\t[+] Revisando vulnerabilidad HTTP.sys ($subdominio - IIS)"
 								echo "nmap -p $port --script http-vuln-cve2015-1635.nse $subdominio" >> logs/vulnerabilidades/"$subdominio"_"$port"_ms15034.txt
 								nmap -p $port --script http-vuln-cve2015-1635.nse $subdominio >> logs/vulnerabilidades/"$subdominio"_"$port"_ms15034.txt
-								egrep --color=never "|" logs/vulnerabilidades/"$subdominio"_"$port"_ms15034.txt >> .vulnerabilidades/"$subdominio"_"$port"_ms15034.txt
+								grep --color=never "|" logs/vulnerabilidades/"$subdominio"_"$port"_ms15034.txt > .vulnerabilidades/"$subdominio"_"$port"_ms15034.txt
 								
 								echo -e "\t\t[+] Revisando paneles administrativos ($subdominio - IIS)"						
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m admin -s 0 -q 1 >> logs/enumeracion/"$subdominio"_"$port"_admin.txt
@@ -1946,7 +1956,7 @@ then
 							cd ..										
 							###################################							
 						else
-							echo -e "\t\t[+] Redirección, error de proxy detectado o sitio ya escaneado"	
+							echo -e "\t\t[+] Redirección, error de proxy detectado o sitio ya escaneado \n"	
 						fi												
 					done #subdominio
 					
@@ -2042,7 +2052,7 @@ then
 					
 					
 					#######  if the server is IIS ######
-					grep -i IIS .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud"  # no redirecciona
+					grep -i IIS .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud"  # no redirecciona
 					greprc=$?
 					if [[ $greprc -eq 0 && ! -f .enumeracion/"$ip"_"$port"_webarchivos.txt  ]];then # si el banner es IIS y no se enumero antes
 						
@@ -2054,7 +2064,7 @@ then
 						echo -e "\t\t[+] Revisando vulnerabilidad HTTP.sys ($ip - IIS)"
 						echo "nmap -p $port --script http-vuln-cve2015-1635.nse $subdominio" >> logs/vulnerabilidades/"$ip"_"$port"_ms15034.txt
 						nmap -p $port --script http-vuln-cve2015-1635.nse $subdominio >> logs/vulnerabilidades/"$ip"_"$port"_ms15034.txt
-						egrep --color=never "|" logs/vulnerabilidades/"$ip"_"$port"_ms15034.txt >> .vulnerabilidades/"$ip"_"$port"_ms15034.txt
+						grep --color=never "|" logs/vulnerabilidades/"$ip"_"$port"_ms15034.txt >> .vulnerabilidades/"$ip"_"$port"_ms15034.txt
 						
 						echo -e "\t\t[+] Revisando directorios comunes ($ip -IIS)"
 						web-buster.pl -t $ip -p $port -h 8 -d / -m directorios -s 0 -q 1 >> logs/enumeracion/"$ip"_"$port"_webdirectorios.txt &
@@ -2121,7 +2131,7 @@ then
 			
 			
 					#######  if the server is apache ######
-					egrep -i "apache|nginx" .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud" # solo el segundo egrep poner "-q"
+					egrep -i "apache|nginx" .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud" # solo el segundo egrep poner "-q"
 					greprc=$?
 					if [[ $greprc -eq 0 && ! -f .enumeracion/"$ip"_"$port"_webarchivos.txt  ]];then # si el banner es Apache y no se enumero antes				
 													
@@ -2232,7 +2242,7 @@ if [ -f .servicios/web-ssl.txt ]
 then    
     
     echo -e "$OKBLUE #################### WEB - SSL (`wc -l .servicios/web-ssl.txt`) ######################$RESET"	    		
-	echo -e "[i] Identificacion de técnologia usada en los servidores web"
+	echo -e "$OKGREEN[i] Identificacion de técnologia usada en los servidores web$RESET"
 	# Extraer informacion web y SSL
 	for line in $(cat .servicios/web-ssl.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
@@ -2285,7 +2295,7 @@ then
 	  done
 	  ##############################
 
-
+	echo -e "$OKGREEN\n[i] Realizando la navegacion forzada $RESET"
 	for line in $(cat .servicios/web-ssl.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`				
@@ -2301,7 +2311,7 @@ then
 					lista_subdominios=`grep --color=never $ip -a $prefijo$FILE | cut -d ";" -f2`
 					#echo "lista_subdominios $lista_subdominios"
 					for subdominio in $lista_subdominios; do
-						echo -e "\t[+] subdominio: $subdominio \n"	
+						echo -e "\t[+] subdominio: $subdominio"	
 																		
 						wget --timeout=5 --tries=1 --no-check-certificate  https://$subdominio -O webClone/https-$subdominio.html 2>/dev/null
 						sed -i "s/\/index.php//g" webClone/https-$subdominio.html
@@ -2328,7 +2338,7 @@ then
 							fi	
 														
 							###  if the server is apache ######
-							egrep -i "apache|nginx" .enumeracion/"$subdominio"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud" # solo el segundo egrep poner "-q"
+							egrep -i "apache|nginx" .enumeracion/"$subdominio"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud" # solo el segundo egrep poner "-q"
 							greprc=$?
 							if [[ $greprc -eq 0  ]];then # si el banner es Apache y no se enumero antes				
 												
@@ -2383,7 +2393,7 @@ then
 							####################################	
 							
 							#######  if the server is IIS ######
-							grep -i IIS .enumeracion/"$subdominio"_"$port"_webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud"  # no redirecciona
+							grep -i IIS .enumeracion/"$subdominio"_"$port"_webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud"  # no redirecciona
 							greprc=$?
 							if [[ $greprc -eq 0  ]];then # si el banner es IIS y no se enumero antes							
 								
@@ -2500,7 +2510,7 @@ then
 							cd ..						
 							###################################												
 						else
-								echo -e "\t\t[+] Redirección, error de proxy detectado o sitio ya escaneado"	
+								echo -e "\t\t[+] Redirección, error de proxy detectado o sitio ya escaneado \n"	
 						fi														
 						
 					done # subdominios 
@@ -2596,7 +2606,7 @@ then
 					
 																							
 					#######  if the server is apache ######
-					egrep -i "apache|nginx" .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud" # solo el segundo egrep poner "-q"
+					egrep -i "apache|nginx" .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud" # solo el segundo egrep poner "-q"
 					greprc=$?				
 					if [[ $greprc -eq 0 && ! -f .enumeracion/"$ip"_"$port"_webarchivos.txt  ]];then # si el banner es Apache y no se enumero antes
 						
@@ -2655,7 +2665,7 @@ then
 					####################################
 		
 					#######  if the server is IIS ######
-					grep -qi IIS .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud" 
+					grep -qi IIS .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud" 
 					greprc=$?
 					if [[ $greprc -eq 0 && ! -f .enumeracion/"$ip"_"$port"_webarchivos.txt  ]];then # si el banner es IIS y no se enumero antes					
 						echo -e "\n### $ip:$port ( IIS - HTTPsys)"
@@ -3156,45 +3166,45 @@ cd .nmap
 	# 
 	
 	#fortinet
-	grep --color=never -i forti * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"  | cut -d "_" -f1 >> ../.servicios/fortinet2.txt
+	grep --color=never -i forti * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/fortinet2.txt
 	sort ../.servicios/fortinet2.txt | uniq > ../.servicios/fortinet.txt
 	rm ../.servicios/fortinet2.txt
 	
 	#3com
-	grep --color=never -i 3com * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"  | cut -d "_" -f1 >> ../.servicios/3com2.txt
+	grep --color=never -i 3com * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/3com2.txt
 	sort ../.servicios/3com2.txt | uniq > ../.servicios/3com.txt
 	rm ../.servicios/3com2.txt
 	
 	#d-link
-	grep --color=never -i d-link * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"  | cut -d "_" -f1 >> ../.servicios/d-link2.txt
+	grep --color=never -i d-link * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/d-link2.txt
 	sort ../.servicios/d-link2.txt | uniq > ../.servicios/d-link.txt
 	rm ../.servicios/d-link2.txt
 
 	#linksys
-	grep --color=never -i linksys * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"  | cut -d "_" -f1 >> ../.servicios/linksys2.txt
+	grep --color=never -i linksys * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/linksys2.txt
 	sort ../.servicios/linksys2.txt | uniq > ../.servicios/linksys.txt
 	rm ../.servicios/linksys2.txt
 		
 	
 	#Pentahoo	
 	# Pentaho User Console - Login~~~~ ~~~/pentaho~~~login~ Apache-Coyote/1.1
-	grep --color=never -i pentaho * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"  | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" > ../.servicios/pentaho.txt
+	grep --color=never -i pentaho * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" > ../.servicios/pentaho.txt
 	
 	#ubiquiti
-	grep --color=never -i ubiquiti * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"  | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/ubiquiti2.txt	
+	grep --color=never -i ubiquiti * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/ubiquiti2.txt	
 	sort ../.servicios/ubiquiti2.txt | uniq > ../.servicios/ubiquiti.txt ; rm ../.servicios/ubiquiti2.txt
 	
 	#pfsense
-	grep --color=never -i pfsense * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"  | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/pfsense.txt
+	grep --color=never -i pfsense * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/pfsense.txt
 	
 	#PRTG
-	grep --color=never -i PRTG * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"  | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/PRTG.txt
+	grep --color=never -i PRTG * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/PRTG.txt
 	
 	#ZKsoftware
 	grep --color=never -i ZK * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"| sort | cut -d "_" -f1 | uniq | tr "_" ":" >> ../.servicios/ZKSoftware.txt		
 	
 	#ZTE
-	grep --color=never -i ZTE * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"  | sort | cut -d "_" -f1 | uniq | tr "_" ":" >> ../.servicios/ZTE2.txt
+	grep --color=never -i ZTE * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | sort | cut -d "_" -f1 | uniq | tr "_" ":" >> ../.servicios/ZTE2.txt
 	sort ../.servicios/ZTE2.txt | uniq > ../.servicios/ZTE.txt ; rm ../.servicios/ZTE2.txt
 		
 	
@@ -3202,11 +3212,13 @@ cd .nmap
 	grep --color=never -i zimbra * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"| sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/zimbra.txt		
 	
 	#jboss
-	grep --color=never -i jboss * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"  | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/jboss.txt
+	grep --color=never -i jboss * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/jboss.txt
 	
 	#401
-	grep --color=never -i Unauthorized * 2>/dev/null| grep --color=never http | cut -d "_" -f1  > ../.servicios/web401-2.txt
-	grep --color=never -i Unauthorized * 2>/dev/null | cut -d "_" -f1  > ../.servicios/web401-2.txt
+		#line = http://200.87.193.109:80/phpmyadmin/	
+	grep --color=never -i Unauthorized * 2>/dev/null| grep --color=never http | cut -d "_" -f1 > ../.servicios/web401-2.txt
+		#line=10.0.0.2:443
+	grep --color=never -i Unauthorized * 2>/dev/null | cut -d "_" -f1-2 | uniq | tr "_" ":"   > ../.servicios/web401-2.txt
 	# sort
 	sort ../.servicios/web401-2.txt | uniq >> ../.servicios/web401.txt
 	rm ../.servicios/web401-2.txt
@@ -3264,8 +3276,17 @@ then
 		port=`echo $line | cut -f2 -d":"` 	
 		echo -e "[+] Escaneando $ip : $port"	
 		echo -e "\t[+]Probando vulnerabilidad XXE \n $RESET"				
-		echo "hackWeb.pl -t $ip -p $port -m zimbraXXE" > logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 2>/dev/null		
-		hackWeb.pl -t $ip -p $port -m zimbraXXE  >> logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 2>/dev/null		
+		if ($port eq 80)
+		{
+			echo "hackWeb.pl -t $ip -p $port -m zimbraXXE -s 0 " > logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 2>/dev/null		
+			hackWeb.pl -t $ip -p $port -m zimbraXXE -s 0  >> logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 2>/dev/null
+		}
+		else
+		{
+			echo "hackWeb.pl -t $ip -p $port -m zimbraXXE -s 1 " > logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 2>/dev/null		
+			hackWeb.pl -t $ip -p $port -m zimbraXXE -s 1  >> logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 2>/dev/null
+		}		
+		
 		grep -i "credenciales" logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt  > .vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 															
 		 echo ""
  	done <.servicios/zimbra.txt
@@ -3990,7 +4011,7 @@ while true; do
 done	# done true	
 
 ##########  Filtrar los directorios que respondieron 200 OK (llevarlos a .enumeracion) ################
-echo -e "[i] Filtrar los directorios que respondieron 200 OK (llevarlos a .enumeracion) "
+echo -e "$OKBLUE [i] Filtrar los directorios que respondieron 200 OK (llevarlos a .enumeracion) $RESET"	    
 egrep --color=never "^200" logs/enumeracion/*webdirectorios.txt 2>/dev/null| while read -r line ; do	
 	#echo -e  "$OKRED[!] Listado de directorio detectado $RESET"		
     archivo_origen=`echo $line | cut -d ':' -f1`
@@ -4036,13 +4057,13 @@ for line in $(cat .enumeracion2/*webdirectorios.txt 2>/dev/null); do
 										
 					web-buster.pl -t $ip -p $port -h 3 -d "/$path/" -m archivosPeligrosos >> .vulnerabilidades/"$ip"_"$port"_archivosPeligrosos.txt &
 	
-					egrep -i "apache|nginx" .enumeracion2/"$ip"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud" # solo el segundo egrep poner "-q"
+					egrep -i "apache|nginx" .enumeracion2/"$ip"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud" # solo el segundo egrep poner "-q"
 					greprc=$?				
 					if [[ $greprc -eq 0 ]];then # si el banner es Apache
 						web-buster.pl -t $ip -p $port -h 3 -d "/$path/" -m backdoorApache >> .vulnerabilidades/"$ip"_"$port"_backdoor.txt &
 					fi				
 				fi				
-				sleep 5
+				sleep 1
 			else
 				echo -e "\t[-] El listado de directorios esta activo o es un directorio de wordpress "
 			fi #revisar q el listado de directorio esta habilitado
@@ -4153,17 +4174,19 @@ grep "Listado directorio" .enumeracion2/* 2>/dev/null| while read -r line ; do
 done
 
 #En la raiz de los servidores
-grep -i "index of" .enumeracion2/* 2>/dev/null| while read -r line ; do	
+grep -i "index of" .enumeracion2/* | egrep -v "HTTPSredirect|web_comentario" 2>/dev/null| while read -r line ; do	
 	echo -e  "$OKRED[!] Listado de directorio detectado $RESET"	
     archivo_origen=`echo $line | cut -d ':' -f1`
     #echo "archivo_origen $archivo_origen"
     archivo_destino=$archivo_origen       
+    #archivo_origen= .enumeracion2/seguridad-cod.abc.gob.bo_443_webData.txt -->  url_listado= seguridad-cod.abc.gob.bo:443
+    url_listado=`echo $archivo_origen | cut -d "/" -f 2 | cut -d "_" -f1-2 | tr "_" ":"`
 	archivo_destino=${archivo_destino/.enumeracion2/.vulnerabilidades}   
 	archivo_destino=${archivo_destino/webData/listadoDirectorios}   	
     contenido=`echo $line | awk '{print $2}'`    
     #200 http://1.2.3.4:80/assets/
     #echo "contenido $contenido"
-    echo $contenido >> $archivo_destino        
+    echo $url_listado >> $archivo_destino        
 done
 ##############################################
 
@@ -4198,6 +4221,22 @@ grep -i "Mensaje de error" .enumeracion2/* 2>/dev/null| while read -r line ; do
     echo $contenido >> $archivo_destino        
 done
 #################################
+
+
+########## Phpinfo ###
+grep "phpinfo" .enumeracion2/* 2>/dev/null| while read -r line ; do	
+	echo -e  "$OKRED[!] Archivos phpinfo $RESET"		
+    archivo_origen=`echo $line | cut -d ':' -f1`
+    #echo "archivo_origen $archivo_origen"
+    archivo_destino=$archivo_origen       
+	archivo_destino=${archivo_destino/.enumeracion2/logs\/enumeracion}   
+	archivo_destino=${archivo_destino/webdirectorios/divulgacionInformacion}   			
+    contenido=`echo $line | awk '{print $2}'`    
+    #200	http://192.168.50.154:80/img/ (Phpinfo)	 TRACE
+    #echo "contenido $contenido"
+    echo $contenido >> $archivo_destino        
+done
+
 
 # insertar datos 
 insert_data
@@ -4258,17 +4297,17 @@ then
 		port=`echo $ip_port | cut -d ":" -f 2`		
 		#echo "webData.pl -t $ip -d $path -p $port -e todo -l /dev/null -r 4 "
 		result=`webData.pl -t $ip -d "/$path/" -p $port -e todo -l /dev/null -r 4`	
-		result=`echo "$result" | tr '[:upper:]' '[:lower:]' | tr -d ";"` # a minusculas y eliminar  ;
-		echo "$line;$result" >> .servicios/admin-web2.txt	
+		result=`echo "$result" | tr '[:upper:]' '[:lower:]' | tr -d ";"` # a minusculas y eliminar  ;		
 		#############
 			
 		if [[ ${line} == *"wp-login"*  ]];then 
 			#https://181.115.188.36:443/wp-login.php   
 			line=`echo "${line/wp-login.php/}"`				
 		fi
+		echo "$line;$result" >> .servicios/admin-web2.txt	
 		
-		if [[ ${line} != *"."*  ]];then  # si es un directorio y no un archivo						
-			egrep -i "apache|nginx" .enumeracion2/"$ip"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|webadmin|owa" # solo el segundo egrep poner "-q"
+		if [[ ${path} != *"."*  ]];then  # si es un directorio y no un archivo						
+			egrep -i "apache|nginx" .enumeracion2/"$ip"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud|webadmin|owa" # solo el segundo egrep poner "-q"
 			greprc=$?
 			# si no es tomcat/phpmyadmin/joomla descubrir rutas de 2do nivel accesibles
 			if [[ $greprc -eq 0 && $result != *"tomcat"* && $result != *"phpmyadmin"*  && $result != *"joomla"*  && $result != *"wordpress"*  && $result != *"sqlite"*  ]];then # si el banner es Apache y si no es tomcat/phpmyadmin/joomla/wordpress		
@@ -4280,6 +4319,7 @@ then
 	done		
 fi		
 sort .servicios/admin-web2.txt | uniq > .servicios/admin-web.txt
+rm .servicios/admin-web2.txt
 insert_data			
 
 
