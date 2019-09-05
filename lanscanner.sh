@@ -786,7 +786,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 	
 	
 	#Esp
-	grep ' 16992/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' >> ../.servicios/intel.txt 	
+	grep ' 16992/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:16992\n"' >> ../.servicios/intel.txt 	
 	grep ' 5601/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5601\n"' >> ../.servicios/kibana.txt 	
 	
 	grep ' 47808/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:47808\n"' >> ../.servicios/BACnet.txt 
@@ -823,7 +823,7 @@ if [[ $TYPE = "completo" ]] || [ $udp_escaneando == "s" ]; then
 		
 	
 	grep "1604/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1604\n"' >> ../.servicios/citrix.txt	
-	grep "1900/open/" nmap-udp.grep | awk '{print $2}' >> ../.servicios/upnp.txt	
+	grep "1900/open/" nmap-udp.grep | awk '{print $2}'  >> ../.servicios/upnp.txt #
 	grep "623/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:623\n"' >> ../.servicios/IPMI.txt
 		
 	cd ../
@@ -1147,13 +1147,13 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`	
 		echo -e "[+] Escaneando $ip:$port"		
-		echo "nmap -n -p $port $ip --script=nfs-ls.nse" > logs/vulnerabilidades/"$ip"_rpc_nfs.txt 2>/dev/null 
-		nmap -Pn -n -p $port $ip --script=nfs-ls.nse >> logs/vulnerabilidades/"$ip"_rpc_compartidoNFS.txt 2>/dev/null 
-		grep "|" logs/vulnerabilidades/"$ip"_rpc_compartidoNFS.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/"$ip"_rpc_compartidoNFS.txt 
+		echo "nmap -n -p $port $ip --script=nfs-ls.nse" > logs/vulnerabilidades/"$ip"_"$port"_nfs.txt 2>/dev/null 
+		nmap -Pn -n -p $port $ip --script=nfs-ls.nse >> logs/vulnerabilidades/"$ip"_"$port"_compartidoNFS.txt 2>/dev/null 
+		grep "|" logs/vulnerabilidades/"$ip"_"$port"_compartidoNFS.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/"$ip"_"$port"_compartidoNFS.txt 
 		
-		echo "nmap -n -p $port $ip --script=rpcinfo" > logs/enumeracion/"$ip"_rpc_info.txt 2>/dev/null 
-		nmap -Pn -n -p $port $ip --script=rpcinfo >> logs/enumeracion/"$ip"_rpc_info.txt 2>/dev/null 
-		grep "|" logs/enumeracion/"$ip"_rpc_info.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .enumeracion/"$ip"_rpc_info.txt
+		echo "nmap -n -p $port $ip --script=rpcinfo" > logs/enumeracion/"$ip"_"$port"_info.txt 2>/dev/null 
+		nmap -Pn -n -p $port $ip --script=rpcinfo >> logs/enumeracion/"$ip"_"$port"_info.txt 2>/dev/null 
+		grep "|" logs/enumeracion/"$ip"_"$port"_info.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .enumeracion/"$ip"_"$port"_info.txt
 		
 	done	
 	# mount -t nfs 192.168.50.16:/shares/BK /mnt/compartido
@@ -1196,9 +1196,9 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`	
 		echo -e "[+] Escaneando $ip:$port"			
-		echo "nmap -n -p $port $ip --script redis-info" > logs/enumeracion/"$ip"_redis.txt 2>/dev/null
-		nmap -Pn -n -p $port $ip --script redis-info >> logs/enumeracion/"$ip"_redis.txt 2>/dev/null
-		grep "|" logs/enumeracion/"$ip"_redis.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR"  > .enumeracion/"$ip"_redis.txt						
+		echo "nmap -n -p $port $ip --script redis-info" > logs/enumeracion/"$ip"_"$port"_redis.txt 2>/dev/null
+		nmap -Pn -n -p $port $ip --script redis-info >> logs/enumeracion/"$ip"_"$port"_redis.txt 2>/dev/null
+		grep "|" logs/enumeracion/"$ip"_"$port"_redis.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR"  > .enumeracion/"$ip"_"$port"_redis.txt						
 	done
 	
 	#insert clean data	
@@ -1212,9 +1212,9 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
 		echo -e "[+] Escaneando $ip:$port"
-		echo "nmap -n -p $port $ip --script rmi-vuln-classloader" > logs/vulnerabilidades/"$ip"_rmi_vuln.txt 2>/dev/null
-		nmap -Pn -n -p $port $ip --script rmi-vuln-classloader >> logs/vulnerabilidades/"$ip"_rmi_vuln.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/"$ip"_rmi_vuln.txt  | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/"$ip"_rmi_vuln.txt
+		echo "nmap -n -p $port $ip --script rmi-vuln-classloader" > logs/vulnerabilidades/"$ip"_"$port"_vuln.txt 2>/dev/null
+		nmap -Pn -n -p $port $ip --script rmi-vuln-classloader >> logs/vulnerabilidades/"$ip"_"$port"_vuln.txt 2>/dev/null
+		grep "|" logs/vulnerabilidades/"$ip"_"$port"_vuln.txt  | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/"$ip"_"$port"_vuln.txt
 		
 	done
 	
@@ -1542,9 +1542,9 @@ then
 		port=`echo $line | cut -f2 -d":"`
 		echo -e "[+] Escaneando $ip:$port"																	
 		echo -e "\t[+] Probando vulnerabilidad"				
-		echo "nmap -n -p 16992 --script http-vuln-cve2017-5689 $ip" > logs/vulnerabilidades/"$ip"_intel_bypass.txt 2>/dev/null
-		nmap -n -p 16992 --script http-vuln-cve2017-5689 $ip >> logs/vulnerabilidades/"$ip"_intel_bypass.txt 2>/dev/null
-		grep "|" logs/vulnerabilidades/"$ip"_intel_bypass.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/"$ip"_intel_bypass.txt
+		echo "nmap -n -p $port --script http-vuln-cve2017-5689 $ip" > logs/vulnerabilidades/"$ip"_"$port"_intelBypass.txt 2>/dev/null
+		nmap -n -p $port --script http-vuln-cve2017-5689 $ip >> logs/vulnerabilidades/"$ip"_"$port"_intelBypass.txt 2>/dev/null
+		grep "|" logs/vulnerabilidades/"$ip"_"$port"_intelBypass.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/"$ip"_"$port"_intelBypass.txt
 													 
 		 echo ""
  	done <.servicios/intel.txt	
@@ -1745,7 +1745,7 @@ then
 						egrep -iq $md5 webClone/checksumsEscaneados.txt
 						noEscaneado=$?	
 						
-						egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request" .enumeracion/"$subdominio"_"$port"_webData.txt
+						egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved" .enumeracion/"$subdominio"_"$port"_webData.txt
 						noRedireccion=$?	
 						echo -e "\t\tnoEscaneado $noEscaneado noRedireccion $noRedireccion"
 						# 1= no coincide (no redirecciona a otro dominio o es error de proxy)						
@@ -2008,7 +2008,7 @@ then
 				egrep -iq $md5 webClone/checksumsEscaneados.txt
 				noEscaneado=$?	
 																											
-				egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request" .enumeracion/"$ip"_"$port"_webData.txt
+				egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved" .enumeracion/"$ip"_"$port"_webData.txt
 				noRedireccion=$?	
 				echo -e "\t\tnoEscaneado $noEscaneado noRedireccion $noRedireccion"
 				# 1= no coincide (no redirecciona a otro dominio o es error de proxy)						
@@ -2062,8 +2062,8 @@ then
 						grep "|" logs/vulnerabilidades/"$ip"_"$port"_webdav.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/"$ip"_"$port"_webdav.txt 					
 						
 						echo -e "\t\t[+] Revisando vulnerabilidad HTTP.sys ($ip - IIS)"
-						echo "nmap -p $port --script http-vuln-cve2015-1635.nse $subdominio" >> logs/vulnerabilidades/"$ip"_"$port"_ms15034.txt
-						nmap -p $port --script http-vuln-cve2015-1635.nse $subdominio >> logs/vulnerabilidades/"$ip"_"$port"_ms15034.txt
+						echo "nmap -p $port --script http-vuln-cve2015-1635.nse $ip" >> logs/vulnerabilidades/"$ip"_"$port"_ms15034.txt
+						nmap -p $port --script http-vuln-cve2015-1635.nse $ip >> logs/vulnerabilidades/"$ip"_"$port"_ms15034.txt
 						grep --color=never "|" logs/vulnerabilidades/"$ip"_"$port"_ms15034.txt >> .vulnerabilidades/"$ip"_"$port"_ms15034.txt
 						
 						echo -e "\t\t[+] Revisando directorios comunes ($ip -IIS)"
@@ -2168,14 +2168,20 @@ then
 						web-buster.pl -t $ip -p $port -h 3 -d / -m php -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/"$ip"_"$port"_webarchivos.txt
 						sleep 2
 						
-						egrep -i "is behind" .enumeracion/"$ip"_"$port"_wafw00f.txt 2>/dev/null
-						greprc=$?
-						if [[ $greprc -ne 0 ]];then # si hay no hay firewall protegiendo la app								
+						if [ $internet == "s" ]; then 
+							egrep -i "is behind" .enumeracion/"$ip"_"$port"_wafw00f.txt 2>/dev/null
+							greprc=$?
+							if [[ $greprc -ne 0 ]];then # si hay no hay firewall protegiendo la app								
+								echo -e "\t\t[+] Revisando archivos CGI ($ip -Apache/nginx)"
+								web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt  
+								sleep 2						
+							fi	
+						else
 							echo -e "\t\t[+] Revisando archivos CGI ($ip -Apache/nginx)"
 							web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt  
-							sleep 2						
-						fi		
-														
+							sleep 2													
+						fi	
+												
 						echo -e "\t\t[+] Revisando archivos peligrosos ($ip -Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m archivosPeligrosos -s 0 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_archivosPeligrosos.txt 
 						egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_archivosPeligrosos.txt  | awk '{print $2}' >> .vulnerabilidades/"$ip"_"$port"_archivosPeligrosos.txt  
@@ -2636,14 +2642,22 @@ then
 						echo -e "\t\t[+] Revisando backups de archivos de PHP2 ($ip - Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m php -s 1 -q 1 >  logs/enumeracion/"$ip"_"$port"_webarchivos.txt
 						egrep --color=never "^200" logs/enumeracion/"$ip"_"$port"_webarchivos.txt >> .enumeracion/"$ip"_"$port"_webarchivos.txt
-						sleep 2				
-						egrep -i "is behind" .enumeracion/"$ip"_"$port"_wafw00f.txt 
-						greprc=$?
-						if [[ $greprc -ne 0 ]];then # si hay no hay firewall protegiendo la app								
-							echo -e "\t\t[+] Revisando archivos CGI ($ip - Apache/nginx)"
+						sleep 2	
+						
+						if [ $internet == "s" ]; then 
+							egrep -i "is behind" .enumeracion/"$ip"_"$port"_wafw00f.txt 2>/dev/null
+							greprc=$?
+							if [[ $greprc -ne 0 ]];then # si hay no hay firewall protegiendo la app								
+								echo -e "\t\t[+] Revisando archivos CGI ($ip -Apache/nginx)"
+								web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt  
+								sleep 2						
+							fi	
+						else
+							echo -e "\t\t[+] Revisando archivos CGI ($ip -Apache/nginx)"
 							web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt  
-							sleep 2
-						fi							
+							sleep 2													
+						fi	
+																				
 						
 						echo -e "\t\t[+] Revisando archivos peligrosos ($ip - Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m archivosPeligrosos -s 1 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_archivosPeligrosos.txt  
@@ -2821,16 +2835,16 @@ cd webClone
 						
 	######### buscar IPs privadas
 	echo -e "\t\t\t[+] Revisando si hay divulgación de IPs privadas"	
-	grep -ira "192.168." * | grep -v "checksumsEscaneados" >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
-	grep -ira "172.16." * | grep -v "checksumsEscaneados" >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt						
+	grep -ira "192.168." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
+	grep -ira "172.16." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt						
 						
-	grep -ira "http://172." * | grep -v "checksumsEscaneados" >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
-	grep -ira "http://10." * | grep -v "checksumsEscaneados" >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
-	grep -ira "http://192." * | grep -v "checksumsEscaneados" >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
+	grep -ira "http://172." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
+	grep -ira "http://10." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
+	grep -ira "http://192." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
 
-	grep -ira "https://172." * | grep -v "checksumsEscaneados" >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
-	grep -ira "https://10." * | grep -v "checksumsEscaneados" >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
-	grep -ira "https://192." * | grep -v "checksumsEscaneados" >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
+	grep -ira "https://172." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
+	grep -ira "https://10." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
+	grep -ira "https://192." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
 	###############################	
 	
 	######### buscar comentarios 
@@ -2838,7 +2852,7 @@ cd webClone
 	grep --color=never -ir '// ' * | egrep -v "http|https|header|footer|div|class" >> ../.enumeracion/"$DOMAIN"_web_comentario.txt
 	grep --color=never -r '<!-- ' * | egrep -v "header|footer|div|class" >> ../.enumeracion/"$DOMAIN"_web_comentario.txt
 	grep --color=never -r ' \-\->' * | egrep -v "header|footer|div|class" >> ../.enumeracion/"$DOMAIN"_web_comentario.txt
-	egrep -i " password | contrase| pin | firma| key | api " ../.enumeracion/"$DOMAIN"_web_comentario.txt | egrep -v "shift key|Key event|return key|key and mouse|bind key" > ../.vulnerabilidades/"$DOMAIN"_web_comentario.txt
+	#egrep -i " password | contrase| pin | firma| key | api " ../.enumeracion/"$DOMAIN"_web_comentario.txt | egrep -v "shift key|Key event|return key|key and mouse|bind key" > ../.vulnerabilidades/"$DOMAIN"_web_comentario.txt
 	###############################						
 cd ../	 # salir de webCLone
 
@@ -3155,64 +3169,64 @@ cd .nmap
 	
 	#phpmyadmin, etc
 	#responde con 401
-	grep --color=never -i admin * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|whois|google|webData|Usando archivo" | grep 401 | awk '{print $2}' | sort | uniq -i >> ../.servicios/web401.txt
+	grep --color=never -i admin * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389|whois|google|webData|Usando archivo" | grep 401 | awk '{print $2}' | sort | uniq -i >> ../.servicios/web401.txt
 	
 	#.enumeracion/"$ip"_"$port"_admin.txt 
 	#responde con 200 OK
 	cat *_admin.txt 2>/dev/null | grep 200 | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt 
 	
 	#tomcat
-	grep --color=never -i "/manager/html" * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|whois|google" | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt
+	grep --color=never -i "/manager/html" * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389|whois|google" | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt
 	# 
 	
 	#fortinet
-	grep --color=never -i forti * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/fortinet2.txt
+	grep --color=never -i forti * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/fortinet2.txt
 	sort ../.servicios/fortinet2.txt | uniq > ../.servicios/fortinet.txt
 	rm ../.servicios/fortinet2.txt
 	
 	#3com
-	grep --color=never -i 3com * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/3com2.txt
+	grep --color=never -i 3com * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/3com2.txt
 	sort ../.servicios/3com2.txt | uniq > ../.servicios/3com.txt
 	rm ../.servicios/3com2.txt
 	
 	#d-link
-	grep --color=never -i d-link * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/d-link2.txt
+	grep --color=never -i d-link * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/d-link2.txt
 	sort ../.servicios/d-link2.txt | uniq > ../.servicios/d-link.txt
 	rm ../.servicios/d-link2.txt
 
 	#linksys
-	grep --color=never -i linksys * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/linksys2.txt
+	grep --color=never -i linksys * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/linksys2.txt
 	sort ../.servicios/linksys2.txt | uniq > ../.servicios/linksys.txt
 	rm ../.servicios/linksys2.txt
 		
 	
 	#Pentahoo	
 	# Pentaho User Console - Login~~~~ ~~~/pentaho~~~login~ Apache-Coyote/1.1
-	grep --color=never -i pentaho * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" > ../.servicios/pentaho.txt
+	grep --color=never -i pentaho * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" > ../.servicios/pentaho.txt
 	
 	#ubiquiti
-	grep --color=never -i ubiquiti * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/ubiquiti2.txt	
+	grep --color=never -i ubiquiti * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/ubiquiti2.txt	
 	sort ../.servicios/ubiquiti2.txt | uniq > ../.servicios/ubiquiti.txt ; rm ../.servicios/ubiquiti2.txt
 	
 	#pfsense
-	grep --color=never -i pfsense * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/pfsense.txt
+	grep --color=never -i pfsense * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/pfsense.txt
 	
 	#PRTG
-	grep --color=never -i PRTG * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/PRTG.txt
+	grep --color=never -i PRTG * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/PRTG.txt
 	
 	#ZKsoftware
-	grep --color=never -i ZK * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"| sort | cut -d "_" -f1 | uniq | tr "_" ":" >> ../.servicios/ZKSoftware.txt		
+	grep --color=never -i ZK * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389"| sort | cut -d "_" -f1 | uniq | tr "_" ":" >> ../.servicios/ZKSoftware.txt		
 	
 	#ZTE
-	grep --color=never -i ZTE * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | sort | cut -d "_" -f1 | uniq | tr "_" ":" >> ../.servicios/ZTE2.txt
+	grep --color=never -i ZTE * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1 | uniq | tr "_" ":" >> ../.servicios/ZTE2.txt
 	sort ../.servicios/ZTE2.txt | uniq > ../.servicios/ZTE.txt ; rm ../.servicios/ZTE2.txt
 		
 	
 	#zimbra
-	grep --color=never -i zimbra * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata"| sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/zimbra.txt		
+	grep --color=never -i zimbra * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389"| sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/zimbra.txt		
 	
 	#jboss
-	grep --color=never -i jboss * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/jboss.txt
+	grep --color=never -i jboss * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/jboss.txt
 	
 	#401
 		#line = http://200.87.193.109:80/phpmyadmin/	
@@ -3234,7 +3248,7 @@ then
 	echo -e "$OKBLUE #################### UPnP (`wc -l .servicios/upnp.txt`) ######################$RESET"
 	for ip in $(cat .servicios/upnp.txt); do		
 		echo -e "[+] Escaneando $ip:1900"		
-		upnp_info.py $ip  >> logs/vulnerabilidades/"$ip"_upnp_enum.txt 2>/dev/null &					
+		upnp_info.py $ip  >> logs/vulnerabilidades/"$ip"_1900_upnpEnum.txt 2>/dev/null &					
 	done
 	
 	
@@ -3253,11 +3267,11 @@ then
 	# Revisar si se detecto servicios upnp
 	for ip in $(cat .servicios/upnp.txt); do			
 					
-		egrep -iq "http" logs/vulnerabilidades/"$ip"_upnp_enum.txt
+		egrep -iq "http" logs/vulnerabilidades/"$ip"_1900_upnpEnum.txt
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t$OKRED[!] Servicio upnp descubierto \n $RESET"
-			cp logs/vulnerabilidades/"$ip"_upnp_enum.txt .vulnerabilidades/"$ip"_upnp_enum.txt
+			cp logs/vulnerabilidades/"$ip"_1900_upnpEnum.txt .vulnerabilidades/"$ip"_1900_upnpEnum.txt
 		fi														
 	done		
 	
@@ -3276,16 +3290,15 @@ then
 		port=`echo $line | cut -f2 -d":"` 	
 		echo -e "[+] Escaneando $ip : $port"	
 		echo -e "\t[+]Probando vulnerabilidad XXE \n $RESET"				
-		if ($port eq 80)
-		{
+		
+		if [[ $port -eq 80 ]] ; then					
 			echo "hackWeb.pl -t $ip -p $port -m zimbraXXE -s 0 " > logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 2>/dev/null		
-			hackWeb.pl -t $ip -p $port -m zimbraXXE -s 0  >> logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 2>/dev/null
-		}
+			hackWeb.pl -t $ip -p $port -m zimbraXXE -s 0  >> logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 2>/dev/null		
 		else
-		{
+		
 			echo "hackWeb.pl -t $ip -p $port -m zimbraXXE -s 1 " > logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 2>/dev/null		
 			hackWeb.pl -t $ip -p $port -m zimbraXXE -s 1  >> logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 2>/dev/null
-		}		
+		fi		
 		
 		grep -i "credenciales" logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt  > .vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 															
 		 echo ""
@@ -3328,17 +3341,17 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
-			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/"$ip"_admin_cisco.txt 2>/dev/null
+			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/"$ip"_23_cisco.txt 2>/dev/null
+			grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_23_cisco.txt > .vulnerabilidades/"$ip"_23_cisco.txt 2>/dev/null
 		fi		
 
 		egrep -iq "22/open" .nmap_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
-			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/"$ip"_admin_cisco.txt 2>/dev/null			
-		fi					
-				
-		grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_admin_cisco.txt > .vulnerabilidades/"$ip"_admin_cisco.txt 2>/dev/null
+			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/"$ip"_22_cisco.txt 2>/dev/null			
+			grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_22_cisco.txt > .vulnerabilidades/"$ip"_22_cisco.txt 2>/dev/null
+		fi								
 		echo ""													 		
  	done <.servicios/cisco.txt
 	#insert clean data	
@@ -4287,7 +4300,8 @@ echo "resource /usr/share/lanscanner/postExploiter/enum.rc" >> command-metasploi
 
 if [ -f .servicios/admin-web.txt ]
 then
-	echo -e "[i] Identificando paneles de administracion"
+	
+	echo -e "$OKBLUE [i] Identificando paneles de administracion $RESET"
 	for line in $(cat .servicios/admin-web.txt); do
 		echo -e "\n\t########### $line #######"		
 		####### Identificar tipo de panel de admin
@@ -4318,8 +4332,8 @@ then
 		fi # Es directorio								
 	done		
 fi		
-sort .servicios/admin-web2.txt | uniq > .servicios/admin-web.txt
-rm .servicios/admin-web2.txt
+sort .servicios/admin-web2.txt | uniq > .servicios/admin-web.txt 2>/dev/null
+rm .servicios/admin-web2.txt 2>/dev/null
 insert_data			
 
 

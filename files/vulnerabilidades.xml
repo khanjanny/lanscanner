@@ -750,6 +750,23 @@
     <recomendacion> Borrar los archivos y directorios por defecto </recomendacion> 
 	<referencias> https://www.owasp.org/images/5/5e/OWASP-Top-10-2017-es.pdf (A3: Exposición de dato sensibles) </referencias> 
   </vuln>
+    <vuln>   
+   	<cod>IPinterna</cod> 
+    <nombre> IPs internas divulgadas</nombre>
+    <codVul>ninguna</codVul>
+    <riesgoAgetic> Medio </riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Leve </impacto>
+    <riesgoInforme> BAJO </riesgoInforme>        
+    <agente_amenaza> USUARIO EXTERNO (Internet) </agente_amenaza>    
+    <impacto_tecnico> Obtener información sobre la red interna de la entiadad</impacto_tecnico>
+    <impacto_negocio> N/A </impacto_negocio>    
+    <detalles> Realizando una revisión de los sitios web. Se pudo identificar que exponen la IP interna de la entidad </detalles>    
+    <descripcion>Realizando una revisión de los sitios web. Se pudo identificar que exponen la IP interna de la entidad</descripcion>
+    <verificacion> ninguna </verificacion>
+    <recomendacion> Borrar la referencia de IPs internas del sitio web </recomendacion> 
+	<referencias> https://www.owasp.org/images/5/5e/OWASP-Top-10-2017-es.pdf (A3: Exposición de dato sensibles) </referencias> 
+  </vuln>
   
   <vuln>
 	<cod>CVE15473</cod>  
@@ -772,7 +789,7 @@
   
   <vuln>	
    	<cod>googlehacking</cod> 
-    <nombre>Información sensible indexada por motores de búsqueda.</nombre>
+    <nombre>Información sensible indexada por motores de búsqueda (google).</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>

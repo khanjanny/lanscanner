@@ -178,7 +178,7 @@ for my $resultados_db (@resultados_array)
 		my $ip = @vulnerabilidad_array[0];
 		my $port = @vulnerabilidad_array[1];
 		my $vuln = @vulnerabilidad_array[2];
-		$vuln =~ s/.txt//g; 		
+		$vuln =~ s/.txt|.html//g; 		
 		my ($codVul,$vuln_descripcion) =  buscarDescripcion($vuln);				
 		$codVul="" if ($codVul eq "ninguna");
 		
@@ -261,7 +261,7 @@ for my $resultados_db (@resultados_array)
 	$total_vul_altas_agetic = $total_vul_altas_agetic + $vul_altos;	
 
 	#Total vulnerabilidades medias
-	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='ms12020' or tipo ='debugHabilitado' or tipo ='wpusers' or tipo ='CVE15473' or tipo ='exposicionUsuarios'  ;");
+	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='ms12020' or tipo ='debugHabilitado' or tipo ='wpusers' or tipo ='CVE15473' or tipo ='exposicionUsuarios' or tipo ='IPinterna' ;");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_medios = $row[0];
@@ -284,7 +284,7 @@ for my $resultados_db (@resultados_array)
 	$total_servicios_vuln_altas_agetic = $total_servicios_vuln_altas_agetic + $servicios_vuln_altos;	
 
 	#Servicios afectados por vulnerabilidades medias
-	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='ms12020' or tipo ='wpusers' or tipo ='CVE15473' or tipo ='exposicionUsuarios' ;");
+	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='modoAgresivo' or tipo ='passwordDefecto' or tipo ='passwordDahuaTelnet' or tipo ='openstreaming' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='vrfy' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='ms12020' or tipo ='wpusers' or tipo ='CVE15473' or tipo ='exposicionUsuarios' or tipo ='IPinterna' ;");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $servicios_vuln_medios = $row[0];
@@ -301,7 +301,7 @@ for my $resultados_db (@resultados_array)
 	
 	###### Vulnerabilidades por activos ####
 	# aplicacionWeb
-	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='debugHabilitado' or TIPO='listadoDirectorios' or TIPO='archivosDefecto' or TIPO='divulgacionInformacion' or TIPO='archivosPeligrosos' or TIPO='googlehacking' or TIPO='perdidaAutenticacion' or TIPO='erroresWeb' or TIPO='wpusers' or TIPO='exposicionUsuarios'  or TIPO='wordpressPass' ;  ");
+	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='debugHabilitado' or TIPO='listadoDirectorios' or TIPO='archivosDefecto' or TIPO='divulgacionInformacion' or TIPO='archivosPeligrosos' or TIPO='googlehacking' or TIPO='perdidaAutenticacion' or TIPO='erroresWeb' or TIPO='wpusers' or TIPO='exposicionUsuarios'  or TIPO='wordpressPass' or TIPO='IPinterna';  ");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vuln_app = $row[0];
@@ -618,14 +618,35 @@ for my $resultados_db (@resultados_array)
 				$port = $row[1];
 				$vuln_detalles = $row[3];	 	            				
 				$vuln_detalles =~ s/\n/<br>\n/g; 
-				$hosts = $hosts."Usuarios enumerados del host $ip:$port : <br>".$vuln_detalles."<br><br>";
+				$hosts = $hosts."Usuarios administradores de wordpress enumerados del host $ip:$port : <br>".$vuln_detalles."<br><br>";
 				$filas++;								
 			}  						
 		}
    
 
+     
+		if ( $cod eq "IPinterna" ) 
+			{
+			while (my @row = $sth->fetchrow_array) {     		 
+				#	Users                                             	READ ONLY
+		
+				$ip = $row[0];	
+				my $vuln_detalles = $row[3];			
+				#https-siaco.abc.gob.bo.html: <!--<iframe width=1080 height=560 src=http://192.168.4.35/ frameborder=0 allowfullscreen></iframe>-->				
+				$vuln_detalles =~ /http(.*?):/;
+				my $url_afectada = "http".$1; 				 
+				$url_afectada =~ s/.html//g;
+				$url_afectada =~ s/-/:\/\//g;
+				$vuln_detalles =~ /\/\/(.*?)\//;
+				my $ip_interna = $1; 
+				
+				$hosts = $hosts." La URL $url_afectada expone la IP interna: $ip_interna  <br>";								
+				$filas++;				
+				}  						
+			}
+		
    
-		if ($cod eq "googlehacking" )
+		if ( $cod eq "googlehacking" ) 
 		{
 			while (my @row = $sth->fetchrow_array) {     		 
 				#	Users                                             	READ ONLY
@@ -639,7 +660,7 @@ for my $resultados_db (@resultados_array)
 			}  						
 		}
 				
-		if ($cod eq "listadoDirectorio") 
+		if ($cod eq "listadoDirectorios") 
 		{
 			while (my @row = $sth->fetchrow_array) 
 			{  
@@ -648,7 +669,7 @@ for my $resultados_db (@resultados_array)
 				$ip = $row[0];	
 				$port = $row[1];	
 				$vuln_detalles = $row[3];	
-				
+				$vuln_detalles =~ s/\n/<br>/g;
 				if($vuln_detalles =~ /index/i)
 					{
 					$hosts = $hosts." http://$ip:$port <br>" if ($port eq "80" ||  $port eq "81" ||  $port eq "82" ||  $port eq "83" ||  $port eq "84" ||  $port eq "85" ||  $port eq "86" ||  $port eq "8080" ||  $port eq "8081" ||  $port eq "8082"  || $port eq "8010"  ||  $port eq "8800");
@@ -780,8 +801,7 @@ for my $resultados_db (@resultados_array)
 		if ($filas>1)
 		{	   
 				print "cod $cod\n";
-				print "nombre $nombre\n\n";							
-						
+				print "nombre $nombre\n\n";													
 				open (SALIDA_HTML,">>reporte.html") || die "ERROR: No puedo abrir el fichero reporte.html\n";
 				print SALIDA_HTML "<div class='simditor-table'> <table border=1>  <colgroup><col width='20%'><col width='80%'></colgroup>\n";		
 				open (SALIDA_HTML,">>reporte.html") || die "ERROR: No puedo abrir el fichero reporte.html\n";
@@ -811,7 +831,8 @@ for my $resultados_db (@resultados_array)
 				print SALIDA_HTML "</tr>\n";										
 				print SALIDA_HTML "</table></div>\n<div><br></div> <p></p> \n\n";	
 				close (SALIDA_HTML);
-								
+						
+				# fix para reporte excel		
 				$hosts =~ s/<br>//g;
 				$hosts =~ s/\n<br>/\n/g;
 				$hosts =~ s/&nbsp;&nbsp;&nbsp;/\t/g;
@@ -893,15 +914,35 @@ close (SALIDA);
 sub buscarDescripcion
 {
 	my ($cod) = @_;
+	my $codVul;
 	my $descripcion;
-	for (my $i=0; $i<$total_vulnerabilidades;$i++)
-	{     
-		my $current_cod = $vulnerabilidades->{vuln}->[$i]->{cod};     		       
-		$descripcion = $vulnerabilidades->{vuln}->[$i]->{nombre}; 
-		$codVul = $vulnerabilidades->{vuln}->[$i]->{codVul}; 
-		#print "cod $cod current_cod $current_cod \n";
-		if ($cod eq $current_cod)
-			{last;}	
-	}	
+	
+	switch($cod) {   
+   case "googlehacking0"          { $descripcion="Google dork: site:$dominio inurl:add"; }
+   case "googlehacking1"          { $descripcion="Google dork: site:$DOMINIO inurl:edit"; }
+   case "googlehacking2"          { $descripcion="Google dork: site:$DOMINIO intitle:index.of"; }
+   case "googlehacking3"          { $descripcion="Google dork: site:$DOMINIO filetype:sql"; }
+   case "googlehacking4"          { $descripcion="Google dork: site:$DOMINIO \"access denied for user\""; }
+   case "googlehacking5"          { $descripcion="Google dork: site:$DOMINIO intitle:\"curriculum vitae\""; }
+   case "googlehacking6"          { $descripcion="Google dork: site:$DOMINIO passwords|contrasenas|login|contrasena filetype:txt"; }
+   case "googlehacking11"          { $descripcion="Google dork: site:trello.com passwords|contrasenas|login|contrasena intext:$DOMINIO"; }
+   case "googlehacking13"          { $descripcion="Google dork: site:$DOMINIO \"Undefined index\""; }
+   case "googlehacking14"          { $descripcion="Google dork: site:$DOMINIO inurl:storage"; }   
+   else              
+		{
+			for (my $i=0; $i<$total_vulnerabilidades;$i++)
+			{     
+				my $current_cod = $vulnerabilidades->{vuln}->[$i]->{cod};     		       
+				$descripcion = $vulnerabilidades->{vuln}->[$i]->{nombre}; 
+				$codVul = $vulnerabilidades->{vuln}->[$i]->{codVul}; 
+				#print "cod $cod current_cod $current_cod \n";
+				if ($cod eq $current_cod)
+					{last;}	
+			}#for				
+		}#else
+  }
+  
+	
+	
 	return ($codVul,$descripcion);
 }		
