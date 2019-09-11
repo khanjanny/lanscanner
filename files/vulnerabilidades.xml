@@ -42,7 +42,7 @@
   
   <vuln>
 	<cod>backdoorFabrica</cod> 
-    <nombre>El dispositivo tiene un backdoor de fabrica</nombre>
+    <nombre>Presencia de backdoor en el dispositivo</nombre>
     <codVul>CVE-2018-6211(Dlink) CVE-2014-0659(CISCO) CVE-2016-1909(Fortinet) CVE-2015-7755(Juniper)</codVul>
     <riesgoAgetic>Crítico</riesgoAgetic>	
     <probabilidad>Casi seguro</probabilidad>
@@ -85,7 +85,7 @@
   <vuln>
 	<cod>zimbraXXE</cod> 
 	<codVul>CVE-2019-9670</codVul>
-    <nombre>Zimbra vulnerable a XXE</nombre>
+    <nombre>Zimbra con vulnerabilidad XXE</nombre>
     <riesgoAgetic>Crítico</riesgoAgetic>	
     <probabilidad> Muy probable </probabilidad>
     <impacto> Crítico </impacto>
@@ -240,7 +240,7 @@
   
     <vuln>  
    	<cod>noSQLDatabases</cod> 
-    <nombre>La base de datos NoSQL no tiene autenticación.</nombre>
+    <nombre>Base de datos NoSQL sin autenticación.</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -1169,7 +1169,7 @@
   
    <vuln>
 	<cod>divulgacionInformacion</cod>  
-    <nombre>Configuración incorrecta de seguridad.</nombre>
+    <nombre>Divulgación de información (PhpInfo).</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>    
     <probabilidad>Posible</probabilidad>
@@ -1340,7 +1340,7 @@
     
    <vuln>	    
    	<cod>ftpAnonymous</cod> 
-    <nombre>Servidor FTP tiene el usuario anónimo habilitado.</nombre>
+    <nombre>Servidor FTP con usuario anónimo habilitado.</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>

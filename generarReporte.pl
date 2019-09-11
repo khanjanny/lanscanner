@@ -129,15 +129,31 @@ my $totalPruebas = 0;
 
 for my $resultados_db (@resultados_array)
 {
-	###### Reporte de pruebas por activos ####
-	my $aplicacionWeb_csv = "IP|Puerto|Código CVE|Prueba realizada\n";
-	my $servidores_csv = "IP|Puerto|Código CVE|Prueba realizada\n";
-	my $baseDatos_csv = "IP|Puerto|Código CVE|Prueba realizada\n";
-	my $estacionesTrabajo_csv = "IP|Puerto|Código CVE|Prueba realizada\n";
-	my $telefoniaIP_csv = "IP|Puerto|Código CVE|Prueba realizada\n";
-	my $sistemaVigilancia_csv = "IP|Puerto|Código CVE|Prueba realizada\n";
-	my $dispositivosRed_csv = "IP|Puerto|Código CVE|Prueba realizada\n";
-	my $otros_csv = "IP|Puerto|Código CVE|Prueba realizada\n"; #Impresoras, lectores de huella
+	###### Reporte de pruebas por activos CSV ####
+	my $aplicacionWeb_csv = "IP~Puerto~Código CVE~Prueba realizada\n";
+	my $servidores_csv = "IP~Puerto~Código CVE~Prueba realizada\n";
+	my $baseDatos_csv = "IP~Puerto~Código CVE~Prueba realizada\n";
+	my $estacionesTrabajo_csv = "IP~Puerto~Código CVE~Prueba realizada\n";
+	my $telefoniaIP_csv = "IP~Puerto~Código CVE~Prueba realizada\n";
+	my $sistemaVigilancia_csv = "IP~Puerto~Código CVE~Prueba realizada\n";
+	my $dispositivosRed_csv = "IP~Puerto~Código CVE~Prueba realizada\n";
+	my $otros_csv = "IP~Puerto~Código CVE~Prueba realizada\n"; #Impresoras, lectores de huella
+	
+	my $passwords_csv = "IP~Puerto~Código CVE~Prueba realizada\n";
+	#############
+	
+
+	###### Reporte de pruebas por activos HTML ####
+	my $aplicacionWeb_html = "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n";
+	my $servidores_html = "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n";
+	my $baseDatos_html = "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n";
+	my $estacionesTrabajo_html = "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n";
+	my $telefoniaIP_html = "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n";
+	my $sistemaVigilancia_html = "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n";
+	my $dispositivosRed_html = "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n";
+	my $otros_html = "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n"; #Impresoras, lectores de huella
+	
+	my $passwords_html = "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n";
 	#############
 
 	print "Recolectando resultados de: $resultados_db \n";
@@ -187,15 +203,21 @@ for my $resultados_db (@resultados_array)
 	if ($vector eq "INTERNO")
 	{
 		open (SALIDA,">>reporte-pruebas.csv") || die "ERROR: reporte-pruebas.csv\n";
-		print SALIDA "\n\n||PRUEBAS INTERNAS DESDE LA VLAN $segmento\n";
-		print SALIDA "\n||Pruebas de vulnerabilidades de software y configuración incorrecta:\n\n";	
+		print SALIDA "\n\n~~PRUEBAS INTERNAS DESDE LA VLAN $segmento\n\n";
+		close (SALIDA);	
+		
+		open (SALIDA,">>reporte-pruebas.html") || die "ERROR: reporte-pruebas.csv\n";
+		print SALIDA "<center><h2>PRUEBAS INTERNAS DESDE LA VLAN $segmento</h2></center>";
 		close (SALIDA);			
 	}
 	else
 	{
 		open (SALIDA,">>reporte-pruebas.csv") || die "ERROR: reporte-pruebas.csv\n";
-		print SALIDA "\n\n||PRUEBAS EXTERNAS del dominio $segmento\n";
-		print SALIDA "\n||Pruebas de vulnerabilidades de software y configuración incorrecta:\n\n";	
+		print SALIDA "\n\n~~PRUEBAS EXTERNAS del dominio $segmento\n";		
+		close (SALIDA);	
+		
+		open (SALIDA,">>reporte-pruebas.html") || die "ERROR: reporte-pruebas.csv\n";
+		print SALIDA "<center><h2>PRUEBAS EXTERNAS del dominio $segmento</h2></center>";
 		close (SALIDA);	
 	}
 		
@@ -210,66 +232,79 @@ for my $resultados_db (@resultados_array)
 		my ($codVul,$vuln_descripcion) =  buscarDescripcion($vuln);				
 		$codVul="N/A" if ($codVul eq "ninguna"); #Buscar el Codigo CVE o MS
 		
-		print "vuln $vuln  ($codVul) \n";
+		#print "vuln $vuln  ($codVul) \n";
 		#Activos de informacion - aplicaciones web																																																																						
-		if (($vuln eq "debugHabilitado") || ($vuln eq "listadoDirectorios") || ($vuln eq "divulgacionInformacion") || ($vuln eq "archivosDefecto") || ($vuln eq "archivosPeligrosos") || ( $vuln =~ m/googlehacking/ ) || ($vuln eq "erroresWeb") || ($vuln eq "wpusers") || ($vuln eq "perdidaAutenticacion") || ($vuln eq "exposicionUsuarios") || ($vuln eq "wordpressPass") || ($vuln eq "IPinterna") || ($vuln eq "backupWeb")|| ($vuln eq "wordpressPlugin") || ($vuln eq "webshell"))
+		if (($vuln eq "debugHabilitado") || ($vuln eq "listadoDirectorios") || ($vuln eq "divulgacionInformacion") || ($vuln eq "archivosDefecto") || ($vuln eq "archivosPeligrosos") || ( $vuln =~ m/googlehacking/ ) || ($vuln eq "erroresWeb") || ($vuln eq "wpusers") || ($vuln eq "perdidaAutenticacion") || ($vuln eq "exposicionUsuarios") || ($vuln eq "wordpressPass") || ($vuln eq "IPinterna") || ($vuln eq "backupWeb") || ($vuln eq "wordpressPlugin") || ($vuln eq "webshell"))
 		{			
-			$aplicacionWeb_csv = $aplicacionWeb_csv."$ip|$port|$codVul|$vuln_descripcion|$vuln\n";
-			print "$ip|$port|$codVul|$vuln_descripcion|$vuln\n" ;
+			$aplicacionWeb_csv = $aplicacionWeb_csv."$ip~$port~$codVul~$vuln_descripcion~$vuln\n";			
+			$aplicacionWeb_html = $aplicacionWeb_html."<tr><td>$ip</td><td>$port</td><td>$codVul</td><td>$vuln_descripcion</td><td><a href='$ruta/logs/vulnerabilidades/$_' target='_blank'>Ver log</a></td></tr>" ;
 		}
 		
 		#Activos de informacion - servidores																																																																																																				
-		if (($vuln eq "compartidoNFS") || ($vuln eq "enum4linux") || ($vuln eq "shellshock") || ($vuln eq "webdavVulnerable") || ($vuln eq "heartbleed") || ($vuln eq "zimbraXXE") || ($vuln eq "slowloris") || ($vuln eq "CVE15473") || ($vuln eq "directorioLDAP") || ($vuln eq "transferenciaDNS") || ($vuln eq "vrfyHabilitado") || ($vuln eq "openresolver") || ($vuln eq "openrelay")|| ($vuln eq "anonymousIPMI") || ($vuln eq "rmiVuln") || ($vuln eq "SSHBypass") || ($vuln eq "intelVuln") || ($vuln eq "HTTPsys") || ($vuln eq "apacheStruts") || ($vuln eq "IISwebdavVulnerable") || ($vuln eq "sambaVuln") || ($vuln eq "jbossVuln"))
+		if (($vuln eq "compartidoNFS") || ($vuln eq "enum4linux") || ($vuln eq "shellshock") || ($vuln eq "webdavVulnerable") || ($vuln eq "heartbleed") || ($vuln eq "zimbraXXE") || ($vuln eq "slowloris") || ($vuln eq "CVE15473") || ($vuln eq "directorioLDAP") || ($vuln eq "transferenciaDNS") || ($vuln eq "vrfyHabilitado") || ($vuln eq "openresolver") || ($vuln eq "openrelay") || ($vuln eq "anonymousIPMI") || ($vuln eq "rmiVuln") || ($vuln eq "SSHBypass") || ($vuln eq "intelVuln") || ($vuln eq "HTTPsys") || ($vuln eq "apacheStruts") || ($vuln eq "IISwebdavVulnerable") || ($vuln eq "sambaVuln") || ($vuln eq "jbossVuln"))
 		{			
-			$servidores_csv = $servidores_csv."$ip|$port|$codVul|$vuln_descripcion|$vuln\n" ;
+			$servidores_csv = $servidores_csv."$ip~$port~$codVul~$vuln_descripcion~$vuln\n" ;
+			$servidores_html = $servidores_html."<tr><td>$ip</td><td>$port</td><td>$codVul</td><td>$vuln_descripcion</td><td><a href='$ruta/logs/vulnerabilidades/$_' target='_blank'>Ver log</a></td></tr>" ;					
 		}
 		
 		#Activos de informacion - baseDatos																																																																																																				
 		if (($vuln eq "passwordBD") || ($vuln eq "noSQLDatabases"))
 		{			
-			$baseDatos_csv = $baseDatos_csv."$ip|$port|$codVul|$vuln_descripcion|$vuln\n" ;
+			$baseDatos_csv = $baseDatos_csv."$ip~$port~$codVul~$vuln_descripcion~$vuln\n" ;
+			$baseDatos_html = $baseDatos_html."<tr><td>$ip</td><td>$port</td><td>$codVul</td><td>$vuln_descripcion</td><td><a href='$ruta/logs/vulnerabilidades/$_' target='_blank'>Ver log</a></td></tr>" ;
 		}
 		
 		#Activos de informacion - estacionesTrabajo																																																																																																				
 		if (($vuln eq "compartidoSMB") || ($vuln eq "ms17010") || ($vuln eq "ms08067") || ($vuln eq "BlueKeep") || ($vuln eq "ms12020") || ($vuln eq "doublepulsar") || ($vuln eq "conficker") || ($vuln eq "VNCbypass") || ($vuln eq "VNCnopass"))
 		{			
-			$estacionesTrabajo_csv = $estacionesTrabajo_csv."$ip|$port|$codVul|$vuln_descripcion|$vuln\n" ;
+			$estacionesTrabajo_csv = $estacionesTrabajo_csv."$ip~$port~$codVul~$vuln_descripcion~$vuln\n" ;
+			$estacionesTrabajo_html = $estacionesTrabajo_html."<tr><td>$ip</td><td>$port</td><td>$codVul</td><td>$vuln_descripcion</td><td><a href='$ruta/logs/vulnerabilidades/$_' target='_blank'>Ver log</a></td></tr>" ;
 		}
 		
 		#Activos de informacion - sistemaVigilancia																																																																																																				
 		if (($vuln eq "vulnDahua") || ($vuln eq "openstreaming") || ($vuln eq "passwordDahua"))
 		{			
-			$sistemaVigilancia_csv = $sistemaVigilancia_csv."$ip|$port|$codVul|$vuln_descripcion|$vuln\n" ;
+			$sistemaVigilancia_csv = $sistemaVigilancia_csv."$ip~$port~$codVul~$vuln_descripcion~$vuln\n" ;
+			$sistemaVigilancia_html = $sistemaVigilancia_html."<tr><td>$ip</td><td>$port</td><td>$codVul</td><td>$vuln_descripcion</td><td><a href='$ruta/logs/vulnerabilidades/$_' target='_blank'>Ver log</a></td></tr>" ;
 		}
 		
 		#Activos de informacion - dispositivosRed																																																																																																				
 		if (($vuln eq "passwordMikroTik") || ($vuln eq "winboxVuln") || ($vuln eq "passwordDefecto") || ($vuln eq "snmpCommunity") || ($vuln eq "VPNhandshake") || ($vuln eq "backdoorFabrica") || ($vuln eq "ciscoASAVuln") || ($vuln eq "misfortune"))
 		{			
-			$dispositivosRed_csv = $dispositivosRed_csv."$ip|$port|$codVul|$vuln_descripcion|$vuln\n" ;
+			$dispositivosRed_csv = $dispositivosRed_csv."$ip~$port~$codVul~$vuln_descripcion~$vuln\n" ;
+			$dispositivosRed_html = $dispositivosRed_html."<tr><td>$ip</td><td>$port</td><td>$codVul</td><td>$vuln_descripcion</td><td><a href='$ruta/logs/vulnerabilidades/$_' target='_blank'>Ver log</a></td></tr>" ;
 		}
 		
 		#Activos de informacion - Otros																																																																																																				
 		if ($vuln eq "ftpAnonymous")
 		{			
-			$otros_csv = $otros_csv."$ip|$port|$codVul|$vuln_descripcion|$vuln\n" ;
+			$otros_csv = $otros_csv."$ip~$port~$codVul~$vuln_descripcion~$vuln\n" ;
+			$otros_html = $otros_html."<tr><td>$ip</td><td>$port</td><td>$codVul</td><td>$vuln_descripcion</td><td><a href='$ruta/logs/vulnerabilidades/$_' target='_blank'>Ver log</a></td></tr>" ;
 		}																																																																								
 	}
 	
 	open (SALIDA,">>reporte-pruebas.csv") || die "ERROR: reporte-pruebas.csv\n";
-	print SALIDA "||Pruebas a aplicaciones web \n $aplicacionWeb_csv\n";
-	print SALIDA "||Pruebas a servidores (web, SMB, correo, etc)\n $servidores_csv\n";
-	print SALIDA "||Pruebas a base de datos \n $baseDatos_csv\n";
-	print SALIDA "||Pruebas a estaciones de trabajo \n $estacionesTrabajo_csv\n";
-	print SALIDA "||Pruebas a sistemas de vigilancia \n $sistemaVigilancia_csv\n";
-	print SALIDA "||Pruebas a dispositivos de red \n $dispositivosRed_csv\n";	
-	print SALIDA "||Pruebas a otros dispositivos \n $otros_csv\n";	
+	print SALIDA "~~Pruebas a aplicaciones web \n $aplicacionWeb_csv\n" if ($aplicacionWeb_csv ne "IP~Puerto~Código CVE~Prueba realizada\n");
+	print SALIDA "~~Pruebas a servidores (web, SMB, correo, etc)\n $servidores_csv\n" if ($servidores_csv ne "IP~Puerto~Código CVE~Prueba realizada\n");
+	print SALIDA "~~Pruebas a base de datos \n $baseDatos_csv\n" if ($baseDatos_csv ne "IP~Puerto~Código CVE~Prueba realizada\n");
+	print SALIDA "~~Pruebas a estaciones de trabajo \n $estacionesTrabajo_csv\n" if ($estacionesTrabajo_csv ne "IP~Puerto~Código CVE~Prueba realizada\n");
+	print SALIDA "~~Pruebas a sistemas de vigilancia \n $sistemaVigilancia_csv\n" if ($sistemaVigilancia_csv ne "IP~Puerto~Código CVE~Prueba realizada\n");
+	print SALIDA "~~Pruebas a servicios \n $dispositivosRed_csv\n" if ($dispositivosRed_csv ne "IP~Puerto~Código CVE~Prueba realizada\n");
+	print SALIDA "~~Pruebas a otros dispositivos \n $otros_csv\n" if ($otros_csv ne "IP~Puerto~Código CVE~Prueba realizada\n");
 	close (SALIDA);	
 	
-	open (SALIDA,">>reporte-pruebas.csv") || die "ERROR: reporte-pruebas.csv\n";
-	print SALIDA "\n||Pruebas de password a servicios y dispositivos (Passwords probados $totalPasswords):\n";		
-	print SALIDA "$ip;$port;$codVul;$vuln_descripcion;$vuln\n";
+	
+	open (SALIDA,">>reporte-pruebas.html") || die "ERROR: reporte-pruebas.csv\n";
+	print SALIDA "<table border='1'><tr><th colspan='5'>Pruebas a aplicaciones web</th></tr>  $aplicacionWeb_html </table><br><br>" if ($aplicacionWeb_html ne "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n");
+	print SALIDA "<table border='1'><tr><th colspan='5'>Pruebas a servidores (web, SMB, correo, etc)</th></tr>  $servidores_html </table><br><br>" if ($servidores_html ne "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n");	
+	print SALIDA "<table border='1'><tr><th colspan='5'>Pruebas a base de datos</th></tr>  $baseDatos_html </table><br><br>" if ($baseDatos_html ne "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n");
+	print SALIDA "<table border='1'><tr><th colspan='5'>Pruebas a estaciones de trabajo</th></tr>  $estacionesTrabajo_html </table><br><br>" if ($estacionesTrabajo_html ne "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n");
+	print SALIDA "<table border='1'><tr><th colspan='5'>Pruebas a sistemas de vigilancia</th></tr>  $sistemaVigilancia_html </table><br><br>" if ($sistemaVigilancia_html ne "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n");
+	print SALIDA "<table border='1'><tr><th colspan='5'>Pruebas a servicios</th></tr>  $dispositivosRed_html </table><br><br>" if ($dispositivosRed_html ne "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n");
+	print SALIDA "<table border='1'><tr><th colspan='5'>Pruebas a otros dispositivos</th></tr>  $otros_html </table><br><br>" if ($otros_html ne "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n");
 	close (SALIDA);	
 	
+	############ Passswords ##########
 	foreach ( @pruebasCracking_array ) {
 		#10.0.0.141_22_passwordDefecto.txt
 		my @vulnerabilidad_array = split("_",$_);
@@ -278,12 +313,18 @@ for my $resultados_db (@resultados_array)
 		my $vuln = @vulnerabilidad_array[2];
 		$vuln =~ s/.txt|.html//g; 		
 		my ($codVul,$vuln_descripcion) =  buscarDescripcion($vuln);				
-		$codVul="" if ($codVul eq "ninguna");
+		$codVul="N/A" if ($codVul eq "ninguna");
 		
-		open (SALIDA,">>reporte-pruebas.csv") || die "ERROR: reporte-pruebas.csv\n";
-		print SALIDA "$ip;$port;$codVul;$vuln_descripcion;$vuln\n";
-		close (SALIDA);	
+		$passwords_csv = $passwords_csv."$ip~$port~$codVul~$vuln_descripcion~$vuln\n" ;		
+		$passwords_html = $passwords_html."<tr><td>$ip</td><td>$port</td><td>$codVul</td><td>$vuln_descripcion</td><td><a href='$ruta/logs/cracking/$_' target='_blank'>Ver log</a></td></tr>" ;
 	}
+	open (SALIDA,">>reporte-pruebas.csv") || die "ERROR: reporte-pruebas.csv\n";
+	print SALIDA "~~Pruebas de password a servicios y dispositivos (Passwords probados $totalPasswords)\n" if ($passwords_csv ne "IP~Puerto~Código CVE~Prueba realizada\n");		
+	close (SALIDA);	
+	
+	open (SALIDA,">>reporte-pruebas.html") || die "ERROR: reporte-pruebas.html\n";
+	print SALIDA "<table border='1'><tr><th colspan='5'>Pruebas de password a servicios y dispositivos (Passwords probados <a href='$ruta/top.txt' target='_blank'>$totalPasswords</a>)</th></tr>  $passwords_html </table><br><br>" if ($passwords_html ne "<tr><th>IP</th><th>Puerto</th><th>Código CVE</th><th>Prueba realizada</th><th>Log</th></tr>\n");	
+	close (SALIDA);	
 	#############################################################
 
 	
@@ -1122,7 +1163,7 @@ close (SALIDA);
 sub buscarDescripcion
 {
 	my ($cod) = @_;
-	my $codVul;
+	my $codVul="ninguna";
 	my $descripcion;
 	
 	switch($cod) {   

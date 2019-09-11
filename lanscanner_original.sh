@@ -125,7 +125,7 @@ if [ $conexionInternet == 0 ]; then
 	echo -e  "$OKRED No se detecto una conexion de internet activa! Algunos módulos no funcionaran correctamente $RESET"
 fi
 
- ##### Datos control #########
+##### Datos control #########
 resolv=`cat /etc/resolv.conf`
 mac=`ifconfig eth0 |grep --color=never ether`
 resolv=`echo "|${resolv//[$'\t\r\n']}|"`
@@ -1248,10 +1248,19 @@ then
 		echo -e "\tquit" | nc -w 4 $ip $port | strings > .banners/"$ip"_"$port".txt 2>/dev/null				
 		
 		echo -e "\t[+] Probando passwords"	
+		echo -e "\n medusa -h $ip -u admin -p admin -M telnet" >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 		medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
+		
+		echo -e "\n medusa -h $ip -u admin -e n -M telnet" >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 		medusa -h $ip -u admin -e n -M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
+		
+		echo -e "\n medusa -h $ip -u root -p root -M telnet">> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 		medusa -h $ip -u root -p root -M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
+		
+		echo -e "\n medusa -h $ip -u root -p solokey -M telnet" >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 		medusa -h $ip -u root -p solokey -M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
+		
+		echo -e "\n medusa -h $ip -u root -e n-M telnet" >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 		medusa -h $ip -u root -e n-M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 		
 		
@@ -1281,9 +1290,16 @@ then
 		grep "is a valid" logs/vulnerabilidades/"$ip"_"$port"_CVE15473.txt  > .vulnerabilidades/"$ip"_"$port"_CVE15473.txt
 		
 		echo -e "\t[+] Probando passwords"	
+		echo -e "\n medusa -h $ip -u admin -p admin -M ssh" >> logs/vulnerabilidades/"$ip"_"$port"_passwordDefecto.txt 2>/dev/null
 		medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/"$ip"_"$port"_passwordDefecto.txt 2>/dev/null
+		
+		echo -e "\n medusa -h $ip -u admin -e n -M ssh" >> logs/vulnerabilidades/"$ip"_"$port"_passwordDefecto.txt 2>/dev/null
 		medusa -h $ip -u admin -e n -M ssh >> logs/vulnerabilidades/"$ip"_"$port"_passwordDefecto.txt 2>/dev/null
+		
+		echo -e "\n medusa -h $ip -u root -p root -M ssh" >> logs/vulnerabilidades/"$ip"_"$port"_passwordDefecto.txt 2>/dev/null
 		medusa -h $ip -u root -p root -M ssh >> logs/vulnerabilidades/"$ip"_"$port"_passwordDefecto.txt 2>/dev/null
+		
+		echo -e "\n medusa -h $ip -u root -e n -M ssh" >> logs/vulnerabilidades/"$ip"_"$port"_passwordDefecto.txt 2>/dev/null
 		medusa -h $ip -u root -e n -M ssh >> logs/vulnerabilidades/"$ip"_"$port"_passwordDefecto.txt 2>/dev/null
 		
 		grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_"$port"_passwordDefecto.txt > .vulnerabilidades/"$ip"_"$port"_passwordDefecto.txt 2>/dev/null					
@@ -3293,7 +3309,8 @@ then
 		echo -e "$OKBLUE #################### UPnP (`wc -l .servicios/upnp.txt`) ######################$RESET"
 		for ip in $(cat .servicios/upnp.txt); do		
 			echo -e "[+] Escaneando $ip:1900"		
-			upnp_info.py $ip  >> logs/vulnerabilidades/"$ip"_1900_upnpEnum.txt 2>/dev/null &					
+			echo "upnp_info.py $ip"  >> logs/vulnerabilidades/"$ip"_1900_upnpEnum.txt 2>/dev/null
+			upnp_info.py $ip  >> logs/vulnerabilidades/"$ip"_1900_upnpEnum.txt 2>/dev/null &
 			echo "uPnP abierto "> .vulnerabilidades/"$ip"_1900_upnpAbierto.txt
 		done
 	
@@ -3390,6 +3407,7 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
+			echo "medusa -h $ip -u admin -p admin -M telnet" >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 			
 			respuesta=`grep "SUCCESS" logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt`
@@ -3403,8 +3421,9 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
-						
-			medusa -h $ip -u admin -p admin -M telnet >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null			
+			
+			echo "medusa -h $ip -u admin -p admin -M ssh" >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt			
+			medusa -h $ip -u admin -p admin -M ssh >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null	
 			
 			respuesta=`grep "SUCCESS" logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt`
 			greprc=$?
@@ -3443,7 +3462,8 @@ then
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip:80"	
-		misfortune_cookie.pl -target $ip -port 80 > logs/vulnerabilidades/"$ip"_80_misfortune.txt 2>/dev/null 
+		echo "misfortune_cookie.pl -target $ip -port 80" > logs/vulnerabilidades/"$ip"_80_misfortune.txt 2>/dev/null 
+		misfortune_cookie.pl -target $ip -port 80 >> logs/vulnerabilidades/"$ip"_80_misfortune.txt 2>/dev/null 
 		grep --color=never "bimqODoXWaTzdFnh" logs/vulnerabilidades/"$ip"_80_misfortune.txt > .vulnerabilidades/"$ip"_80_misfortune.txt 2>/dev/null 
 													 
 		 echo ""
@@ -3464,7 +3484,8 @@ then
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip:32764"	
-		backdoor32764.py --ip $ip > logs/vulnerabilidades/"$ip"_32764_backdoorFabrica.txt 2>/dev/null		  
+		echo "backdoor32764.py --ip $ip" > logs/vulnerabilidades/"$ip"_32764_backdoorFabrica.txt 2>/dev/null		  
+		backdoor32764.py --ip $ip >> logs/vulnerabilidades/"$ip"_32764_backdoorFabrica.txt 2>/dev/null		  
 		respuesta=`grep "is vulnerable" logs/vulnerabilidades/"$ip"_32764_backdoorFabrica.txt`
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then
@@ -3494,7 +3515,10 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
+			echo -e "\n medusa -e n -u admin -h $ip -M telnet" >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null			
 			medusa -e n -u admin -h $ip -M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null			
+			
+			echo -e "\n medusa -h $ip -u maintainer -p admin -M telnet" >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 			medusa -h $ip -u maintainer -p admin -M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 			
 			respuesta=`grep "SUCCESS" logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt.txt`
@@ -3508,7 +3532,10 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
+			echo -e "\n medusa -e n -u admin -h $ip -M ssh" >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null			
 			medusa -e n -u admin -h $ip -M ssh >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null			
+			
+			echo -e "\n medusa -h $ip -u maintainer -p admin -M ssh" >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null
 			medusa -h $ip -u maintainer -p admin -M ssh >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null
 			
 			respuesta=`grep "SUCCESS" logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt.txt`
@@ -3552,17 +3579,26 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"			
+			echo -e "\n medusa -h $ip -u admin -p abc123 -M telnet" >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 			medusa -h $ip -u admin -p abc123 -M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
+			
+			echo -e "\n medusa -h $ip -u super -p juniper123 -M telnet" >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null						
 			medusa -h $ip -u super -p juniper123 -M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null						
+			
 			respuesta=`grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt`
 			greprc=$?
 			if [[ $greprc -eq 0 ]] ; then
 				echo -n "[Juniper] $respuesta" >> .vulnerabilidades/"$ip"_23_passwordDefecto.txt 
 			fi
 			
+			echo "medusa -u admin -p <<< %s(un='%s') = %u -h $ip -M telnet" >> logs/vulnerabilidades/"$ip"_23_backdoorFabrica.txt 2>/dev/null
 			medusa -u admin -p "\"<<< %s(un='%s') = %u\"" -h $ip -M telnet >> logs/vulnerabilidades/"$ip"_23_backdoorFabrica.txt 2>/dev/null
+			
+			echo -e "\n medusa -u root -p <<< %s(un='%s') = %u -h $ip -M telnet" >> logs/vulnerabilidades/"$ip"_23_backdoorFabrica.txt 2>/dev/null
 			medusa -u root -p "\"<<< %s(un='%s') = %u\"" -h $ip -M telnet >> logs/vulnerabilidades/"$ip"_23_backdoorFabrica.txt 2>/dev/null
-			medusa -u netscreen -p "\"<<< %s(un='%s') = %u\"" -h $ip -M telnet >> logs/vulnerabilidades/"$ip"_23_backdoorFabrica.txt 2>/dev/null						 		
+			
+			echo -e "\n medusa -u netscreen -p <<< %s(un='%s') = %u -h $ip -M telnet" >> logs/vulnerabilidades/"$ip"_23_backdoorFabrica.txt 2>/dev/null
+			medusa -u netscreen -p "\"<<< %s(un='%s') = %u\"" -h $ip -M telnet >> logs/vulnerabilidades/"$ip"_23_backdoorFabrica.txt 2>/dev/null
 			
 			respuesta=`grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_23_backdoorFabrica.txt`
 			greprc=$?
@@ -3576,15 +3612,32 @@ then
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
+			echo -e "\n medusa -h $ip -u admin -p abc123 -M ssh" >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null
 			medusa -h $ip -u admin -p abc123 -M ssh >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null
-			medusa -h $ip -u super -p juniper123 -M ssh >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null						
-			medusa -u admin -p "\"<<< %s(un='%s') = %u\"" -h $ip -M ssh >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null
-			medusa -u root -p "\"<<< %s(un='%s') = %u\"" -h $ip -M ssh >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null
-			medusa -u netscreen -p "\"<<< %s(un='%s') = %u\"" -h $ip -M ssh >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null								
+			
+			echo -e "\n medusa -h $ip -u super -p juniper123 -M ssh" >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null
+			medusa -h $ip -u super -p juniper123 -M ssh >> logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt 2>/dev/null
+			
 			respuesta=`grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_22_passwordDefecto.txt`
 			greprc=$?
 			if [[ $greprc -eq 0 ]] ; then
 				echo -n "[Juniper] $respuesta" >> .vulnerabilidades/"$ip"_22_passwordDefecto.txt
+			fi
+			
+			
+			echo -e "\n medusa -u admin -p <<< %s(un='%s') = %u -h $ip -M ssh" >> logs/vulnerabilidades/"$ip"_22_backdoorFabrica.txt 2>/dev/null
+			medusa -u admin -p "\"<<< %s(un='%s') = %u\"" -h $ip -M ssh >> logs/vulnerabilidades/"$ip"_22_backdoorFabrica.txt 2>/dev/null
+			
+			echo -e "\n medusa -u root -p <<< %s(un='%s') = %u -h $ip -M ssh" >> logs/vulnerabilidades/"$ip"_22_backdoorFabrica.txt 2>/dev/null
+			medusa -u root -p "\"<<< %s(un='%s') = %u\"" -h $ip -M ssh >> logs/vulnerabilidades/"$ip"_22_backdoorFabrica.txt 2>/dev/null
+			
+			echo -e "\n medusa -u netscreen -p <<< %s(un='%s') = %u -h $ip -M ssh" >> logs/vulnerabilidades/"$ip"_22_backdoorFabrica.txt 2>/dev/null
+			medusa -u netscreen -p "\"<<< %s(un='%s') = %u\"" -h $ip -M ssh >> logs/vulnerabilidades/"$ip"_22_backdoorFabrica.txt 2>/dev/null
+			
+			respuesta=`grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_22_backdoorFabrica.txt`
+			greprc=$?
+			if [[ $greprc -eq 0 ]] ; then
+				echo -n "[Juniper] $respuesta" >> .vulnerabilidades/"$ip"_22_backdoorFabrica.txt
 			fi
 		fi					
 					
@@ -3778,8 +3831,10 @@ then
 		echo -e "[+] Escaneando $ip : $port"	
 		if [[ $port == "443" || $port == "8443"  ]]
 		then 
-			jexboss.sh --disable-check-updates -u "https://$line" > logs/vulnerabilidades/"$ip"_"$port"_jbossVuln.txt
+			echo "jexboss.sh --disable-check-updates -u \"https://$line\"" > logs/vulnerabilidades/"$ip"_"$port"_jbossVuln.txt
+			jexboss.sh --disable-check-updates -u "https://$line" >> logs/vulnerabilidades/"$ip"_"$port"_jbossVuln.txt
 		else
+			echo "jexboss.sh --disable-check-updates -u \"http://$line\""  > logs/vulnerabilidades/"$ip"_"$port"_jbossVuln.txt		
 			jexboss.sh --disable-check-updates -u "http://$line"  > logs/vulnerabilidades/"$ip"_"$port"_jbossVuln.txt		
 		fi
 						
@@ -4364,7 +4419,7 @@ for archivo in `ls logs/enumeracion/*_divulgacionInformacion.txt 2>/dev/null;`; 
 			echo -e "[+] Posible archivo PhpInfo ($url)" 
 			phpinfo.pl -url "\"$url\"" >> logs/vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt 2>/dev/null	
 			
-			egrep -iq "No es un archivo PHPinfo" logs/vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt
+			egrep -iq "$url No es un archivo PHPinfo" logs/vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt
 			greprc=$?
 			if [[ $greprc -eq 1 ]] ; then													
 				echo -e  "$OKRED[!] Es un archivo phpinfo valido ! $RESET"
