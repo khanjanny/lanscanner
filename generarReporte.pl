@@ -60,8 +60,8 @@ $total_vulnerabilidades = @{$vulnerabilidades->{vuln}};
 
 my $dominio = $opts{'d'} if $opts{'d'};
 
-my $resultados_externos = `find EXTERNO -iname resultados.db`;
-my $resultados_internos = `find INTERNO -iname resultados.db`;
+my $resultados_externos = `find EXTERNO -iname .resultados.db`;
+my $resultados_internos = `find INTERNO -iname .resultados.db`;
 my $resultados_todos = $resultados_internos.$resultados_externos;
 my @resultados_array = split("\n",$resultados_todos);
 
@@ -162,12 +162,12 @@ for my $resultados_db (@resultados_array)
 	print "Vector: $vector \n";
 	
 	my $ruta = $resultados_db;	
-	$ruta =~ s/\/resultados.db//g; 
-	#INTERNO/usuarios/resultados.db
+	$ruta =~ s/\/.resultados.db//g; 
+	#INTERNO/usuarios/.resultados.db
 	my $segmento = $resultados_db;
 	$segmento =~ s/INTERNO\///g;
 	$segmento =~ s/EXTERNO\///g;	 
-	$segmento =~ s/\/resultados.db//g; 
+	$segmento =~ s/\/.resultados.db//g; 
 		
 	my $dsn      = "dbi:SQLite:dbname=$resultados_db";
 	my $user     = "";
@@ -241,7 +241,7 @@ for my $resultados_db (@resultados_array)
 		}
 		
 		#Activos de informacion - servidores																																																																																																				
-		if (($vuln eq "compartidoNFS") || ($vuln eq "enum4linux") || ($vuln eq "shellshock") || ($vuln eq "webdavVulnerable") || ($vuln eq "heartbleed") || ($vuln eq "zimbraXXE") || ($vuln eq "slowloris") || ($vuln eq "CVE15473") || ($vuln eq "directorioLDAP") || ($vuln eq "transferenciaDNS") || ($vuln eq "vrfyHabilitado") || ($vuln eq "openresolver") || ($vuln eq "openrelay") || ($vuln eq "anonymousIPMI") || ($vuln eq "rmiVuln") || ($vuln eq "SSHBypass") || ($vuln eq "intelVuln") || ($vuln eq "HTTPsys") || ($vuln eq "apacheStruts") || ($vuln eq "IISwebdavVulnerable") || ($vuln eq "sambaVuln") || ($vuln eq "jbossVuln"))
+		if (($vuln eq "compartidoNFS") || ($vuln eq "enum4linux") || ($vuln eq "shellshock") || ($vuln eq "webdavVulnerable") || ($vuln eq "heartbleed") || ($vuln eq "zimbraXXE") || ($vuln eq "slowloris") || ($vuln eq "CVE15473") || ($vuln eq "directorioLDAP") || ($vuln eq "transferenciaDNS") || ($vuln eq "vrfyHabilitado") || ($vuln eq "openresolver") || ($vuln eq "openrelay") || ($vuln eq "anonymousIPMI") || ($vuln eq "rmiVuln") || ($vuln eq "SSHBypass") || ($vuln eq "intelVuln") || ($vuln eq "HTTPsys") || ($vuln eq "apacheStruts") || ($vuln eq "IISwebdavVulnerable") || ($vuln eq "sambaVuln") || ($vuln eq "jbossVuln") || ($vuln eq "contenidoNoRelacionado"))
 		{			
 			$servidores_csv = $servidores_csv."$ip~$port~$codVul~$vuln_descripcion~$vuln\n" ;
 			$servidores_html = $servidores_html."<tr><td>$ip</td><td>$port</td><td>$codVul</td><td>$vuln_descripcion</td><td><a href='$ruta/logs/vulnerabilidades/$_' target='_blank'>Ver log</a></td></tr>" ;					
@@ -269,7 +269,7 @@ for my $resultados_db (@resultados_array)
 		}
 		
 		#Activos de informacion - dispositivosRed																																																																																																				
-		if (($vuln eq "passwordMikroTik") || ($vuln eq "winboxVuln") || ($vuln eq "passwordDefecto") || ($vuln eq "snmpCommunity") || ($vuln eq "VPNhandshake") || ($vuln eq "backdoorFabrica") || ($vuln eq "ciscoASAVuln") || ($vuln eq "misfortune"))
+		if (($vuln eq "passwordMikroTik") || ($vuln eq "winboxVuln") || ($vuln eq "passwordDefecto") || ($vuln eq "snmpCommunity") || ($vuln eq "VPNhandshake") || ($vuln eq "backdoorFabrica") || ($vuln eq "ciscoASAVuln") || ($vuln eq "misfortune") || ($vuln eq "upnpAbierto") )
 		{			
 			$dispositivosRed_csv = $dispositivosRed_csv."$ip~$port~$codVul~$vuln_descripcion~$vuln\n" ;
 			$dispositivosRed_html = $dispositivosRed_html."<tr><td>$ip</td><td>$port</td><td>$codVul</td><td>$vuln_descripcion</td><td><a href='$ruta/logs/vulnerabilidades/$_' target='_blank'>Ver log</a></td></tr>" ;
@@ -395,14 +395,14 @@ for my $resultados_db (@resultados_array)
 	$total_vul_criticas = $total_vul_criticas + $vul_criticas;	
 
 	#Total vulnerabilidades altas
-	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='archivosPeligrosos' or tipo ='mailPass' or tipo ='passwordDefecto' or tipo ='compartidoNFS' or tipo ='BlueKeep' or tipo ='compartidoSMB' or tipo ='passwordHost' or tipo ='logeoRemoto' or tipo ='heartbleed' or tipo ='passwordAdivinado' or tipo ='passwordMikroTik' or tipo ='VNCnopass' or tipo ='VNCbypass' or tipo ='vulnDahua' or tipo ='openrelay' or tipo ='perdidaAutenticacion' or tipo ='spoof' or tipo ='slowloris' or tipo ='wordpressPass' or tipo ='conficker' or tipo ='anonymousIPMI' or tipo ='noSQLDatabases' or tipo ='winboxVuln' or tipo ='rmiVuln' or tipo ='SSHBypass' or tipo ='intelVuln' or tipo ='backupWeb' or tipo ='apacheStruts' or tipo ='webdavVulnerable' or tipo ='IISwebdavVulnerable' or tipo ='shellshock' or tipo ='ciscoASAVuln' or tipo ='sambaVuln' or tipo ='misfortune' or tipo ='jbossVuln' or tipo ='passwordBD' or tipo ='wordpressPlugin'");
+	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='archivosPeligrosos' or tipo ='mailPass' or tipo ='passwordDefecto' or tipo ='compartidoNFS' or tipo ='BlueKeep' or tipo ='compartidoSMB' or tipo ='passwordHost' or tipo ='logeoRemoto' or tipo ='heartbleed' or tipo ='passwordAdivinado' or tipo ='passwordMikroTik' or tipo ='VNCnopass' or tipo ='VNCbypass' or tipo ='vulnDahua' or tipo ='openrelay' or tipo ='perdidaAutenticacion' or tipo ='spoof' or tipo ='slowloris' or tipo ='wordpressPass' or tipo ='conficker' or tipo ='anonymousIPMI' or tipo ='noSQLDatabases' or tipo ='winboxVuln' or tipo ='rmiVuln' or tipo ='SSHBypass' or tipo ='intelVuln' or tipo ='backupWeb' or tipo ='apacheStruts' or tipo ='webdavVulnerable' or tipo ='IISwebdavVulnerable' or tipo ='shellshock' or tipo ='ciscoASAVuln' or tipo ='sambaVuln' or tipo ='misfortune' or tipo ='jbossVuln' or tipo ='passwordBD' or tipo ='wordpressPlugin' or tipo ='passwordSFI'");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_altos = $row[0];
 	$total_vul_altas = $total_vul_altas + $vul_altos;	
 
 	#Total vulnerabilidades medias
-	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='VPNhandshake' or tipo ='passwordDahua' or tipo ='openstreaming' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='ms12020' or tipo ='debugHabilitado' or tipo ='wpusers' or tipo ='CVE15473' or tipo ='exposicionUsuarios' or tipo ='IPinterna' or tipo ='HTTPsys' or tipo ='ftpAnonymous' or tipo ='vrfyHabilitado'");
+	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='VPNhandshake' or tipo ='passwordDahua' or tipo ='openstreaming' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='ms12020' or tipo ='debugHabilitado' or tipo ='wpusers' or tipo ='CVE15473' or tipo ='exposicionUsuarios' or tipo ='IPinterna' or tipo ='HTTPsys' or tipo ='ftpAnonymous' or tipo ='vrfyHabilitado' or tipo ='upnpAbierto' or tipo ='contenidoNoRelacionado'");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_medios = $row[0];
@@ -411,14 +411,14 @@ for my $resultados_db (@resultados_array)
 	
 	####################### PRIVADAS ###################
 	#Total vulnerabilidades medias
-	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='VPNhandshake' or tipo ='openstreaming'  or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='ACL' or tipo ='openresolver' or tipo ='ms12020' or tipo ='wpusers' or tipo ='exposicionUsuarios' or tipo ='HTTPsys'");
+	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='VPNhandshake' or tipo ='openstreaming'  or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='ACL' or tipo ='openresolver' or tipo ='ms12020' or tipo ='wpusers' or tipo ='exposicionUsuarios' or tipo ='HTTPsys' or tipo ='upnpAbierto'");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_medias = $row[0];
 	$total_vul_medias_privadas = $total_vul_medias_privadas + $vul_medias;	
 	
 	#Total vulnerabilidades bajas
-	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='passwordDahua' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity'  or tipo ='listadoDirectorio' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='debugHabilitado' or tipo ='CVE15473' or tipo ='IPinterna' or tipo ='ftpAnonymous'");
+	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='passwordDahua' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity'  or tipo ='listadoDirectorio' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='debugHabilitado' or tipo ='CVE15473' or tipo ='IPinterna' or tipo ='ftpAnonymous' or tipo ='contenidoNoRelacionado'");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_bajas = $row[0];
@@ -436,14 +436,14 @@ for my $resultados_db (@resultados_array)
 	$total_servicios_vuln_criticas_agetic = $total_servicios_vuln_criticas_agetic + $servicios_vuln_criticas;	
 
 	#Servicios afectados por vulnerabilidades altas
-	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='archivosPeligrosos' or tipo ='mailPass' or tipo ='passwordDefecto' or tipo ='compartidoNFS' or tipo ='BlueKeep' or tipo ='compartidoSMB' or tipo ='passwordHost' or tipo ='logeoRemoto' or tipo ='heartbleed' or tipo ='adminPassword' or tipo ='rootPassword' or tipo ='ciscoPassword' or tipo ='passwordMikroTik' or tipo ='VNCnopass' or tipo ='VNCbypass' or tipo ='vulnDahua' or tipo ='openrelay' or tipo ='perdidaAutenticacion' or tipo ='spoof' or tipo ='slowloris' or tipo ='wordpressPass' or tipo ='conficker' or tipo ='anonymousIPMI' or tipo ='noSQLDatabases' or tipo ='winboxVuln' or tipo ='rmiVuln' or tipo ='SSHBypass' or tipo ='intelVuln' or tipo ='backupWeb' or tipo ='apacheStruts' or tipo ='webdavVulnerable' or tipo ='IISwebdavVulnerable' or tipo ='shellshock' or tipo ='ciscoASAVuln' or tipo ='sambaVuln' or tipo ='misfortune' or tipo ='jbossVuln' or tipo ='passwordBD' or tipo ='passwordAdivinado' or tipo ='wordpressPlugin'");
+	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='archivosPeligrosos' or tipo ='mailPass' or tipo ='passwordDefecto' or tipo ='compartidoNFS' or tipo ='BlueKeep' or tipo ='compartidoSMB' or tipo ='passwordHost' or tipo ='logeoRemoto' or tipo ='heartbleed' or tipo ='adminPassword' or tipo ='rootPassword' or tipo ='ciscoPassword' or tipo ='passwordMikroTik' or tipo ='VNCnopass' or tipo ='VNCbypass' or tipo ='vulnDahua' or tipo ='openrelay' or tipo ='perdidaAutenticacion' or tipo ='spoof' or tipo ='slowloris' or tipo ='wordpressPass' or tipo ='conficker' or tipo ='anonymousIPMI' or tipo ='noSQLDatabases' or tipo ='winboxVuln' or tipo ='rmiVuln' or tipo ='SSHBypass' or tipo ='intelVuln' or tipo ='backupWeb' or tipo ='apacheStruts' or tipo ='webdavVulnerable' or tipo ='IISwebdavVulnerable' or tipo ='shellshock' or tipo ='ciscoASAVuln' or tipo ='sambaVuln' or tipo ='misfortune' or tipo ='jbossVuln' or tipo ='passwordBD' or tipo ='passwordAdivinado' or tipo ='wordpressPlugin' or tipo ='passwordSFI'");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $servicios_vuln_altos = $row[0];
 	$total_servicios_vuln_altas_agetic = $total_servicios_vuln_altas_agetic + $servicios_vuln_altos;	
 
 	#Servicios afectados por vulnerabilidades medias
-	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='VPNhandshake'  or tipo ='passwordDahua' or tipo ='openstreaming' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio'  or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='ms12020' or tipo ='wpusers' or tipo ='CVE15473' or tipo ='exposicionUsuarios' or tipo ='IPinterna' or tipo ='HTTPsys' or tipo ='ftpAnonymous' or tipo ='vrfyHabilitado'");
+	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='VPNhandshake'  or tipo ='passwordDahua' or tipo ='openstreaming' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio'  or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='ms12020' or tipo ='wpusers' or tipo ='CVE15473' or tipo ='exposicionUsuarios' or tipo ='IPinterna' or tipo ='HTTPsys' or tipo ='ftpAnonymous' or tipo ='vrfyHabilitado' or tipo ='upnpAbierto' or tipo ='contenidoNoRelacionado'");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $servicios_vuln_medios = $row[0];
@@ -452,14 +452,14 @@ for my $resultados_db (@resultados_array)
 	
 	################# PRIVADAS #####################
 	#Servicios afectados por vulnerabilidades medias
-	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='VPNhandshake' or tipo ='openstreaming' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio'  or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='ACL' or tipo ='openresolver' or tipo ='ms12020' or tipo ='HTTPsys'");
+	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='VPNhandshake' or tipo ='openstreaming' or tipo ='directorioLDAP' or tipo ='enum4linux' or tipo ='transferenciaDNS' or tipo ='listadoDirectorio'  or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='ACL' or tipo ='openresolver' or tipo ='ms12020' or tipo ='HTTPsys' or tipo ='upnpAbierto'");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $servicios_vuln_medias = $row[0];
 	$total_servicios_vuln_medias_priv = $total_servicios_vuln_medias_priv + $servicios_vuln_medias;	
 	
 	#Servicios afectados por vulnerabilidades bajas
-	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='passwordDahua' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='listadoDirectorio' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='CVE15473' or tipo ='IPinterna' or tipo ='ftpAnonymous'");
+	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='passwordDahua' or tipo ='divulgacionInformacion'  or tipo ='snmpCommunity' or tipo ='listadoDirectorio' or tipo ='enumeracionUsuarios' or tipo ='googlehacking' or tipo ='anonymous' or tipo ='erroresWeb' or tipo ='ACL' or tipo ='archivosDefecto' or tipo ='openresolver' or tipo ='listadoDirectorios' or tipo ='CVE15473' or tipo ='IPinterna' or tipo ='ftpAnonymous' or tipo ='contenidoNoRelacionado'");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $servicios_vuln_bajas = $row[0];
@@ -476,7 +476,7 @@ for my $resultados_db (@resultados_array)
 	$aplicacionWeb = $aplicacionWeb + $vuln_app;	
 	
 	# servidores
-	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='compartidoNFS' or TIPO='enum4linux' or TIPO='shellshock' or TIPO='webdavVulnerable' or TIPO='heartbleed' or TIPO='zimbraXXE' or TIPO='slowloris' or TIPO='CVE15473' or TIPO='directorioLDAP' or TIPO='transferenciaDNS' or TIPO='vrfyHabilitado' or TIPO='openresolver' or TIPO='openrelay' or TIPO='spoof' or TIPO='openrelay2' or TIPO='anonymousIPMI' or TIPO='rmiVuln' or TIPO='SSHBypass' or TIPO='intelVuln' or TIPO='HTTPsys' or TIPO='apacheStruts' or TIPO='IISwebdavVulnerable' or TIPO='sambaVuln' or TIPO='jbossVuln' ");
+	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='compartidoNFS' or TIPO='enum4linux' or TIPO='shellshock' or TIPO='webdavVulnerable' or TIPO='heartbleed' or TIPO='zimbraXXE' or TIPO='slowloris' or TIPO='CVE15473' or TIPO='directorioLDAP' or TIPO='transferenciaDNS' or TIPO='vrfyHabilitado' or TIPO='openresolver' or TIPO='openrelay' or TIPO='spoof' or TIPO='openrelay2' or TIPO='anonymousIPMI' or TIPO='rmiVuln' or TIPO='SSHBypass' or TIPO='intelVuln' or TIPO='HTTPsys' or TIPO='apacheStruts' or TIPO='IISwebdavVulnerable' or TIPO='sambaVuln' or TIPO='jbossVuln' or TIPO='passwordSFI' or TIPO='contenidoNoRelacionado'");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vuln_serv = $row[0];
@@ -504,7 +504,7 @@ for my $resultados_db (@resultados_array)
 	$sistemaVigilancia = $sistemaVigilancia + $vuln_vigilancia;    
 	
 	#Dispositivos de red
-    my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='passwordMikroTik' or TIPO='winboxVuln' or TIPO='passwordDefecto' or TIPO='snmpCommunity' or TIPO='VPNhandshake' or TIPO='backdoorFabrica' or TIPO='ciscoASAVuln' or TIPO='misfortune' ");
+    my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='passwordMikroTik' or TIPO='winboxVuln' or TIPO='passwordDefecto' or TIPO='snmpCommunity' or TIPO='VPNhandshake' or TIPO='backdoorFabrica' or TIPO='ciscoASAVuln' or TIPO='misfortune' or TIPO='upnpAbierto'");
 	$sth->execute();																					     
 	my @row = $sth->fetchrow_array;
 	my $vuln_red = $row[0];
@@ -530,7 +530,7 @@ for my $resultados_db (@resultados_array)
 	# Errores en app web SQli, mala configuracion, XSS
 	
 	# password
-	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='passwordMikroTik' or TIPO='passwordAdivinado' or TIPO='passwordHost' or TIPO='passwordDefecto' or TIPO='mailPass' or TIPO='passwordDahua' or TIPO='passwordBD' or TIPO='noSQLDatabases' ;");
+	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='passwordMikroTik' or TIPO='passwordAdivinado' or TIPO='passwordHost' or TIPO='passwordDefecto' or TIPO='mailPass' or TIPO='passwordDahua' or TIPO='passwordBD' or TIPO='noSQLDatabases' or TIPO='passwordSFI'");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vuln_pass = $row[0];	
@@ -544,7 +544,7 @@ for my $resultados_db (@resultados_array)
 	$faltaParches = $faltaParches + $vuln_parches;
 	
 	# Errores de configuracion																		    																								    																   																				   																								     																						    
-	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='logeoRemoto' or TIPO='compartidoNFS' or TIPO='compartidoSMB' or TIPO='enum4linux' or TIPO='snmpCommunity' or TIPO='directorioLDAP' or TIPO='transferenciaDNS' or TIPO='vrfyHabilitado' or TIPO='ftpAnonymous' or TIPO='openstreaming' or TIPO='VPNhandshake' or TIPO='openresolver' or TIPO='openrelay' or TIPO='openrelay2' or TIPO='spoof' or TIPO='anonymousIPMI' or TIPO='rmiVuln' or TIPO='VNCnopass' ");
+	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='logeoRemoto' or TIPO='compartidoNFS' or TIPO='compartidoSMB' or TIPO='enum4linux' or TIPO='snmpCommunity' or TIPO='directorioLDAP' or TIPO='transferenciaDNS' or TIPO='vrfyHabilitado' or TIPO='ftpAnonymous' or TIPO='openstreaming' or TIPO='VPNhandshake' or TIPO='openresolver' or TIPO='openrelay' or TIPO='openrelay2' or TIPO='spoof' or TIPO='anonymousIPMI' or TIPO='rmiVuln' or TIPO='VNCnopass' or TIPO='upnpAbierto' or TIPO='contenidoNoRelacionado'");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vuln_conf = $row[0];	
@@ -587,6 +587,8 @@ for my $resultados_db (@resultados_array)
    		$verificacion =~ s/SALTOLINEA/<br>/g; 
 		$verificacion =~ s/AMPERSAND/\&/g; 		
 		$verificacion =~ s/DOMINIOENTIDAD/$dominio/g; 
+		
+		$detalles =~ s/DOMINIOENTIDAD/$dominio/g; 						
 
   
           
@@ -637,10 +639,16 @@ for my $resultados_db (@resultados_array)
 				# [AdminWeb] Usuario:admin $respuesta  #401
 				# [445][smb] host: 10.0.0.141   login: administrator   password: Pa$$w0rd
 				# Password encontrado: [Pentaho] $url (Usuario:$user Password:$password)				
+				# [FTP] ACCOUNT FOUND: [ftp] Host: 10.0.2.187 User: root Password:  [SUCCESS]
+				# ACCOUNT FOUND: [ftp] Host: 10.0.2.187 User: ftp Password:  [SUCCESS]
+				
 				$ip = $row[0];					
 				$vuln_detalles = $row[3];		          
-				$vuln_detalles =~ s/Password encontrado://g;
-				$vuln_detalles =~ s/[445]//g;				
+				$vuln_detalles =~ s/Password encontrado://g;				
+				$vuln_detalles =~ s/\[FTP\] ACCOUNT FOUND://g;
+				$vuln_detalles =~ s/ACCOUNT FOUND://g;
+				$vuln_detalles =~ s/[445]//g;	
+				$vuln_detalles =~ s/\[SUCCESS\]//g;						
 				$hosts = $hosts."$host $vuln_detalles<br>";
 				
 				#if($vuln_detalles =~ /Tomcat|Pentaho|AdminWeb/i){$servidores++;}
@@ -1014,7 +1022,7 @@ for my $resultados_db (@resultados_array)
 
 		
 		# Solo se muestra la IP y el puerto en el campo "host"
-		if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "ftpAnonymous") || ($cod eq "openstreaming") || ($cod eq "VPNhandshake")  || ($cod eq "zimbraXXE") || ($cod eq "BlueKeep") || ($cod eq "slowloris") || ($cod eq "openresolver") || ($cod eq "openrelay") || ($cod eq "openrelay2") || ($cod eq "CVE15473") || ($cod eq "ms12020") || ($cod eq "doublepulsar") || ($cod eq "conficker") || ($cod eq "anonymousIPMI")  || ($cod eq "rmiVuln")  || ($cod eq "SSHBypass") || ($cod eq "VNCbypass") || ($cod eq "VNCnopass") || ($cod eq "intelVuln") || ($cod eq "HTTPsys") || ($cod eq "apacheStruts") || ($cod eq "IISwebdavVulnerable") || ($cod eq "sambaVuln") || ($cod eq "misfortune") || ($cod eq "jbossVuln"))   
+		if (($cod eq "ms17010") || ($cod eq "ms08067")  || ($cod eq "vulnDahua") || ($cod eq "passwordDahua")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "ftpAnonymous") || ($cod eq "openstreaming") || ($cod eq "VPNhandshake")  || ($cod eq "zimbraXXE") || ($cod eq "BlueKeep") || ($cod eq "slowloris") || ($cod eq "openresolver") || ($cod eq "openrelay") || ($cod eq "openrelay2") || ($cod eq "CVE15473") || ($cod eq "ms12020") || ($cod eq "doublepulsar") || ($cod eq "conficker") || ($cod eq "anonymousIPMI")  || ($cod eq "rmiVuln")  || ($cod eq "SSHBypass") || ($cod eq "VNCbypass") || ($cod eq "VNCnopass") || ($cod eq "intelVuln") || ($cod eq "HTTPsys") || ($cod eq "apacheStruts") || ($cod eq "IISwebdavVulnerable") || ($cod eq "sambaVuln") || ($cod eq "misfortune") || ($cod eq "jbossVuln") || ($cod eq "upnpAbierto") || ($cod eq "contenidoNoRelacionado"))   
 		{
 			#$hosts = "<table border='0' cellspacing='10'><tr>";	 	
 			
@@ -1072,19 +1080,23 @@ for my $resultados_db (@resultados_array)
 				$hosts =~ s/<br>/\n/g;
 				$hosts =~ s/\n<br>/\n\n/g;
 				$hosts =~ s/&nbsp;&nbsp;&nbsp;/\t/g;
-				$hosts =~ s/<\/tr><\/table>//g;			
-				$hosts =~ s/\n\n/\n/g;
-				$nombre= uc $nombre;
+				$hosts =~ s/<\/tr><\/table>//g;							
+				$hosts =~ s/\n\n\n/\n/g;
+				$hosts =~ s/\n\n/\n/g;				
+				$hosts =~ s/\t/\n/g;	
+				my $nombreMayuscula= uc $nombre;
 				$recomendacion =~ s/<br>//g;
+				$riesgoInforme =~ s/\n//g;
+				$detalles =~ s/SALTOLINEA/\n/g;
 #				print "hosts ($hosts) \n";
-				open (SALIDA_CSV,">>reporte.csv") || die "ERROR: No puedo abrir el reporte.csv\n";			
-				print SALIDA_CSV "$contador|$nombre\n";	
-				print SALIDA_CSV "||\n";	
-				print SALIDA_CSV "$agente_amenaza|$impacto_tecnico|$impacto_negocio\n";	
+				open (SALIDA_CSV,">>reporte-sie.csv") || die "ERROR: No puedo abrir el reporte.csv\n";			
+				print SALIDA_CSV "$contador~$nombreMayuscula\n";	
+				print SALIDA_CSV "~~\n";	
+				print SALIDA_CSV "$agente_amenaza~$impacto_tecnico~$impacto_negocio\n";	
 				print SALIDA_CSV "ANALISIS DE RIESGO\n";	
-				print SALIDA_CSV "PROBABILIDAD: $probabilidad|IMPACTO: $impacto|RIESGO: $riesgoInforme\n";	
+				print SALIDA_CSV "PROBABILIDAD: $probabilidad~IMPACTO: $impacto~RIESGO: $riesgoInforme\n";	
 				print SALIDA_CSV "DETALLES DE LA PRUEBA\n";	
-				print SALIDA_CSV "Host afectados:|\"$hosts\"\n";	
+				print SALIDA_CSV "Host afectados:~\"$hosts\"\n";	
 				print SALIDA_CSV "\"$detalles\"\n";	
 				print SALIDA_CSV "CONTRAMEDIDAS\n";	
 				print SALIDA_CSV "\"$recomendacion\"\n";	
@@ -1093,6 +1105,24 @@ for my $resultados_db (@resultados_array)
 				print SALIDA_CSV "\n";	
 				print SALIDA_CSV "\n";								
 				close (SALIDA_CSV);
+				
+				open (SALIDA_CSV2,">>reporte-bisit.csv") || die "ERROR: No puedo abrir el reporte.csv\n";			
+				
+				print SALIDA_CSV2 "$nombre\n";	
+				print SALIDA_CSV2 "VULNERABILIDAD\n";	
+				print SALIDA_CSV2 "$descripcion\n";	
+				print SALIDA_CSV2 "FACTOR DE RIESGO\n";	
+				print SALIDA_CSV2 "$riesgoInforme ~ CVSS Base Score\n";	
+				print SALIDA_CSV2 "PARA CONOCER MAS ACERCA DE LA VULNERABILIDAD, CONSULTE EN INTERNET:\n";	
+				print SALIDA_CSV2 "$referencias\n";														
+				print SALIDA_CSV2 "EXPLOTACION\n";					
+				print SALIDA_CSV2 "\" POSITIVA, $detalles\"\n";
+				print SALIDA_CSV2 "HOST AFECTADOS:\n";	
+				print SALIDA_CSV2 "\"$hosts\"\n";								
+				print SALIDA_CSV2 "CONTRAMEDIDAS\n";	
+				print SALIDA_CSV2 "\"$recomendacion\"\n";								
+				print SALIDA_CSV2 "\n";								
+				close (SALIDA_CSV2);
 				
 				$contador++;#contador vulnerabilidades
 		}#if filas    

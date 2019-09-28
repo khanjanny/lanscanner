@@ -27,7 +27,7 @@ RESET="\033[00m"       # Normal
 
 echo -e "${GREEN} [+] Instalando herramientas disponibles en repositorio ${RESET}" 
 sudo apt-get update
-sudo apt-get -y install bc nbtscan nfs-common snmp finger sqlite3 sqlitebrowser python-pip nmap masscan onesixtyone whatweb libssl-dev python-qt4 ike-scan postgresql-client-* elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd mysql-client-core-*
+sudo apt-get -y install bc nbtscan nfs-common snmp finger sqlite3 sqlitebrowser python-pip nmap masscan onesixtyone whatweb libssl-dev python-qt4 ike-scan postgresql-client-* elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd exiftool libpq-dev libpcap-dev mysql-client-core-*
 
 
 echo -e "${GREEN} [+] Instalando webhacks ${RESET}"
@@ -40,10 +40,11 @@ echo -e "${GREEN} [+] Copiando archivos ${RESET}"
 mkdir /usr/share/lanscanner 2>/dev/null
 cd files
 cp community.txt /usr/share/lanscanner
-cp resultados.db /usr/share/lanscanner
+cp .resultados.db /usr/share/lanscanner
 cp -r postExploiter /usr/share/lanscanner
-cp vulnerabilidades.xml /usr/share/lanscanner
+cp vulnerabilidades.xml /usr/share/lanscanner 2>/dev/null
 cp smb-vuln-ms17-010.nse /usr/share/nmap/scripts/
+cp cve_2019_0708_bluekeep.rb /usr/share/metasploit-framework/modules/auxiliary/scanner/rdp
 cd ..
 echo ""
 

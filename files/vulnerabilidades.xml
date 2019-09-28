@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version='1.0'?>
 <vulnerabilidades>
   <vuln> 
    	<cod>ms17010</cod> 
@@ -93,8 +93,8 @@
     <agente_amenaza>USUARIO EXTERNO</agente_amenaza>    
     <impacto_tecnico> Tomar control del servidor de correos </impacto_tecnico>
     <impacto_negocio> Acceder y modificar correos </impacto_negocio>     
-    <detalles>Mediante la explotación de esta vulnerabilidad en primera instancia es posible leer archivos del servidor (Mediante este método se puede obtener el password del administrador de Zimbra). Tambien es posible lograr ejecución remota de comandos "RCE" para tomar el control completo del servidor</detalles>
-    <descripcion>Mediante la explotación de esta vulnerabilidad en primera instancia es posible leer archivos del servidor (Mediante este método se puede obtener el password del administrador de Zimbra). Tambien es posible lograr ejecución remota de comandos "RCE" para tomar el control completo del servidor.</descripcion>
+    <detalles>Mediante la explotación de esta vulnerabilidad en primera instancia es posible leer archivos del servidor (Mediante este método se puede obtener el password del administrador de Zimbra). Tambien es posible lograr ejecución remota de comandos 'RCE' para tomar el control completo del servidor</detalles>
+    <descripcion>Mediante la explotación de esta vulnerabilidad en primera instancia es posible leer archivos del servidor (Mediante este método se puede obtener el password del administrador de Zimbra). Tambien es posible lograr ejecución remota de comandos 'RCE' para tomar el control completo del servidor.</descripcion>
     <verificacion>Herramienta: Metasploit SALTOLINEA
 				  Modulo: exploit/linux/http/zimbra_xxe_rce </verificacion>
     <recomendacion>Aplique el parche de seguridad</recomendacion> 
@@ -218,6 +218,23 @@
   </vuln>
   
   
+   <vuln>  
+   	<cod>passwordSFI</cod> 
+    <nombre>Password por defecto en el servidor SFI</nombre>
+    <codVul>ninguna</codVul>
+    <riesgoAgetic>alto</riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Significativo </impacto>
+    <riesgoInforme> ALTO </riesgoInforme>        
+    <agente_amenaza>USUARIO INTERNO</agente_amenaza>
+    <impacto_tecnico> Acceder al servidor SFI </impacto_tecnico>
+    <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
+    <detalles> El sistema operativo donde se ejecuta el SFI aun presenta el usuario y password por defecto o es fácil de adivinar. </detalles>    
+    <descripcion>El sistema operativo donde se ejecuta el SFI aun presenta el usuario y password por defecto o es fácil de adivinar.</descripcion>
+    <verificacion>ninguna</verificacion>
+    <recomendacion>Asignar un password a la base datos que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial.</recomendacion> 
+	<referencias>ninguna</referencias> 
+  </vuln>  
   
   <vuln>  
    	<cod>passwordBD</cod> 
@@ -861,7 +878,7 @@
 				Despues de realizar un ataque de diccionario a los hashes obtenidos previamente se obtuvo las siguientes combinaciones validas: IMAGEN </detalles>    
     <descripcion> El equipo DVR permite extraer todos sus usuarios y hashes</descripcion>
     <verificacion>Herramienta: metasploit SALTOLINEA
-				  msfconsole -x "use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS 1.2.3.4; set ACTION USER;run;exit" </verificacion>
+				  msfconsole -x 'use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS 1.2.3.4; set ACTION USER;run;exit' </verificacion>
     <recomendacion> Dahua no saco un parche para esta vulnerabilidad. Para mitigar esta vulnerabilidad cambiar la contraseña por otra que sea difícil de adivinar y asignar el equipo DVR en otro segmento de red</recomendacion> 
 	<referencias> https://depthsecurity.com/blog/dahua-dvr-authentication-bypass-cve-2013-6117 </referencias> 	
   </vuln>
@@ -941,7 +958,7 @@
     <detalles>El servidor VPN esta configurado con el modo agresivo (aggressive mode) habilitado. Lo cual permite extraer el handshake de la conexión para posteriormente crackear el mismo.</detalles>    
     <descripcion> El servidor VPN esta configurado con el modo agresivo (aggressive mode) habilitado. Lo cual permite extraer el handshake de la conexión para posteriormente crackear el mismo.</descripcion>
     <verificacion> ninguna </verificacion>
-    <recomendacion>Si es posible configurar la VPN en modo "main mode". Asignar un password robusto a la VPN </recomendacion> 
+    <recomendacion>Si es posible configurar la VPN en modo 'main mode'. Asignar un password robusto a la VPN </recomendacion> 
 	<referencias>ninguna</referencias> 		   
   </vuln>
    
@@ -995,7 +1012,7 @@
     <impacto_negocio>La integridad de los datos se puede ver afectada </impacto_negocio>    
     <detalles> La vulnerabilidad permite que un atacante obtenga los hashes de las contraseñas de la cuentas de usuarios, para luego realizar un ataque de fuerza bruta para descifrar la contraseña.</detalles>    
     <descripcion>La vulnerabilidad permite que un atacante obtenga los hashes de las contraseñas de la cuentas de usuarios, para luego realizar un ataque de fuerza bruta para descifrar la contraseña.</descripcion>
-    <verificacion>msfconsole -x "auxiliary/scanner/ipmi/ipmi_dumphashes;set RHOSTS 1.2.3.4;run;exit"</verificacion>
+    <verificacion>msfconsole -x 'auxiliary/scanner/ipmi/ipmi_dumphashes;set RHOSTS 1.2.3.4;run;exit'</verificacion>
     <recomendacion> Deshabilitar Cipher 0 en el servidor</recomendacion> 
 	<referencias>https://www.wired.com/2013/07/ipmi/</referencias>     	   
   </vuln>
@@ -1034,7 +1051,7 @@
     <detalles>Se tiene habilitado el acceso anónimo al directorio LDAP del cual se puede extraer información sobre los empleados de la entidad tales como ser nombre, correo electrónico, directorio home, etc</detalles>    
     <descripcion> Se tiene habilitado el acceso anónimo al directorio LDAP del cual se puede extraer información sobre los empleados de la entidad tales como ser nombre, correo electrónico, directorio home, etc</descripcion>
     <verificacion> Herramienta: ldapsearch SALTOLINEA
-				  ldapsearch -x -p  -h 1.2.3.4 -b "" -s sub "(objectclass=*)"  </verificacion>
+				  ldapsearch -x -p  -h 1.2.3.4 -b '' -s sub '(objectclass=*)'  </verificacion>
     <recomendacion>Restringir conexiones anónimas al directorio LDAP. Sin embargo, como con cualquier remediación potencial, esto debe probarse en un entorno de desarrollo o control de calidad para garantizar que no haya efectos secundarios adversos. Se debe tener especial cuidado cuando las aplicaciones utilizan LDAP para la autenticación de usuarios o la búsqueda de información. El bloqueo del servidor LDAP sin probar las aplicaciones podría provocar el mal funcionamiento de varios servicios.</recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln>
@@ -1054,7 +1071,7 @@
     <descripcion> Se identificó que es posible enumerar a todos los usuarios que son administradores del sitio web. Esta información puede ser usada para realizar un ataque de diccionario al sitio web. </descripcion>
     <verificacion> Herramienta: wpscan SALTOLINEA
 				   wpscan --random-agent --url http://www.dominio.com --enumerate u </verificacion>
-    <recomendacion> Instalar el plugin "Stop user enumeration" </recomendacion> 
+    <recomendacion> Instalar el plugin 'Stop user enumeration' </recomendacion> 
 	<referencias>https://wordpress.org/plugins/stop-user-enumeration/</referencias>    
   </vuln>
      
@@ -1124,9 +1141,6 @@
 					Restringir conexiones anónimas al sistema. </recomendacion> 
 	<referencias> https://maniqui.ru/computadoras-y-software/administracin-y-redes-profesionales/hackeo-tico/223-ataques-sesin-nula-y-cmo-evitarlos.html </referencias> 
   </vuln>
-          
-     
-  
 
    <vuln>
 	<cod>transferenciaDNS</cod> 
@@ -1182,7 +1196,7 @@
     <referencias>SALTOLINEA</referencias>           
     <descripcion>  Los archivos exponen datos del servidor como versiones exactas de PHP, módulos cargados, direcciones IP, etc.</descripcion>
     <verificacion> Herramienta: wget SALTOLINEA
-					wget "URL" </verificacion>
+					wget 'URL' </verificacion>
    <recomendacion> Eliminar los archivos identificados </recomendacion> 
   </vuln>
   
@@ -1262,6 +1276,25 @@
     <recomendacion>Configurar el servidor DNS de manera que no resuelva dominios de terceros</recomendacion> 
 	<referencias>https://www.incibe-cert.es/blog/dns</referencias> 			            
   </vuln>  
+  
+      
+  <vuln>
+	<cod>contenidoNoRelacionado</cod> 		
+    <nombre>Contenido no relacionado al negocio.</nombre>
+    <codVul>ninguna</codVul>
+    <riesgoAgetic>Medio</riesgoAgetic>	
+    <probabilidad>Posible</probabilidad>
+    <impacto>Leve</impacto>
+    <riesgoInforme>BAJO</riesgoInforme>        
+    <agente_amenaza>USUARIO EXTERNO (Internet)</agente_amenaza>    
+    <impacto_tecnico>Ninguno</impacto_tecnico>
+    <impacto_negocio>La imagen de la entidad se ve afectada</impacto_negocio>       
+    <detalles>El servidor almacena contenido no relacionado a la entidad</detalles>    
+    <descripcion> El servidor almacena contenido no relacionado a la entidad</descripcion>
+    <verificacion>ninguna</verificacion>
+    <recomendacion>Eliminar el contenido no relacionado</recomendacion> 
+	<referencias>ninguna</referencias> 			            
+  </vuln> 
    
   
   <vuln>   
@@ -1388,7 +1421,7 @@
     <detalles> El entorno de desarrollo esta habilitado en el sitio web y permite descubrir que técnologia es usada por la aplicación </detalles>    
     <descripcion>El entorno de desarrollo esta habilitado en el sitio web y permite descubrir que técnologia es usada por la aplicación</descripcion>
     <verificacion>ninguna</verificacion>
-    <recomendacion>Deshabilitar el modo "debug".</recomendacion> 
+    <recomendacion>Deshabilitar el modo 'debug'.</recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln> 
     
