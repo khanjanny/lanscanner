@@ -229,7 +229,7 @@ for my $resultados_db (@resultados_array)
 		my $vuln = @vulnerabilidad_array[2];
 		$vuln =~ s/.txt|.html//g; 		
 						
-		my ($codVul,$vuln_descripcion) =  buscarDescripcion($vuln);				
+		my ($codVul,$vuln_descripcion) =  buscarDescripcion($vuln,$dominio);				
 		$codVul="N/A" if ($codVul eq "ninguna"); #Buscar el Codigo CVE o MS
 		
 		#print "vuln $vuln  ($codVul) \n";
@@ -241,7 +241,7 @@ for my $resultados_db (@resultados_array)
 		}
 		
 		#Activos de informacion - servidores																																																																																																				
-		if (($vuln eq "compartidoNFS") || ($vuln eq "enum4linux") || ($vuln eq "shellshock") || ($vuln eq "webdavVulnerable") || ($vuln eq "heartbleed") || ($vuln eq "zimbraXXE") || ($vuln eq "slowloris") || ($vuln eq "CVE15473") || ($vuln eq "directorioLDAP") || ($vuln eq "transferenciaDNS") || ($vuln eq "vrfyHabilitado") || ($vuln eq "openresolver") || ($vuln eq "openrelay") || ($vuln eq "anonymousIPMI") || ($vuln eq "rmiVuln") || ($vuln eq "SSHBypass") || ($vuln eq "intelVuln") || ($vuln eq "HTTPsys") || ($vuln eq "apacheStruts") || ($vuln eq "IISwebdavVulnerable") || ($vuln eq "sambaVuln") || ($vuln eq "jbossVuln") || ($vuln eq "contenidoNoRelacionado"))
+		if (($vuln eq "compartidoNFS") || ($vuln eq "enum4linux") || ($vuln eq "shellshock") || ($vuln eq "webdavVulnerable") || ($vuln eq "heartbleed") || ($vuln eq "zimbraXXE") || ($vuln eq "slowloris") || ($vuln eq "CVE15473") || ($vuln eq "directorioLDAP") || ($vuln eq "transferenciaDNS") || ($vuln eq "vrfyHabilitado") || ($vuln eq "openresolver") || ($vuln eq "openrelay") || ($vuln eq "anonymousIPMI") || ($vuln eq "rmiVuln") || ($vuln eq "SSHBypass") || ($vuln eq "intelVuln") || ($vuln eq "HTTPsys") || ($vuln eq "apacheStruts") || ($vuln eq "IISwebdavVulnerable") || ($vuln eq "sambaVuln") || ($vuln eq "jbossVuln") || ($vuln eq "contenidoNoRelacionado") || ($vuln eq "spoof"))
 		{			
 			$servidores_csv = $servidores_csv."$ip~$port~$codVul~$vuln_descripcion~$vuln\n" ;
 			$servidores_html = $servidores_html."<tr><td>$ip</td><td>$port</td><td>$codVul</td><td>$vuln_descripcion</td><td><a href='$ruta/logs/vulnerabilidades/$_' target='_blank'>Ver log</a></td></tr>" ;					
@@ -312,7 +312,7 @@ for my $resultados_db (@resultados_array)
 		my $port = @vulnerabilidad_array[1];
 		my $vuln = @vulnerabilidad_array[2];
 		$vuln =~ s/.txt|.html//g; 		
-		my ($codVul,$vuln_descripcion) =  buscarDescripcion($vuln);				
+		my ($codVul,$vuln_descripcion) =  buscarDescripcion($vuln,$dominio);				
 		$codVul="N/A" if ($codVul eq "ninguna");
 		
 		$passwords_csv = $passwords_csv."$ip~$port~$codVul~$vuln_descripcion~$vuln\n" ;		
@@ -1192,21 +1192,21 @@ close (SALIDA);
 
 sub buscarDescripcion
 {
-	my ($cod) = @_;
+	my ($cod,$dominio) = @_;
 	my $codVul="ninguna";
 	my $descripcion;
 	
 	switch($cod) {   
    case "googlehacking0"          { $descripcion="Google dork: site:$dominio inurl:add"; }
-   case "googlehacking1"          { $descripcion="Google dork: site:$DOMINIO inurl:edit"; }
-   case "googlehacking2"          { $descripcion="Google dork: site:$DOMINIO intitle:index.of"; }
-   case "googlehacking3"          { $descripcion="Google dork: site:$DOMINIO filetype:sql"; }
-   case "googlehacking4"          { $descripcion="Google dork: site:$DOMINIO \"access denied for user\""; }
-   case "googlehacking5"          { $descripcion="Google dork: site:$DOMINIO intitle:\"curriculum vitae\""; }
-   case "googlehacking6"          { $descripcion="Google dork: site:$DOMINIO passwords|contrasenas|login|contrasena filetype:txt"; }
+   case "googlehacking1"          { $descripcion="Google dork: site:$dominio inurl:edit"; }
+   case "googlehacking2"          { $descripcion="Google dork: site:$dominio intitle:index.of"; }
+   case "googlehacking3"          { $descripcion="Google dork: site:$dominio filetype:sql"; }
+   case "googlehacking4"          { $descripcion="Google dork: site:$dominio \"access denied for user\""; }
+   case "googlehacking5"          { $descripcion="Google dork: site:$dominio intitle:\"curriculum vitae\""; }
+   case "googlehacking6"          { $descripcion="Google dork: site:$dominio passwords|contrasenas|login|contrasena filetype:txt"; }
    case "googlehacking11"          { $descripcion="Google dork: site:trello.com passwords|contrasenas|login|contrasena intext:$DOMINIO"; }
-   case "googlehacking13"          { $descripcion="Google dork: site:$DOMINIO \"Undefined index\""; }
-   case "googlehacking14"          { $descripcion="Google dork: site:$DOMINIO inurl:storage"; }   
+   case "googlehacking13"          { $descripcion="Google dork: site:$dominio \"Undefined index\""; }
+   case "googlehacking14"          { $descripcion="Google dork: site:$dominio inurl:storage"; }   
    else              
 		{
 			for (my $i=0; $i<$total_vulnerabilidades;$i++)
