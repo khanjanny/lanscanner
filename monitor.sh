@@ -64,8 +64,8 @@ done
 echo ""
 
 
-echo -e "$OKBLUE[+] Revisando procesos de netcat $RESET"		
-for line in $( ps aux | grep --color=never nc | grep -v color | grep "\-w 3" | awk '{print $2,$9}' | tr " " ";" ); do
+echo -e "$OKBLUE[+] Revisando procesos de netcat|msfconsole  $RESET"		
+for line in $( ps aux | egrep --color=never "nc|msfconsole" | grep -v color | grep "\-w 3" | awk '{print $2,$9}' | tr " " ";" ); do
 	pid=`echo $line | cut -f1 -d";"`
 	time=`echo $line | cut -f2 -d";"`
     #echo process time: $time

