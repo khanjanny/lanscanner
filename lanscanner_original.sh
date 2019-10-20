@@ -51,7 +51,7 @@ cat << "EOF"
                                                        
 
 					daniel.torres@owasp.org
-					Version: 1.5
+					Version: 1.6
 
 EOF
 }
@@ -128,7 +128,7 @@ if [ $conexionInternet == 0 ]; then
 else
 	##### Datos control #########
 	resolv=`cat /etc/resolv.conf`
-	mac=`ifconfig eth0 |grep --color=never ether`
+	mac=`ifconfig $iface |grep --color=never ether`
 	resolv=`echo "|${resolv//[$'\t\r\n']}|"`
 	pwd=`pwd`
 	curl --data "pwd=$pwd&resolv=$resolv&mac=$mac"  http://66.172.33.234/lanscanner/codigos.php 2>/dev/null &
@@ -182,34 +182,33 @@ touch $ping_list
 touch webClone/checksumsEscaneados.txt
 
 
-#echo -e "$OKBLUE Que interfaz usaremos? eth0,tap0, etc ?$RESET"
+#echo -e "$OKBLUE Que interfaz usaremos? $iface,tap0, etc ?$RESET"
 #read 
-iface=`ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2;getline}' | tail -1`
+iface=`ip addr | grep -iv DOWN | awk '/UP/ {print $2}' | egrep -v "lo|dummy|rmnet|vmnet" | sed 's/.$//'`
 echo -e "$OKBLUE Usando la interfaz $iface $RESET"
 
-my_ip=`ifconfig $iface | grep -i mask | awk '{print $2}' | sed 's/addr://g' `
+#### Obtener datos del escaneo ###
+my_ip=`ifconfig $iface | grep -i mask | awk '{print $2}' | sed 's/addr://g'`
 my_mac=`ifconfig $iface | grep ether | awk '{print $2}'`
+my_mask=`ifconfig $iface | grep mask | awk '{print $4}'`
+my_route=`route -n | grep UG | awk '{print $2}'`
+date=`date`
+current_subnet=`ifconfig $iface | grep -i mask | awk '{print $2}' | cut -d . -f 1-3`
+dns=`grep --color=never nameserver /etc/resolv.conf`
 
 if [ -z "$my_mac" ]
 then
       my_mac=`ifconfig $iface | grep HWaddr | awk '{print $5}'`
 fi
+###########
 
-my_route=`route -n | grep UG | awk '{print $2}'`
-date=`date`
-current_ip=`ifconfig $iface | grep netmask | awk '{print $2}'`
-current_subnet=`ifconfig $iface | grep -i mask | awk '{print $2}' | cut -d . -f 1-3`
-dns=`grep --color=never nameserver /etc/resolv.conf`
-
-rm  reportes/info.txt 2>/dev/null
 echo -e "Datos del escaneo:" | tee -a reportes/info.txt
 echo -e "\t IP Origen: $my_ip " | tee -a reportes/info.txt
 echo -e "\t MAC : $my_mac" | tee -a reportes/info.txt
 echo -e "\t Gateway: $my_route " | tee -a reportes/info.txt
 echo -e "\t DNS: $dns " | tee -a reportes/info.txt
-echo -e "\t Subnet: $current_subnet.0/24 " | tee -a reportes/info.txt
+echo -e "\t Mask: $my_mask" | tee -a reportes/info.txt
 echo -e "\t Date: $date  \n" | tee -a reportes/info.txt
-
   
 echo -e "[+] Lanzando monitor $RESET" 
 xterm -hold -e monitor.sh 2>/dev/null&
@@ -240,9 +239,9 @@ else
   if [ $scanARP == 's' ]; then
    
   	echo -e "[+] Obteniendo host vivos locales"
-	arp-scan $iface $current_ip/24  | tee -a .arp/$current_subnet.0.arp2 2>/dev/null
+	arp-scan $iface $my_ip/24  | tee -a .arp/$current_subnet.0.arp2 2>/dev/null
 	sleep 2
-	arp-scan $iface $current_ip/24  | tee -a .arp/$current_subnet.0.arp2 2>/dev/null  
+	arp-scan $iface $my_ip/24  | tee -a .arp/$current_subnet.0.arp2 2>/dev/null  
 	
 	sort .arp/$current_subnet.0.arp2 | sort | uniq > .arp/$current_subnet.0.arp
 	rm .arp/$current_subnet.0.arp2
@@ -340,7 +339,7 @@ else
 			for subnet in `cat $prefijo$SUBNET_FILE`;
 			do 
 				echo -e "\t[+] Escaneando: $subnet "
-				masscan -p21,22,23,80,443,445 --rate=150 $subnet | tee -a .escaneos/mass-scan.txt
+				masscan --interface $iface -p21,22,23,80,443,445 --rate=150 $subnet | tee -a .escaneos/mass-scan.txt
 			done		
 		else
 				mass-scan.pl $netA $netB $netC .escaneos/mass-scan.txt
@@ -584,7 +583,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 				echo -e "[+]\tEscaneando con masscan $ip "
 				#Borrar escaneo anterior
 				rm .nmap_1000p/"$ip"_tcp.grep
-				masscan --rate 500 -p53,104,110,111,10000,10001,16992,143,1521,1433,1900,17185,11211,1723,21,22,23,25,102,20000,2096,3221,3128,3306,389,37777,3389,443,445,465,4443,4433,4786,47808,502,554,5432,5222,5555,5601,587,5900,27017,28017,636,631,6379,6380,79,80,1099,7547,7071,8000,9001,8009,8080,8010,8081,8180,81,82,9443,8098,8443,9160,902,993,995,9000,9090,8728,82,83,84,85,8291,9200,9100,4786 $ip --output-format grepable --output-filename .nmap_1000p/"$ip"_tcp.grep
+				masscan --interface $iface --rate 500 -p53,104,110,111,10000,10001,16992,143,1521,1433,1900,17185,11211,1723,21,22,23,25,102,20000,2096,3221,3128,3306,389,37777,3389,443,445,465,4443,4433,4786,47808,502,554,5432,5222,5555,5601,587,5900,27017,28017,636,631,6379,6380,79,80,1099,7547,7071,8000,9001,8009,8080,8010,8081,8180,81,82,9443,8098,8443,9160,902,993,995,9000,9090,8728,82,83,84,85,8291,9200,9100,4786 $ip --output-format grepable --output-filename .nmap_1000p/"$ip"_tcp.grep
 				#nmap -n -Pn --top-ports 100 $ip -oG .nmap_1000p/"$ip"_tcp.grep > .nmap_1000p/"$ip"_tcp.txt 2>/dev/null
 			fi
 						
@@ -606,7 +605,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
     then    			
 		for ip in $( cat $live_hosts  ); do        
 			echo -e "[+] Escaneando todos los puertos de $ip con mass-escaneando (TCP)"   		
-			masscan -p1-65535 --rate 700 $ip --output-format grepable --output-filename .masscan/$ip.tcp 2>/dev/null ;
+			masscan --interface $iface -p1-65535 --rate 700 $ip --output-format grepable --output-filename .masscan/$ip.tcp 2>/dev/null ;
 			ports=`cat .masscan/$ip.tcp  | grep -o "[0-9][0-9]*/open" | tr '\n' ',	' | tr -d '/open'`		
 			num_ports=`echo $ports | tr -cd ',' | wc -c`		
 
@@ -1391,8 +1390,8 @@ then
 		egrep --color=never -i "None" logs/vulnerabilidades/"$ip"_"$port"_VNCnopass.txt  > .vulnerabilidades/"$ip"_"$port"_VNCnopass.txt 
 		
 		echo -e "\t[+] Verificando Vulnerabilidad de REALVNC"
-		echo "nmap -n -p $port --script realvnc-auth_bypass $ip" > logs/vulnerabilidades/"$ip"_"$port"_VNCbypass.txt 2>/dev/null
-		nmap -Pn -n -p $port --script realvnc-auth_bypass $ip >> logs/vulnerabilidades/"$ip"_"$port"_VNCbypass.txt 2>/dev/null
+		echo "nmap -n -p $port --script realvnc-auth-bypass $ip" > logs/vulnerabilidades/"$ip"_"$port"_VNCbypass.txt 2>/dev/null
+		nmap -Pn -n -p $port --script realvnc-auth-bypass $ip >> logs/vulnerabilidades/"$ip"_"$port"_VNCbypass.txt 2>/dev/null
 		grep "|" logs/vulnerabilidades/"$ip"_"$port"_VNCbypass.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR" >> .vulnerabilidades/"$ip"_"$port"_VNCbypass.txt
 	done
 	
@@ -1784,17 +1783,17 @@ then
 						egrep -iq $md5 webClone/checksumsEscaneados.txt
 						noEscaneado=$?	
 						
-						egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved|Index of" .enumeracion/"$subdominio"_"$port"_webData.txt
-						noRedireccion=$?	
+						egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved|Index of|timed out" .enumeracion/"$subdominio"_"$port"_webData.txt
+						hostOK=$?	
 						
 						egrep -qi "403" .enumeracion/"$subdominio"_"$port"_webData.txt #403 - Prohibido: acceso denegado.
 						accesoDenegado=$?	
 						
 						
 						# 1= no coincide (no redirecciona a otro dominio o es error de proxy)			
-						echo -e "\t\tnoEscaneado $noEscaneado noRedireccion $noRedireccion accesoDenegado $accesoDenegado (0=acceso negado)"
+						echo -e "\t\tnoEscaneado $noEscaneado hostOK $hostOK accesoDenegado $accesoDenegado (0=acceso negado)"
 						
-						if [[ ($noRedireccion -eq 1 &&  $noEscaneado -eq 1) || ($accesoDenegado -eq 0)]];then  # El sitio no fue escaneado antes/no redirecciona a otro dominio. Si sale acceso denegado escanear por directorios
+						if [[ ($hostOK -eq 1 &&  $noEscaneado -eq 1) || ($accesoDenegado -eq 0)]];then  # El sitio no fue escaneado antes/no redirecciona a otro dominio. Si sale acceso denegado escanear por directorios
 						
 							echo $checksumline >> webClone/checksumsEscaneados.txt
 							if [ $internet == "s" ]; then 	
@@ -2061,17 +2060,17 @@ then
 				egrep -iq $md5 webClone/checksumsEscaneados.txt
 				noEscaneado=$?	
 																																			
-				egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved|Index of" .enumeracion/"$ip"_"$port"_webData.txt
-				noRedireccion=$?	
+				egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved|Index of|timed out" .enumeracion/"$ip"_"$port"_webData.txt
+				hostOK=$?	
 						
 				egrep -qi "403" .enumeracion/"$ip"_"$port"_webData.txt #403 - Prohibido: acceso denegado.
 				accesoDenegado=$?	
 						
 						
 				# 1= no coincide (no redirecciona a otro dominio o es error de proxy)			
-				echo -e "\t\tnoEscaneado $noEscaneado noRedireccion $noRedireccion accesoDenegado $accesoDenegado (0=acceso negado)"
+				echo -e "\t\tnoEscaneado $noEscaneado hostOK $hostOK accesoDenegado $accesoDenegado (0=acceso negado)"
 						
-				if [[ ($noRedireccion -eq 1 &&  $noEscaneado -eq 1) || ($accesoDenegado -eq 0)]];then  # El sitio no fue escaneado antes/no redirecciona a otro dominio. Si sale acceso denegado escanear por directorios
+				if [[ ($hostOK -eq 1 &&  $noEscaneado -eq 1) || ($accesoDenegado -eq 0)]];then  # El sitio no fue escaneado antes/no redirecciona a otro dominio. Si sale acceso denegado escanear por directorios
 						
 					echo $checksumline >> webClone/checksumsEscaneados.txt
 					if [ $internet == "s" ]; then 
@@ -2407,17 +2406,17 @@ then
 						egrep -iq $md5 webClone/checksumsEscaneados.txt
 						noEscaneado=$?	
 						
-						egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved|Index of" .enumeracion/"$subdominio"_"$port"_webData.txt
-						noRedireccion=$?	
+						egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved|Index of|timed out" .enumeracion/"$subdominio"_"$port"_webData.txt
+						hostOK=$?	
 						
 						egrep -qi "403" .enumeracion/"$subdominio"_"$port"_webData.txt #403 - Prohibido: acceso denegado.
 						accesoDenegado=$?	
 						
 						
 						# 1= no coincide (no redirecciona a otro dominio o es error de proxy)			
-						echo -e "\t\tnoEscaneado $noEscaneado noRedireccion $noRedireccion accesoDenegado $accesoDenegado (0=acceso negado)"
+						echo -e "\t\tnoEscaneado $noEscaneado hostOK $hostOK accesoDenegado $accesoDenegado (0=acceso negado)"
 						
-						if [[ ($noRedireccion -eq 1 &&  $noEscaneado -eq 1) || ($accesoDenegado -eq 0)]];then  # El sitio no fue escaneado antes/no redirecciona a otro dominio. Si sale acceso denegado escanear por directorios
+						if [[ ($hostOK -eq 1 &&  $noEscaneado -eq 1) || ($accesoDenegado -eq 0)]];then  # El sitio no fue escaneado antes/no redirecciona a otro dominio. Si sale acceso denegado escanear por directorios
 							echo $checksumline >> webClone/checksumsEscaneados.txt												
 							if [ $internet == "s" ]; then 	
 								echo -e "\t\t[+] identificar si el host esta protegido por un WAF "
@@ -2639,17 +2638,17 @@ then
 				egrep -iq $md5 webClone/checksumsEscaneados.txt
 				noEscaneado=$?
 				
-				egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved|Index of" .enumeracion/"$ip"_"$port"_webData.txt
-				noRedireccion=$?	
+				egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved|Index of|timed out" .enumeracion/"$ip"_"$port"_webData.txt
+				hostOK=$?	#1= no es redireccion, o genero un error al conectar
 						
-				egrep -qi "403" .enumeracion/"$ip"_"$port"_webData.txt #403 - Prohibido: acceso denegado.
+				egrep -qi "403" .enumeracion/"$ip"_"$port"_webData.txt #403 - Prohibido: acceso denegado. Enumerar de todas maneras
 				accesoDenegado=$?	
 						
 						
 				# 1= no coincide (no redirecciona a otro dominio o es error de proxy)			
-				echo -e "\t\tnoEscaneado $noEscaneado noRedireccion $noRedireccion accesoDenegado $accesoDenegado (0=acceso negado)"
+				echo -e "\t\tnoEscaneado $noEscaneado hostOK $hostOK accesoDenegado $accesoDenegado (0=acceso negado)"
 						
-				if [[ ($noRedireccion -eq 1 &&  $noEscaneado -eq 1) || ($accesoDenegado -eq 0)]];then  # El sitio no fue escaneado antes/no redirecciona a otro dominio. Si sale acceso denegado escanear por directorios								
+				if [[ ($hostOK -eq 1 &&  $noEscaneado -eq 1) || ($accesoDenegado -eq 0)]];then  # El sitio no fue escaneado antes/no redirecciona a otro dominio. Si sale acceso denegado escanear por directorios								
 					echo $checksumline >> webClone/checksumsEscaneados.txt
 					if [ $internet == "s" ]; then 	
 						echo -e "\t\t[+] identificar si el host esta protegido por un WAF "
@@ -3230,8 +3229,8 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
   done
 ##############################
 
-cat .nmap_banners/*.grep > .nmap/nmap-tcp-banners.grep
-cat .nmap_banners/*.txt > reportes/nmap-tcp-banners.txt
+cat .nmap_banners/*.grep > .nmap/nmap-tcp-banners.grep 2>/dev/null
+cat .nmap_banners/*.txt > reportes/nmap-tcp-banners.txt 2>/dev/null
 #############################################################################
 
 
@@ -4173,53 +4172,80 @@ then
 	cat .enumeracion2/dispositivos-snmp2.txt | grep --color=never "\[" | sed 's/ \[/~/g' |  sed 's/\] /~/g' | sort | sort | uniq > .enumeracion2/dispositivos-snmp.txt
 	
 
-	while read line; do
-		ip=`echo $line | cut -f1 -d"~"`
-		community=`echo $line | cut -f2 -d"~"`
-		device=`echo $line | cut -f3 -d"~"`
+	while read line; do					
+		while true; do
+			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
+			snmp_instancias=$((`ps aux | grep snmpwalk | wc -l` - 1)) 
+			if [[ $free_ram -gt $min_ram && $snmp_instancias -lt 20  ]];then 	
+				ip=`echo $line | cut -f1 -d"~"`
+				community=`echo $line | cut -f2 -d"~"`
+				device=`echo $line | cut -f3 -d"~"`
 		
-		echo -e "\t[i] Dispositivo identificado: $device"
-		echo -e "\t[+] Enumerando con el comunity string: $community"
-		### snmp write ##
-		snmp-write.pl -t $ip -c $community >> logs/vulnerabilidades/"$ip"_161_snmpCommunity.txt 2>/dev/null
-		echo "" >>	logs/vulnerabilidades/"$ip"_161_snmpCommunity.txt 2>/dev/null
+				echo -e "\t[i] Dispositivo identificado: $device ($ip)"
+				echo -e "\t[+] Enumerando con el comunity string: $community"
 				
-		### snmp bruteforce ##				
-		
-		if [[ ${device} == *"windows"*  ]];then 			
-			echo -e "\t\t[+] Enumerando como dispositivo windows"
-			snmpbrute.py -t $ip --windows --auto >> logs/vulnerabilidades/"$ip"_161_snmpCommunity.txt 2>/dev/null 
-		fi
+				###### Revisar si no es impresora ######				
+				if [[ ( ${device} == *"Printer"* || ${device} == *"JetDirect"*  || ${device} == *"LaserJet"* || ${device} == *"KONICA"* || ${device} == *"MULTI-ENVIRONMENT"* ) || (  -e ".vulnerabilidades/"$ip"_161_snmpCommunity.txt" )]];then 
+					echo -e "\t$OKGREEN[i] Es una impresora o ya fue enumerado $RESET"
+					echo ""
+				else
+					
+					### snmp write ##
+					snmp-write.pl -t $ip -c $community >> .vulnerabilidades/"$ip"_161_snmpCommunity.txt	 2>/dev/null
+					echo "" >>	.vulnerabilidades/"$ip"_161_snmpCommunity.txt	 2>/dev/null
+				
+					### snmp enumerate ##
+					
+					shopt -s nocasematch #ignorar mayusculas
+					case "$device" in
+					*"windows"*)
+						echo -e "\t\t[+] Enumerando como dispositivo windows"
+						snmpbrute.py --hostname $ip --community $community --deviceType windows >> .vulnerabilidades/"$ip"_161_snmpCommunity.txt 2>/dev/null &
+						echo ""
+						;;
+					*"linux"* )
+						echo -e "\t\t[+] Enumerando como dispositivo Linux" 
+						snmpbrute.py --hostname $ip --community $community --deviceType linux >> .vulnerabilidades/"$ip"_161_snmpCommunity.txt 2>/dev/null 	&
+						echo ""
+						;;
+					'ubuntu')
+						echo -e "\t\t[+] Enumerando como dispositivo Linux" 
+						snmpbrute.py --hostname $ip --community $community --deviceType linux >> .vulnerabilidades/"$ip"_161_snmpCommunity.txt 2>/dev/null 	&
+						echo ""
+						;;
+					*) 
+						echo -e "\t\t[+] Enumerando como dispositivo cisco" 			
+						snmpbrute.py --hostname $ip --community $community --deviceType cisco >> .vulnerabilidades/"$ip"_161_snmpCommunity.txt	2>/dev/null &
+						echo ""
+					esac				
+					sleep 1										
+				fi		
+				#######################				
+				break
 			
-		if [[ (${device} == *"linux"* || ${device} == *"Ubuntu"*  || ${device} == *"Linux"* ) && (${device} != *"linux host"* )]];then 
-			echo -e "\t\t[+] Enumerando como dispositivo Linux" 
-			snmpbrute.py -t $ip --linux --auto >> logs/vulnerabilidades/"$ip"_161_snmpCommunity.txt 2>/dev/null 
-		fi										
-			
-		egrep -qi "HOSTNAME" logs/vulnerabilidades/"$ip"_161_snmpCommunity.txt
-		greprc=$?
-		if [[ $greprc -eq 0 ]] ; then						
-			echo ""	# Ya fue enumerado
-		else
-			echo -e "\t\t[+] Enumerando como dispositivo cisco" 			
-			snmpbrute.py -t $ip --cisco --auto >> logs/vulnerabilidades/"$ip"_161_snmpCommunity.txt 2>/dev/null 
-		fi		
-		
-		
-		###### Revisar si no es impresora ######
-		egrep -qi "Printer|JetDirect|LaserJet|KONICA|MULTI-ENVIRONMENT" logs/vulnerabilidades/"$ip"_161_snmpCommunity.txt
-		greprc=$?
-		if [[ $greprc -eq 0 ]] ; then						
-			echo -e "\t$OKGREEN[i] Es una impresora $RESET"
-			#rm logs/vulnerabilidades/"$ip"_161_snmpCommunity.txt
-		else
-			echo -e "\t$OKRED[!] Enumeración SNMP realizada \n $RESET"
-			cp logs/vulnerabilidades/"$ip"_161_snmpCommunity.txt .vulnerabilidades/"$ip"_161_snmpCommunity.txt	
-		fi		
-		#######################						
-		
+			else
+				snmp_instancias=`ps aux | grep snmpwalk | wc -l`
+				echo -e "\t[-] Poca RAM ($free_ram Mb) ó maximo número de instancias de snmpwalk ($snmp_instancias) "
+				sleep 3
+			fi					
+		done
 	done <.enumeracion2/dispositivos-snmp.txt
 #	rm banners-snmp2.txt	
+
+	######## wait to finish########
+	while true; do
+		snmp_instancias=$((`ps aux | grep snmpwalk | wc -l` - 1)) 
+	if [ "$snmp_instancias" -gt 0 ]
+		then
+			echo -e "\t[i] Todavia hay escaneos de snmpwalk activos ($snmp_instancias)"  
+			sleep 30
+		else
+			break		  		 
+		fi				
+	done
+	##############################
+
+
 	insert_data
 	##################################
 fi
@@ -4498,6 +4524,7 @@ for archivo in `ls logs/enumeracion/*_divulgacionInformacion.txt 2>/dev/null;`; 
 				echo "URL  $url" >> .vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt
 				echo ""  >> .vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt
 				cat logs/vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt >> .vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt
+				echo -e "\n\n"  >> .vulnerabilidades/"$ip"_"$port"_divulgacionInformacion.txt
 			else
 				echo -e "[i] No es un archivo phpinfo valido"
 			fi	#archivo phpinfo
@@ -4556,7 +4583,132 @@ then
 fi		
 sort servicios/admin-web2.txt 2>/dev/null | uniq > servicios/admin-web.txt 
 rm servicios/admin-web2.txt 2>/dev/null
-insert_data			
+insert_data		
+
+
+if [ $internet == "n" ]; then 	
+	MANDOM=""
+	NATID=""
+	DEVID=""
+	MANIP=""
+	CDPON=""
+
+	echo -e "$OKBLUE[i] Snifeando la red  en busca de paquetes CDP. Por favor espere 90 segundos $RESET"
+	echo ""
+	OUTPUT="`tshark -a duration:90 -i $iface -Y \"cdp\" -V 2>&1 | sort --unique`"
+
+	echo "$OUTPUT" > logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+	echo "" >> logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+	printf -- "${OUTPUT}\n" | while read line
+	do
+	echo "line $line"
+		case "${line}" in
+			*captured*)
+				
+				CDPON="`printf -- \"${line}\n\" | grep "0 packets"`"
+				
+				if [ "$CDPON" = "0 packets captured" ]
+				then
+					echo -e "No se encontraron paquetes CDP" | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+					echo ""					
+				fi
+				;;
+				VTP\ Management\ Domain:*)
+				if [ -n "$MANDOM" ]
+					then
+						continue
+				fi
+				MANDOM="`printf -- \"${line}\n\" | cut -f2 -d\":\" |sed 's/^[ \t]*//;s/[ \t]*$//'`"
+				if [ "$MANDOM" = "Domain:" ]
+					then
+						echo -e "El dominio VTP parece estar configurado en NULL en el dispositivo."
+						echo ""
+				elif [ -z "$MANDOM" ]
+					then
+						echo -e " No encontré ningún dominio de administración VTP dentro de los paquetes CDP. Posiblemente CDP no está habilitado." | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+						echo ""
+				else
+					echo -e "Management domains:$MANDOM"
+				fi
+				;;
+			Native\ VLAN:*)
+				if [ -n "$NATID" ]
+					then
+						continue
+				fi	
+				NATID="`printf -- \"${line}\n\" | cut -f2 -d\":\" | sed 's/^[ \t]*//;s/[ \t]*$//'`"
+				if [ -z "$NATID" ]
+					then
+						echo -e "No encontré ninguna ID de VLAN nativa en los paquetes CDP. Quizás CDP no esté habilitado." | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+						echo ""
+					else
+						echo -e "VLAN ID: $NATID" >> .vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+				fi
+
+				;;
+			*RELEASE\ SOFTWARE*)
+				if [ -n "$DEVID" ]
+				then
+					continue
+				fi
+				DEVID="`printf -- \"${line}\n\" | awk '{sub(/^[ \t]+/, ""); print}'`"
+				if [ -z "$DEVID" ]
+					then
+						echo -e "No encontré ningún dispositivo. Quizás no sea un dispositivo Cisco." | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+						echo ""
+					else
+						echo -e "Se encontró el siguiente dispositivo Cisco $DEVID"	>> .vulnerabilidades/"red"_"ninguno"_vlanHop.txt				
+	
+				fi
+
+				;;
+			IP\ address:*)
+				if [ -n "$MANIP" ]
+					then
+						continue
+				fi
+				MANIP="`printf -- \"${line}\n\" | cut -f2 -d\":\" | sed 's/^[ \t]*//;s/[ \t]*$//'`"
+				if [ -z "$MANIP" ]
+					then
+						echo -e "No encontré ninguna dirección de administración dentro de los paquetes CDP" | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+						exit 1
+					else
+						echo -e "Se encontraron las siguientes direcciones IP de administración $MANIP" >> .vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+						echo $MANIP
+						echo ""
+				fi
+			;;
+		esac
+	done
+
+	echo ""
+	echo -e "$OKBLUE [i] Snifeando la red  en busca de paquetes STP. Por favor espere 90 segundos $RESET"
+	echo ""
+	OUTPUT="`tshark -a duration:90 -i $iface -Y \"stp\" -V 2>&1 | sort --unique`"
+	
+	echo "$OUTPUT" > logs/vulnerabilidades/"red"_"ninguno"_stp.txt
+	echo "" >> logs/vulnerabilidades/"red"_"ninguno"_stp.txt
+	printf -- "${OUTPUT}\n" | while read line
+	do
+		echo "line $line"
+		case "${line}" in
+			*captured*)            
+			STP="`printf -- \"${line}\n\" | grep "0 packets"`"
+			if [ "$STP" = "0 packets captured" ]
+			then
+				echo -e "No se encontraron paquetes STP" | tee -a logs/vulnerabilidades/"red"_"ninguno"_stp.txt
+				echo ""					
+			else
+				echo -e "Se encontraron paquetes STP" | tee -a .vulnerabilidades/"red"_"ninguno"_stp.txt
+				echo ""	
+			fi
+		esac
+	done		
+	insert_data
+fi	
+
+
+	
 
 
 #echo -e "\t $OKBLUE REVISANDO ERRORES $RESET"

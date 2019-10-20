@@ -1,5 +1,4 @@
 private
-public
 cisco
 snmp
 SNMP
@@ -13,3 +12,6 @@ nagios
 router
 root
 switch
+public
+tse
+oep

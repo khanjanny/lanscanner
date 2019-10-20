@@ -2,7 +2,7 @@
 <vulnerabilidades>
   <vuln> 
    	<cod>ms17010</cod> 
-    <nombre> Vulnerabilidad de Windows (Eternal blue) </nombre>
+    <nombre> Vulnerabilidad de Windows - Eternal blue </nombre>
     <codVul>MS17-010</codVul>
     <riesgoAgetic> Crítico </riesgoAgetic>	
     <probabilidad> Muy probable </probabilidad>
@@ -12,14 +12,36 @@
     <impacto_tecnico> Tomar control de los equipos vulnerables </impacto_tecnico>
     <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
     <detalles> Realizando un escaneo con nmap se obtuvo el siguiente resultado: IMAGEN SALTOLINEA
-			La imagen  expone que el equipo es VULNERABLE según el boletín ms17-010 emitido por Microsoft. SALTOLINEA
-			Como prueba de concepto se exploto la vulnerabilidad para tomar el control del equipo: IMAGEN SALTOLINEA
-			Esta vulnerabilidad tambien puede ser explotada por malware de tipo ransomware. </detalles>    
+			La imagen expone que el equipo es VULNERABLE según el boletín ms17-010 emitido por Microsoft. SALTOLINEA
+			Como prueba de concepto se explotó la vulnerabilidad para tomar el control del equipo: IMAGEN SALTOLINEA
+			Esta vulnerabilidad también puede ser explotada por malware de tipo ransomware. </detalles>    
     <descripcion> El sistema operativo presenta una vulnerabilidad de divulgación de información en el bloque de mensajes del servidor Microsoft (SMBv1) debido al manejo inadecuado de ciertas solicitudes. Un atacante remoto no autenticado puede explotar esta vulnerabilidad y ejecutar código arbitrario remotamente. </descripcion>
     <verificacion> Herramienta: nmap SALTOLINEA
 				  Comando: nmap -p445 -script=smb-vuln-ms17-010.nse -iL listaips.txt </verificacion>
     <recomendacion> Actualizar el sistema operativo con los últimos parches de seguridad proporcionados por el proveedor. </recomendacion> 
 	<referencias> https://technet.microsoft.com/en-us/library/security/ms17-010.aspx </referencias>    
+  </vuln>
+  
+  <vuln>
+   	<cod>ransomware</cod> 
+    <nombre>Presencia de ransomware en la entidad</nombre>
+    <codVul></codVul>
+    <riesgoAgetic> Crítico </riesgoAgetic>	
+    <probabilidad> Muy probable </probabilidad>
+    <impacto> Crítico </impacto>
+    <riesgoInforme> CRÍTICO </riesgoInforme>        
+    <agente_amenaza> MALWARE </agente_amenaza>    
+    <impacto_tecnico> Encriptar archivos de la entidad</impacto_tecnico>
+    <impacto_negocio> Perdida de información</impacto_negocio>    
+    <detalles> Revisando los archivos compartidos se pudo evidenciar la presencia de ransomware: IMAGEN SALTOLINEA			
+			   </detalles>    
+    <descripcion> Revisando los archivos compartidos se pudo evidenciar la presencia de ransomware SALTOLINEA
+				</descripcion>
+    <verificacion>ninguna</verificacion>
+    <recomendacion>Solución a corto plazo: Identificar el ransomware y seguir los precedimientos indicados en: https://id-ransomware.malwarehunterteam.com/ y https://www.nomoreransom.org/ SALTOLINEA
+				   Solución a largo plazo: Migrar las estaciones de trabajo a linux</recomendacion> 
+	<referencias> https://id-ransomware.malwarehunterteam.com/ SALTOLINEA
+				https://www.nomoreransom.org/ </referencias>    
   </vuln>
   
   <vuln>
@@ -33,12 +55,30 @@
     <agente_amenaza>USUARIO EXTERNO (Internet)</agente_amenaza>    
     <impacto_tecnico>Acceso a archivos sensibles</impacto_tecnico>
     <impacto_negocio>La confidencialidad de los datos se puede ver afectada </impacto_negocio>    
-    <detalles> Se realizo un escaneo web, mediante la técnica de navegación forzada para identificar posibles backdoors</detalles>    
-    <descripcion>Se realizo un escaneo web, mediante la técnica de navegación forzada para identificar posibles backdoor </descripcion>
+    <detalles> Se realizó un escaneo web, mediante la técnica de navegación forzada para identificar posibles backdoors</detalles>    
+    <descripcion>Se realizó un escaneo web, mediante la técnica de navegación forzada para identificar posibles backdoor </descripcion>
     <verificacion>ninguna</verificacion>
     <recomendacion> Eliminar los archivos/directorios identificados </recomendacion> 
 	<referencias>ninguna</referencias>     	   
   </vuln>
+  
+  <vuln>  
+   	<cod>passwordSFI</cod> 
+    <nombre>Password por defecto en el servidor SFI</nombre>
+    <codVul>ninguna</codVul>
+    <riesgoAgetic>Crítico</riesgoAgetic>	
+    <probabilidad>Casi seguro</probabilidad>
+    <impacto>Crítico</impacto>
+    <riesgoInforme>CRÍTICO</riesgoInforme>       
+    <agente_amenaza>USUARIO INTERNO</agente_amenaza>
+    <impacto_tecnico> Acceder al servidor SFI </impacto_tecnico>
+    <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
+    <detalles> El sistema operativo donde se ejecuta el SFI aun presenta el usuario y password por defecto o es fácil de adivinar. </detalles>    
+    <descripcion>El sistema operativo donde se ejecuta el SFI aun presenta el usuario y password por defecto o es fácil de adivinar.</descripcion>
+    <verificacion>ninguna</verificacion>
+    <recomendacion>Asignar un password a la base datos que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
+	<referencias>ninguna</referencias> 
+  </vuln>  
   
   <vuln>
 	<cod>backdoorFabrica</cod> 
@@ -62,7 +102,7 @@
   
   <vuln>
    	<cod>ms08067</cod> 
-    <nombre>Vulnerabilidad de Windows (NetAPI) .</nombre>
+    <nombre>Vulnerabilidad de Windows - NetAPI </nombre>
     <codVul>MS08-067</codVul>
     <riesgoAgetic>Crítico</riesgoAgetic>	
     <probabilidad> Muy probable </probabilidad>
@@ -72,8 +112,8 @@
     <impacto_tecnico> Tomar control de los equipos vulnerables </impacto_tecnico>
     <impacto_negocio> Acceder y modificar información no sensible </impacto_negocio>    
     <detalles> Realizando un escaneo con nmap se obtuvo el siguiente resultado: IMAGEN SALTOLINEA
-			La imagen  expone que el equipo es VULNERABLE según el boletín MS08-067 emitido por Microsoft. SALTOLINEA
-			Como prueba de concepto se exploto la vulnerabilidad para tomar el control del equipo: IMAGEN SALTOLINEA </detalles>    
+			La imagen expone que el equipo es VULNERABLE según el boletín MS08-067 emitido por Microsoft. SALTOLINEA
+			Como prueba de concepto se explotó la vulnerabilidad para tomar el control del equipo: IMAGEN SALTOLINEA </detalles>    
     <descripcion>Los sistemas de Microsoft Windows son vulnerables a la ejecución remota de código explotando el puerto 445 (SMB). Un atacante remoto no autenticado puede explotar esta vulnerabilidad y tomar control del equipo.</descripcion>
     <verificacion>Herramienta: nmap SALTOLINEA
 				  Comando: nmap -p445 -script=smb-vuln-ms08-067.nse -iL listaips.txt</verificacion>
@@ -93,8 +133,8 @@
     <agente_amenaza>USUARIO EXTERNO</agente_amenaza>    
     <impacto_tecnico> Tomar control del servidor de correos </impacto_tecnico>
     <impacto_negocio> Acceder y modificar correos </impacto_negocio>     
-    <detalles>Mediante la explotación de esta vulnerabilidad en primera instancia es posible leer archivos del servidor (Mediante este método se puede obtener el password del administrador de Zimbra). Tambien es posible lograr ejecución remota de comandos 'RCE' para tomar el control completo del servidor</detalles>
-    <descripcion>Mediante la explotación de esta vulnerabilidad en primera instancia es posible leer archivos del servidor (Mediante este método se puede obtener el password del administrador de Zimbra). Tambien es posible lograr ejecución remota de comandos 'RCE' para tomar el control completo del servidor.</descripcion>
+    <detalles>Mediante la explotación de esta vulnerabilidad en primera instancia es posible leer archivos del servidor (Mediante este método se puede obtener el password del administrador de Zimbra). También es posible lograr ejecución remota de comandos 'RCE' para tomar el control completo del servidor</detalles>
+    <descripcion>Mediante la explotación de esta vulnerabilidad en primera instancia es posible leer archivos del servidor (Mediante este método se puede obtener el password del administrador de Zimbra). También es posible lograr ejecución remota de comandos 'RCE' para tomar el control completo del servidor.</descripcion>
     <verificacion>Herramienta: Metasploit SALTOLINEA
 				  Modulo: exploit/linux/http/zimbra_xxe_rce </verificacion>
     <recomendacion>Aplique el parche de seguridad</recomendacion> 
@@ -115,7 +155,7 @@
     <impacto_tecnico> Tomar control de los equipos vulnerables </impacto_tecnico>
     <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
     <detalles> Realizando un escaneo con nmap se obtuvo el siguiente resultado: IMAGEN SALTOLINEA
-			La imagen  expone que el equipo es VULNERABLE según el boletín ms17-010 emitido por Microsoft y fueron instalados backdoors en los equipos. SALTOLINEA. </detalles>    
+			La imagen expone que el equipo es VULNERABLE según el boletín ms17-010 emitido por Microsoft y fueron instalados backdoors en los equipos. SALTOLINEA. </detalles>    
     <descripcion>DoublePulsar es una puerta trasera que se aprovechaba de una vulnerabilidad en el protocolo SMB de Windows . </descripcion>
     <verificacion> Herramienta: nmap SALTOLINEA
 				  Comando: nmap -p445 -script=smb-double-pulsar-backdoor -iL listaips.txt </verificacion>
@@ -175,8 +215,26 @@
     <detalles> Misfortune Cookie es una vulnerabilidad crítica que permite que un intruso se haga cargo de forma remota de un enrutador de Internet y lo use para atacar redes domésticas y comerciales.</detalles>    
     <descripcion>Misfortune Cookie es una vulnerabilidad crítica que permite que un intruso se haga cargo de forma remota de un enrutador de Internet y lo use para atacar redes domésticas y comerciales.</descripcion>
     <verificacion>ninguna</verificacion>
-    <recomendacion>Actulizar el firmaware del router</recomendacion> 
+    <recomendacion>Actualizar el firmware del router</recomendacion> 
 	<referencias>http://mis.fortunecook.ie/</referencias>    
+  </vuln>
+  
+   <vuln> 
+   	<cod>poisoning</cod> 
+    <nombre>Sniffing, captura de tráfico</nombre>
+    <codVul>ninguno</codVul>
+    <riesgoAgetic> Alto </riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Significativo </impacto>
+    <riesgoInforme> ALTO </riesgoInforme>        
+    <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
+    <impacto_tecnico> Interceptar tráfico de los equipos de la red </impacto_tecnico>
+    <impacto_negocio> La confidencialidad de los datos se veria comprometida </impacto_negocio>    
+    <detalles> Es posible que un atacante pueda realizar ataques man-in-the-middle (MITM) para obtener información sensible capturando tráfico no encriptado en la red</detalles>    
+    <descripcion> Es posible que un atacante pueda realizar ataques man-in-the-middle (MITM) para obtener información sensible capturando tráfico no encriptado en la red</descripcion>
+    <verificacion>ninguna</verificacion>
+    <recomendacion>Habilitar DHCP Snooping en los switches de capa 3</recomendacion> 
+	<referencias>https://community.cisco.com/t5/blogs-routing-y-switching/configurando-dhcp-snooping/ba-p/3101169</referencias>    
   </vuln>
   
   <vuln>
@@ -189,12 +247,31 @@
     <riesgoInforme>ALTO</riesgoInforme>        
     <agente_amenaza>USUARIO EXTERNO</agente_amenaza>    
     <impacto_tecnico>Control del equipo de red</impacto_tecnico>
-    <impacto_negocio>La integridad de los dato se veria afectada </impacto_negocio>   
+    <impacto_negocio>La integridad de los datos se vería afectada </impacto_negocio>   
     <detalles>Una vulnerabilidad en el código SSL VPN podría permitir que un atacante remoto no autenticado acceda a la página web del portal SSL VPN.</detalles>    
     <descripcion>Una vulnerabilidad en el código SSL VPN podría permitir que un atacante remoto no autenticado acceda a la página web del portal SSL VPN.</descripcion>
     <verificacion>nmap -n -Pn  -p 443 --script http-vuln-cve2014-2128 1.2.3.4</verificacion>
     <recomendacion>Actualizar el dispositivo CISCO</recomendacion> 
 	<referencias>https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/Cisco-SA-20140409-CVE-2014-2128</referencias> 
+   </vuln>
+   
+   <vuln>
+  	<cod>llmnr</cod> 
+	<codVul>ninguna</codVul>
+    <nombre>Envenenamiento LLMNR y NBT-NS</nombre>
+    <riesgoAgetic>Alto</riesgoAgetic>	
+    <probabilidad>Posible</probabilidad>
+    <impacto>Significativo</impacto>
+    <riesgoInforme>ALTO</riesgoInforme>        
+    <agente_amenaza>USUARIO INTERNO</agente_amenaza>    
+    <impacto_tecnico>Control del equipo de red</impacto_tecnico>
+    <impacto_negocio>La integridad de los datos se vería afectada </impacto_negocio>   
+    <detalles>Los datos en la red al ser capturados permiten su análisis para identificar contraseñas y datos confidenciales que le brinden a un atacante la información para vulnerar los servicios y equipos críticos</detalles>    
+    <descripcion>Los datos en la red al ser capturados permiten su análisis para identificar contraseñas y datos confidenciales que le brinden a un atacante la información para vulnerar los servicios y equipos críticos</descripcion>
+    <verificacion>responder -F -f -I eth0</verificacion>
+    <recomendacion>Deshabilitar LLMNR y NBT-NS SALTOLINEA
+				   Usar en lo posible contraseñas robustas que presenten una mayor dificultad para crackearlas</recomendacion> 
+	<referencias>https://www.4armed.com/blog/llmnr-nbtns-poisoning-using-responder/</referencias> 
    </vuln>
   
   
@@ -218,27 +295,9 @@
   </vuln>
   
   
-   <vuln>  
-   	<cod>passwordSFI</cod> 
-    <nombre>Password por defecto en el servidor SFI</nombre>
-    <codVul>ninguna</codVul>
-    <riesgoAgetic>alto</riesgoAgetic>	
-    <probabilidad> Posible </probabilidad>
-    <impacto> Significativo </impacto>
-    <riesgoInforme> ALTO </riesgoInforme>        
-    <agente_amenaza>USUARIO INTERNO</agente_amenaza>
-    <impacto_tecnico> Acceder al servidor SFI </impacto_tecnico>
-    <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
-    <detalles> El sistema operativo donde se ejecuta el SFI aun presenta el usuario y password por defecto o es fácil de adivinar. </detalles>    
-    <descripcion>El sistema operativo donde se ejecuta el SFI aun presenta el usuario y password por defecto o es fácil de adivinar.</descripcion>
-    <verificacion>ninguna</verificacion>
-    <recomendacion>Asignar un password a la base datos que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial.</recomendacion> 
-	<referencias>ninguna</referencias> 
-  </vuln>  
-  
   <vuln>  
    	<cod>passwordBD</cod> 
-    <nombre>Base de datos con password inseguro.</nombre>
+    <nombre>Base de datos con password inseguro</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -249,15 +308,14 @@
     <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
     <detalles> La base de datos aun presenta el usuario y password por defecto o es fácil de adivinar. </detalles>    
     <descripcion>La base de datos aun presenta el usuario y password por defecto o es fácil de adivinar.</descripcion>
-    <verificacion>Herramienta: mysql (Consola), pgadmin3 y navicat (gráficas) SALTOLINEA
-				  mysql 1.2.3.4</verificacion>
-    <recomendacion>Asignar un password a la base datos que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial.</recomendacion> 
+    <verificacion>Herramientas: mysql (Consola), pgadmin3 y navicat (gráficas)</verificacion>
+    <recomendacion>Asignar un password a la base datos que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln>  
   
     <vuln>  
    	<cod>noSQLDatabases</cod> 
-    <nombre>Base de datos NoSQL sin autenticación.</nombre>
+    <nombre>Base de datos NoSQL sin autenticación</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -270,7 +328,7 @@
     <descripcion>La base de datos NoSQL no tiene la autenticación habilitada.</descripcion>
     <verificacion>nmap -n -sV -p 27080 -Pn --script=mongodb-databases 1.2.3.4 SALTOLINEA
 				  nmap -n -sV -p $port -Pn --script=mongodb-databases $ip </verificacion>
-    <recomendacion>Asignar un password a la base datos NoSQL que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial.</recomendacion> 
+    <recomendacion>Asignar un password a la base datos NoSQL que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln>  
   
@@ -278,7 +336,7 @@
   
   <vuln>  
    	<cod>passwordSFI</cod> 
-    <nombre>Base de datos del Sistema Financiero Integrado (SFI) con password inseguro.</nombre>
+    <nombre>Base de datos del Sistema Financiero Integrado (SFI) con password inseguro</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Crítico</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -291,13 +349,13 @@
     <descripcion>La base de datos aun presenta el usuario y password por defecto</descripcion>
     <verificacion>Herramienta: mysql (Consola), pgadmin3 y navicat (gráficas) SALTOLINEA
 				  mysql 1.2.3.4</verificacion>
-    <recomendacion>Asignar un password a la base datos que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial.</recomendacion> 
+    <recomendacion>Asignar un password a la base datos que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln>  
   
    <vuln>
 	<cod>webdavVulnerable</cod> 
-    <nombre>WebDAV vulnerable.</nombre>
+    <nombre>WebDAV vulnerable</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -307,18 +365,18 @@
     <impacto_tecnico> Acceso al servidor </impacto_tecnico>
     <impacto_negocio> Acceder y modificar información crítica  </impacto_negocio>    
     <detalles>Realizando un escaneo se obtuvo el siguiente resultado: IMAGEN SALTOLINEA
-			La imagen  expone que el equipo tiene habilitado el módulo WEBDAV. SALTOLINEA
-			Como prueba de concepto se exploto la vulnerabilidad para subir un archivo al servidor: IMAGEN SALTOLINEA</detalles>    
+			La imagen expone que el equipo tiene habilitado el módulo WEBDAV. SALTOLINEA
+			Como prueba de concepto se explotó la vulnerabilidad para subir un archivo al servidor: IMAGEN SALTOLINEA</detalles>    
     <descripcion>El servidor permite subir archivos al host vulnerable con las credenciales por defecto:  wampp/xampp </descripcion>
     <verificacion>Herramienta: cadaver SALTOLINEA
 				  cadaver 1.2.3.4 </verificacion>
-    <recomendacion> Deshabilitar el directorio webDAV .</recomendacion> 
+    <recomendacion> Deshabilitar el directorio webDAV </recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln> 
   
    <vuln>
 	<cod>IISwebdavVulnerable</cod> 
-    <nombre>WebDAV vulnerable.</nombre>
+    <nombre>WebDAV vulnerable</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -330,7 +388,7 @@
     <detalles>Permite el acceso de atacantes a carpetas seguras de WebDAV</detalles>    
     <descripcion>Permite el acceso de atacantes a carpetas seguras de WebDAV </descripcion>
     <verificacion>nmap -n -p 80 --script=http-iis-webdav-vuln 1.2.3.4</verificacion>
-    <recomendacion> Deshabilitar el directorio webDAV .</recomendacion> 
+    <recomendacion> Deshabilitar el directorio webDAV </recomendacion> 
 	<referencias>http://blog.zoller.lu/2009/05/iis-6-webdac-auth-bypass-and-data.html</referencias> 
   </vuln> 
      
@@ -349,14 +407,14 @@
     <detalles>Se identificaron cuentas de correo que tienen contraseñas inseguras.</detalles>    
     <descripcion>Se identificaron cuentas de correo que tienen contraseñas inseguras.</descripcion>
     <verificacion>ninguna</verificacion>
-    <recomendacion>Asignar un password a las cuentas de correo que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial.</recomendacion> 
+    <recomendacion>Asignar un password a las cuentas de correo que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
 	<referencias>ninguna</referencias> 	     
   </vuln>
   
   <vuln>
-	<cod>shellshock</cod> 
-	<codVul>CVE-2014-6271</codVul>
-    <nombre>Vulnerabilidad en Bash (shellshock)</nombre>
+	<cod>shellshock</cod> 	
+    <nombre>Vulnerabilidad en Bash - shellshock</nombre>
+    <codVul>CVE-2014-6271</codVul>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -365,12 +423,12 @@
     <impacto_tecnico>Tomar control de los equipos vulnerables </impacto_tecnico>
     <impacto_negocio> Acceder y modificar información crítica  </impacto_negocio>    
     <detalles>Realizando un escaneo con nmap se obtuvo el siguiente resultado: IMAGEN SALTOLINEA
-			La imagen  expone que el equipo es VULNERABLE según el boletín CVE-2014-6271. SALTOLINEA
-			Como prueba de concepto se exploto la vulnerabilidad para tomar el control del equipo: IMAGEN SALTOLINEA</detalles>    
+			La imagen expone que el equipo es VULNERABLE según el boletín CVE-2014-6271. SALTOLINEA
+			Como prueba de concepto se explotó la vulnerabilidad para tomar el control del equipo: IMAGEN SALTOLINEA</detalles>    
     <descripcion>El problema con esta vulnerabilidad se viene produciendo porque Bash no valida de forma correcta los parámetros introducidos por el usuario. Lo que provoca que un atacante pueda ejecutar comandos remotamente.</descripcion>
     <verificacion>Herramienta: nmap SALTOLINEA
 				  nmap -sV -p80 --script http-shellshock.nse --script-args uri=/ruta-cgi/ 1.2.3.4</verificacion>
-    <recomendacion>Actualizar GNU/Linux. En caso de no existir la actualización colocar los dispositivos en un segmento de red separado.</recomendacion> 
+    <recomendacion>Actualizar GNU/Linux. En caso de no existir la actualización colocar los dispositivos en un segmento de red separado</recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln>
   
@@ -389,7 +447,7 @@
     <descripcion> El equipo Mikrotik tiene una vulnerabilidad en el servicio WinBox que permite a un atacante leer los usuarios y contraseñas en texto plano.</descripcion>
     <verificacion> Herramienta: WinboxExploit SALTOLINEA
 				  WinboxExploit.py 1.2.3.4 </verificacion>
-    <recomendacion>Actualice el router a una versión de RouterOS que incluya el parche (version > 6.42). Alternativamente puede deshabilitar el servicio WinBox en el router.</recomendacion> 
+    <recomendacion>Actualice el router a una versión de RouterOS que incluya el parche (version > 6.42). Alternativamente puede deshabilitar el servicio WinBox en el router</recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln>
   
@@ -405,7 +463,7 @@
     <agente_amenaza>USUARIO EXTERNO (Internet)</agente_amenaza>    
     <impacto_tecnico>Acceso a archivos sensibles</impacto_tecnico>
     <impacto_negocio>La confidencialidad de los datos se puede ver afectada </impacto_negocio>    
-    <detalles> Se realizo un escaneo web, mediante la técnica de navegación forzada para identificar directorios con informacion sensible</detalles>    
+    <detalles> Se realizó un escaneo web, mediante la técnica de navegación forzada para identificar directorios con información sensible</detalles>    
     <descripcion>Se identificaron archivos/directorios que representan un riesgo de seguridad por la información que exponen </descripcion>
     <verificacion>ninguna</verificacion>
     <recomendacion> Eliminar los archivos/directorios identificados </recomendacion> 
@@ -439,7 +497,7 @@
     <impacto>Mayor</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
     <agente_amenaza>USUARIO EXTERNO/INTERNO</agente_amenaza>    
-    <impacto_tecnico>Ejecutar conmandos en el servidor</impacto_tecnico>
+    <impacto_tecnico>Ejecutar comandos en el servidor</impacto_tecnico>
     <impacto_negocio>La integridad de los datos se puede ver afectada </impacto_negocio>    
     <detalles> Permitiría a alguien usar inicios de sesión anónimo (con el nombre de usuario y la contraseña establecidos en un valor nulo) para obtener privilegios administrativos en el sistema de control.</detalles>    
     <descripcion>Permitiría a alguien usar inicios de sesión anónimo (con el nombre de usuario y la contraseña establecidos en un valor nulo) para obtener privilegios administrativos en el sistema de control.</descripcion>
@@ -475,10 +533,10 @@
     <impacto>Mayor</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
     <agente_amenaza>USUARIO EXTERNO/INTERNO</agente_amenaza>    
-    <impacto_tecnico>Ejecutar conmandos en el servidor</impacto_tecnico>
+    <impacto_tecnico>Ejecutar comandos en el servidor</impacto_tecnico>
     <impacto_negocio>La integridad de los datos se puede ver afectada </impacto_negocio>    
-    <detalles> Se identifico vulnerabilidades de deserialización de Java (JBOSS) </detalles>    
-    <descripcion> Se identifico vulnerabilidades de deserialización de Java (JBOSS)</descripcion>
+    <detalles> Se identificó vulnerabilidades de deserialización de Java (JBOSS) </detalles>    
+    <descripcion> Se identificó vulnerabilidades de deserialización de Java (JBOSS)</descripcion>
     <verificacion>jexboss.sh --disable-check-updates -u https://1.2.3.4</verificacion>
     <recomendacion> Actualizar el servidor </recomendacion> 
 	<referencias>https://www.computerworld.com/article/2486065/hackers-exploit-jboss-vulnerability-to-compromise-servers.html</referencias>     	   
@@ -493,7 +551,7 @@
     <impacto>Mayor</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
     <agente_amenaza>USUARIO EXTERNO/INTERNO</agente_amenaza>    
-    <impacto_tecnico>Ejecutar conmandos en el servidor</impacto_tecnico>
+    <impacto_tecnico>Ejecutar comandos en el servidor</impacto_tecnico>
     <impacto_negocio>La integridad de los datos se puede ver afectada </impacto_negocio>    
     <detalles> En la configuración de BMC tiene habilitado Cipher 0, esto permite a un atacante evadir el proceso de autenticación y ejecutar comandos en el servidor.</detalles>    
     <descripcion>En la configuración de BMC tiene habilitado Cipher 0, esto permite a un atacante evadir el proceso de autenticación y ejecutar comandos en el servidor</descripcion>
@@ -524,7 +582,7 @@
   <vuln>
 	<cod>perdidaAutenticacion</cod> 			
 	<codVul>ninguna</codVul>
-    <nombre>Perdida de autenticación.</nombre>
+    <nombre>Perdida de autenticación</nombre>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Mayor</impacto>
@@ -535,13 +593,13 @@
     <detalles>La aplicación permite acceder a partes del sistema sin necesidad de proporcionar las credenciales respectivas.</detalles>    		
     <descripcion>La aplicación permite acceder a partes del sistema sin necesidad de proporcionar las credenciales respectivas.</descripcion>
     <verificacion>ninguna</verificacion>
-    <recomendacion>Asegurarse que la aplicación compruebe el uso de una sesión valida para todas las partes del sistema .</recomendacion> 
+    <recomendacion>Asegurarse que la aplicación compruebe el uso de una sesión válida para todas las partes del sistema </recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln>  
  
   <vuln>
 	<cod>BlueKeep</cod> 
-    <nombre>Vulnerabilidad en el escritorio remoto (BlueKeep)</nombre>
+    <nombre>Vulnerabilidad en el escritorio remoto - BlueKeep</nombre>
     <codVul>CVE-2019-0708</codVul>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -559,7 +617,7 @@
   
     <vuln>
 	 <cod>openrelay</cod> 
-    <nombre>Open Relay.</nombre>
+    <nombre>Open Relay</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -586,7 +644,7 @@
     <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
     <impacto_tecnico> Acceso a documentos </impacto_tecnico>
     <impacto_negocio> Acceso a información sensible de la entidad </impacto_negocio>    
-    <detalles> Revisando los recursos compartidos se pudo acceder a  las siguientes carpetas y archivos del negocio: </detalles>    
+    <detalles> Revisando los recursos compartidos se pudo acceder a las siguientes carpetas y archivos del negocio: </detalles>    
     <descripcion>Revisando los recursos compartidos mediante el protocolo SMB se pudo observar que se comparte información sensible accesible por cualquier usuario de la red </descripcion>
     <verificacion>smbmap -H 1.2.3.4 -u anonymous -p anonymous SALTOLINEA
 				  smbmap -H 1.2.3.4 </verificacion>
@@ -609,13 +667,13 @@
     <descripcion>Se identificó un panel de administración de Mikrotik que no tiene un password robusto </descripcion>
     <verificacion>Herramienta: mkbrutus SALTOLINEA
 				  mkbrutus.py -t 1.2.3.4 -u usuario --dictionary passwords.txt</verificacion>
-    <recomendacion>Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial.</recomendacion> 
+    <recomendacion>Asignar un password al panel de administración que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln>
   
   <vuln>
 	 <cod>spoof</cod> 
-    <nombre>Suplantacion de correos electrónicos.</nombre>
+    <nombre>Suplantacion de correos electrónicos</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
@@ -651,7 +709,7 @@
     <detalles>Las versiones 0.6 e inferiores de libssh tienen una vulnerabilidad que permite evadir la autenticación y tener acceso al servidor.</detalles>    
     <descripcion>Las versiones 0.6 e inferiores de libssh tienen una vulnerabilidad que permite evadir la autenticación y tener acceso al servidor </descripcion>
     <verificacion>ninguna</verificacion>
-    <recomendacion>Actualizar la version de libSSH a la mas reciente disponible </recomendacion> 
+    <recomendacion>Actualizar la versión de libSSH a la más reciente disponible </recomendacion> 
 	<referencias> https://nakedsecurity.sophos.com/es/2018/10/17/serious-ssh-bug-lets-crooks-log-in-just-by-asking-nicely/ </referencias>  		
   </vuln>
   
@@ -669,7 +727,7 @@
     <detalles> Con el acceso al panel de administración se puede:SALTOLINEA
 				Acceder al listado del personal de la entidad
 				Modificar hora/fecha de ingreso y salida del personal</detalles>       
-    <descripcion>Se identificaron paneles de administración que no tienen un password robusto ( fácil de adivinar) y permiten acceder a datos sensibles</descripcion>
+    <descripcion>Se identificaron paneles de administración que no tienen un password robusto (fácil de adivinar) y permiten acceder a datos sensibles</descripcion>
     <verificacion>ninguna</verificacion>
     <recomendacion>Asignar un password al equipo que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
 	<referencias>ninguna</referencias>  
@@ -705,8 +763,8 @@
     <agente_amenaza> USUARIO EXTERNO </agente_amenaza>    
     <impacto_tecnico> Acceder a sistemas </impacto_tecnico>
     <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
-    <detalles>Se identificó un plugin que estan desactualizados y representan un riesgo de seguridad para el sitio web de la entidad</detalles>       
-    <descripcion>Se identificó un plugin que estan desactualizados y representan un riesgo de seguridad para el sitio web de la entidad</descripcion>
+    <detalles>Se identificó un plugin que están desactualizados y representan un riesgo de seguridad para el sitio web de la entidad</detalles>       
+    <descripcion>Se identificó un plugin que están desactualizados y representan un riesgo de seguridad para el sitio web de la entidad</descripcion>
     <verificacion>ninguna</verificacion>
     <recomendacion>Actualizar los plugins desactualizados o desactivarlos si no es utilizado</recomendacion> 
 	<referencias>ninguna</referencias>  
@@ -742,9 +800,9 @@
     <agente_amenaza>USUARIO INTERNO </agente_amenaza>    
     <impacto_tecnico>Acceso a recursos con las credenciales obtenidas </impacto_tecnico>
     <impacto_negocio>Acceso a información sensible </impacto_negocio>    
-    <detalles> Se recolectaron respuestas NTLM (XXX en total) correspondientes a  los siguientes equipos:SALTOLINEA
-				En la siguiente imagen podemos  apreciar la captura de la respuesta NTLM SALTOLINEA
-				Después de realizar un ataque de diccionario utilizando contraseñas comunes  y personalizadas, se pudo obtener las siguientes contraseñas en texto plano:SALTOLINEA </detalles>    
+    <detalles> Se recolectaron respuestas NTLM (XXX en total) correspondientes a los siguientes equipos:SALTOLINEA
+				En la siguiente imagen podemos apreciar la captura de la respuesta NTLM SALTOLINEA
+				Después de realizar un ataque de diccionario utilizando contraseñas comunes y personalizadas, se pudo obtener las siguientes contraseñas en texto plano:SALTOLINEA </detalles>    
     <descripcion>Las contraseñas están basadas en palabras de diccionarios y estas no son dificiles de adivinar. </descripcion>
     <verificacion>Herramienta: pth-winexe SALTOLINEA
 				  pth-winexe -U usuario%password //1.2.3.4 cmd </verificacion>
@@ -754,7 +812,7 @@
   
    <vuln>	   
    	<cod>logeoRemoto</cod> 
-    <nombre>Logueo en red habilitado.</nombre>
+    <nombre>Logueo en red habilitado</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -765,17 +823,17 @@
     <impacto_negocio> Acceso y modificación de información sensible </impacto_negocio>    
     <detalles> Con el acceso a una computadora de la red se pudo extraer un hash NTLM del usuario Administrador, el cual se usó para acceder a XXX equipos que tenían la misma contraseña.SALTOLINEA
 				La lista completa de los equipos que se tuvo control: </detalles>    
-    <descripcion>El logueo remoto esta habilitado (Puerto 445) y permite a un usuario que conozca la contraseña del administrador ingresar a otros equipos de red de manera remota</descripcion>
+    <descripcion>El logueo remoto está habilitado (Puerto 445) y permite a un usuario que conozca la contraseña del administrador ingresar a otros equipos de red de manera remota</descripcion>
     <verificacion>Herramienta: pth-winexe SALTOLINEA
 				  pth-winexe -U USUARIO%HASH //1.2.3.4 cmd </verificacion>
-    <recomendacion>Se recomienda bloquear el logueo remoto de usuarios locales en las estaciones de trabajo.</recomendacion> 
+    <recomendacion>Se recomienda bloquear el logueo remoto de usuarios locales en las estaciones de trabajo</recomendacion> 
 	<referencias>https://support.microsoft.com/es-bo/help/555317 https://blogs.technet.microsoft.com/secguide/2014/09/02/blocking-remote-use-of-local-accounts/</referencias> 
  
   </vuln>
 
  <vuln>
    	<cod>heartbleed</cod> 
-    <nombre>Vulnerabilidad en OpenSSL (Heartbleed)</nombre>
+    <nombre>Vulnerabilidad en OpenSSL - Heartbleed</nombre>
     <codVul>CVE-2014-0160</codVul>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
@@ -798,7 +856,7 @@
 
   <vuln>	
 	<cod>VNCnopass</cod> 
-    <nombre>Acceso a equipos mediante VNC sin credenciales.</nombre>
+    <nombre>Acceso a equipos mediante VNC sin credenciales</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -827,8 +885,8 @@
     <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
     <impacto_tecnico> Acceder a sistemas	 </impacto_tecnico>
     <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
-    <detalles> Se identifico a equipos que aun tienen la contraseña por defecto </detalles>    
-    <descripcion>El equipo aun tienen la contraseña por defecto</descripcion>
+    <detalles> Se identificó a equipos que aún tienen la contraseña por defecto </detalles>    
+    <descripcion>El equipo aún tienen la contraseña por defecto</descripcion>
     <verificacion>ninguna</verificacion>
     <recomendacion>Asignar un password al equipo que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
 	<referencias>ninguna</referencias> 
@@ -836,12 +894,12 @@
   
   <vuln>
 	<cod>openrelay2</cod> 
-    <nombre>Suplantación de correo electrónico.</nombre>
+    <nombre>Suplantación de correo electrónico</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Alto</riesgoAgetic>
-    <descripcion> Es posible acceder al servidor de correos mediante el puerto 25,  y enviar correos anónimos o a nombre de otras cuentas. Esto implica que cualquier usuario que conozca esta vulnerabilidad podría enviar correos con mensajes fraudulentos o elaborados para un determinado fin a otros usuarios dentro del dominio. </descripcion>
+    <descripcion> Es posible acceder al servidor de correos mediante el puerto 25, y enviar correos anónimos o a nombre de otras cuentas. Esto implica que cualquier usuario que conozca esta vulnerabilidad podría enviar correos con mensajes fraudulentos o elaborados para un determinado fin a otros usuarios dentro del dominio. </descripcion>
     <verificacion>Herramienta: telnet SALTOLINEA</verificacion>
-   <recomendacion> Deshabilitar o bloquear la funcionalidad de envío de correos anónimos. Revisar la instalación y configuración del servidor de correo e identificar configuraciones por defecto. Forzar la autenticación de usuarios previa interacción con el servidor. Servicio 25/tcp.</recomendacion> 
+   <recomendacion> Deshabilitar o bloquear la funcionalidad de envío de correos anónimos. Revisar la instalación y configuración del servidor de correo e identificar configuraciones por defecto. Forzar la autenticación de usuarios previa interacción con el servidor. Servicio 25/tcp</recomendacion> 
   </vuln> 
   
   
@@ -855,7 +913,7 @@
     <riesgoInforme> ALTO </riesgoInforme>        
     <agente_amenaza>USUARIO INTERNO</agente_amenaza>    
     <impacto_tecnico>Acceso a los equipos</impacto_tecnico>
-    <impacto_negocio>Afecta a la confidencialidad de informacion confidencial </impacto_negocio>    
+    <impacto_negocio>Afecta a la confidencialidad de información confidencial </impacto_negocio>    
     <detalles>Se detectaron equipos que utilizan una versión vulnerable de VNC</detalles>    
     <descripcion>  Se detectaron equipos que utilizan una versión vulnerable de VNC</descripcion>
     <verificacion> ninguna </verificacion>
@@ -875,7 +933,7 @@
     <impacto_tecnico>Acceso a los DVR como usuario privilegiado</impacto_tecnico>
     <impacto_negocio>Se podría perder la integridad de las grabaciones de seguridad</impacto_negocio>    
     <detalles> La vulnerabilidad permite extraer la lista de usuarios y hashes de contraseñas IMAGEN SALTOLINEA
-				Despues de realizar un ataque de diccionario a los hashes obtenidos previamente se obtuvo las siguientes combinaciones validas: IMAGEN </detalles>    
+				Después de realizar un ataque de diccionario a los hashes obtenidos previamente se obtuvo las siguientes combinaciones validas: IMAGEN </detalles>    
     <descripcion> El equipo DVR permite extraer todos sus usuarios y hashes</descripcion>
     <verificacion>Herramienta: metasploit SALTOLINEA
 				  msfconsole -x 'use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS 1.2.3.4; set ACTION USER;run;exit' </verificacion>
@@ -885,7 +943,7 @@
   
    <vuln>  
    	<cod>slowloris</cod> 
-    <nombre>Denegacion de servicio al servidor web (slowloris) </nombre>
+    <nombre>Denegacion de servicio al servidor web - slowloris </nombre>
     <codVul>CVE-2007-6750</codVul>
     <riesgoAgetic> Alto </riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -894,7 +952,7 @@
     <agente_amenaza> USUARIO EXTERNO </agente_amenaza>    
     <impacto_tecnico> Los sistemas alojados en el servidor web dejarian de funcionar </impacto_tecnico>
     <impacto_negocio> Se afecta la disponibilidad de servicios </impacto_negocio>    
-    <detalles> El Servidor Web es vulnerable a una denegación de servicio de tipo SlowLoris.SALTOLINEA Como prueba de concepto se dejo sin servicio el sitio web por el lapso de 1 minuto. </detalles>    
+    <detalles> El Servidor Web es vulnerable a una denegación de servicio de tipo SlowLoris.SALTOLINEA Como prueba de concepto se dejó sin servicio el sitio web por el lapso de 1 minuto. </detalles>    
     <descripcion>El Servidor Web es vulnerable a una denegación de servicio de tipo SlowLoris, el cual intenta mantener abiertas muchas conexiones al servidor web de destino y mantenerlas abiertas durante el mayor tiempo posible. Logra esto abriendo conexiones por Medio de una petición parcial. De esta manera, se privan de los recursos del servidor http que provocan la denegación de servicio.</descripcion>
     <verificacion> Herramienta: nmap SALTOLINEA
 				  nmap -p80 --script http-slowloris-check 1.2.3.4  </verificacion>
@@ -914,7 +972,7 @@
     <impacto_tecnico> Acceso a las cámaras de seguridad </impacto_tecnico>
     <impacto_negocio> Acceder/eliminar grabaciones de seguridad </impacto_negocio>    
     <detalles> Accediendo a las cámaras de vigilancia mediante el navegador es posible deshabilitar el almacenamiento de videos y visualizar en tiempo real las imágenes que se están grabando: IMAGEN SALTOLINEA
-				Teniendo acceso por consola a las cámaras de seguridad  es posible eliminar archivos (incluyendo grabaciones): IMAGEN
+				Teniendo acceso por consola a las cámaras de seguridad es posible eliminar archivos (incluyendo grabaciones): IMAGEN
     </detalles>    
     <descripcion> El equipo DVR tiene las credenciales por defecto </descripcion>
     <verificacion> medusa -u root -p vizxv -h 1.2.3.4 -M telnet  </verificacion>
@@ -924,7 +982,7 @@
   
   <vuln>	
 	<cod>sambaVuln</cod> 
-    <nombre>Enumeración de usuarios (Sesion nula en el servidor)</nombre>
+    <nombre>Enumeración de usuarios - Sesion nula en el servidor</nombre>
     <codVul>CVE-2017-7494.</codVul>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -946,7 +1004,7 @@
   
   <vuln>
 	<cod>VPNhandshake</cod>  	
-    <nombre>Configuración no segura de la VPN.</nombre>
+    <nombre>Configuración no segura de la VPN</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>	
      <probabilidad> Posible </probabilidad>
@@ -955,8 +1013,8 @@
     <agente_amenaza> USUARIO EXTERNO </agente_amenaza>     
     <impacto_tecnico>Obtener el hash del password de la VPN</impacto_tecnico>
     <impacto_negocio>Acceder a información sensible</impacto_negocio>    
-    <detalles>El servidor VPN esta configurado con el modo agresivo (aggressive mode) habilitado. Lo cual permite extraer el handshake de la conexión para posteriormente crackear el mismo.</detalles>    
-    <descripcion> El servidor VPN esta configurado con el modo agresivo (aggressive mode) habilitado. Lo cual permite extraer el handshake de la conexión para posteriormente crackear el mismo.</descripcion>
+    <detalles>El servidor VPN está configurado con el modo agresivo (aggressive mode) habilitado. Lo cual permite extraer el handshake de la conexión para posteriormente crackear el mismo.</detalles>    
+    <descripcion> El servidor VPN está configurado con el modo agresivo (aggressive mode) habilitado. Lo cual permite extraer el handshake de la conexión para posteriormente crackear el mismo.</descripcion>
     <verificacion> ninguna </verificacion>
     <recomendacion>Si es posible configurar la VPN en modo 'main mode'. Asignar un password robusto a la VPN </recomendacion> 
 	<referencias>ninguna</referencias> 		   
@@ -964,7 +1022,7 @@
    
    <vuln>	
    	<cod>googlehacking</cod> 
-    <nombre>Información sensible indexada por motores de búsqueda (google).</nombre>
+    <nombre>Información sensible indexada por motores de búsqueda (google)</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -992,7 +1050,7 @@
     <impacto_tecnico> Visualizar en tiempo real las imágenes que se están grabando </impacto_tecnico>
     <impacto_negocio> Acceder a información sensible </impacto_negocio>    
     <detalles> Se identificó que los siguientes dispositivos tienen un Streaming que no requiere autenticarse para poder visualizar lo que se está grabando en tiempo real. </detalles>    
-    <descripcion> La camara de seguridad permite conectarse de manera anónima al mismo y visualizar el video en tiempo real </descripcion>
+    <descripcion> La cámara de seguridad permite conectarse de manera anónima al mismo y visualizar el video en tiempo real </descripcion>
     <verificacion> Herramienta: nmap SALTOLINEA
 					nmap -n -sV -p 554 --script=rtsp-url-brute 1.2.3.4 </verificacion>
     <recomendacion> Deshabilitar open streaming </recomendacion> 
@@ -1031,7 +1089,7 @@
     <detalles> El sitio web muestra un mensaje de error y expone el usuario de la base de datos del sitio web</detalles>    
     <descripcion> El sitio web muestra un mensaje de error y expone el usuario de la base de datos del sitio web</descripcion>
     <verificacion>ninguna</verificacion>
-    <recomendacion> Validar las variables de entrada | Implementar sentencias try and catch para controlar los errores que se vayan a producir o deshabilitar el modo debug en el framework que se utiliza.</recomendacion> 
+    <recomendacion> Validar las variables de entrada | Implementar sentencias try and catch para controlar los errores que se vayan a producir o deshabilitar el modo debug en el framework que se utiliza</recomendacion> 
 	<referencias>ninguna</referencias>    
   </vuln>
   
@@ -1039,20 +1097,20 @@
   
    <vuln>
 	 <cod>directorioLDAP</cod> 
-    <nombre>LDAP con acceso anónimo.</nombre>
+    <nombre>LDAP con acceso anónimo</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>	
 	<probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
     <agente_amenaza> USUARIO EXTERNO </agente_amenaza>    
-    <impacto_tecnico> Exposicion de datos de los usuario</impacto_tecnico>
+    <impacto_tecnico> Exposición de datos de los usuarios</impacto_tecnico>
     <impacto_negocio> Ninguno </impacto_negocio>     
     <detalles>Se tiene habilitado el acceso anónimo al directorio LDAP del cual se puede extraer información sobre los empleados de la entidad tales como ser nombre, correo electrónico, directorio home, etc</detalles>    
     <descripcion> Se tiene habilitado el acceso anónimo al directorio LDAP del cual se puede extraer información sobre los empleados de la entidad tales como ser nombre, correo electrónico, directorio home, etc</descripcion>
     <verificacion> Herramienta: ldapsearch SALTOLINEA
 				  ldapsearch -x -p  -h 1.2.3.4 -b '' -s sub '(objectclass=*)'  </verificacion>
-    <recomendacion>Restringir conexiones anónimas al directorio LDAP. Sin embargo, como con cualquier remediación potencial, esto debe probarse en un entorno de desarrollo o control de calidad para garantizar que no haya efectos secundarios adversos. Se debe tener especial cuidado cuando las aplicaciones utilizan LDAP para la autenticación de usuarios o la búsqueda de información. El bloqueo del servidor LDAP sin probar las aplicaciones podría provocar el mal funcionamiento de varios servicios.</recomendacion> 
+    <recomendacion>Restringir conexiones anónimas al directorio LDAP. Sin embargo, como con cualquier remediación potencial, esto debe probarse en un entorno de desarrollo o control de calidad para garantizar que no haya efectos secundarios adversos. Se debe tener especial cuidado cuando las aplicaciones utilizan LDAP para la autenticación de usuarios o la búsqueda de información. El bloqueo del servidor LDAP sin probar las aplicaciones podría provocar el mal funcionamiento de varios servicios</recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln>
   
@@ -1079,7 +1137,7 @@
   
   <vuln>	
    	<cod>HTTPsys</cod> 
-    <nombre>Denegación de servicio (HTTP.sys) </nombre>
+    <nombre>Denegación del servidor web - HTTP.sys </nombre>
     <codVul>MS15-034</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -1089,8 +1147,8 @@
     <impacto_tecnico> Forzar el reinicio del equipo </impacto_tecnico>
     <impacto_negocio> Se interrumpe el funcionamiento de servicios. </impacto_negocio>    
     <detalles> Realizando un escaneo con Nmap se obtuvo el siguiente resultado: IMAGEN SALTOLINEA
-				La imagen  expone que el equipo es VULNERABLE según el boletín ms15-034 emitido por Microsoft. SALTOLINEA
-				Explotando la vulnerabilidad  se puede forzar  el reinicio del equipo dejando temporalmente  sin funcionamiento los servicios que brinda. </detalles>    
+				La imagen expone que el equipo es VULNERABLE según el boletín ms15-034 emitido por Microsoft. SALTOLINEA
+				Explotando la vulnerabilidad se puede forzar el reinicio del equipo dejando temporalmente sin funcionamiento los servicios que brinda. </detalles>    
     <descripcion>Una vulnerabilidad de denegación de servicio mediante el abuso de la pila del protocolo HTTP en el servidor Internet Information Service (IIS)</descripcion>
     <verificacion> nmap -p 80 --script http-vuln-cve2015-1635.nse 1.2.3.4 </verificacion>
     <recomendacion> Se recomienda instalar el parche para la vulnerabilidad MS15-034</recomendacion> 
@@ -1108,9 +1166,9 @@
     <agente_amenaza>USUARIO EXTERNO (Internet)</agente_amenaza>
     <impacto_tecnico>Acceso a la red interna</impacto_tecnico>
     <impacto_negocio>Acceso/modificación de información sensible</impacto_negocio>
-    <detalles>El router es suceptible a ataques Filet-o-Firewall, una técnica de ataque que permite que al visitar una página web con un javascript malicioso desde Firefox o Chrome, este script envíe en segundo plano una serie de peticiones a nuestro router y a nuestro firewall con las que establecer una serie de conexiones en el servidor UPnP que, más tarde, pueden ser utilizadas para conseguir evadir nuestros sistemas de seguridad.</detalles>    
+    <detalles>El router es susceptible a ataques Filet-o-Firewall, una técnica de ataque que permite que al visitar una página web con un javascript malicioso desde Firefox o Chrome, este script envíe en segundo plano una serie de peticiones a nuestro router y a nuestro firewall con las que establecer una serie de conexiones en el servidor UPnP que, más tarde, pueden ser utilizadas para conseguir evadir nuestros sistemas de seguridad.</detalles>    
     <referencias>https://www.redeszone.net/2015/09/15/upnp-el-protocolo-que-puede-saltarse-la-seguridad-de-tu-router-o-firewall/</referencias>           
-    <descripcion>El router es suceptible a ataques Filet-o-Firewall, una técnica de ataque que permite que al visitar una página web con un javascript malicioso desde Firefox o Chrome, este script envíe en segundo plano una serie de peticiones a nuestro router y a nuestro firewall con las que establecer una serie de conexiones en el servidor UPnP que, más tarde, pueden ser utilizadas para conseguir evadir nuestros sistemas de seguridad.</descripcion>
+    <descripcion>El router es susceptible a ataques Filet-o-Firewall, una técnica de ataque que permite que al visitar una página web con un javascript malicioso desde Firefox o Chrome, este script envíe en segundo plano una serie de peticiones a nuestro router y a nuestro firewall con las que establecer una serie de conexiones en el servidor UPnP que, más tarde, pueden ser utilizadas para conseguir evadir nuestros sistemas de seguridad.</descripcion>
     <verificacion>ninguna</verificacion>
    <recomendacion> Deshabilitar el protocolo uPnP en el router</recomendacion> 
   </vuln>
@@ -1144,7 +1202,7 @@
 
    <vuln>
 	<cod>transferenciaDNS</cod> 
-    <nombre>Transferencia de zona.</nombre>
+    <nombre>Transferencia de zona</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -1164,7 +1222,7 @@
   
    <vuln>
 	 <cod>ms12020</cod> 
-    <nombre>Denegación de servicio RDP(Remote Desktop Protocol).</nombre>
+    <nombre>Denegación de servicio Remote Desktop Protocol</nombre>
     <codVul>MS12-020</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -1174,16 +1232,16 @@
     <impacto_tecnico>Denegación de servicios de equipos vulnerables</impacto_tecnico>
     <impacto_negocio>La disponibilidad de servicios se ve afectada </impacto_negocio>      
     <detalles>Por la manipulación de un input desconocido en el protocolo RDP se causa una vulnerabilidad de clase denegación de servicio (Pantalla azul). </detalles>    
-    <descripcion> Por la manipulación de un input desconocido en el protocolo RDP  se causa una vulnerabilidad de clase denegación de servicio (Pantalla azul). </descripcion>
+    <descripcion> Por la manipulación de un input desconocido en el protocolo RDP se causa una vulnerabilidad de clase denegación de servicio (Pantalla azul). </descripcion>
     <verificacion> nmap -sV -Pn --script=rdp-vuln-ms12-020 -p 3389 1.2.3.4  </verificacion>
-    <recomendacion>Instalar el parche de seguridad.</recomendacion> 
+    <recomendacion>Instalar el parche de seguridad</recomendacion> 
 	<referencias>http://technet.microsoft.com/en-us/security/bulletin/ms12-020</referencias> 		      
   </vuln>  
   
   
    <vuln>
 	<cod>divulgacionInformacion</cod>  
-    <nombre>Divulgación de información (PhpInfo).</nombre>
+    <nombre>Divulgación de información</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>    
     <probabilidad>Posible</probabilidad>
@@ -1193,10 +1251,10 @@
     <impacto_tecnico>Los archivos exponen datos del servidor como versiones exactas de PHP, módulos cargados, direcciones IP, etc</impacto_tecnico>
     <impacto_negocio>Ninguno</impacto_negocio>
     <detalles>Se escaneo los servidores web identificados</detalles>    
-    <referencias>SALTOLINEA</referencias>           
+    <referencias>ninguna</referencias>
     <descripcion>  Los archivos exponen datos del servidor como versiones exactas de PHP, módulos cargados, direcciones IP, etc.</descripcion>
     <verificacion> Herramienta: wget SALTOLINEA
-					wget 'URL' </verificacion>
+					wget http://1.2.3.4/archivo.php </verificacion>
    <recomendacion> Eliminar los archivos identificados </recomendacion> 
   </vuln>
   
@@ -1242,7 +1300,7 @@
   
     <vuln>
   	<cod>listadoDirectorios</cod> 
-    <nombre>Listado de directorios habilitado.</nombre>
+    <nombre>Listado de directorios habilitado</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
@@ -1252,7 +1310,7 @@
     <impacto_tecnico>Obtener información sobre las aplicaciones web de la entidad</impacto_tecnico>
     <impacto_negocio>ninguno</impacto_negocio>    
     <detalles>Se procedio a identificar los directorios que tiene el listado de contenidos habilitados mediante la técnica de navegación forzada.</detalles>    
-    <descripcion>Se identifico que el listado de directorios esta activo y puede exponer información sensible</descripcion>
+    <descripcion>Se identificó que el listado de directorios está activo y puede exponer información sensible</descripcion>
     <verificacion>ninguna</verificacion>
     <recomendacion>Deshabilitar el listado de directorios</recomendacion> 
 	<referencias>Apache: https://www.linuxito.com/seguridad/334-como-permitir-y-denegar-listado-de-directorios-en-apache | Apache: https://www.cgii.gob.bo/index.php/es/publicaciones/deshabilitar-listado-de-directorio-index-en-servidores-apache | CPANEL:https://www.hostinet.com/formacion/panel-alojamiento/evitar-listado-directorios-archivos-cpanel/</referencias> 
@@ -1260,7 +1318,7 @@
     
   <vuln>
 	<cod>openresolver</cod> 		
-    <nombre>DNS abierto.</nombre>
+    <nombre>DNS abierto</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
@@ -1269,8 +1327,8 @@
     <agente_amenaza>USUARIO EXTERNO (Internet)</agente_amenaza>    
     <impacto_tecnico>Ser parte de ataques de denegación de servico a otras entidades</impacto_tecnico>
     <impacto_negocio>ninguno</impacto_negocio>       
-    <detalles>El servidor DNS esta configurado para responder peticiones de cualquier dominio. Esto puede ser usado por atacante en un ataque de Denegación de servicio Distribuido hacia otros objetivos</detalles>    
-    <descripcion> El servidor DNS esta configurado para responder peticiones de cualquier dominio. Esto puede ser usado por atacante en un ataque de Denegación de servicio Distribuido hacia otros objetivos</descripcion>
+    <detalles>El servidor DNS está configurado para responder peticiones de cualquier dominio. Esto puede ser usado por atacante en un ataque de Denegación de servicio Distribuido hacia otros objetivos</detalles>    
+    <descripcion> El servidor DNS está configurado para responder peticiones de cualquier dominio. Esto puede ser usado por atacante en un ataque de Denegación de servicio Distribuido hacia otros objetivos</descripcion>
     <verificacion> Herramienta: dig SALTOLINEA
 				  dig ANY google.com @1.2.3.4 +short | grep --color=never google  </verificacion>
     <recomendacion>Configurar el servidor DNS de manera que no resuelva dominios de terceros</recomendacion> 
@@ -1280,7 +1338,7 @@
       
   <vuln>
 	<cod>contenidoNoRelacionado</cod> 		
-    <nombre>Contenido no relacionado al negocio.</nombre>
+    <nombre>Contenido no relacionado al negocio</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
@@ -1308,8 +1366,8 @@
     <agente_amenaza> USUARIO EXTERNO (Internet) </agente_amenaza>    
     <impacto_tecnico> Obtener información sobre las aplicaciones web de la entidad </impacto_tecnico>
     <impacto_negocio> N/A </impacto_negocio>    
-    <detalles> Realizando una revisión de los archivos y directorios comunes. Se pudo identificar que exponen la version del software usado </detalles>    
-    <descripcion> El servidor web aun tiene los archivos/directorios por defecto. Los mismos exponen la version del software usado </descripcion>
+    <detalles> Realizando una revisión de los archivos y directorios comunes. Se pudo identificar que exponen la versión del software usado </detalles>    
+    <descripcion> El servidor web aún tiene los archivos/directorios por defecto. Los mismos exponen la version del software usado </descripcion>
     <verificacion> ninguna </verificacion>
     <recomendacion> Borrar los archivos y directorios por defecto </recomendacion> 
 	<referencias> https://www.owasp.org/images/5/5e/OWASP-Top-10-2017-es.pdf (A3: Exposición de dato sensibles) </referencias> 
@@ -1362,18 +1420,18 @@
     <agente_amenaza>USUARIO INTERNO</agente_amenaza>    
     <impacto_tecnico>Enumerar usuarios de la entidad</impacto_tecnico>
     <impacto_negocio>N/A</impacto_negocio>   
-    <detalles>Un atacante remoto podría probar si un determinado usuario existe o no (enumeración de nombres de usuario)</detalles>    
-    <descripcion>Un atacante remoto podría probar si un determinado usuario existe o no (enumeración de nombres de usuario).</descripcion>
+    <detalles>Mediante la explotación de esta vulnerabilidad un atacante remoto podría probar si un determinado usuario existe o no (enumeración de nombres de usuario)</detalles>    
+    <descripcion>Mediante la explotación de esta vulnerabilidad un atacante remoto podría probar si un determinado usuario existe o no (enumeración de nombres de usuario).</descripcion>
     <verificacion> ninguna </verificacion>
-    <recomendacion>Actualizar a la última versión del servidor OpenSSH.</recomendacion> 
-	<referencias>ninguna</referencias> 
+    <recomendacion>Actualizar a la última versión del servidor OpenSSH</recomendacion> 
+	<referencias>https://www.incibe-cert.es/alerta-temprana/vulnerabilidades/cve-2018-15473</referencias> 
 	
   </vuln>  
   
     
    <vuln>	    
    	<cod>ftpAnonymous</cod> 
-    <nombre>Servidor FTP con usuario anónimo habilitado.</nombre>
+    <nombre>Servidor FTP con usuario anónimo habilitado</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
@@ -1403,7 +1461,7 @@
     <detalles> Existen errores en el sitio web que muestran información sobre la técnologia usada por la aplicación </detalles>    
     <descripcion>Errores en el sitio web, que muestran información sobre la aplicación</descripcion>
     <verificacion>ninguna</verificacion>
-    <recomendacion>Validar las variables de entrada | Implementar sentencias try and catch para controlar los errores que se vayan a producir o deshabilitar el modo debug en el framework que se utiliza.</recomendacion> 
+    <recomendacion>Validar las variables de entrada | Implementar sentencias try and catch para controlar los errores que se vayan a producir o deshabilitar el modo debug en el framework que se utiliza</recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln> 
   
@@ -1418,10 +1476,10 @@
     <agente_amenaza> USUARIO EXTERNO (Internet) </agente_amenaza>    
     <impacto_tecnico> Descubrir la técnologia usada por la aplicación </impacto_tecnico>
     <impacto_negocio> ninguno </impacto_negocio>    
-    <detalles> El entorno de desarrollo esta habilitado en el sitio web y permite descubrir que técnologia es usada por la aplicación </detalles>    
+    <detalles> El entorno de desarrollo está habilitado en el sitio web y permite descubrir que técnologia es usada por la aplicación </detalles>    
     <descripcion>El entorno de desarrollo esta habilitado en el sitio web y permite descubrir que técnologia es usada por la aplicación</descripcion>
     <verificacion>ninguna</verificacion>
-    <recomendacion>Deshabilitar el modo 'debug'.</recomendacion> 
+    <recomendacion>Deshabilitar el modo 'debug'</recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln> 
     
@@ -1434,6 +1492,6 @@
    <recomendacion> Aplicar las ACLs correspondientes. </recomendacion> 
   </vuln> 
           
-   
- 
+
 </vulnerabilidades>
+

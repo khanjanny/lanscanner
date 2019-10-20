@@ -52,7 +52,7 @@ for line in $( ps aux | grep --color=never snmpwalk | grep -v color | awk '{prin
 	diff=`echo $diff | tr -d -`
 	echo "Idle time: $diff minutes"	
 	
-	if [[  $diff -gt 3 && $diff -lt 60 ]];then 
+	if [[  $diff -gt 5 && $diff -lt 60 ]];then 
 		
 		echo -e "$OKRED[-] Killing $pid) $RESET"
 		kill -9 $pid		
@@ -127,7 +127,7 @@ for line in $( ps aux | grep --color=never web-buster | grep -v color | awk '{pr
 	diff=`echo $diff | tr -d -`
 	echo "Idle time: $diff minutes"	
 	
-	if [[  $diff -gt -1 && $diff -lt 70 ]];then 
+	if [[  $diff -gt 10 && $diff -lt 70 ]];then 
 		
 		echo -e "$OKRED[-] Killing $pid) $RESET"
 		kill -9 $pid		
@@ -186,8 +186,8 @@ for line in $( ps aux | grep --color=never masscan | grep -v color | awk '{print
 done
 echo ""
 
-echo -e "$OKBLUE[+] Revisando procesos de reaver/snmp/pptp $RESET"		
-for line in $( ps aux | egrep --color=never "reaver|snmp|pptp" | grep -v color | awk '{print $2,$9}' | tr " " ";" ); do
+echo -e "$OKBLUE[+] Revisando procesos de reaver/pptp $RESET"		
+for line in $( ps aux | egrep --color=never "reaver|pptp" | grep -v color | awk '{print $2,$9}' | tr " " ";" ); do
 	pid=`echo $line | cut -f1 -d";"`
 	time=`echo $line | cut -f2 -d";"`
     #echo process time: $time
