@@ -25,7 +25,7 @@
   <vuln>
    	<cod>ransomware</cod> 
     <nombre>Presencia de ransomware en la entidad</nombre>
-    <codVul></codVul>
+    <codVul>ninguna</codVul>
     <riesgoAgetic> Crítico </riesgoAgetic>	
     <probabilidad> Muy probable </probabilidad>
     <impacto> Crítico </impacto>
@@ -38,8 +38,8 @@
     <descripcion> Revisando los archivos compartidos se pudo evidenciar la presencia de ransomware SALTOLINEA
 				</descripcion>
     <verificacion>ninguna</verificacion>
-    <recomendacion>Solución a corto plazo: Identificar el ransomware y seguir los precedimientos indicados en: https://id-ransomware.malwarehunterteam.com/ y https://www.nomoreransom.org/ SALTOLINEA
-				   Solución a largo plazo: Migrar las estaciones de trabajo a linux</recomendacion> 
+    <recomendacion>-Solución a corto plazo: Identificar el ransomware y seguir los precedimientos indicados en: https://id-ransomware.malwarehunterteam.com/ y https://www.nomoreransom.org/ SALTOLINEA
+				   -Solución a largo plazo: Migrar las estaciones de trabajo a linux</recomendacion> 
 	<referencias> https://id-ransomware.malwarehunterteam.com/ SALTOLINEA
 				https://www.nomoreransom.org/ </referencias>    
   </vuln>
@@ -50,7 +50,7 @@
     <codVul>ninguna</codVul>
     <riesgoAgetic>Crítico</riesgoAgetic>	
     <probabilidad>Casi seguro</probabilidad>
-    <impacto>Crítico</impacto>
+    <impacto>Crítico</impacto>	
     <riesgoInforme>CRÍTICO</riesgoInforme>        
     <agente_amenaza>USUARIO EXTERNO (Internet)</agente_amenaza>    
     <impacto_tecnico>Acceso a archivos sensibles</impacto_tecnico>
@@ -555,7 +555,7 @@
     <impacto_negocio>La integridad de los datos se puede ver afectada </impacto_negocio>    
     <detalles> En la configuración de BMC tiene habilitado Cipher 0, esto permite a un atacante evadir el proceso de autenticación y ejecutar comandos en el servidor.</detalles>    
     <descripcion>En la configuración de BMC tiene habilitado Cipher 0, esto permite a un atacante evadir el proceso de autenticación y ejecutar comandos en el servidor</descripcion>
-    <verificacion>nmap -sU --script ipmi-cipher-zero -p 623 -Pn -n </verificacion>
+    <verificacion>nmap -sU --script ipmi-cipher-zero -p 623 -Pn -n 1.2.3.4</verificacion>
     <recomendacion> Deshabilitar Cipher 0 en el servidor</recomendacion> 
 	<referencias>https://www.wired.com/2013/07/ipmi/</referencias>     	   
   </vuln>
@@ -1241,7 +1241,7 @@
   
    <vuln>
 	<cod>divulgacionInformacion</cod>  
-    <nombre>Divulgación de información</nombre>
+    <nombre>Divulgación de información del servidor</nombre>
     <codVul>ninguna</codVul>
     <riesgoAgetic>Medio</riesgoAgetic>    
     <probabilidad>Posible</probabilidad>
