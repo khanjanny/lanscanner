@@ -1093,6 +1093,23 @@
 	<referencias>ninguna</referencias>    
   </vuln>
   
+    <vuln>	  
+   	<cod>registroHabilitado</cod> 
+    <nombre>Registro de usuarios habilitado del sitio web</nombre>
+    <codVul>ninguna</codVul>
+    <riesgoAgetic> Medio </riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Moderado </impacto>
+    <riesgoInforme> MEDIO </riesgoInforme>        
+    <agente_amenaza> USUARIO EXTERNO </agente_amenaza>    
+    <impacto_tecnico> SPAM desde el sitio web</impacto_tecnico>
+    <impacto_negocio> Ninguno </impacto_negocio>    
+    <detalles>El sitio web permite el registro de nuevos usuarios los cuales podrian ejecutar acciones maliciosas en la misma</detalles>    
+    <descripcion>El sitio web permite el registro de nuevos usuarios los cuales podrian ejecutar acciones maliciosas en la misma</descripcion>
+    <verificacion>ninguna</verificacion>
+    <recomendacion>Deshabilitar el registro de usuarios en el framework/CMS usado</recomendacion> 
+	<referencias>ninguna</referencias>    
+  </vuln>
   
   
    <vuln>

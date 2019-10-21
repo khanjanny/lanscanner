@@ -51,7 +51,7 @@ cat << "EOF"
                                                        
 
 					daniel.torres@owasp.org
-					Version: 1.6
+					Version: 1.7
 
 EOF
 }
@@ -164,6 +164,7 @@ if [ ! -d "servicios" ]; then # si ya ejecutamos recon.sh antes
 	mkdir reportes
 	mkdir archivos
 	mkdir webClone
+	mkdir responder
 	mkdir metasploit
 	mkdir credenciales
 	mkdir servicios
@@ -211,7 +212,7 @@ echo -e "\t Mask: $my_mask" | tee -a reportes/info.txt
 echo -e "\t Date: $date  \n" | tee -a reportes/info.txt
   
 echo -e "[+] Lanzando monitor $RESET" 
-xterm -hold -e monitor.sh 2>/dev/null&
+xterm -hold -e monitor.sh `pwd` 2>/dev/null&
 sleep 5
 # FASE: 1
 #######################################  Discover live hosts ##################################### 
@@ -240,7 +241,7 @@ else
    
   	echo -e "[+] Obteniendo host vivos locales"
 	arp-scan $iface $my_ip/24  | tee -a .arp/$current_subnet.0.arp2 2>/dev/null
-	sleep 2
+	sleep 1
 	arp-scan $iface $my_ip/24  | tee -a .arp/$current_subnet.0.arp2 2>/dev/null  
 	
 	sort .arp/$current_subnet.0.arp2 | sort | uniq > .arp/$current_subnet.0.arp
@@ -464,7 +465,15 @@ fi
 
 ################## end discover live hosts ##################
 
+###### responder ####
+if [ $internet == "n" ]; then 		
+	echo -e "$OKBLUE Iniciando Responder $RESET"	
+	#Borrar logs pasados
+	rm /usr/bin/pentest/Responder/logs 
+	xterm -hold -e responder.sh -F -f -I $iface 2>/dev/null& 
+fi	    
 
+#######################
 
 # FASE: 2
 echo -e "$OKYELLOW [+] FASE 2: ESCANEO DE PUERTOS,VoIP, etc $RESET"
@@ -523,7 +532,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
      then   	
      	echo -e "[+] Realizando escaneo de puertos especificos (informix, Web services)"  
      	nmap -n -Pn -iL $live_hosts -p21,22,23,110,80,443,8080,81,32764,82,83,84,85,37777,5432,3306,1525,1530,1526,1433,8728,1521,6379,27017,8291 -oG .nmap/nmap2-tcp.grep >> reportes/nmap-tcp.txt 2>/dev/null 
-     	sleep 2;        			
+     	sleep 1;        			
 			
      	echo -e "[+] Realizando escaneo tcp (solo 1000 puertos)" 
      	while read ip           
@@ -557,7 +566,7 @@ if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then
 			nmap_instancias=`pgrep nmap | wc -l`								
 			if [ "$nmap_instancias" -gt 0  ];then	
 				echo -e "\t[i] Todavia hay escaneos de nmap ($nmap_instancias) activos"  
-				sleep 20
+				sleep 10
 			else
 				break		  		 
 			fi				
@@ -1816,34 +1825,34 @@ then
 								if [[ ${subdominio} != *"nube"* && ${subdominio} != *"webmail"* && ${subdominio} != *"cpanel"* && ${subdominio} != *"autoconfig"* && ${subdominio} != *"ftp"* && ${subdominio} != *"whm"* && ${subdominio} != *"webdisk"*  && ${subdominio} != *"autodiscover"* ]];then 
 									echo -e "\t\t[+] Revisando directorios comunes ($subdominio - Apache/nginx)"
 									web-buster.pl -t $subdominio  -p $port -h 8 -d / -m directorios -s 0 -q 1  >> logs/enumeracion/"$subdominio"_"$port"_webdirectorios.txt  &
-									sleep 2					
+									sleep 1					
 								fi																	
 								echo -e "\t\t[+] Revisando paneles administrativos ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio  -p $port -h 3 -d / -m admin -s 0 -q 1  >> logs/enumeracion/"$subdominio"_"$port"_admin.txt
 								egrep --color=never "^200|^401" logs/enumeracion/"$subdominio"_"$port"_admin.txt > .enumeracion/"$subdominio"_"$port"_admin.txt 
-								sleep 2
+								sleep 1
 								
 								echo -e "\t\t[+] Revisando archivos comunes de servidor ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio  -p $port -h 3 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" > .enumeracion/"$subdominio"_"$port"_webarchivos.txt  &
 								#web-buster.pl -t $subdominio  -p $port -h 3 -d / -m webserver -s 0 -q 1 > logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt 
 								#egrep --color=never "^200" logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt > .enumeracion/"$subdominio"_"$port"_webarchivos.txt  
-								sleep 2
+								sleep 1
 
 								echo -e "\t\t[+] Revisando backups de archivos de configuración ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backupApache -s 0 -q 1 > logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt  
 								egrep --color=never "^200" logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt   >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt  
-								sleep 2
+								sleep 1
 								
 								echo -e "\t\t[+] Revisando backups de archivos php ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m php -s 0 -q 1 | egrep --color=never "^200" > .enumeracion/"$subdominio"_"$port"_webarchivos.txt  &
 								#web-buster.pl -t $subdominio -p $port -h 3 -d / -m php -s 0 -q 1 > logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt  
 								#egrep --color=never "^200" logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt   >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt  
-								sleep 2
+								sleep 1
 								
 								echo -e "\t\t[+] Revisando backups de archivos genericos ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 4 -d / -m archivos -s 0 -q 1 > logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt  
 								egrep --color=never "^200" logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt   >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt  
-								sleep 2
+								sleep 1
 								
 								egrep -i "is behind" .enumeracion/"$subdominio"_"$port"_wafw00f.txt
 								greprc=$?
@@ -1851,25 +1860,30 @@ then
 									echo -e "\t\t[+] Revisando archivos CGI ($subdominio - Apache/nginx)"
 									web-buster.pl -t $subdominio -p $port -h 3 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> servicios/cgi.txt; 
 									cat servicios/cgi.txt >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt
-									sleep 2								
+									sleep 1								
 								fi																							
 							
 								
 								echo -e "\t\t[+] Revisando archivos peligrosos ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 4 -d / -m archivosPeligrosos -s 0 -q 1 > logs/vulnerabilidades/"$subdominio"_"$port"_archivosPeligrosos.txt  
 								egrep --color=never "^200" logs/vulnerabilidades/"$subdominio"_"$port"_archivosPeligrosos.txt  | awk '{print $2}' >> .vulnerabilidades/"$subdominio"_"$port"_archivosPeligrosos.txt  
-								sleep 2
+								sleep 1
 								
 								echo -e "\t\t[+] Revisando archivos por defecto ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 4 -d / -m archivosDefecto -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' > .vulnerabilidades/"$subdominio"_"$port"_archivosDefecto.txt  &
 								#web-buster.pl -t $subdominio -p $port -h 4 -d / -m archivosDefecto -s 0 -q 1 > logs/vulnerabilidades/"$subdominio"_"$port"_archivosDefecto.txt  
 #								egrep --color=never "^200" logs/vulnerabilidades/"$subdominio"_"$port"_archivosDefecto.txt  | awk '{print $2}' >> .vulnerabilidades/"$subdominio"_"$port"_archivosDefecto.txt  
-								sleep 2
+								sleep 1
 								
 								echo -e "\t\t[+] Revisando la existencia de backdoors ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backdoorApache -s 0 -q 1 > logs/vulnerabilidades/"$subdominio"_"$port"_webshell.txt 
 								egrep --color=never "^200" logs/vulnerabilidades/"$subdominio"_"$port"_webshell.txt  | awk '{print $2}' >> .vulnerabilidades/"$subdominio"_"$port"_webshell.txt 								
-								sleep 2
+								sleep 1
+								
+								echo -e "\t\t[+] Revisando si el registro de usuarios esta habilitado ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 1 -d / -m registroHabilitado -s 0 -q 1 > logs/vulnerabilidades/"$subdominio"_"$port"_registroHabilitado.txt 
+								egrep --color=never "^200" logs/vulnerabilidades/"$subdominio"_"$port"_registroHabilitado.txt  | awk '{print $2}' >> .vulnerabilidades/"$subdominio"_"$port"_registroHabilitado.txt
+								sleep 1
 								
 								echo -e "\t\t[+] Revisando la presencia de archivos phpinfo, logs, errors ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m divulgacionInformacion -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/"$subdominio"_"$port"_divulgacionInformacion.txt 2>/dev/null & # solo a la carpeta logs
@@ -1891,7 +1905,7 @@ then
 								if [[ ${subdominio} != *"nube"* && ${subdominio} != *"webmail"*  && ${subdominio} != *"autodiscover"* ]];then 
 									echo -e "\t\t[+] Revisando directorios comunes ($subdominio - IIS)"								
 									web-buster.pl -t $subdominio -p $port -h 8 -d / -m directorios -s 0 -q 1  >> logs/enumeracion/"$subdominio"_"$port"_webdirectorios.txt  &
-									sleep 2					
+									sleep 1					
 								fi	
 								
 								echo -e "\t\t[+] Revisando vulnerabilidad HTTP.sys ($subdominio - IIS)"
@@ -1902,32 +1916,32 @@ then
 								echo -e "\t\t[+] Revisando paneles administrativos ($subdominio - IIS)"						
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m admin -s 0 -q 1 >> logs/enumeracion/"$subdominio"_"$port"_admin.txt
 								egrep --color=never "^200|^401" logs/enumeracion/"$subdominio"_"$port"_admin.txt >> .enumeracion/"$subdominio"_"$port"_admin.txt  
-								sleep 2
+								sleep 1
 								
 								echo -e "\t\t[+] Revisando archivos comunes de servidor ($subdominio - IIS)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m webserver -s 0 -q 1 > logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt &  
 								egrep --color=never "^200" logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt  >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt  
-								sleep 2
+								sleep 1
 								
 								echo -e "\t\t[+] Revisando archivos comunes de sharepoint ($subdominio - IIS)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m sharepoint -s 0 -q 1 > logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt  
 								egrep --color=never "^200" logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt  
-								sleep 2
+								sleep 1
 								
 								echo -e "\t\t[+] Revisando archivos comunes de webservices ($subdominio - IIS)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m webservices -s 0 -q 1 > logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt  
 								egrep --color=never "^200" logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt  >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt  
-								sleep 2
+								sleep 1
 								
 								echo -e "\t\t[+] Revisando la existencia de backdoors ($subdominio - IIS)"								
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backdoorIIS -s 0 -q 1 > logs/vulnerabilidades/"$subdominio"_"$port"_webshell.txt
 								egrep --color=never "^200" logs/vulnerabilidades/"$subdominio"_"$port"_webshell.txt >> .vulnerabilidades/"$subdominio"_"$port"_webshell.txt
-								sleep 2
+								sleep 1
 								
 								echo -e "\t\t[+] Revisando backups de archivos de configuración ($subdominio - IIS)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backupIIS -s 0 -q 1 > logs/vulnerabilidades/"$subdominio"_"$port"_backupWeb.txt 
 								egrep --color=never "^200" logs/vulnerabilidades/"$subdominio"_"$port"_backupWeb.txt  >> .vulnerabilidades/"$subdominio"_"$port"_backupWeb.txt 
-								sleep 2	
+								sleep 1	
 							else
 								echo -e "\t\t[+] No es IIS o no debemos escanear"									   
 							fi
@@ -1947,14 +1961,14 @@ then
 								if [[ ${subdominio} != *"nube"* && ${subdominio} != *"webmail"*  && ${subdominio} != *"autodiscover"* ]];then 
 									echo -e "\t\t[+] Revisando directorios comunes ($subdominio - Tomcat)"								
 									web-buster.pl -t $subdominio -p $port -h 8 -d / -m directorios -s 0 -q 1 >> logs/enumeracion/"$subdominio"_"$port"_webdirectorios.txt  &			
-									sleep 2;
+									sleep 1;
 								fi									
 								
 								echo -e "\t\t[+] Revisando archivos comunes de tomcat ($subdominio - Tomcat)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m tomcat -s 0 -q 1  > logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt 
 								egrep --color=never "^200|^401" logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt  >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt  
 								
-								sleep 2;
+								sleep 1;
 								echo -e "\t\t[+] Revisando archivos comunes de servidor ($subdominio - Tomcat)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m webserver -s 0 -q 1 > logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt &  
 								egrep --color=never "^200" logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt   >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt  
@@ -2134,37 +2148,37 @@ then
 						
 						echo -e "\t\t[+] Revisando directorios comunes ($ip -IIS)"
 						web-buster.pl -t $ip -p $port -h 8 -d / -m directorios -s 0 -q 1 >> logs/enumeracion/"$ip"_"$port"_webdirectorios.txt &
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando paneles administrativos ($ip -IIS)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m admin -s 0 -q 1 >> logs/enumeracion/"$ip"_"$port"_admin.txt 
 						egrep --color=never "^200|^401" logs/enumeracion/"$ip"_"$port"_admin.txt  >> .enumeracion/"$ip"_"$port"_admin.txt 
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando archivos comunes de servidor ($ip -IIS)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m webserver -s 0 -q 1 > logs/enumeracion/"$ip"_"$port"_webarchivos.txt  
 						egrep --color=never "^200" logs/enumeracion/"$ip"_"$port"_webarchivos.txt  >> .enumeracion/"$ip"_"$port"_webarchivos.txt  
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando archivos comunes de sharepoint ($ip -IIS)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m sharepoint -s 0 -q 1 > logs/enumeracion/"$ip"_"$port"_webarchivos.txt  
 						egrep --color=never "^200" logs/enumeracion/"$ip"_"$port"_webarchivos.txt  >> .enumeracion/"$ip"_"$port"_webarchivos.txt  
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando archivos comunes de webservices ($ip -IIS)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m webservices -s 0 -q 1  > logs/enumeracion/"$ip"_"$port"_webarchivos.txt 
 						egrep --color=never "^200" logs/enumeracion/"$ip"_"$port"_webarchivos.txt >> .enumeracion/"$ip"_"$port"_webarchivos.txt  
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando la existencia de backdoors ($ip -IIS)"	
 						web-buster.pl -t $ip -p $port -h 3 -d / -m backdoorIIS -s 0 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_webshell.txt  
 						egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_webshell.txt  >> .vulnerabilidades/"$ip"_"$port"_webshell.txt  
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando la existencia de backups de archivos de configuración ($ip -IIS)"	
 						web-buster.pl -t $ip -p $port -h 3 -d / -m backupIIS -s 0 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_webshell.txt  
 						egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_webshell.txt   >> .vulnerabilidades/"$ip"_"$port"_webshell.txt  
-						sleep 2	
+						sleep 1	
 					else
 						echo -e "\t\t[+] No es IIS o no debemos escanear"
 					fi
@@ -2183,11 +2197,11 @@ then
 						
 						echo -e "\t\t[+] Revisando directorios comunes ($ip -Tomcat)"	
 						web-buster.pl -t $ip -p $port -h 8 -d / -m directorios -s 0 -q 1 >> logs/enumeracion/"$ip"_"$port"_webdirectorios.txt &
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando archivos comunes de tomcat ($ip -Tomcat)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m tomcat -s 0 -q 1 > logs/enumeracion/"$ip"_"$port"_webarchivos.txt 
 						egrep --color=never "^200|^401" logs/enumeracion/"$ip"_"$port"_webarchivos.txt  >> .enumeracion/"$ip"_"$port"_webarchivos.txt 
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando archivos comunes de servidor ($ip -Tomcat)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m webserver -s 0 -q 1 > logs/enumeracion/"$ip"_"$port"_webarchivos.txt
@@ -2217,26 +2231,26 @@ then
 													
 						echo -e "\t\t[+] Revisando directorios comunes ($ip -Apache/nginx)"	
 						web-buster.pl -t $ip -p $port -h 8 -d / -m directorios -s 0 -q 1 >> logs/enumeracion/"$ip"_"$port"_webdirectorios.txt &
-						sleep 2	
+						sleep 1	
 						echo -e "\t\t[+] Revisando paneles administrativos ($ip -Apache/nginx)"				
 						web-buster.pl -t $ip -p $port -h 3 -d / -m admin -s 0 -q 1 >> logs/enumeracion/"$ip"_"$port"_admin.txt  
 						egrep --color=never "^200|^401" logs/enumeracion/"$ip"_"$port"_admin.txt   >> .enumeracion/"$ip"_"$port"_admin.txt  
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando archivos comunes de servidor ($ip -Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m webserver -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/"$ip"_"$port"_webarchivos.txt &
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando backups de archivos de configuración ($ip -Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m backupApache -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/"$ip"_"$port"_webarchivos.txt
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando archivos de genericos ($ip -Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 4 -d / -m archivos -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/"$ip"_"$port"_webarchivos.txt &
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando archivos de php ($ip -Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m php -s 0 -q 1 | egrep --color=never "^200" >> .enumeracion/"$ip"_"$port"_webarchivos.txt
-						sleep 2
+						sleep 1
 						
 						if [ $internet == "s" ]; then 
 							egrep -i "is behind" .enumeracion/"$ip"_"$port"_wafw00f.txt 2>/dev/null
@@ -2244,29 +2258,34 @@ then
 							if [[ $greprc -ne 0 ]];then # si hay no hay firewall protegiendo la app								
 								echo -e "\t\t[+] Revisando archivos CGI ($ip -Apache/nginx)"
 								web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> servicios/cgi.txt  
-								sleep 2						
+								sleep 1						
 							fi	
 						else
 							echo -e "\t\t[+] Revisando archivos CGI ($ip -Apache/nginx)"
 							web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> servicios/cgi.txt  
-							sleep 2													
+							sleep 1													
 						fi	
 												
 						echo -e "\t\t[+] Revisando archivos peligrosos ($ip -Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 4 -d / -m archivosPeligrosos -s 0 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_archivosPeligrosos.txt 
 						egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_archivosPeligrosos.txt  | awk '{print $2}' >> .vulnerabilidades/"$ip"_"$port"_archivosPeligrosos.txt  
-						sleep 2
+						sleep 1
+						
+						echo -e "\t\t[+] Revisando si el registro de usuarios esta habilitado ($ip - Apache/nginx)"
+						web-buster.pl -t $ip -p $port -h 1 -d / -m registroHabilitado -s 0 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_registroHabilitado.txt 
+						egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_registroHabilitado.txt  | awk '{print $2}' >> .vulnerabilidades/"$ip"_"$port"_registroHabilitado.txt
+						sleep 1								
 						
 						echo -e "\t\t[+] Revisando archivos por defecto ($ip -Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 4 -d / -m archivosDefecto -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}'> .vulnerabilidades/"$ip"_"$port"_archivosDefecto.txt  &
 						#web-buster.pl -t $ip -p $port -h 4 -d / -m archivosDefecto -s 0 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_archivosDefecto.txt 
 						#egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_archivosDefecto.txt  | awk '{print $2}' >> .vulnerabilidades/"$ip"_"$port"_archivosDefecto.txt  
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando la existencia de backdoors ($ip -Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m backdoorApache -s 0 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_webshell.txt  
 						egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_webshell.txt   | awk '{print $2}' >> .vulnerabilidades/"$ip"_"$port"_webshell.txt  
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando la presencia de archivos phpinfo, logs, errors ($ip -Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m divulgacionInformacion -s 0 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/"$ip"_"$port"_divulgacionInformacion.txt 2>/dev/null 						
@@ -2432,48 +2451,53 @@ then
 								if [[ ${subdominio} != *"nube"* && ${subdominio} != *"webmail"*  && ${subdominio} != *"autodiscover"* ]];then 
 									echo -e "\t\t[+] Revisando directorios comunes ($subdominio - Apache/nginx)"
 									web-buster.pl -t $subdominio -p $port -h 8 -d / -m directorios -s 1 -q 1 >> logs/enumeracion/"$subdominio"_"$port"_webdirectorios.txt  &								
-									sleep 2								
+									sleep 1								
 								fi									
 								
 								echo -e "\t\t[+] Revisando paneles administrativos ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m admin -s 1 -q 1 >>  logs/enumeracion/"$subdominio"_"$port"_admin.txt 
 								egrep --color=never "^200|^401" logs/enumeracion/"$subdominio"_"$port"_admin.txt  > .enumeracion/"$subdominio"_"$port"_admin.txt 
-								sleep 2
+								sleep 1
 								echo -e "\t\t[+] Revisando archivos comunes de servidor ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio  -p $port -h 3 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt &
-								sleep 2
+								sleep 1
 								echo -e "\t\t[+] Revisando backups de archivos de configuración ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backupApache -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt 
-								sleep 2
+								sleep 1
 								
 								echo -e "\t\t[+] Revisando backups de archivos genericos ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 4 -d / -m archivos -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt &
-								sleep 2
+								sleep 1
 								
 								echo -e "\t\t[+] Revisando backups de archivos PHP ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m php -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt 
-								sleep 2
+								sleep 1
 								
 								egrep -i "is behind" .enumeracion/"$subdominio"_"$port"_wafw00f.txt
 								greprc=$?
 								if [[ $greprc -eq 1 ]];then # si hay no hay firewall protegiendo la app								
 									echo -e "\t\t[+] Revisando archivos CGI ($subdominio - Apache/nginx)"
 									web-buster.pl -t $subdominio -p $port -h 3 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> servicios/cgi.txt; cat servicios/cgi.txt >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt
-									sleep 2
+									sleep 1
 								fi	
 						
 								
 								echo -e "\t\t[+] Revisando archivos peligrosos ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 4 -d / -m archivosPeligrosos -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/"$subdominio"_"$port"_archivosPeligrosos.txt  
-								sleep 2
+								sleep 1												
 								
 								echo -e "\t\t[+] Revisando archivos por defecto ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 4 -d / -m archivosDefecto -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/"$subdominio"_"$port"_archivosDefecto.txt  &
-								sleep 2
+								sleep 1
+								
+								echo -e "\t\t[+] Revisando si el registro de usuarios esta habilitado ($subdominio - Apache/nginx)"
+								web-buster.pl -t $subdominio -p $port -h 1 -d / -m registroHabilitado -s 1 -q 1 > logs/vulnerabilidades/"$subdominio"_"$port"_registroHabilitado.txt 
+								egrep --color=never "^200" logs/vulnerabilidades/"$subdominio"_"$port"_registroHabilitado.txt  | awk '{print $2}' >> .vulnerabilidades/"$subdominio"_"$port"_registroHabilitado.txt
+								sleep 1	
 								
 								echo -e "\t\t[+] Revisando la existencia de backdoors ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backdoorApache -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> .vulnerabilidades/"$subdominio"_"$port"_webshell.txt  
-								sleep 2
+								sleep 1
 								echo -e "\t\t[+] Revisando la presencia de archivos phpinfo, logs, errors ($subdominio - Apache/nginx)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m divulgacionInformacion -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/"$subdominio"_"$port"_divulgacionInformacion.txt 2>/dev/null &
 							fi						
@@ -2487,28 +2511,28 @@ then
 								if [[ ${subdominio} != *"nube"* && ${subdominio} != *"webmail"*  && ${subdominio} != *"autodiscover"* ]];then 
 									echo -e "\t\t[+] Revisando directorios ($subdominio - IIS)"
 									web-buster.pl -t $subdominio -p $port -h 8 -d / -m directorios -s 1 -q 1 | egrep --color=never "^200" >> logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt &
-									sleep 2
+									sleep 1
 								fi									
 								
 								echo -e "\t\t[+] Revisando paneles administrativos ($subdominio - IIS)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m admin -s 1 -q 1 > logs/enumeracion/"$subdominio"_"$port"_admin.txt
 								egrep --color=never "^200|^401" logs/enumeracion/"$subdominio"_"$port"_admin.txt >> .enumeracion/"$subdominio"_"$port"_admin.txt
-								sleep 2
+								sleep 1
 								echo -e "\t\t[+] Revisando archivos comunes de servidor ($subdominio - IIS)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt & 
-								sleep 2
+								sleep 1
 								echo -e "\t\t[+] Revisando archivos de sharepoint ($subdominio - IIS)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m sharepoint -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt  
-								sleep 2
+								sleep 1
 								echo -e "\t\t[+] Revisando archivos de webservices ($subdominio - IIS)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m webservices -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt  
-								sleep 2
+								sleep 1
 								echo -e "\t\t[+] Revisando la existencia de backdoors ($subdominio - IIS)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backdoorIIS -s 1 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/"$subdominio"_"$port"_webshell.txt  
-								sleep 2
+								sleep 1
 								echo -e "\t\t[+] Revisando backups de archivos de configuración ($subdominio - IIS)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m backupIIS -s 1 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/"$subdominio"_"$port"_webarchivos.txt  
-								sleep 2										   
+								sleep 1										   
 							fi
 										
 							####################################	
@@ -2525,13 +2549,13 @@ then
 								if [[ ${subdominio} != *"nube"* && ${subdominio} != *"webmail"*  && ${subdominio} != *"autodiscover"* ]];then 
 									echo -e "\t\t[+] Revisando directorios y archivos comunes ($subdominio - Tomcat)"
 									web-buster.pl -t $subdominio -p $port -h 8 -d / -m directorios -s 1 -q 1 >> logs/enumeracion/"$subdominio"_"$port"_webdirectorios.txt  &
-									sleep 2
+									sleep 1
 								fi								
 								
 								echo -e "\t\t[+] Revisando archivos comunes de tomcat ($subdominio - Tomcat)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m tomcat -s 1 -q 1  >> logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt 
 								egrep --color=never "^200|^401" logs/enumeracion/"$subdominio"_"$port"_webarchivos.txt  > .enumeracion/"$subdominio"_"$port"_webarchivos.txt 
-								sleep 2
+								sleep 1
 								echo -e "\t\t[+] Revisando archivos comunes de servidor ($subdominio - Tomcat)"
 								web-buster.pl -t $subdominio -p $port -h 3 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/"$subdominio"_"$port"_webarchivos.txt & 							
 								sleep 1										
@@ -2710,31 +2734,31 @@ then
 						
 						echo -e "\t\t[+] Revisando directorios ( $ip Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 8 -d / -m directorios -s 1 -q 1 >> logs/enumeracion/"$ip"_"$port"_webdirectorios.txt &
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando  paneles administrativos ( $ip Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m admin -s 1 -q 1 > logs/enumeracion/"$ip"_"$port"_admin.txt 
 						egrep --color=never "^200|^401" logs/enumeracion/"$ip"_"$port"_admin.txt  >> .enumeracion/"$ip"_"$port"_admin.txt 
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando archivos comunes de servidor ($ip - Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" > .enumeracion/"$ip"_"$port"_webarchivos.txt  &
 						#web-buster.pl -t $ip -p $port -h 3 -d / -m webserver -s 1 -q 1 > logs/enumeracion/"$ip"_"$port"_webarchivos.txt
 						#egrep --color=never "^200" logs/enumeracion/"$ip"_"$port"_webarchivos.txt >> .enumeracion/"$ip"_"$port"_webarchivos.txt  
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando backups de archivos de configuración ($ip - Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m backupApache -s 1 -q 1 > logs/enumeracion/"$ip"_"$port"_webarchivos.txt  
 						egrep --color=never "^200" logs/enumeracion/"$ip"_"$port"_webarchivos.txt  >> .enumeracion/"$ip"_"$port"_webarchivos.txt  
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando backups de archivos genericos ($ip - Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 4 -d / -m archivos -s 1 -q 1 | egrep --color=never "^200" > .enumeracion/"$ip"_"$port"_webarchivos.txt  &
 						#web-buster.pl -t $ip -p $port -h 4 -d / -m archivos -s 1 -q 1 > logs/enumeracion/"$ip"_"$port"_webarchivos.txt  
 						#egrep --color=never "^200" logs/enumeracion/"$ip"_"$port"_webarchivos.txt  >> .enumeracion/"$ip"_"$port"_webarchivos.txt  
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando backups de archivos de PHP2 ($ip - Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m php -s 1 -q 1 >  logs/enumeracion/"$ip"_"$port"_webarchivos.txt
 						egrep --color=never "^200" logs/enumeracion/"$ip"_"$port"_webarchivos.txt >> .enumeracion/"$ip"_"$port"_webarchivos.txt
-						sleep 2	
+						sleep 1	
 						
 						if [ $internet == "s" ]; then 
 							egrep -i "is behind" .enumeracion/"$ip"_"$port"_wafw00f.txt 2>/dev/null
@@ -2742,29 +2766,35 @@ then
 							if [[ $greprc -ne 0 ]];then # si hay no hay firewall protegiendo la app								
 								echo -e "\t\t[+] Revisando archivos CGI ($ip -Apache/nginx)"
 								web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> servicios/cgi.txt  
-								sleep 2						
+								sleep 1						
 							fi	
 						else
 							echo -e "\t\t[+] Revisando archivos CGI ($ip -Apache/nginx)"
 							web-buster.pl -t $ip -p $port -h 3 -d / -m cgi -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' >> servicios/cgi.txt  
-							sleep 2													
+							sleep 1													
 						fi	
 																				
 						
 						echo -e "\t\t[+] Revisando archivos peligrosos ($ip - Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 4 -d / -m archivosPeligrosos -s 1 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_archivosPeligrosos.txt  
 						egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_archivosPeligrosos.txt  | awk '{print $2}' >> .vulnerabilidades/"$ip"_"$port"_archivosPeligrosos.txt  
-						sleep 2
+						sleep 1
+						
+						echo -e "\t\t[+] Revisando si el registro de usuarios esta habilitado ($ip - Apache/nginx)"
+						web-buster.pl -t $ip -p $port -h 1 -d / -m registroHabilitado -s 1 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_registroHabilitado.txt 
+						egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_registroHabilitado.txt  | awk '{print $2}' >> .vulnerabilidades/"$ip"_"$port"_registroHabilitado.txt
+						sleep 1	
+								
 						echo -e "\t\t[+] Revisando archivos por defecto ($ip - Apache/nginx)"
 						web-buster.pl -t $ip -p $port -h 4 -d / -m archivosDefecto -s 1 -q 1 | egrep --color=never "^200"  | awk '{print $2}' >> .vulnerabilidades/"$ip"_"$port"_archivosDefecto.txt  &
 						#web-buster.pl -t $ip -p $port -h 4 -d / -m archivosDefecto -s 1 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_archivosDefecto.txt  
 						#egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_archivosDefecto.txt  | awk '{print $2}' >> .vulnerabilidades/"$ip"_"$port"_archivosDefecto.txt  
-						sleep 2
+						sleep 1
 						
 						echo -e "\t\t[+] Revisando la existencia de backdoors ($ip - Apache/nginx)"	
 						web-buster.pl -t $ip -p $port -h 3 -d / -m backdoorApache -s 1 -q 1 > logs/vulnerabilidades/"$ip"_"$port"_webshell.txt  
 						egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_webshell.txt  | awk '{print $2}' >> .vulnerabilidades/"$ip"_"$port"_webshell.txt  
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando la presencia de archivos phpinfo, logs, errors ($ip - Apache/nginx)"						
 						web-buster.pl -t $ip -p $port -h 3 -d / -m divulgacionInformacion -s 1 -q 1 | egrep --color=never "^200" | awk '{print $2}' > logs/enumeracion/"$ip"_"$port"_divulgacionInformacion.txt 2>/dev/null &
 					fi						
@@ -2780,23 +2810,23 @@ then
 						
 						echo -e "\t\t[+] Revisando directorios  (IIS)"					
 						web-buster.pl -t $ip -p $port -h 8 -d / -m directorios -s 1 -q 1 >> logs/enumeracion/"$ip"_"$port"_webdirectorios.txt &
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando paneles administrativos ($ip - IIS)"	
 						web-buster.pl -t $ip -p $port -h 3 -d / -m admin -s 1 -q 1 > logs/enumeracion/"$ip"_"$port"_admin.txt 
 						egrep --color=never "^200|^401" logs/enumeracion/"$ip"_"$port"_admin.txt  >> .enumeracion/"$ip"_"$port"_admin.txt 
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando archivos comunes de servidor ($ip - IIS)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/"$ip"_"$port"_webarchivos.txt  
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando archivos comunes de sharepoint ($ip - IIS)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m sharepoint -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/"$ip"_"$port"_webarchivos.txt  
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando archivos comunes de webservices ($ip - IIS)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m webservices -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/"$ip"_"$port"_webarchivos.txt 
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando la existencia de backdoors ($ip - IIS)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m backdoorIIS -s 1 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/"$ip"_"$port"_webshell.txt 
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando backups de archivos de configuración ($ip - IIS)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m backupIIS -s 1 -q 1 | egrep --color=never "^200" >> .vulnerabilidades/"$ip"_"$port"_webshell.txt 
 										
@@ -2814,11 +2844,11 @@ then
 						
 						echo -e "\t\t[+] Revisando directorios  ($ip - tomcat)"	
 						web-buster.pl -t $ip -p $port -h 8 -d / -m directorios -s 1 -q 1 >> logs/enumeracion/"$ip"_"$port"_webdirectorios.txt &
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando archivos comunes de tomcat  ($ip - tomcat)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m tomcat -s 1 -q 1 > logs/enumeracion/"$ip"_"$port"_webarchivos.txt 
 						egrep --color=never "^200|^401" logs/enumeracion/"$ip"_"$port"_webarchivos.txt  >> .enumeracion/"$ip"_"$port"_webarchivos.txt 
-						sleep 2
+						sleep 1
 						echo -e "\t\t[+] Revisando archivos comunes de servidor  ($ip - tomcat)"
 						web-buster.pl -t $ip -p $port -h 3 -d / -m webserver -s 1 -q 1 | egrep --color=never "^200" >> .enumeracion/"$ip"_"$port"_webarchivos.txt
 						sleep 1						
@@ -3037,7 +3067,7 @@ then
 	if [ "$webbuster_instancias" -gt 1 ]
 	then
 		echo -e "\t[i] Todavia hay scripts activos ($webbuster_instancias)"				
-		sleep 20
+		sleep 10
 		else
 			break		
 		fi
@@ -3162,7 +3192,7 @@ then
 	if [ "$dig_instancias" -gt 1 ]
 	then
 		echo -e "\t[i] Todavia hay scripts activos ($dig_instancias)"				
-		sleep 20
+		sleep 10
 		else
 			break		
 		fi
@@ -3185,7 +3215,7 @@ if [ -f servicios/smtp.txt ]
 			if [ "$smtp_user_enum_instancias" -gt 1 ]
 			then
 				echo -e "\t[-] Todavia esta smtp-user-enum activo ($smtp_user_enum_instancias)"				
-				sleep 20
+				sleep 10
 			else
 				break		
 			fi
@@ -3364,7 +3394,7 @@ then
 		if [ "$upnp_instancias" -gt 1 ]
 		then
 			echo -e "\t[i] Todavia hay scripts activos ($upnp_instancias)"				
-			sleep 20
+			sleep 10
 			else
 				break		
 			fi
@@ -3590,7 +3620,7 @@ then
 			
 			echo "msfconsole -x \"use auxiliary/scanner/ssh/fortinet_backdoor;set RHOSTS $ip;run;exit\"" > logs/vulnerabilidades/"$ip"_22_backdoorFabrica.txt 2>/dev/null		
 			msfconsole -x "use auxiliary/scanner/ssh/fortinet_backdoor;set RHOSTS $ip;run;exit" >> logs/vulnerabilidades/"$ip"_22_backdoorFabrica.txt 2>/dev/null		
-			sleep 2
+			sleep 1
 			
 			respuesta=`grep --color=never Logged logs/vulnerabilidades/"$ip"_22_backdoorFabrica.txt`
 			greprc=$?
@@ -4257,7 +4287,7 @@ while true; do
 	if [ "$webbuster_instancias" -gt 1 ]
 	then
 		echo -e "\t[i] Todavia hay scripts activos ($webbuster_instancias)"				
-		sleep 20
+		sleep 10
 	else
 		break		
 	fi
@@ -4334,7 +4364,7 @@ while true; do
 	if [ "$webbuster_instancias" -gt 1 ]
 	then
 		echo -e "\t[i] Todavia hay scripts activos ($webbuster_instancias)"				
-		sleep 20
+		sleep 10
 	else
 		break		
 	fi
@@ -4708,7 +4738,7 @@ if [ $internet == "n" ]; then
 fi	
 
 
-	
+mv /usr/bin/pentest/Responder/logs/*.txt `pwd`/responder
 
 
 #echo -e "\t $OKBLUE REVISANDO ERRORES $RESET"
