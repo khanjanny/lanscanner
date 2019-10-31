@@ -129,7 +129,7 @@ for line in $( ps aux | grep --color=never web-buster | grep -v color | awk '{pr
 	diff=`echo $diff | tr -d -`
 	echo "Idle time: $diff minutes"	
 	
-	if [[  $diff -gt 10 && $diff -lt 70 ]];then 
+	if [[  $diff -gt 30 && $diff -lt 70 ]];then 
 		
 		echo -e "$OKRED[-] Killing $pid) $RESET"
 		kill -9 $pid		

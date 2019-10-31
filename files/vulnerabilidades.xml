@@ -4,6 +4,7 @@
    	<cod>ms17010</cod> 
     <nombre> Vulnerabilidad de Windows - Eternal blue </nombre>
     <codVul>MS17-010</codVul>
+    <CVSS>9.3</CVSS>
     <riesgoAgetic> Crítico </riesgoAgetic>	
     <probabilidad> Muy probable </probabilidad>
     <impacto> Crítico </impacto>
@@ -26,6 +27,7 @@
    	<cod>ransomware</cod> 
     <nombre>Presencia de ransomware en la entidad</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic> Crítico </riesgoAgetic>	
     <probabilidad> Muy probable </probabilidad>
     <impacto> Crítico </impacto>
@@ -48,6 +50,7 @@
 	<cod>webshell</cod> 
     <nombre>Backdoor (webshell) en el sitio web</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Crítico</riesgoAgetic>	
     <probabilidad>Casi seguro</probabilidad>
     <impacto>Crítico</impacto>	
@@ -66,6 +69,7 @@
    	<cod>passwordSFI</cod> 
     <nombre>Password por defecto en el servidor SFI</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Crítico</riesgoAgetic>	
     <probabilidad>Casi seguro</probabilidad>
     <impacto>Crítico</impacto>
@@ -73,17 +77,39 @@
     <agente_amenaza>USUARIO INTERNO</agente_amenaza>
     <impacto_tecnico> Acceder al servidor SFI </impacto_tecnico>
     <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
-    <detalles> El sistema operativo donde se ejecuta el SFI aun presenta el usuario y password por defecto o es fácil de adivinar. </detalles>    
+    <detalles> Despues de probar las contraseñas por defecto de los usuarios del sistema del SFI se pudo identificar las siguientes credenciales válidas </detalles>    
     <descripcion>El sistema operativo donde se ejecuta el SFI aun presenta el usuario y password por defecto o es fácil de adivinar.</descripcion>
     <verificacion>ninguna</verificacion>
-    <recomendacion>Asignar un password a la base datos que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
+    <recomendacion>Asignar un password a los usuarios de SFI que sean difíciles de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
 	<referencias>ninguna</referencias> 
-  </vuln>  
+  </vuln> 
+  
+   
+  <vuln>
+	<cod>BlueKeep</cod> 
+    <nombre>Vulnerabilidad en el escritorio remoto - BlueKeep</nombre>
+    <codVul>CVE-2019-0708</codVul>
+    <CVSS>9.8</CVSS>
+    <riesgoAgetic>Crítico</riesgoAgetic>	
+    <probabilidad> Casi seguro </probabilidad>
+    <impacto> Crítico </impacto>
+    <riesgoInforme> CRÍTICO </riesgoInforme>        
+    <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
+    <impacto_tecnico> Acceso a documentos </impacto_tecnico>
+    <impacto_negocio> Acceso a información sensible de la entidad </impacto_negocio>  
+    <detalles>Con el uso de herramientas específicas para la verificación de esta vulnerabilidad se identificó que un equipo tiene esta vulnerabilidad. </detalles>    
+    <descripcion> La vulnerabilidad podría permitir a un atacante remoto no autenticado ejecutar código arbitrario y tomar el control de una computadora específica simplemente enviando solicitudes especialmente diseñadas al servicio de escritorio remoto (RDS) del dispositivo a través del RDP, sin necesidad de interacción alguna por parte del usuario. Esta vulnerabilidad puede ser explotada por ransomware</descripcion>
+    <verificacion> blueKeep 1.2.3.4 </verificacion>
+    <recomendacion>Instalar los parches de seguridad del sitio oficial de Windows</recomendacion> 
+	<referencias>https://support.microsoft.com/en-us/help/4500705/customer-guidance-for-cve-2019-0708</referencias> 		     
+  </vuln>
+   
   
   <vuln>
 	<cod>backdoorFabrica</cod> 
     <nombre>Presencia de backdoor en el dispositivo</nombre>
     <codVul>CVE-2018-6211(Dlink) CVE-2014-0659(CISCO) CVE-2016-1909(Fortinet) CVE-2015-7755(Juniper)</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Crítico</riesgoAgetic>	
     <probabilidad>Casi seguro</probabilidad>
     <impacto>Crítico</impacto>
@@ -104,6 +130,7 @@
    	<cod>ms08067</cod> 
     <nombre>Vulnerabilidad de Windows - NetAPI </nombre>
     <codVul>MS08-067</codVul>
+    <CVSS>10</CVSS>
     <riesgoAgetic>Crítico</riesgoAgetic>	
     <probabilidad> Muy probable </probabilidad>
     <impacto> Crítico </impacto>
@@ -125,6 +152,7 @@
   <vuln>
 	<cod>zimbraXXE</cod> 
 	<codVul>CVE-2019-9670</codVul>
+    <CVSS>9.8</CVSS>
     <nombre>Zimbra con vulnerabilidad XXE</nombre>
     <riesgoAgetic>Crítico</riesgoAgetic>	
     <probabilidad> Muy probable </probabilidad>
@@ -147,6 +175,7 @@
    	<cod>doublepulsar</cod> 
     <nombre> Double pulsar </nombre>
     <codVul>ninguna</codVul>
+    <CVSS>10</CVSS>
     <riesgoAgetic> Crítico </riesgoAgetic>	
     <probabilidad> Muy probable </probabilidad>
     <impacto> Crítico </impacto>
@@ -167,7 +196,8 @@
    <vuln> 
    	<cod>rmiVuln</cod> 
     <nombre> Java RMI vulnerable </nombre>
-    <codVul>ninguna</codVul>
+    <codVul>CVE-2011-3556</codVul>
+    <CVSS>7.5</CVSS>
     <riesgoAgetic> Alto </riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -187,6 +217,7 @@
    	<cod>apacheStruts</cod> 
     <nombre> Apache Struts vulnerable </nombre>
     <codVul>CVE-2016-3093</codVul>
+    <CVSS>5.3</CVSS>
     <riesgoAgetic> Alto </riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -205,6 +236,7 @@
    	<cod>misfortune</cod> 
     <nombre>Misfortune Cookie </nombre>
     <codVul>CVE-2014-9222</codVul>
+    <CVSS>10</CVSS>
     <riesgoAgetic> Alto </riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -223,6 +255,7 @@
    	<cod>poisoning</cod> 
     <nombre>Sniffing, captura de tráfico</nombre>
     <codVul>ninguno</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic> Alto </riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -230,7 +263,7 @@
     <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
     <impacto_tecnico> Interceptar tráfico de los equipos de la red </impacto_tecnico>
     <impacto_negocio> La confidencialidad de los datos se veria comprometida </impacto_negocio>    
-    <detalles> Es posible que un atacante pueda realizar ataques man-in-the-middle (MITM) para obtener información sensible capturando tráfico no encriptado en la red</detalles>    
+    <detalles> Es posible envenenar la red con paquetes ARP, esto hace posible que se pueda interceptar el tráfico de los clientes a los servidores: SALTOLINEA --imagen-- SALTOLINEA Se pudo capturar:</detalles>    
     <descripcion> Es posible que un atacante pueda realizar ataques man-in-the-middle (MITM) para obtener información sensible capturando tráfico no encriptado en la red</descripcion>
     <verificacion>ninguna</verificacion>
     <recomendacion>Habilitar DHCP Snooping en los switches de capa 3</recomendacion> 
@@ -240,6 +273,7 @@
   <vuln>
   	<cod>ciscoASAVuln</cod> 
 	<codVul>CVE-2014-2128</codVul>
+    <CVSS>5.0</CVSS>
     <nombre>Vulnerabilidad en Cisco ASA SSL VPN</nombre>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
@@ -258,6 +292,7 @@
    <vuln>
   	<cod>llmnr</cod> 
 	<codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <nombre>Envenenamiento LLMNR y NBT-NS</nombre>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
@@ -266,12 +301,31 @@
     <agente_amenaza>USUARIO INTERNO</agente_amenaza>    
     <impacto_tecnico>Control del equipo de red</impacto_tecnico>
     <impacto_negocio>La integridad de los datos se vería afectada </impacto_negocio>   
-    <detalles>Los datos en la red al ser capturados permiten su análisis para identificar contraseñas y datos confidenciales que le brinden a un atacante la información para vulnerar los servicios y equipos críticos</detalles>    
+    <detalles>Se pudo capturar las respuestas NTLM de varios equipos de la red LAN</detalles>    
     <descripcion>Los datos en la red al ser capturados permiten su análisis para identificar contraseñas y datos confidenciales que le brinden a un atacante la información para vulnerar los servicios y equipos críticos</descripcion>
     <verificacion>responder -F -f -I eth0</verificacion>
     <recomendacion>Deshabilitar LLMNR y NBT-NS SALTOLINEA
 				   Usar en lo posible contraseñas robustas que presenten una mayor dificultad para crackearlas</recomendacion> 
 	<referencias>https://www.4armed.com/blog/llmnr-nbtns-poisoning-using-responder/</referencias> 
+   </vuln>
+   
+   <vuln>
+  	<cod>vlanHop</cod> 
+	<codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
+    <nombre>Salto de VLAN </nombre>
+    <riesgoAgetic>Alto</riesgoAgetic>	
+    <probabilidad>Posible</probabilidad>
+    <impacto>Significativo</impacto>
+    <riesgoInforme>ALTO</riesgoInforme>        
+    <agente_amenaza>USUARIO INTERNO</agente_amenaza>    
+    <impacto_tecnico>ninguno</impacto_tecnico>
+    <impacto_negocio>ninguno</impacto_negocio>   
+    <detalles>Es posible realizar el salto de VLAN</detalles>    
+    <descripcion>Es posible realizar el salto de VLAN</descripcion>
+    <verificacion>ninguna</verificacion>
+    <recomendacion>Deshabilitar CDP</recomendacion> 
+	<referencias>ninguna</referencias> 
    </vuln>
   
   
@@ -279,6 +333,7 @@
    	<cod>conficker</cod> 
     <nombre> Conficker </nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic> Alto </riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -299,6 +354,7 @@
    	<cod>passwordBD</cod> 
     <nombre>Base de datos con password inseguro</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -317,6 +373,7 @@
    	<cod>noSQLDatabases</cod> 
     <nombre>Base de datos NoSQL sin autenticación</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -334,29 +391,11 @@
   
   
   
-  <vuln>  
-   	<cod>passwordSFI</cod> 
-    <nombre>Base de datos del Sistema Financiero Integrado (SFI) con password inseguro</nombre>
-    <codVul>ninguna</codVul>
-    <riesgoAgetic>Crítico</riesgoAgetic>	
-    <probabilidad> Posible </probabilidad>
-    <impacto> Significativo </impacto>
-    <riesgoInforme> ALTO </riesgoInforme>        
-    <agente_amenaza>USUARIO INTERNO</agente_amenaza>    
-    <impacto_tecnico> Acceso al motor de base de datos informix </impacto_tecnico>
-    <impacto_negocio> Acceder y modificar información crítica  </impacto_negocio>    
-    <detalles> La base de datos aun presenta el usuario y password por defecto </detalles>    
-    <descripcion>La base de datos aun presenta el usuario y password por defecto</descripcion>
-    <verificacion>Herramienta: mysql (Consola), pgadmin3 y navicat (gráficas) SALTOLINEA
-				  mysql 1.2.3.4</verificacion>
-    <recomendacion>Asignar un password a la base datos que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
-	<referencias>ninguna</referencias> 
-  </vuln>  
-  
    <vuln>
 	<cod>webdavVulnerable</cod> 
     <nombre>WebDAV vulnerable</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -378,6 +417,7 @@
 	<cod>IISwebdavVulnerable</cod> 
     <nombre>WebDAV vulnerable</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -415,6 +455,7 @@
 	<cod>shellshock</cod> 	
     <nombre>Vulnerabilidad en Bash - shellshock</nombre>
     <codVul>CVE-2014-6271</codVul>
+    <CVSS>9.8</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -436,6 +477,7 @@
    	<cod>winboxVuln</cod> 
     <nombre>Mikrotik vulnerable</nombre>
     <codVul>CVE-2018-14847</codVul>
+    <CVSS>9.1</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Significativo</impacto>
@@ -456,6 +498,7 @@
 	<cod>archivosPeligrosos</cod> 
     <nombre>Archivos/directorios que presentan un riesgo de seguridad</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Significativo</impacto>
@@ -474,6 +517,7 @@
 	<cod>backupWeb</cod> 
     <nombre>Backup en el servidor web</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Significativo</impacto>
@@ -492,6 +536,7 @@
 	<cod>anonymousIPMI</cod> 
     <nombre>Acceso IPMI anónimo</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Mayor</impacto>
@@ -510,6 +555,7 @@
 	<cod>intelVuln</cod> 
     <nombre>Intel Active Management vulnerable</nombre>
     <codVul>CVE-2017-5689</codVul>
+    <CVSS>9.8</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Mayor</impacto>
@@ -528,6 +574,7 @@
 	<cod>jbossVuln</cod> 
     <nombre>Vulnerabilidades en JBOSS</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Mayor</impacto>
@@ -546,6 +593,7 @@
 	<cod>cipherZeroIPMI</cod> 
     <nombre>IPMI con Cipher 0 habilitado</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Mayor</impacto>
@@ -556,7 +604,10 @@
     <detalles> En la configuración de BMC tiene habilitado Cipher 0, esto permite a un atacante evadir el proceso de autenticación y ejecutar comandos en el servidor.</detalles>    
     <descripcion>En la configuración de BMC tiene habilitado Cipher 0, esto permite a un atacante evadir el proceso de autenticación y ejecutar comandos en el servidor</descripcion>
     <verificacion>nmap -sU --script ipmi-cipher-zero -p 623 -Pn -n 1.2.3.4</verificacion>
-    <recomendacion> Deshabilitar Cipher 0 en el servidor</recomendacion> 
+    <recomendacion> -Actualización del firmware de BMC (para placas base X9) SALTOLINEA
+-Desactivar IPMI sobre LAN (para IDRAC: configuración> Red/Seguridad > Configuración de red) SALTOLINEA
+-Bloquear el puerto UDP 623 SALTOLINEA
+-Desactivar IPMI </recomendacion> 
 	<referencias>https://www.wired.com/2013/07/ipmi/</referencias>     	   
   </vuln>
   
@@ -565,6 +616,7 @@
 	<cod>compartidoNFS</cod> 
     <nombre>Recursos compartidos (NFS)</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Mayor</impacto>
@@ -582,6 +634,7 @@
   <vuln>
 	<cod>perdidaAutenticacion</cod> 			
 	<codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <nombre>Perdida de autenticación</nombre>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
@@ -596,29 +649,11 @@
     <recomendacion>Asegurarse que la aplicación compruebe el uso de una sesión válida para todas las partes del sistema </recomendacion> 
 	<referencias>ninguna</referencias> 
   </vuln>  
- 
-  <vuln>
-	<cod>BlueKeep</cod> 
-    <nombre>Vulnerabilidad en el escritorio remoto - BlueKeep</nombre>
-    <codVul>CVE-2019-0708</codVul>
-    <riesgoAgetic>Alto</riesgoAgetic>	
-    <probabilidad> Posible </probabilidad>
-    <impacto> Significativo </impacto>
-    <riesgoInforme> ALTO </riesgoInforme>        
-    <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
-    <impacto_tecnico> Acceso a documentos </impacto_tecnico>
-    <impacto_negocio> Acceso a información sensible de la entidad </impacto_negocio>  
-    <detalles>La vulnerabilidad podría permitir a un atacante remoto no autenticado ejecutar código arbitrario y tomar el control de una computadora específica simplemente enviando solicitudes especialmente diseñadas al servicio de escritorio remoto (RDS) del dispositivo a través del RDP, sin necesidad de interacción alguna por parte del usuario.</detalles>    
-    <descripcion> La vulnerabilidad podría permitir a un atacante remoto no autenticado ejecutar código arbitrario y tomar el control de una computadora específica simplemente enviando solicitudes especialmente diseñadas al servicio de escritorio remoto (RDS) del dispositivo a través del RDP, sin necesidad de interacción alguna por parte del usuario.</descripcion>
-    <verificacion> blueKeep 1.2.3.4 </verificacion>
-    <recomendacion>Instalar los parches de seguridad del sitio oficial de Windows</recomendacion> 
-	<referencias>https://support.microsoft.com/en-us/help/4500705/customer-guidance-for-cve-2019-0708</referencias> 		     
-  </vuln>
-  
-    <vuln>
+   <vuln>
 	 <cod>openrelay</cod> 
     <nombre>Open Relay</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -626,7 +661,7 @@
     <agente_amenaza> USUARIO EXTERNO/EXTERNO </agente_amenaza>      
     <impacto_tecnico>Envio de correos a nombre de la entidad</impacto_tecnico>
     <impacto_negocio>La imagen de la entidad se veria afectada</impacto_negocio>    
-    <detalles>Se reviso el servidor de correos y se verifico que permite el envio de correos sin pedir autenticación</detalles>    
+    <detalles>Se revisó el servidor de correos y se verifico que permite el envió de correos sin pedir autenticación SALTOLINEA --imagen-- SALTOLINEA Esta vulnerabilidad está siendo explotada por ciberdelincuentes para enviar correos de extorsión  a empresas y entidades de Latinoamérica.</detalles>    
     <descripcion> El servidor de correos permite enviar correos a usuarios internos sin necesidad de autenticación.</descripcion>
     <verificacion> Herramienta: telnet SALTOLINEA </verificacion>
     <recomendacion>Deshabilitar el modo pasarela (open relay) en el servidor de correo</recomendacion> 
@@ -637,6 +672,7 @@
    	<cod>compartidoSMB</cod> 
     <nombre>Recursos compartidos (SMB)</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -644,7 +680,7 @@
     <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
     <impacto_tecnico> Acceso a documentos </impacto_tecnico>
     <impacto_negocio> Acceso a información sensible de la entidad </impacto_negocio>    
-    <detalles> Revisando los recursos compartidos se pudo acceder a las siguientes carpetas y archivos del negocio: </detalles>    
+    <detalles> Revisando los recursos compartidos se pudo acceder a las siguientes carpetas y archivos del negocio. Este recursos compartidos también pueden ser encriptados por ransomware. </detalles>    
     <descripcion>Revisando los recursos compartidos mediante el protocolo SMB se pudo observar que se comparte información sensible accesible por cualquier usuario de la red </descripcion>
     <verificacion>smbmap -H 1.2.3.4 -u anonymous -p anonymous SALTOLINEA
 				  smbmap -H 1.2.3.4 </verificacion>
@@ -655,6 +691,7 @@
     <vuln>
 	<cod>passwordMikroTik</cod>  		
 	<codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <nombre>Password no robusto (Mikrotik)</nombre>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible </probabilidad>
@@ -675,6 +712,7 @@
 	 <cod>spoof</cod> 
     <nombre>Suplantacion de correos electrónicos</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Significativa</impacto>
@@ -699,6 +737,7 @@
    	<cod>SSHBypass</cod> 
     <nombre>libSSH - Evasión de Autenticación  </nombre>
     <codVul>CVE-2018-10933</codVul>
+    <CVSS>9.1</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible </probabilidad>
     <impacto>Significativo </impacto>
@@ -717,6 +756,7 @@
    	<cod>passwordZKSoftware</cod> 
     <nombre>Lector de huella digital con contraseña fácil de adivinar </nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -738,6 +778,7 @@
    	<cod>wordpressPass</cod> 
     <nombre>Contraseña fácil de adivinar del sitio wordpress </nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -756,6 +797,7 @@
    	<cod>wordpressPlugin</cod> 
     <nombre>Plugin de wordress desactuactualizado </nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -774,6 +816,7 @@
    	<cod>passwordAdivinado</cod> 
     <nombre>Contraseña fácil de adivinar </nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -781,7 +824,7 @@
     <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
     <impacto_tecnico> Acceder a sistemas </impacto_tecnico>
     <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
-    <detalles> Se identificaron paneles de administración que no tienen un password robusto ( fácil de adivinar)</detalles>       
+    <detalles>Se probó un listado de 150 passwords comunes. Se pudo identificar credenciales validas con los que se pudo ingresar a los equipos</detalles>       
     <descripcion>Se identificaron paneles de administración que no tienen un password robusto ( fácil de adivinar) y permiten acceder a datos sensibles</descripcion>
     <verificacion>ninguna</verificacion>
     <recomendacion>Asignar un password al equipo que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
@@ -793,6 +836,7 @@
    	<cod>passwordHost</cod> 
     <nombre>Passwords de estaciones de trabajo fáciles de adivinar</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible </probabilidad>
     <impacto>Significativo </impacto>
@@ -814,6 +858,7 @@
    	<cod>logeoRemoto</cod> 
     <nombre>Logueo en red habilitado</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -835,6 +880,7 @@
    	<cod>heartbleed</cod> 
     <nombre>Vulnerabilidad en OpenSSL - Heartbleed</nombre>
     <codVul>CVE-2014-0160</codVul>
+    <CVSS>7.5</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Significativo </impacto>
@@ -858,6 +904,7 @@
 	<cod>VNCnopass</cod> 
     <nombre>Acceso a equipos mediante VNC sin credenciales</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -878,6 +925,7 @@
     <cod>passwordDefecto</cod> 
     <nombre>Contraseña por defecto</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -896,6 +944,7 @@
 	<cod>openrelay2</cod> 
     <nombre>Suplantación de correo electrónico</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>
     <descripcion> Es posible acceder al servidor de correos mediante el puerto 25, y enviar correos anónimos o a nombre de otras cuentas. Esto implica que cualquier usuario que conozca esta vulnerabilidad podría enviar correos con mensajes fraudulentos o elaborados para un determinado fin a otros usuarios dentro del dominio. </descripcion>
     <verificacion>Herramienta: telnet SALTOLINEA</verificacion>
@@ -907,6 +956,7 @@
 	<cod>VNCbypass</cod> 
     <nombre>VNC vulnerable</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -925,6 +975,7 @@
    	<cod>vulnDahua</cod> 
     <nombre>DVR Dahua con vulnerabilidad </nombre>
     <codVul>CVE-2013-6117</codVul>    
+    <CVSS>7.5</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -945,6 +996,7 @@
    	<cod>slowloris</cod> 
     <nombre>Denegacion de servicio al servidor web - slowloris </nombre>
     <codVul>CVE-2007-6750</codVul>
+    <CVSS>5.0</CVSS>
     <riesgoAgetic> Alto </riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -964,6 +1016,7 @@
    	<cod>passwordDahua</cod> 
     <nombre>DVR Dahua con password por defecto</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -981,9 +1034,10 @@
   </vuln>
   
   <vuln>	
-	<cod>sambaVuln</cod> 
-    <nombre>Enumeración de usuarios - Sesion nula en el servidor</nombre>
-    <codVul>CVE-2017-7494.</codVul>
+	<cod>SambaCry</cod> 
+    <nombre>SambaCry</nombre>
+    <codVul>CVE-2017-7494</codVul>
+    <CVSS>9.8</CVSS>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
@@ -1006,6 +1060,7 @@
 	<cod>VPNhandshake</cod>  	
     <nombre>Configuración no segura de la VPN</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
      <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
@@ -1024,6 +1079,7 @@
    	<cod>googlehacking</cod> 
     <nombre>Información sensible indexada por motores de búsqueda (google)</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
@@ -1042,6 +1098,7 @@
    	<cod>openstreaming</cod> 
     <nombre> Cámara de seguridad con open streaming habilitado </nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic> Medio </riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
@@ -1061,6 +1118,7 @@
 	<cod>hashesIPMI</cod> 
     <nombre>obtención remota de hashes de contraseñas de IPMI</nombre>
     <codVul>CVE-2013-4786</codVul>
+    <CVSS>7.5</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Importante</impacto>
@@ -1079,6 +1137,7 @@
    	<cod>exposicionUsuarios</cod> 
     <nombre> Exposicion de usuarios de la base de datos</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic> Medio </riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
@@ -1097,6 +1156,7 @@
    	<cod>registroHabilitado</cod> 
     <nombre>Registro de usuarios habilitado del sitio web</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic> Medio </riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
@@ -1104,7 +1164,7 @@
     <agente_amenaza> USUARIO EXTERNO </agente_amenaza>    
     <impacto_tecnico> SPAM desde el sitio web</impacto_tecnico>
     <impacto_negocio> Ninguno </impacto_negocio>    
-    <detalles>El sitio web permite el registro de nuevos usuarios los cuales podrian ejecutar acciones maliciosas en la misma</detalles>    
+    <detalles>Se realizó la navegación forzada de directorios y se identificó que el registro de usuarios esta habilitado.</detalles>    
     <descripcion>El sitio web permite el registro de nuevos usuarios los cuales podrian ejecutar acciones maliciosas en la misma</descripcion>
     <verificacion>ninguna</verificacion>
     <recomendacion>Deshabilitar el registro de usuarios en el framework/CMS usado</recomendacion> 
@@ -1116,6 +1176,7 @@
 	 <cod>directorioLDAP</cod> 
     <nombre>LDAP con acceso anónimo</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
 	<probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
@@ -1135,6 +1196,7 @@
    	<cod>wpusers</cod> 
     <nombre> Enumeración de usuarios de wordpress</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic> Medio </riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
@@ -1150,18 +1212,38 @@
 	<referencias>https://wordpress.org/plugins/stop-user-enumeration/</referencias>    
   </vuln>
      
+   <vuln>
+  	<cod>stp</cod> 
+	<codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
+    <nombre>Paquetes STP </nombre>
+    <riesgoAgetic> Medio </riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Moderado </impacto>
+    <riesgoInforme> MEDIO </riesgoInforme>        
+    <agente_amenaza> USUARIO INTERNO </agente_amenaza>        
+    <impacto_tecnico>ninguno</impacto_tecnico>
+    <impacto_negocio>ninguno</impacto_negocio>   
+    <detalles>Se procedió a sniffear la red y se pudo identificar paquetes STP:</detalles>    
+    <descripcion>El protocolo STP es susceptible a los ataques de denegación de servicios que pueden afectar las operaciones normales</descripcion>
+    <verificacion>ninguna</verificacion>
+    <recomendacion>Activar la funcionalidad BPDU guard si está disponible en el switch. Alternativamente puede deshabilitar el protocolo STP.</recomendacion> 
+	<referencias>https://www.securityartwork.es/2015/05/25/defensas-frente-a-ataques-stp/</referencias> 
+   </vuln>
+  
 
   
   <vuln>	
    	<cod>HTTPsys</cod> 
     <nombre>Denegación del servidor web - HTTP.sys </nombre>
     <codVul>MS15-034</codVul>
+    <CVSS>10</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
     <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
-    <impacto_tecnico> Forzar el reinicio del equipo </impacto_tecnico>
+    <impacto_tecnico> Forzar el reinicio del equipo. Ejecución remota de código</impacto_tecnico>
     <impacto_negocio> Se interrumpe el funcionamiento de servicios. </impacto_negocio>    
     <detalles> Realizando un escaneo con Nmap se obtuvo el siguiente resultado: IMAGEN SALTOLINEA
 				La imagen expone que el equipo es VULNERABLE según el boletín ms15-034 emitido por Microsoft. SALTOLINEA
@@ -1176,6 +1258,7 @@
 	<cod>upnpAbierto</cod>  
     <nombre>uPnP Abierto</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>    
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
@@ -1196,6 +1279,7 @@
 	<cod>enum4linux</cod> 
     <nombre>Enumeración de usuarios (Sesion nula en el servidor)</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
@@ -1221,6 +1305,7 @@
 	<cod>transferenciaDNS</cod> 
     <nombre>Transferencia de zona</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
@@ -1241,6 +1326,7 @@
 	 <cod>ms12020</cod> 
     <nombre>Denegación de servicio Remote Desktop Protocol</nombre>
     <codVul>MS12-020</codVul>
+    <CVSS>9.3</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
@@ -1248,18 +1334,20 @@
     <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
     <impacto_tecnico>Denegación de servicios de equipos vulnerables</impacto_tecnico>
     <impacto_negocio>La disponibilidad de servicios se ve afectada </impacto_negocio>      
-    <detalles>Por la manipulación de un input desconocido en el protocolo RDP se causa una vulnerabilidad de clase denegación de servicio (Pantalla azul). </detalles>    
+    <detalles>POSITIVA, Realizando un escaneo con nmap se obtuvo el siguiente resultado: SALTOLINEA 
+					 La imagen expone que el equipo es VULNERABLE según el boletín MS12-020 emitido por Microsoft</detalles>    
     <descripcion> Por la manipulación de un input desconocido en el protocolo RDP se causa una vulnerabilidad de clase denegación de servicio (Pantalla azul). </descripcion>
     <verificacion> nmap -sV -Pn --script=rdp-vuln-ms12-020 -p 3389 1.2.3.4  </verificacion>
     <recomendacion>Instalar el parche de seguridad</recomendacion> 
 	<referencias>http://technet.microsoft.com/en-us/security/bulletin/ms12-020</referencias> 		      
-  </vuln>  
+  </vuln> 
   
   
    <vuln>
 	<cod>divulgacionInformacion</cod>  
     <nombre>Divulgación de información del servidor</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>    
     <probabilidad>Posible</probabilidad>
     <impacto>Insignificante</impacto>
@@ -1279,6 +1367,7 @@
 	<cod>upnpEnum</cod>  
     <nombre>uPnP suceptible a ataques de DoS</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>    
     <probabilidad>Posible</probabilidad>
     <impacto>Insignificante</impacto>
@@ -1298,6 +1387,7 @@
    	<cod>snmpCommunity</cod> 
     <nombre>SNMP con cadena comunitaria por defecto</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Leve</impacto>
@@ -1319,6 +1409,7 @@
   	<cod>listadoDirectorios</cod> 
     <nombre>Listado de directorios habilitado</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Leve</impacto>
@@ -1337,6 +1428,7 @@
 	<cod>openresolver</cod> 		
     <nombre>DNS abierto</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Leve</impacto>
@@ -1344,8 +1436,8 @@
     <agente_amenaza>USUARIO EXTERNO (Internet)</agente_amenaza>    
     <impacto_tecnico>Ser parte de ataques de denegación de servico a otras entidades</impacto_tecnico>
     <impacto_negocio>ninguno</impacto_negocio>       
-    <detalles>El servidor DNS está configurado para responder peticiones de cualquier dominio. Esto puede ser usado por atacante en un ataque de Denegación de servicio Distribuido hacia otros objetivos</detalles>    
-    <descripcion> El servidor DNS está configurado para responder peticiones de cualquier dominio. Esto puede ser usado por atacante en un ataque de Denegación de servicio Distribuido hacia otros objetivos</descripcion>
+    <detalles>El servidor DNS está configurado para responder peticiones de cualquier dominio. Esto puede ser usado por personas mal intencionadas en un ataque de Denegación de servicio Distribuido hacia otros objetivos</detalles>    
+    <descripcion> El servidor DNS está configurado para responder peticiones de cualquier dominio. Esto puede ser usado por personas mal intencionadas en un ataque de Denegación de servicio Distribuido hacia otros objetivos</descripcion>
     <verificacion> Herramienta: dig SALTOLINEA
 				  dig ANY google.com @1.2.3.4 +short | grep --color=never google  </verificacion>
     <recomendacion>Configurar el servidor DNS de manera que no resuelva dominios de terceros</recomendacion> 
@@ -1357,6 +1449,7 @@
 	<cod>contenidoNoRelacionado</cod> 		
     <nombre>Contenido no relacionado al negocio</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Leve</impacto>
@@ -1376,6 +1469,7 @@
    	<cod>archivosDefecto</cod> 
     <nombre> Archivos y directorios por defecto </nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic> Medio </riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Leve </impacto>
@@ -1394,6 +1488,7 @@
    	<cod>IPinterna</cod> 
     <nombre> IPs internas divulgadas</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic> Medio </riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Leve </impacto>
@@ -1412,6 +1507,7 @@
 	<cod>vrfyHabilitado</cod> 
     <nombre>Comando VRFY habilitado en el servidor de correos</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Leve</impacto>
@@ -1430,6 +1526,7 @@
    	<cod>CVE15473</cod> 
     <nombre>Enumeración de usuarios SSH</nombre>
     <codVul>CVE-2018-15473</codVul>
+    <CVSS>5.3</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad>Posible</probabilidad>
     <impacto>Leve</impacto>
@@ -1450,6 +1547,7 @@
    	<cod>ftpAnonymous</cod> 
     <nombre>Servidor FTP con usuario anónimo habilitado</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Leve </impacto>
@@ -1468,6 +1566,7 @@
    	<cod>erroresWeb</cod> 
     <nombre>Errores en el sitio web</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Leve </impacto>
@@ -1486,6 +1585,7 @@
    	<cod>debugHabilitado</cod> 
     <nombre>Debug habilitado en el sitio web</nombre>
     <codVul>ninguna</codVul>
+    <CVSS>N/A</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Leve </impacto>
