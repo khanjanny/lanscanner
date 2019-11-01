@@ -1768,7 +1768,7 @@ then
 					#echo "lista_subdominios $lista_subdominios"
 					for subdominio in $lista_subdominios; do													
 						echo -e "\t[+] subdominio: $subdominio"							
-						wget --timeout=5 --tries=1 http://$subdominio -O webClone/http-$subdominio.html 2>/dev/null						
+						wget --timeout=5 --tries=1 http://$subdominio -O webClone/http-$subdominio.html
 						sed -i "s/\/index.php//g" webClone/http-$subdominio.html
 						sed -i "s/https/http/g" webClone/http-$subdominio.html						
 						sed -i "s/www.//g" webClone/http-$subdominio.html	
@@ -2052,7 +2052,7 @@ then
 				
 				#################  Realizar el escaneo por IP  ##############	
 				echo -e "\t[+]Escaneo solo por IP (http) $ip:$port"
-				wget --timeout=5 --tries=1 --no-check-certificate  http://$ip -O webClone/http-$ip.html 2>/dev/null
+				wget --timeout=5 --tries=1 --no-check-certificate  http://$ip -O webClone/http-$ip.html
 				sed -i "s/\/index.php//g" webClone/http-$ip.html
 				sed -i "s/https/http/g" webClone/http-$ip.html				 			
 				sed -i "s/www.//g" webClone/http-$ip.html	# En el caso de que www.dominio.com sae igual a dominio.com		
@@ -2403,7 +2403,7 @@ then
 					for subdominio in $lista_subdominios; do
 						echo -e "\t[+] subdominio: $subdominio"	
 																		
-						wget --timeout=5 --tries=1 --no-check-certificate  https://$subdominio -O webClone/https-$subdominio.html 2>/dev/null
+						wget --timeout=5 --tries=1 --no-check-certificate  https://$subdominio -O webClone/https-$subdominio.html
 						sed -i "s/\/index.php//g" webClone/https-$subdominio.html 2>/dev/null
 						sed -i "s/https/http/g" webClone/https-$subdominio.html 2>/dev/null		
 						sed -i "s/www.//g" webClone/https-$subdominio.html 2>/dev/null # borrar subdominio www.dominio.com						
@@ -2639,7 +2639,7 @@ then
 				
 				############### Escaneo por IP ############
 				echo -e "[+]\tEscaneo solo por IP (https) $ip:$port"
-				wget --timeout=5 --tries=1 --no-check-certificate  https://$ip -O webClone/https-$ip.html 2>/dev/null
+				wget --timeout=5 --tries=1 --no-check-certificate  https://$ip -O webClone/https-$ip.html
 				sed -i "s/\/index.php//g" webClone/https-$ip.html 2>/dev/null
 				sed -i "s/https/http/g" webClone/https-$ip.html 2>/dev/null				
 				sed -i "s/www.//g" webClone/https-$ip.html 2>/dev/null # 
