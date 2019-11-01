@@ -465,14 +465,6 @@ fi
 
 ################## end discover live hosts ##################
 
-###### responder ####
-if [ $internet == "n" ]; then 		
-	echo -e "$OKBLUE Iniciando Responder $RESET"	
-	#Borrar logs pasados
-	rm /usr/bin/pentest/Responder/logs 
-	xterm -hold -e responder.sh -F -f -I $iface 2>/dev/null& 
-fi	    
-
 #######################
 
 # FASE: 2
@@ -3472,9 +3464,11 @@ fi
 if [ -f servicios/cisco.txt ]
 then
 	echo -e "$OKBLUE #################### cisco (`wc -l servicios/cisco.txt`) ######################$RESET"	    
-	while read ip       
+	while read line       
 	do     						
-		echo -e "[+] Escaneando $ip"
+		echo -e "[+] Escaneando $line"
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"` 	
 		
 		egrep -iq "23/open" .nmap_1000p/"$ip"_tcp.grep
 		greprc=$?
@@ -4738,7 +4732,6 @@ if [ $internet == "n" ]; then
 fi	
 
 
-mv /usr/bin/pentest/Responder/logs/*.txt `pwd`/responder
 
 
 #echo -e "\t $OKBLUE REVISANDO ERRORES $RESET"
