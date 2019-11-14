@@ -251,7 +251,7 @@ for line in $( ps aux | egrep --color=never "wpscan|joomscan"  | awk '{print $2,
 	echo "Idle time: $diff minutes"	
 	
 	
-	if [[  $diff -gt 4 && $diff -lt 60 ]];then 
+	if [[  $diff -gt 9 && $diff -lt 60 ]];then 
 		
 		echo -e "$OKRED[-] Killing $pid) $RESET"
 		kill -9 $pid		

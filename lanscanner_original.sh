@@ -186,6 +186,12 @@ touch webClone/checksumsEscaneados.txt
 #echo -e "$OKBLUE Que interfaz usaremos? $iface,tap0, etc ?$RESET"
 #read 
 iface=`ip addr | grep -iv DOWN | awk '/UP/ {print $2}' | egrep -v "lo|dummy|rmnet|vmnet" | sed 's/.$//'`
+#Si usamos VPN
+if [[ $iface == *"tap0"* ]]; then
+	echo "Se detecto el uso de VPN"
+	iface="tap0"
+fi
+
 echo -e "$OKBLUE Usando la interfaz $iface $RESET"
 
 #### Obtener datos del escaneo ###
@@ -1768,7 +1774,7 @@ then
 					#echo "lista_subdominios $lista_subdominios"
 					for subdominio in $lista_subdominios; do													
 						echo -e "\t[+] subdominio: $subdominio"							
-						wget --timeout=5 --tries=1 http://$subdominio -O webClone/http-$subdominio.html
+						wget --timeout=20 --tries=1 http://$subdominio -O webClone/http-$subdominio.html
 						sed -i "s/\/index.php//g" webClone/http-$subdominio.html
 						sed -i "s/https/http/g" webClone/http-$subdominio.html						
 						sed -i "s/www.//g" webClone/http-$subdominio.html	
@@ -2052,7 +2058,7 @@ then
 				
 				#################  Realizar el escaneo por IP  ##############	
 				echo -e "\t[+]Escaneo solo por IP (http) $ip:$port"
-				wget --timeout=5 --tries=1 --no-check-certificate  http://$ip -O webClone/http-$ip.html
+				wget --timeout=20 --tries=1 --no-check-certificate  http://$ip -O webClone/http-$ip.html
 				sed -i "s/\/index.php//g" webClone/http-$ip.html
 				sed -i "s/https/http/g" webClone/http-$ip.html				 			
 				sed -i "s/www.//g" webClone/http-$ip.html	# En el caso de que www.dominio.com sae igual a dominio.com		
@@ -2403,7 +2409,7 @@ then
 					for subdominio in $lista_subdominios; do
 						echo -e "\t[+] subdominio: $subdominio"	
 																		
-						wget --timeout=5 --tries=1 --no-check-certificate  https://$subdominio -O webClone/https-$subdominio.html
+						wget --timeout=20 --tries=1 --no-check-certificate  https://$subdominio -O webClone/https-$subdominio.html
 						sed -i "s/\/index.php//g" webClone/https-$subdominio.html 2>/dev/null
 						sed -i "s/https/http/g" webClone/https-$subdominio.html 2>/dev/null		
 						sed -i "s/www.//g" webClone/https-$subdominio.html 2>/dev/null # borrar subdominio www.dominio.com						
@@ -2561,8 +2567,8 @@ then
 							greprc=$?
 							if [[ $greprc -eq 0 ]];then 		
 								echo -e "\t\t\t[+] Revisar wordpress "						    																
-								wpscan --random-agent --url https://$subdominio/ --enumerate u --follow-redirection > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
-								wpscan --random-agent --url https://$subdominio/ --enumerate p --follow-redirection > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
+								wpscan --random-agent --url https://$subdominio/ --enumerate u --follow-redirection --disable-tls-checks > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
+								wpscan --random-agent --url https://$subdominio/ --enumerate p --follow-redirection --disable-tls-checks > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
 								egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$subdominio"_"$port"_wpusers.txt
 							fi
 							###########################	
@@ -2639,7 +2645,7 @@ then
 				
 				############### Escaneo por IP ############
 				echo -e "[+]\tEscaneo solo por IP (https) $ip:$port"
-				wget --timeout=5 --tries=1 --no-check-certificate  https://$ip -O webClone/https-$ip.html
+				wget --timeout=20 --tries=1 --no-check-certificate  https://$ip -O webClone/https-$ip.html
 				sed -i "s/\/index.php//g" webClone/https-$ip.html 2>/dev/null
 				sed -i "s/https/http/g" webClone/https-$ip.html 2>/dev/null				
 				sed -i "s/www.//g" webClone/https-$ip.html 2>/dev/null # 
@@ -2694,8 +2700,8 @@ then
 					if [[ $greprc -eq 0 ]];then 		
 						echo -e "\t\t[+] Revisando vulnerabilidades de wordpress"
 						wpscan  --update												
-						wpscan --random-agent --url https://$ip/ --enumerate u --follow-redirection > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
-						wpscan --random-agent --url https://$ip/ --enumerate p --follow-redirection > .enumeracion/"$ip"_"$port"_wpscanPlugins.txt
+						wpscan --random-agent --url https://$ip/ --enumerate u --follow-redirection --disable-tls-checks > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
+						wpscan --random-agent --url https://$ip/ --enumerate p --follow-redirection --disable-tls-checks > .enumeracion/"$ip"_"$port"_wpscanPlugins.txt
 						egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$ip"_"$port"_wpusers.txt
 					fi
 					###########################	
@@ -3131,7 +3137,7 @@ then
 				
 			echo "nmap -sV -p $port --script http-shellshock.nse --script-args uri=$path $ip" >> logs/vulnerabilidades/"$ip"_"$port"_shellshock.txt
 			nmap -sV -p $port --script http-shellshock.nse --script-args uri=$path $ip >> logs/vulnerabilidades/"$ip"_"$port"_shellshock.txt
-			grep "|" logs/vulnerabilidades/"$ip"_"$port"_shellshock.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/"$ip"_"$port"_shellshock.txt	
+			grep "|" logs/vulnerabilidades/"$ip"_"$port"_shellshock.txt | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED|http-server-header" > .vulnerabilidades/"$ip"_"$port"_shellshock.txt	
 			
 			if [ -s .vulnerabilidades/"$ip"_"$port"_shellshock.txt ] # if FILE exists and has a size greater than zero.
 			then
@@ -4593,12 +4599,12 @@ then
 			egrep -i "apache|nginx" .enumeracion2/"$ip"_"$port"_webData.txt | egrep -qiv "cisco|Router|BladeSystem|oracle|302 Found|Coyote|Express|AngularJS|Zimbra|Pfsense|GitLab|Roundcube|Zentyal|Taiga|NodeJS|Nextcloud|Open Source Routing Machine|ownCloud|webadmin|owa" # solo el segundo egrep poner "-q"
 			greprc=$?
 			# si no es tomcat/phpmyadmin/joomla descubrir rutas de 2do nivel accesibles
-			if [[ $greprc -eq 0 && $result != *"tomcat"* && $result != *"phpmyadmin"*  && $result != *"joomla"*  && $result != *"wordpress"*  && $result != *"sqlite"* && $line != *"Listado directorio"*  ]];then # si el banner es Apache y si no es tomcat/phpmyadmin/joomla/wordpress		
+			if [[ $greprc -eq 0 && $result != *"tomcat"* && $result != *"phpmyadmin"*  && $result != *"joomla"*  && $result != *"wordpress"*  && $result != *"sqlite"* && $line != *"Listado directorio"* && $line != *".php"*  && $line != *".html"*  ]];then # si el banner es Apache y si no es tomcat/phpmyadmin/joomla/wordpress		
 				echo -e "\t[i] Buscar mas archivos y directorios dentro de $ip:$port/$path/"
 				web-buster.pl -t $ip -p $port -h 50 -d /$path/ -m completoApache >> logs/vulnerabilidades/"$ip"_"$port"_perdidaAutenticacion.txt
 				egrep --color=never "^200" logs/vulnerabilidades/"$ip"_"$port"_perdidaAutenticacion.txt | awk '{print $2}' >> .vulnerabilidades/"$ip"_"$port"_perdidaAutenticacion.txt
 			else
-				echo -e "\t[i] CMS identificado"
+				echo -e "\t[i] CMS identificado o es un archivo"
 			fi
 		else
 			echo -e "\t[i] El listado de directorios esta habilitado o es un archivo"
@@ -4741,4 +4747,3 @@ fi
 #Encritar resultados
 7z a .resultados.7z .resultados.db -pcANRHPeREPZsCYGB8L64 >/dev/null
 rm .resultados.db
-rm .vulnerabilidades2/*

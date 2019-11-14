@@ -321,11 +321,11 @@
     <agente_amenaza>USUARIO INTERNO</agente_amenaza>    
     <impacto_tecnico>ninguno</impacto_tecnico>
     <impacto_negocio>ninguno</impacto_negocio>   
-    <detalles>Es posible realizar el salto de VLAN</detalles>    
+    <detalles>Se encontró el siguiente dispositivo DISPOSITIVO, que tiene habilitado el protocolo Cisco Discovery Protocol (CDP):</detalles>    
     <descripcion>Es posible realizar el salto de VLAN</descripcion>
     <verificacion>ninguna</verificacion>
-    <recomendacion>Deshabilitar CDP</recomendacion> 
-	<referencias>ninguna</referencias> 
+    <recomendacion>Deshabilitar el protocolo Cisco Discovery Protocol (CDP)</recomendacion> 
+	<referencias>https://learningnetwork.cisco.com/blogs/vip-perspectives/2019/07/12/vlan1-and-vlan-hopping-attack | http://blog.capacityacademy.com/2014/08/04/ccna-security-como-desactivar-el-protocolo-cdp-en-cisco-router/</referencias> 
    </vuln>
   
   
@@ -1566,7 +1566,7 @@
    	<cod>erroresWeb</cod> 
     <nombre>Errores en el sitio web</nombre>
     <codVul>ninguna</codVul>
-    <CVSS>N/A</CVSS>
+    <CVSS>5.0</CVSS>
     <riesgoAgetic>Medio</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>
     <impacto> Leve </impacto>

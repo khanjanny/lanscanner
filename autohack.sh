@@ -61,32 +61,34 @@ else
 	
 	if [ "$SUBNET" != NULL ]; then 	
 		lanscanner.sh -t completo -s $SUBNET -d $DOMAIN
-		directory=`ls -l | grep '^d' | awk '{print $9}'`
+		directory=`ls -hlt | grep '^d' | head -1 | awk '{print $9}'`
 		pwd
 		echo "entrando al directorio $directory"
 		cd $directory
 		cracker.sh -e $CLAVE -t completo
+		pwd
 	fi
 	if [ "$IPS" != NULL ]; then 	
 		lanscanner.sh -t completo -i $IPS -d $DOMAIN
-		directory=`ls -l | grep '^d' | awk '{print $9}'`
+		directory=`ls -hlt | grep '^d' | head -1 | awk '{print $9}'`
 		pwd
 		echo "entrando al directorio $directory"
 		cd $directory
 		cracker.sh -e $CLAVE -t completo
+		pwd
 	fi
 	
 	if [ "$IPS" = NULL ] && [ "$SUBNET" = NULL ]; then
 		lanscanner.sh -t completo -d $DOMAIN
-		directory=`ls -l | grep '^d' | awk '{print $9}'`
+		directory=`ls -hlt | grep '^d' | head -1 | awk '{print $9}'`
 		pwd
 		echo "entrando al directorio $directory"
 		cd $directory
 		cracker.sh -e $CLAVE -t completo
-	fi
-	
-	killall xterm
+		pwd
+	fi		
 	mv /usr/bin/pentest/Responder/logs/*.txt `pwd`/responder 2>/dev/null
 	
 fi
+killall xterm
 

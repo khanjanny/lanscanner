@@ -36,13 +36,17 @@ cd webhacks
 bash instalar.sh
 cd ..
 
+
 echo -e "${GREEN} [+] Copiando archivos ${RESET}"
 mkdir /usr/share/lanscanner 2>/dev/null
 cd files
+cp fingerprints-domain.json /usr/share/lanscanner
+cp amass-config.ini /usr/share/lanscanner
 cp community.txt /usr/share/lanscanner
 cp .resultados.db /usr/share/lanscanner
 cp -r postExploiter /usr/share/lanscanner
 cp vulnerabilidades.xml /usr/share/lanscanner 2>/dev/null
+
 cp smb-vuln-ms17-010.nse /usr/share/nmap/scripts/
 cp cve_2019_0708_bluekeep.rb /usr/share/metasploit-framework/modules/auxiliary/scanner/rdp
 cd ..
@@ -76,6 +80,7 @@ cd geoIP
 bash instalar.sh
 echo ""
 cd ../
+
 
 
 
