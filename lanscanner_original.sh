@@ -2,7 +2,7 @@
 # Author: Daniel Torres
 # daniel.torres@owasp.org
 ##
-# cracker.sh admin/admin
+# ######### buscar links de amazon EC2
 # PoC Suite3
 # https://medium.com/tenable-techblog/gpon-home-gateway-rce-threatens-tens-of-thousands-users-c4a17fd25b97
 # metasploit scanner/http/enum_wayback
@@ -891,7 +891,7 @@ if [ -f servicios/smtp.txt ]
 				echo -e "\t$OKRED[!] Comando VRFY habilitado \n $RESET"
 				cp logs/vulnerabilidades/"$ip"_"$port"_vrfyHabilitado.txt  .vulnerabilidades/"$ip"_"$port"_vrfyHabilitado.txt 				
 				echo -e "\t[+] Enumerando usuarios en segundo plano"
-				smtp-user-enum -M VRFY -U /usr/share/wordlists/usuarios-es.txt -t $ip > logs/vulnerabilidades/"$ip"_"$port"_vrfyEnum.txt &
+				smtp-user-enum.pl -M VRFY -U /usr/share/wordlists/usuarios-es.txt -t $ip > logs/vulnerabilidades/"$ip"_"$port"_vrfyEnum.txt &
 				
 			else
 				echo -e "\t$OKGREEN[ok] No tiene el comando VRFY habilitado $RESET"
@@ -2967,6 +2967,9 @@ cd webClone
 	grep -ira "https://192." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
 	###############################	
 	
+	######### buscar links de amazon EC2
+	grep --color=never -ir 'amazonaws.com' * >> ../.enumeracion/"$DOMAIN"_web_amazon.txt
+	
 	######### buscar comentarios 
 	echo -e "\t\t\t[+] Revisando si hay comentarios html, JS"	
 	grep --color=never -ir '// ' * | egrep -v "http|https|header|footer|div|class" >> ../.enumeracion/"$DOMAIN"_web_comentario.txt
@@ -3180,7 +3183,7 @@ then
 			if [ $internet == "s" ]; then 			
 				#open resolver
 				echo -e "\t [+] Probando si es un servidor DNS openresolver"
-				dig ANY google.com @$ip +short | grep --color=never google | grep -v "failed" > .vulnerabilidades/"$ip"_53_openresolver.txt 2>/dev/null &																			
+				dig ANY google.com @$ip +short | grep --color=never google | egrep -iv "failed|DiG" > .vulnerabilidades/"$ip"_53_openresolver.txt 2>/dev/null &																			
 			fi	
 	done
 	
@@ -3201,18 +3204,18 @@ fi
 
 
 	
-## Procesar los usuarios enumerados con smtp-user-enum
+## Procesar los usuarios enumerados con smtp-user-enum.pl
 if [ -f servicios/smtp.txt ]
 	then
 		echo -e "$OKBLUE #################### SMTP (`wc -l servicios/smtp.txt`) ######################$RESET"	    
 		
 		# revisar si hay scripts ejecutandose
-		echo -e "[+] Verificar si se esta ejecutando smtp-user-enum"
+		echo -e "[+] Verificar si se esta ejecutando smtp-user-enum.pl"
 		while true; do
-			smtp_user_enum_instancias=`ps aux | egrep 'smtp-user-enum' | wc -l`		
+			smtp_user_enum_instancias=`ps aux | egrep 'smtp-user-enum.pl' | wc -l`		
 			if [ "$smtp_user_enum_instancias" -gt 1 ]
 			then
-				echo -e "\t[-] Todavia esta smtp-user-enum activo ($smtp_user_enum_instancias)"				
+				echo -e "\t[-] Todavia esta smtp-user-enum.pl activo ($smtp_user_enum_instancias)"				
 				sleep 10
 			else
 				break		
@@ -3554,8 +3557,10 @@ fi
 if [ -f servicios/backdoor32764.txt ]
 then
 	echo -e "$OKBLUE #################### Cisco linksys WAG200G backdoor (`wc -l servicios/backdoor32764.txt`) ######################$RESET"	    
-	while read ip     
-	do     						
+	while read line     
+	do    
+		ip=`echo $line | cut -f1 -d":"`
+		port=`echo $line | cut -f2 -d":"` 	 						
 		echo -e "[+] Escaneando $ip:32764"	
 		echo "backdoor32764.py --ip $ip" > logs/vulnerabilidades/"$ip"_32764_backdoorFabrica.txt 2>/dev/null		  
 		backdoor32764.py --ip $ip >> logs/vulnerabilidades/"$ip"_32764_backdoorFabrica.txt 2>/dev/null		  
