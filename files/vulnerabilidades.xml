@@ -681,7 +681,7 @@
     <impacto_tecnico> Acceso a documentos </impacto_tecnico>
     <impacto_negocio> Acceso a información sensible de la entidad </impacto_negocio>    
     <detalles> Revisando los recursos compartidos se pudo acceder a las siguientes carpetas y archivos del negocio. Este recursos compartidos también pueden ser encriptados por ransomware. </detalles>    
-    <descripcion>Revisando los recursos compartidos mediante el protocolo SMB se pudo observar que se comparte información sensible accesible por cualquier usuario de la red </descripcion>
+    <descripcion>Revisando los recursos compartidos mediante el protocolo SMB se pudo observar que se comparte información sensible accesible por cualquier usuario de la red.Otra amenaza para los recursos compartidos son los virus de tipo ransonware.que cuando infectan a un equipo en la red cifran todos los recursos compartidos de la red. </descripcion>
     <verificacion>smbmap -H 1.2.3.4 -u anonymous -p anonymous SALTOLINEA
 				  smbmap -H 1.2.3.4 </verificacion>
     <recomendacion> Limitar el acceso de recursos compartido solo a usuarios autorizados </recomendacion> 
@@ -1294,7 +1294,9 @@
     <recomendacion> Linux:SALTOLINEA
 					En el archivo de configuración smb.conf: SALTOLINEA
 					[global] SALTOLINEA
-					map to guest = Never SALTOLINEA SALTOLINEA
+					map to guest = Never SALTOLINEA 
+					restrict anonymous = 2 SALTOLINEA
+					guest ok = no SALTOLINEA SALTOLINEA
 					
 					Windows: SALTOLINEA
 					Restringir conexiones anónimas al sistema. </recomendacion> 

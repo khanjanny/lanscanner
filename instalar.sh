@@ -27,7 +27,7 @@ RESET="\033[00m"       # Normal
 
 echo -e "${GREEN} [+] Instalando herramientas disponibles en repositorio ${RESET}" 
 sudo apt-get update
-sudo apt-get -y install gedit libdbd-sqlite3-perl bc nbtscan nfs-common snmp finger sqlite3 sqlitebrowser python-pip nmap masscan onesixtyone whatweb libssl-dev python-qt4 ike-scan postgresql-client-* elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd exiftool libpq-dev libpcap-dev tshark p7zip-full mysql-client-core-* 
+sudo apt-get -y install bc nbtscan nfs-common snmp finger sqlite3 sqlitebrowser python-pip nmap masscan onesixtyone whatweb libssl-dev python-qt4 ike-scan postgresql-client-* elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd exiftool libpq-dev libpcap-dev tshark p7zip-full mysql-client-core-* 
 
 
 echo -e "${GREEN} [+] Instalando webhacks ${RESET}"
@@ -48,6 +48,8 @@ cp -r postExploiter /usr/share/lanscanner
 cp vulnerabilidades.xml /usr/share/lanscanner 2>/dev/null
 
 cp smb-vuln-ms17-010.nse /usr/share/nmap/scripts/
+cp rtsp-url-brute.nse /usr/share/nmap/scripts/rtsp-url-brute.nse
+cp rtsp.lua /usr/share/nmap/nselib/rtsp.lua
 cp cve_2019_0708_bluekeep.rb /usr/share/metasploit-framework/modules/auxiliary/scanner/rdp
 cd ..
 echo ""
@@ -84,11 +86,18 @@ cd ../
 
 
 
+echo -e "${RED}[+]${GREEN} Instalando Interlace ${RESET}"
+cd Interlace
+python3 setup.py install
+echo ""
+cd ../
+
 echo -e "${RED}[+]${GREEN} Instalando wafw00f ${RESET}"
 cd wafw00f
 python setup.py install
 echo ""
 cd ../
+
 
 echo -e "${GREEN} [+] Modificando PATH ${RESET}"
 echo export PATH="$PATH:/usr/bin/pentest" >> ~/.bashrc
