@@ -1,5 +1,5 @@
-pluginbase
 html5lib
+pluginbase
 
 [dev]
 prospector
@@ -8,8 +8,8 @@ prospector
 Sphinx
 
 [test]
-httpretty
 coverage
 coveralls
-python-coveralls
+httpretty
 nose
+python-coveralls

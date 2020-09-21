@@ -1,4 +1,4 @@
-Metadata-Version: 1.1
+Metadata-Version: 2.1
 Name: wafw00f
 Version: 1.0.0
 Summary: UNKNOWN
@@ -227,3 +227,7 @@ Classifier: Topic :: System :: Networking :: Firewalls
 Classifier: License :: OSI Approved :: BSD License
 Classifier: Programming Language :: Python :: 2
 Classifier: Programming Language :: Python :: 3
+Description-Content-Type: text/markdown
+Provides-Extra: dev
+Provides-Extra: docs
+Provides-Extra: test

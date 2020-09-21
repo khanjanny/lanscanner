@@ -265,7 +265,7 @@ for my $resultados_db (@resultados_array)
 		}
 		
 		#Activos de informacion - baseDatos																																																																																																				
-		if (($vuln eq "passwordBD") || ($vuln eq "noSQLDatabases"))
+		if (($vuln eq "passwordBD") || ($vuln eq "noSQLDatabases") || ($vuln eq "JoomlaJCKeditor"))
 		{			
 			$baseDatos_csv = $baseDatos_csv."$ip~$port~$codVul~$vuln_descripcion~$vuln\n" ;
 			$baseDatos_html = $baseDatos_html."<tr><td>$ip</td><td>$port</td><td>$codVul</td><td>$vuln_descripcion</td><td><a href='$ruta/logs/vulnerabilidades/$_' target='_blank'>Ver log</a></td></tr>" ;
@@ -405,7 +405,7 @@ for my $resultados_db (@resultados_array)
 	
 	####################### AGETIC ###################
 	#Total vulnerabilidades criticas
-	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='ms17010' or tipo ='ms08067'  or tipo ='passTomcat' or tipo ='zimbraXXE' or tipo ='doublepulsar' or tipo ='webshell' or tipo ='backdoorFabrica' or tipo ='ransomware' or tipo ='passwordSFI' or tipo ='BlueKeep'");
+	my $sth = $dbh->prepare("select COUNT (DISTINCT TIPO) from VULNERABILIDADES where tipo ='ms17010' or tipo ='ms08067'  or tipo ='passTomcat' or tipo ='zimbraXXE' or tipo ='doublepulsar' or tipo ='webshell' or tipo ='backdoorFabrica' or tipo ='ransomware' or tipo ='passwordSFI' or tipo ='BlueKeep' or tipo ='JoomlaJCKeditor'");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vul_criticas = $row[0];
@@ -446,7 +446,7 @@ for my $resultados_db (@resultados_array)
 	############################ Servicios afectados por vulnerabilidades  ################# 
 	################# AGETIC #####################
 	#Servicios afectados por vulnerabilidades criticas
-	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='ms17010' or tipo ='ms08067' or tipo ='passTomcat'  or tipo ='zimbraXXE' or tipo ='doublepulsar' or tipo ='webshell' or tipo ='backdoorFabrica'  or tipo ='ransomware' or tipo ='passwordSFI' or tipo ='BlueKeep'");
+	my $sth = $dbh->prepare("select COUNT (IP) from VULNERABILIDADES where tipo ='ms17010' or tipo ='ms08067' or tipo ='passTomcat'  or tipo ='zimbraXXE' or tipo ='doublepulsar' or tipo ='webshell' or tipo ='backdoorFabrica'  or tipo ='ransomware' or tipo ='passwordSFI' or tipo ='BlueKeep' or tipo ='BlueKeep' or tipo ='JoomlaJCKeditor'");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $servicios_vuln_criticas = $row[0];
@@ -500,7 +500,7 @@ for my $resultados_db (@resultados_array)
 	$servidores = $servidores + $vuln_serv;
 	
 	# base de datos
-	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='passwordBD' or TIPO='noSQLDatabases' ");
+	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='passwordBD' or TIPO='noSQLDatabases' or TIPO='JoomlaJCKeditor' ");
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vuln_bd = $row[0];
@@ -554,7 +554,7 @@ for my $resultados_db (@resultados_array)
 	$passwordDebil = $passwordDebil + $vuln_pass;
 	
 	# falta de parches																									     																						    
-	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='winboxVuln' or TIPO='shellshock' or TIPO='ms17010' or TIPO='ms08067' or TIPO='heartbleed' or TIPO='zimbraXXE' or TIPO='BlueKeep' or TIPO='slowloris' or TIPO='CVE15473' or TIPO='ms12020' or TIPO='vulnDahua' or TIPO='webdavVulnerable' or TIPO='doublepulsar' or TIPO='conficker' or TIPO='SSHBypass' or TIPO='VNCbypass' or TIPO='intelVuln' or TIPO='HTTPsys' or TIPO='apacheStruts' or TIPO='backdoorFabrica' or TIPO='IISwebdavVulnerable' or TIPO='ciscoASAVuln' or TIPO='SambaCry' or TIPO='misfortune' or TIPO='jbossVuln' or TIPO='cipherZeroIPMI' or TIPO='ransomware' " );
+	my $sth = $dbh->prepare("SELECT count (distinct tipo) FROM VULNERABILIDADES WHERE TIPO='winboxVuln' or TIPO='shellshock' or TIPO='ms17010' or TIPO='ms08067' or TIPO='heartbleed' or TIPO='zimbraXXE' or TIPO='BlueKeep' or TIPO='slowloris' or TIPO='CVE15473' or TIPO='ms12020' or TIPO='vulnDahua' or TIPO='webdavVulnerable' or TIPO='doublepulsar' or TIPO='conficker' or TIPO='SSHBypass' or TIPO='VNCbypass' or TIPO='intelVuln' or TIPO='HTTPsys' or TIPO='apacheStruts' or TIPO='backdoorFabrica' or TIPO='IISwebdavVulnerable' or TIPO='ciscoASAVuln' or TIPO='SambaCry' or TIPO='misfortune' or TIPO='jbossVuln' or TIPO='cipherZeroIPMI' or TIPO='ransomware' or TIPO='JoomlaJCKeditor' " );
 	$sth->execute();
 	my @row = $sth->fetchrow_array;
 	my $vuln_parches = $row[0];	
@@ -1121,7 +1121,7 @@ for my $resultados_db (@resultados_array)
 
 		
 		# Solo se muestra la IP y el puerto en el campo "host"
-		if (($cod eq "ms17010") || ($cod eq "ms08067") || ($cod eq "passwordDahua")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "ftpAnonymous") || ($cod eq "openstreaming") || ($cod eq "VPNhandshake")  || ($cod eq "zimbraXXE") || ($cod eq "BlueKeep") || ($cod eq "slowloris") || ($cod eq "openresolver") || ($cod eq "openrelay") || ($cod eq "openrelay2") || ($cod eq "CVE15473") || ($cod eq "ms12020") || ($cod eq "doublepulsar") || ($cod eq "conficker") || ($cod eq "anonymousIPMI")  || ($cod eq "rmiVuln")  || ($cod eq "SSHBypass") || ($cod eq "VNCbypass") || ($cod eq "VNCnopass") || ($cod eq "intelVuln") || ($cod eq "HTTPsys") || ($cod eq "apacheStruts") || ($cod eq "IISwebdavVulnerable") || ($cod eq "SambaCry") || ($cod eq "misfortune") || ($cod eq "jbossVuln") || ($cod eq "upnpAbierto") || ($cod eq "contenidoNoRelacionado") || ($cod eq "ransomware") || ($cod eq "cipherZeroIPMI") || ($cod eq "stp") || ($cod eq "vlanHop"))   
+		if (($cod eq "ms17010") || ($cod eq "ms08067") || ($cod eq "passwordDahua")|| ($cod eq "heartbleed") || ($cod eq "directorioLDAP") || ($cod eq "spoof") || ($cod eq "ftpAnonymous") || ($cod eq "openstreaming") || ($cod eq "VPNhandshake")  || ($cod eq "zimbraXXE") || ($cod eq "BlueKeep") || ($cod eq "slowloris") || ($cod eq "openresolver") || ($cod eq "openrelay") || ($cod eq "openrelay2") || ($cod eq "CVE15473") || ($cod eq "ms12020") || ($cod eq "doublepulsar") || ($cod eq "conficker") || ($cod eq "anonymousIPMI")  || ($cod eq "rmiVuln")  || ($cod eq "SSHBypass") || ($cod eq "VNCbypass") || ($cod eq "VNCnopass") || ($cod eq "intelVuln") || ($cod eq "HTTPsys") || ($cod eq "apacheStruts") || ($cod eq "IISwebdavVulnerable") || ($cod eq "SambaCry") || ($cod eq "misfortune") || ($cod eq "jbossVuln") || ($cod eq "upnpAbierto") || ($cod eq "contenidoNoRelacionado") || ($cod eq "ransomware") || ($cod eq "cipherZeroIPMI") || ($cod eq "stp") || ($cod eq "vlanHop") || ($cod eq "JoomlaJCKeditor"))   
 		{
 			#$hosts = "<table border='0' cellspacing='10'><tr>";	 	
 			

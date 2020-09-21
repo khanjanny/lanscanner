@@ -27,7 +27,7 @@ RESET="\033[00m"       # Normal
 
 echo -e "${GREEN} [+] Instalando herramientas disponibles en repositorio ${RESET}" 
 sudo apt-get update
-sudo apt-get -y install bc nbtscan nfs-common snmp finger sqlite3 sqlitebrowser python-pip nmap masscan onesixtyone whatweb libssl-dev python-qt4 ike-scan postgresql-client-* elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd exiftool libpq-dev libpcap-dev tshark p7zip-full mysql-client-core-* 
+sudo apt-get -y install bc nbtscan nfs-common snmp finger sqlite3 sqlitebrowser python-pip nmap masscan onesixtyone whatweb libssl-dev ike-scan postgresql-client-* elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd exiftool libpq-dev libpcap-dev tshark p7zip-full mysql-client-core-* 
 
 
 echo -e "${GREEN} [+] Instalando webhacks ${RESET}"
@@ -74,7 +74,7 @@ sudo cpan G/GR/GROMMEL/Math-Round-0.07.tar.gz
 sudo cpan U/UR/URI/File-Slurp-9999.19.tar.gz
 sudo cpan M/MA/MAKAMAKA/JSON-2.90.tar.gz
 sudo cpan I/IS/ISHIGAKI/JSON-4.02.tar.gz
-
+sudo cpan G/GR/GRANTM/XML-Simple-2.25.tar.gz
 
 echo -e "${RED}[+]${GREEN} Instalando GeoIP ${RESET}"
 git clone https://github.com/DanielTorres1/geoIP

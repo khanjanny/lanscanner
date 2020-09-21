@@ -390,6 +390,26 @@
   </vuln>  
   
   
+    <vuln>  
+   	<cod>JoomlaJCKeditor</cod> 
+    <nombre>Joomla JCK editor vulnerable a inyección SQL</nombre>
+    <codVul>CVE-2018-17254</codVul>
+    <CVSS>N/A</CVSS>
+    <riesgoAgetic>alto</riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Significativo </impacto>
+    <riesgoInforme> ALTO </riesgoInforme>        
+    <agente_amenaza>USUARIO INTERNO/INTERNO</agente_amenaza>
+    <impacto_tecnico> Acceder a información de la bases de datos </impacto_tecnico>
+    <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
+    <detalles>  </detalles>    
+    <descripcion>La version de JCK editor instalada en Joomla es vulnerable a inyeccines SQL</descripcion>
+    <verificacion>"https://www.dominio.com/plugins/editors/jckeditor/plugins/jtreelink/dialogs/links.php?extension=menu&amp;view=menu&amp;parent=%22%20UNION%20SELECT%20NULL,NULL,@@version,NULL,NULL,NULL,NULL,NULL--%20aa"</verificacion>
+    <recomendacion>La extensión jckeditor 6.4.4 ya no tiene soporte, la última actualización fue el 2015. Actualmente el proveedor Arkextensions presenta una alternativa a jck editor con las mismas características y más segura, se verificó que la vulnerabilidad fue mitigada. Por tanto, se sugiere actualizar la extensión 'JCK Suite' - 'jckeditor' a la última versión conocida 6.6.2 o en su defecto usar la extensión ark editor en su última versión compatible con su instalación de joomla.</recomendacion> 
+	<referencias>https://exploit.kitploit.com/2018/09/joomla-jck-editor-644-sql-injection.html</referencias> 
+  </vuln>  
+  
+  
   
    <vuln>
 	<cod>webdavVulnerable</cod> 
