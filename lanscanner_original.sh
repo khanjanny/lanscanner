@@ -2556,7 +2556,7 @@ then
 						egrep -iq $md5 webClone/checksumsEscaneados.txt
 						noEscaneado=$?	
 						
-						egrep -qi "301 Moved|302 Found|500 Proxy Error|HTTPSredirect|400 Bad Request|Document Moved|Index of|timed out" .enumeracion/"$subdominio"_"$port"_webData.txt
+						egrep -qi "500 Proxy Error|400 Bad Request|Index of|timed out" .enumeracion/"$subdominio"_"$port"_webData.txt
 						hostOK=$?	
 						
 						egrep -qi "403" .enumeracion/"$subdominio"_"$port"_webData.txt #403 - Prohibido: acceso denegado.
