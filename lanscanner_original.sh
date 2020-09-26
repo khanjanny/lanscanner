@@ -2217,7 +2217,10 @@ then
 						egrep --color=never ":x:" logs/vulnerabilidades/"$ip"_"$port"_pulseVul.txt > .vulnerabilidades/"$ip"_"$port"_pulseVul.txt
 						
 					fi
-					###################################						
+					###################################		
+					
+					
+								
 					
 					
 					#######  OWA (ip) ######
@@ -2791,6 +2794,17 @@ then
 								echo -e "\t\t$OKGREEN[i] No vulnerable a heartbleed $RESET"
 							fi
 							##########################
+							
+							
+							#######  Configuracion TLS/SSL (dominio) ######						
+							echo -e "\t\t\t[+] Revisando configuracion TLS/SSL"
+							
+							testssl.sh --color 0  "https://$subdominio:$port" > logs/vulnerabilidades/"$subdominio"_"$port"_confTLS.txt 2>/dev/null 
+							grep --color=never "incorrecta" logs/vulnerabilidades/"$subdominio"_"$port"_confTLS.txt > .vulnerabilidades/"$subdominio"_"$port"_confTLS.txt
+							grep --color=never "NOT ok" logs/vulnerabilidades/"$subdominio"_"$port"_confTLS.txt > .vulnerabilidades/"$subdominio"_"$port"_vulTLS.txt							
+							
+							##########################
+							
 						
 							#######  clone site (domain) ####### 						
 							cd webClone
@@ -2881,6 +2895,16 @@ then
 						echo -e "\t$OKGREEN[i] No vulnerable a heartbleed $RESET"
 					fi
 					###################################	
+					
+					
+					#######  Configuracion TLS/SSL (ip) ######						
+					echo -e "\t\t\t[+] Revisando configuracion TLS/SSL"
+					
+					testssl.sh --color 0  "https://$ip:$port" > logs/vulnerabilidades/"$ip"_"$port"_confTLS.txt 2>/dev/null 
+					grep --color=never "incorrecta" logs/vulnerabilidades/"$ip"_"$port"_confTLS.txt > .vulnerabilidades/"$ip"_"$port"_confTLS.txt
+					grep --color=never "NOT ok" logs/vulnerabilidades/"$ip"_"$port"_confTLS.txt > .vulnerabilidades/"$ip"_"$port"_vulTLS.txt							
+					
+					##########################
 				
 					#######  wordpress (IP) ######
 					grep -qi wordpress .enumeracion/"$ip"_"$port"_webData.txt
@@ -2915,6 +2939,19 @@ then
 						curl --path-as-is -s -k "https://$ip/dana-na/../dana/html5acc/guacamole/../../../../../../../etc/passwd?/dana/html5acc/guacamole/" > logs/vulnerabilidades/"$ip"_"$port"_pulseVul.txt
 						egrep --color=never ":x:" logs/vulnerabilidades/"$ip"_"$port"_pulseVul.txt > .vulnerabilidades/"$ip"_"$port"_pulseVul.txt
 								
+					fi
+					###################################		
+					
+					
+					#######  Cisco (ip) ######
+					grep -qi ciscoASA .enumeracion/"$ip"_"$port"_webData.txt
+					greprc=$?
+					if [[ $greprc -eq 0 ]];then 		
+						echo -e "\t\t\t[+] Revisando vulnerabilidades de Cisco ASA/ Firepower ($ip)"
+						
+						firepower.pl -host $ip -port $port  > logs/vulnerabilidades/"$ip"_"$port"_firepower.txt
+						egrep --color=never "INTERNAL_PASSWORD_ENABLED" logs/vulnerabilidades/"$ip"_"$port"_firepower.txt > .vulnerabilidades/"$ip"_"$port"_firepower.txt
+						
 					fi
 					###################################		
 					
