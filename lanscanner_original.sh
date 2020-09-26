@@ -1672,6 +1672,15 @@ then
 			echo -e "\t$OKGREEN[i] No sesión nula $RESET"
 		fi		
 		#######################
+		
+		
+		###### zerologon ######
+		netbiosName=`nbtscan $ip | grep server | awk '{print $2}'`
+		echo $netbiosName > logs/vulnerabilidades/"$ip"_"$port"_zerologon.txt 
+		zerologon_tester.py $netbiosName $ip >> logs/vulnerabilidades/"$ip"_"$port"_zerologon.txt 
+		grep "DC can be fully compromised by a Zerologon attack" logs/vulnerabilidades/"$ip"_"$port"_zerologon.txt  > .vulnerabilidades/"$ip"_"$port"_zerologon.txt
+		#######################		
+		
 															
 		 echo ""
  	done <servicios/servers.txt		
