@@ -2800,8 +2800,8 @@ then
 							echo -e "\t\t\t[+] Revisando configuracion TLS/SSL"
 							
 							testssl.sh --color 0  "https://$subdominio:$port" > logs/vulnerabilidades/"$subdominio"_"$port"_confTLS.txt 2>/dev/null 
-							grep --color=never "incorrecta" logs/vulnerabilidades/"$subdominio"_"$port"_confTLS.txt > .vulnerabilidades/"$subdominio"_"$port"_confTLS.txt
-							grep --color=never "NOT ok" logs/vulnerabilidades/"$subdominio"_"$port"_confTLS.txt > .vulnerabilidades/"$subdominio"_"$port"_vulTLS.txt							
+							grep --color=never "incorrecta" logs/vulnerabilidades/"$subdominio"_"$port"_confTLS.txt | egrep -iv "Vulnerable a" > .vulnerabilidades/"$subdominio"_"$port"_confTLS.txt
+							grep --color=never "Vulnerable a" logs/vulnerabilidades/"$subdominio"_"$port"_confTLS.txt > .vulnerabilidades/"$subdominio"_"$port"_vulTLS.txt							
 							
 							##########################
 							
@@ -2901,8 +2901,10 @@ then
 					echo -e "\t\t\t[+] Revisando configuracion TLS/SSL"
 					
 					testssl.sh --color 0  "https://$ip:$port" > logs/vulnerabilidades/"$ip"_"$port"_confTLS.txt 2>/dev/null 
-					grep --color=never "incorrecta" logs/vulnerabilidades/"$ip"_"$port"_confTLS.txt > .vulnerabilidades/"$ip"_"$port"_confTLS.txt
-					grep --color=never "NOT ok" logs/vulnerabilidades/"$ip"_"$port"_confTLS.txt > .vulnerabilidades/"$ip"_"$port"_vulTLS.txt							
+					
+					grep --color=never "incorrecta" logs/vulnerabilidades/"$ip"_"$port"_confTLS.txt | egrep -vi "Vulnerable a" > .vulnerabilidades/"$ip"_"$port"_confTLS.txt
+					grep --color=never "Vulnerable a" logs/vulnerabilidades/"$ip"_"$port"_confTLS.txt > .vulnerabilidades/"$ip"_"$port"_vulTLS.txt							
+													
 					
 					##########################
 				
