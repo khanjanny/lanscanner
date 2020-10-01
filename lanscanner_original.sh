@@ -68,13 +68,14 @@ function insert_data () {
 print_ascii_art
 
 
-while getopts ":t:i:s:d:o:" OPTIONS
+while getopts ":t:i:s:d:m:o:" OPTIONS
 do
             case $OPTIONS in
             t)     TYPE=$OPTARG;;
             s)     SUBNET_FILE=$OPTARG;;
             i)     FILE=$OPTARG;;
             d)     DOMAIN=$OPTARG;;
+            m)     MODE=$OPTARG;;
             o)     OFFSEC=$OPTARG;;
             ?)     printf "Opcion invalida: -$OPTARG\n" $0
                           exit 2;;
@@ -84,6 +85,7 @@ done
 TYPE=${TYPE:=NULL}
 SUBNET_FILE=${SUBNET_FILE:=NULL}
 FILE=${FILE:=NULL}
+MODE=${MODE:=NULL}
 DOMAIN=${DOMAIN:=NULL}
 OFFSEC=${OFFSEC:=NULL}
 
@@ -110,8 +112,11 @@ Ejemplo 2: Escanear el listado de IPs (completo)
 
 Ejemplo 3: Escanear el listado de subredes (completo)
 	lanscanner.sh -t completo -s subredes.txt -d ejemplo.com
+
+Ejemplo 4: Escanear el listado de subredes (completo) por VPN
+	lanscanner.sh -t completo -s subredes.txt -d ejemplo.com -m vpn
 	
-Ejemplo 4: Solo enumerar los servicios ya identificados
+Ejemplo 5: Solo enumerar los servicios ya identificados
 	lanscanner.sh -t enumerar
 EOF
 
@@ -4914,126 +4919,144 @@ rm servicios/admin-web2.txt 2>/dev/null
 insert_data		
 
 
-if [ $internet == "n" ]; then 	
-	MANDOM=""
-	NATID=""
-	DEVID=""
-	MANIP=""
-	CDPON=""
+# if [ $internet == "n" ]; then 	
 
-	echo -e "$OKBLUE[i] Snifeando la red  en busca de paquetes CDP. Por favor espere 90 segundos $RESET"
-	echo ""
-	OUTPUT="`tshark -a duration:90 -i $iface -Y \"cdp\" -V 2>&1 | sort --unique`"
+if [[ $MODE == "vpn" ]]; then
 
-	echo "$OUTPUT" > logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
-	echo "" >> logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
-	printf -- "${OUTPUT}\n" | while read line
-	do
-	echo "line $line"
-		case "${line}" in
-			*captured*)
-				
-				CDPON="`printf -- \"${line}\n\" | grep "0 packets"`"
-				
-				if [ "$CDPON" = "0 packets captured" ]
-				then
-					echo -e "No se encontraron paquetes CDP" | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
-					echo ""					
-				fi
-				;;
-				VTP\ Management\ Domain:*)
-				if [ -n "$MANDOM" ]
-					then
-						continue
-				fi
-				MANDOM="`printf -- \"${line}\n\" | cut -f2 -d\":\" |sed 's/^[ \t]*//;s/[ \t]*$//'`"
-				if [ "$MANDOM" = "Domain:" ]
-					then
-						echo -e "El dominio VTP parece estar configurado en NULL en el dispositivo."
-						echo ""
-				elif [ -z "$MANDOM" ]
-					then
-						echo -e " No encontré ningún dominio de administración VTP dentro de los paquetes CDP. Posiblemente CDP no está habilitado." | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
-						echo ""
-				else
-					echo -e "Management domains:$MANDOM"
-				fi
-				;;
-			Native\ VLAN:*)
-				if [ -n "$NATID" ]
-					then
-						continue
-				fi	
-				NATID="`printf -- \"${line}\n\" | cut -f2 -d\":\" | sed 's/^[ \t]*//;s/[ \t]*$//'`"
-				if [ -z "$NATID" ]
-					then
-						echo -e "No encontré ninguna ID de VLAN nativa en los paquetes CDP. Quizás CDP no esté habilitado." | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
-						echo ""
-					else
-						echo -e "VLAN ID: $NATID" >> .vulnerabilidades/"red"_"ninguno"_vlanHop.txt
-				fi
+ echo "Escaneando desde VPN. No snifear"
 
-				;;
-			*RELEASE\ SOFTWARE*)
-				if [ -n "$DEVID" ]
-				then
-					continue
-				fi
-				DEVID="`printf -- \"${line}\n\" | awk '{sub(/^[ \t]+/, ""); print}'`"
-				if [ -z "$DEVID" ]
-					then
-						echo -e "No encontré ningún dispositivo. Quizás no sea un dispositivo Cisco." | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
-						echo ""
-					else
-						echo -e "Se encontró el siguiente dispositivo Cisco $DEVID"	>> .vulnerabilidades/"red"_"ninguno"_vlanHop.txt				
-	
-				fi
+else
 
-				;;
-			IP\ address:*)
-				if [ -n "$MANIP" ]
-					then
-						continue
-				fi
-				MANIP="`printf -- \"${line}\n\" | cut -f2 -d\":\" | sed 's/^[ \t]*//;s/[ \t]*$//'`"
-				if [ -z "$MANIP" ]
-					then
-						echo -e "No encontré ninguna dirección de administración dentro de los paquetes CDP" | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
-						exit 1
-					else
-						echo -e "Se encontraron las siguientes direcciones IP de administración $MANIP" >> .vulnerabilidades/"red"_"ninguno"_vlanHop.txt
-						echo $MANIP
-						echo ""
-				fi
-			;;
-		esac
-	done
+    if [[ $internet == "n"  ]] ; then 
+       echo "Snifear"
+		
+		MANDOM=""
+		NATID=""
+		DEVID=""
+		MANIP=""
+		CDPON=""
 
-	echo ""
-	echo -e "$OKBLUE [i] Snifeando la red  en busca de paquetes STP. Por favor espere 90 segundos $RESET"
-	echo ""
-	OUTPUT="`tshark -a duration:90 -i $iface -Y \"stp\" -V 2>&1 | sort --unique`"
-	
-	echo "$OUTPUT" > logs/vulnerabilidades/"red"_"ninguno"_stp.txt
-	echo "" >> logs/vulnerabilidades/"red"_"ninguno"_stp.txt
-	printf -- "${OUTPUT}\n" | while read line
-	do
+		echo -e "$OKBLUE[i] Snifeando la red  en busca de paquetes CDP. Por favor espere 90 segundos $RESET"
+		echo ""
+		OUTPUT="`tshark -a duration:90 -i $iface -Y \"cdp\" -V 2>&1 | sort --unique`"
+
+		echo "$OUTPUT" > logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+		echo "" >> logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+		printf -- "${OUTPUT}\n" | while read line
+		do
 		echo "line $line"
-		case "${line}" in
-			*captured*)            
-			STP="`printf -- \"${line}\n\" | grep "0 packets"`"
-			if [ "$STP" = "0 packets captured" ]
-			then
-				echo -e "No se encontraron paquetes STP" | tee -a logs/vulnerabilidades/"red"_"ninguno"_stp.txt
-				echo ""					
-			else
-				echo -e "Se encontraron paquetes STP" | tee -a .vulnerabilidades/"red"_"ninguno"_stp.txt
-				echo ""	
-			fi
-		esac
-	done		
-	insert_data
-fi	
+			case "${line}" in
+				*captured*)
+					
+					CDPON="`printf -- \"${line}\n\" | grep "0 packets"`"
+					
+					if [ "$CDPON" = "0 packets captured" ]
+					then
+						echo -e "No se encontraron paquetes CDP" | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+						echo ""					
+					fi
+					;;
+					VTP\ Management\ Domain:*)
+					if [ -n "$MANDOM" ]
+						then
+							continue
+					fi
+					MANDOM="`printf -- \"${line}\n\" | cut -f2 -d\":\" |sed 's/^[ \t]*//;s/[ \t]*$//'`"
+					if [ "$MANDOM" = "Domain:" ]
+						then
+							echo -e "El dominio VTP parece estar configurado en NULL en el dispositivo."
+							echo ""
+					elif [ -z "$MANDOM" ]
+						then
+							echo -e " No encontré ningún dominio de administración VTP dentro de los paquetes CDP. Posiblemente CDP no está habilitado." | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+							echo ""
+					else
+						echo -e "Management domains:$MANDOM"
+					fi
+					;;
+				Native\ VLAN:*)
+					if [ -n "$NATID" ]
+						then
+							continue
+					fi	
+					NATID="`printf -- \"${line}\n\" | cut -f2 -d\":\" | sed 's/^[ \t]*//;s/[ \t]*$//'`"
+					if [ -z "$NATID" ]
+						then
+							echo -e "No encontré ninguna ID de VLAN nativa en los paquetes CDP. Quizás CDP no esté habilitado." | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+							echo ""
+						else
+							echo -e "VLAN ID: $NATID" >> .vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+					fi
+
+					;;
+				*RELEASE\ SOFTWARE*)
+					if [ -n "$DEVID" ]
+					then
+						continue
+					fi
+					DEVID="`printf -- \"${line}\n\" | awk '{sub(/^[ \t]+/, ""); print}'`"
+					if [ -z "$DEVID" ]
+						then
+							echo -e "No encontré ningún dispositivo. Quizás no sea un dispositivo Cisco." | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+							echo ""
+						else
+							echo -e "Se encontró el siguiente dispositivo Cisco $DEVID"	>> .vulnerabilidades/"red"_"ninguno"_vlanHop.txt				
+		
+					fi
+
+					;;
+				IP\ address:*)
+					if [ -n "$MANIP" ]
+						then
+							continue
+					fi
+					MANIP="`printf -- \"${line}\n\" | cut -f2 -d\":\" | sed 's/^[ \t]*//;s/[ \t]*$//'`"
+					if [ -z "$MANIP" ]
+						then
+							echo -e "No encontré ninguna dirección de administración dentro de los paquetes CDP" | tee -a logs/vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+							exit 1
+						else
+							echo -e "Se encontraron las siguientes direcciones IP de administración $MANIP" >> .vulnerabilidades/"red"_"ninguno"_vlanHop.txt
+							echo $MANIP
+							echo ""
+					fi
+				;;
+			esac
+		done
+
+		echo ""
+		echo -e "$OKBLUE [i] Snifeando la red  en busca de paquetes STP. Por favor espere 90 segundos $RESET"
+		echo ""
+		OUTPUT="`tshark -a duration:90 -i $iface -Y \"stp\" -V 2>&1 | sort --unique`"
+		
+		echo "$OUTPUT" > logs/vulnerabilidades/"red"_"ninguno"_stp.txt
+		echo "" >> logs/vulnerabilidades/"red"_"ninguno"_stp.txt
+		printf -- "${OUTPUT}\n" | while read line
+		do
+			echo "line $line"
+			case "${line}" in
+				*captured*)            
+				STP="`printf -- \"${line}\n\" | grep "0 packets"`"
+				if [ "$STP" = "0 packets captured" ]
+				then
+					echo -e "No se encontraron paquetes STP" | tee -a logs/vulnerabilidades/"red"_"ninguno"_stp.txt
+					echo ""					
+				else
+					echo -e "Se encontraron paquetes STP" | tee -a .vulnerabilidades/"red"_"ninguno"_stp.txt
+					echo ""	
+				fi
+			esac
+		done		
+		insert_data
+		   
+    else    
+       echo "Escaneando desde internet. No snifear"
+    fi	
+    
+fi
+
+
+
 
 
 
