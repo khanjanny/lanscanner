@@ -571,7 +571,7 @@ for my $resultados_db (@resultados_array)
 #############
 
 	open (SALIDA_CSV,">>datos.csv") || die "ERROR: No puedo abrir el reporte.csv\n";			
-	print SALIDA_CSV "contador|nombre|codVul|cvss|descripcion|agente_amenaza|impacto_tecnico|impacto_negocio|probabilidad|impacto|riesgoInforme|hosts|detalles|recomendacion|referencias\n";
+	print SALIDA_CSV "contador|nombre|codVul|cvss|descripcion|agente_amenaza|impacto_tecnico|impacto_negocio|probabilidad|impacto|riesgoInforme|hosts|detallesTest|recomendacion|referencias\n";
 	close (SALIDA_CSV);
    	
    
@@ -587,7 +587,7 @@ for my $resultados_db (@resultados_array)
 		my $descripcion = $vulnerabilidades->{vuln}->[$i]->{descripcion}; 
 		$descripcion =~ s/SALTOLINEA/<br>/g; 
 		
-		my $detalles = $vulnerabilidades->{vuln}->[$i]->{detalles}; 
+		my $detallesTest = $vulnerabilidades->{vuln}->[$i]->{detallesTest}; 
 		    
 		
 		my $probabilidad = $vulnerabilidades->{vuln}->[$i]->{probabilidad};     
@@ -613,7 +613,7 @@ for my $resultados_db (@resultados_array)
 		$verificacion =~ s/AMPERSAND/\&/g; 		
 		$verificacion =~ s/DOMINIOENTIDAD/$dominio/g; 
 		
-		$detalles =~ s/DOMINIOENTIDAD/$dominio/g; 						
+		$detallesTest =~ s/DOMINIOENTIDAD/$dominio/g; 						
 
   
           
@@ -899,23 +899,26 @@ for my $resultados_db (@resultados_array)
 				$hosts = $hosts."-$ip:$port : ";
 				
 				if($vuln_detalles =~ /TLS 1.0 habilitado/i){	 
-					$hosts = $hosts."deshabilitar  TLS 1.0, "
+					$hosts = $hosts." TLS 1.0 habilitado, "
 				}
 				
 				if($vuln_detalles =~ /SSLv3 esta habilitado/i){	 
-					$hosts = $hosts."deshabilitar  SSL 3.0, "
+					$hosts = $hosts."SSL 3.0 habilitado, "
 				}
 				
 				if($vuln_detalles =~ /SSLv2 esta habilitado/i){	 
-					$hosts = $hosts."deshabilitar  SSL 2.0, "
+					$hosts = $hosts."SSL 2.0 habilitado, "
 				}
 				
 				if($vuln_detalles =~ /HSTS/i){	 
-					$hosts = $hosts."habilitar HSTS, "
+					$hosts = $hosts."HSTS deshabilitado, "
 				}
 				
 				if($vuln_detalles =~ /TLS 1.2 no esta habilitado/i){	 
-					$hosts = $hosts."habilitar TLS 1.2" 
+					$hosts = $hosts."TLS 1.2 deshabilitado, " 
+				}
+				if($vuln_detalles =~ /TLS 1.3    no habilitado /i){	 
+					$hosts = $hosts."TLS 1.3 deshabilitado" 
 				}
 				$hosts = $hosts."<br>" ;
  
@@ -1304,7 +1307,7 @@ for my $resultados_db (@resultados_array)
 
 	
 				open (SALIDA_CSV,">>datos.csv") || die "ERROR: No puedo abrir el reporte.csv\n";							
-				print SALIDA_CSV "$contador|$nombre|$codVul|$cvss|$descripcion|$agente_amenaza|$impacto_tecnico|$impacto_negocio| $probabilidad| $impacto| $riesgoInforme| $hosts| $detalles | $recomendacion | $referencias\n";				
+				print SALIDA_CSV "$contador|$nombre|$codVul|$cvss|$descripcion|$agente_amenaza|$impacto_tecnico|$impacto_negocio| $probabilidad| $impacto| $riesgoInforme| $hosts| $detallesTest | $recomendacion | $referencias\n";				
 				close (SALIDA_CSV);
 
 
