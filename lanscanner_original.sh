@@ -1776,7 +1776,8 @@ then
 		while true; do
 			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
 			perl_instancias=$((`ps aux | grep perl | wc -l` - 1)) 
-			if [[ $free_ram -gt $min_ram && $perl_instancias -lt 10  ]];then 											
+			#if [[ $free_ram -gt $min_ram && $perl_instancias -lt 10  ]];then 	
+			if [[ $free_ram -gt $min_ram && $perl_instancias -lt 4  ]];then 										
 				echo -e "[+] Escaneando $ip:$port"	
 				echo -e "\t\t[+] Revisando server-status"
 				curl --max-time 2 http://$ip:$port/server-status 2>/dev/null | grep --color=never nowrap | sed 's/<\/td>//g' | sed 's/<td nowrap>/;/g' | sed 's/<\/td><td>//g'| sed 's/<\/td><\/tr>//g' | sed 's/amp;//g' > .enumeracion/"$ip"_"$port"_serverStatus.txt 
@@ -1826,7 +1827,8 @@ then
 		while true; do
 			free_ram=`free -m | grep -i mem | awk '{print $7}'`		
 			perl_instancias=$((`ps aux | grep perl | wc -l` - 1)) 
-			if [[ $free_ram -gt $min_ram && $perl_instancias -lt 10  ]];then 
+			#if [[ $free_ram -gt $min_ram && $perl_instancias -lt 10  ]];then 
+			if [[ $free_ram -gt $min_ram && $perl_instancias -lt 4  ]];then 
 			#echo "FILE $prefijo$FILE"			
 				#################  Realizar el escaneo por dominio  ##############				
 				if grep -q ";" "$prefijo$FILE" 2>/dev/null; then
@@ -2498,7 +2500,8 @@ then
 			python_instancias=$((`ps aux | grep get_ssl_cert | wc -l` - 1)) 
 			script_instancias=$((perl_instancias + python_instancias))
 			
-			if [[ $free_ram -gt $min_ram && $script_instancias -lt 10  ]];then 
+		   #if [[ $free_ram -gt $min_ram && $script_instancias -lt 10  ]];then 	
+			if [[ $free_ram -gt $min_ram && $script_instancias -lt 4  ]];then 	
 				echo -e "[+] Escaneando $ip:$port"
 				echo -e "\t[+] Obteniendo información web"
 				webData.pl -t $ip -p $port -s 1 -e todo -d / -l logs/enumeracion/"$ip"_"$port"_webData.txt -r 4 > .enumeracion/"$ip"_"$port"_webData.txt 2>/dev/null  &			
@@ -2549,7 +2552,9 @@ then
 		while true; do
 				free_ram=`free -m | grep -i mem | awk '{print $7}'`		
 				perl_instancias=$((`ps aux | grep perl | wc -l` - 1)) 
-				if [[ $free_ram -gt $min_ram && $perl_instancias -lt 10  ]];then 				
+			   #if [[ $free_ram -gt $min_ram && $perl_instancias -lt 10  ]];then 	
+				if [[ $free_ram -gt $min_ram && $perl_instancias -lt 4  ]];then 
+			 				
 				#echo "FILE $prefijo$FILE"				
 				######## revisar por dominio #######
 				if grep -q ";" "$prefijo$FILE" 2>/dev/null; then
@@ -2917,7 +2922,7 @@ then
 					testssl.sh --color 0  "https://$ip:$port" > logs/vulnerabilidades/"$ip"_"$port"_confTLS.txt 2>/dev/null 
 					
 					grep --color=never "incorrecta" logs/vulnerabilidades/"$ip"_"$port"_confTLS.txt | egrep -vi "Vulnerable a" > .vulnerabilidades/"$ip"_"$port"_confTLS.txt
-					grep --color=never "Vulnerable a" logs/vulnerabilidades/"$ip"_"$port"_confTLS.txt > .vulnerabilidades/"$ip"_"$port"_vulTLS.txt							
+					grep --color=never -i "Vulnerable a" logs/vulnerabilidades/"$ip"_"$port"_confTLS.txt > .vulnerabilidades/"$ip"_"$port"_vulTLS.txt							
 													
 					
 					##########################
