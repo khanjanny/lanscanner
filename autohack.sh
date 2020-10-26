@@ -112,7 +112,7 @@ else
 		cracker.sh -e $CLAVE -t completo
 		pwd
 	fi		
-	mv /usr/bin/pentest/Responder/logs/*.txt `pwd`/responder 2>/dev/null
+	mv /usr/bin/pentest/Responder/logs/* `pwd`/responder 2>/dev/null
 	
 fi
 killall xterm

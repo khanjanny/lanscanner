@@ -200,7 +200,7 @@ for index, row in vulnerabilidadesDF.iterrows():
     contador = row['contador']
     nombre = row['nombre']
     codVul = row['codVul']
-    cvss = row['cvss']
+    cvss = str(row['cvss'])
     descripcion = row['descripcion']
     agente_amenaza = row['agente_amenaza']
     impacto_tecnico = row['impacto_tecnico']
@@ -212,9 +212,8 @@ for index, row in vulnerabilidadesDF.iterrows():
     recomendacion = row['recomendacion']
     referencias = row['referencias']
     hosts = row['hosts']
-    print ("cvss "+ str(cvss))
-    if math.isnan(cvss):
-        cvss = "N/A"
+    print ("cvss "+ cvss)
+
 
 
     print(nombre)
@@ -293,6 +292,7 @@ for index, row in vulnerabilidadesDF.iterrows():
 
     # REFERENCIAS
     sheet.merge_cells('A7:B7')
+    print (f"referencias ")
     sheet['A7'].alignment = Alignment(horizontal="left", vertical='center', wrap_text=True)
     sheet['A7'].border = thin_border
     sheet['B7'].border = thin_border
@@ -320,6 +320,7 @@ for index, row in vulnerabilidadesDF.iterrows():
     cellHeight = 20 + 20 * (len(detallesTest) // 80)
     sheet.row_dimensions[9].height = cellHeight
     sheet['A9'].font = Arial10
+    detallesTest = detallesTest.replace("SALTOLINEA", "\n")
     sheet['A9'] = "POSITIVA,"+detallesTest
 
     # HOST - LABEL
@@ -386,7 +387,7 @@ for index, row in vulnerabilidadesDF.iterrows():
     contador = row['contador']
     nombre = row['nombre']
     codVul = row['codVul']
-    cvss = row['cvss']
+    cvss = str(row['cvss'])
     descripcion = row['descripcion']
     agente_amenaza = row['agente_amenaza']
     impacto_tecnico = row['impacto_tecnico']

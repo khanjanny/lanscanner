@@ -29,6 +29,9 @@ echo -e "${GREEN} [+] Instalando herramientas disponibles en repositorio ${RESET
 sudo apt-get update
 sudo apt-get -y install bc nbtscan nfs-common snmp finger sqlite3 sqlitebrowser python-pip nmap masscan onesixtyone whatweb libssl-dev ike-scan postgresql-client elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd exiftool libpq-dev libpcap-dev tshark p7zip-full default-mysql-client python3-pip libssl-dev swig python3-dev gcc libcrypt-ssleay-perl metasploit-framework patator hydra enum4linux wpscan dnsutils python3-setuptools
 
+pip3 install cryptography
+pip3 install pycryptodomex
+
 echo -e "${GREEN} [+] Instalando ofuscador de bash ${RESET}" 
 npm install -g bash-obfuscate
 

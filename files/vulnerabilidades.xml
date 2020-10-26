@@ -12,14 +12,12 @@
     <agente_amenaza> USUARIO INTERNO/MALWARE </agente_amenaza>    
     <impacto_tecnico> Tomar control de los equipos vulnerables </impacto_tecnico>
     <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
-    <detallesTest> Realizando un escaneo con nmap se obtuvo el siguiente resultado: IMAGEN SALTOLINEA
-			La imagen expone que el equipo es VULNERABLE según el boletín ms17-010 emitido por Microsoft. SALTOLINEA
-			Como prueba de concepto se explotó la vulnerabilidad para tomar el control del equipo: IMAGEN SALTOLINEA
-			Esta vulnerabilidad también puede ser explotada por malware de tipo ransomware. </detallesTest>    
+    <detallesTest> Realizando un escaneo con nmap se obtuvo el siguiente resultado: IMAGEN SALTOLINEALa imagen expone que el equipo es VULNERABLE según el boletín ms17-010 emitido por Microsoft. SALTOLINEAComo prueba de concepto se explotó la vulnerabilidad para tomar el control del equipo: IMAGEN SALTOLINEAEsta vulnerabilidad también puede ser explotada por malware de tipo ransomware. </detallesTest>    
     <descripcion> El sistema operativo presenta una vulnerabilidad de divulgación de información en el bloque de mensajes del servidor Microsoft (SMBv1) debido al manejo inadecuado de ciertas solicitudes. Un atacante remoto no autenticado puede explotar esta vulnerabilidad y ejecutar código arbitrario remotamente. </descripcion>
-    <verificacion> Herramienta: nmap SALTOLINEA
-				  Comando: nmap -p445 -script=smb-vuln-ms17-010.nse -iL listaips.txt </verificacion>
+    <verificacion> Herramienta: nmap SALTOLINEAComando: nmap -p445 -script=smb-vuln-ms17-010.nse -iL listaips.txt </verificacion>
     <recomendacion> Actualizar el sistema operativo con los últimos parches de seguridad proporcionados por el proveedor. </recomendacion> 
+    <recomendacionMatriz>  Actualizar los parches de seguridad recomendados.</recomendacionMatriz> 
+    <conclusion>Existe una ausencia de actualizaciones críticas en estaciones de trabajo y servidores. Lo que permite el acceso a equipos y la extracción de contraseñas en formato de hash y la posibilidad de comprometer información sensible. </conclusion>        
 	<referencias> https://technet.microsoft.com/en-us/library/security/ms17-010.aspx </referencias>    
   </vuln>
   
@@ -35,11 +33,12 @@
     <agente_amenaza> USUARIO INTERNO/MALWARE </agente_amenaza>    
     <impacto_tecnico> Controlar la red a traves del directorio activo</impacto_tecnico>
     <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
-    <detallesTest> Se escaneo esta vulnerabilidad en los controladores de dominio identificados en la red. </detallesTest>    
-    <descripcion> Vulnerabilidad crítica de escalación de privilegios en el servicio de autenticación Netlogon, servicio que, entre otras cosas, se encarga de la modificación de las contraseñas de las cuentas de usuario en controladores de dominio de Active Directory </descripcion>
-    <verificacion> Herramienta: zerologon_tester.py SALTOLINEA
-				  Comando: zerologon_tester.py NOMBRE-DC IP </verificacion>
+    <detallesTest> Se escaneo esta vulnerabilidad en los controladores de dominio identificados en la red. IMAGEN SALTOLINEANo se explotó la vulnerabilidad ya que la explotación cambia el hash de la cuenta de equipo del controlador de dominio y muchos servicios pueden dejar de funcionar.</detallesTest>    
+    <descripcion> Vulnerabilidad crítica de escalamiento de privilegios en el servicio de autenticación Netlogon, servicio que, entre otras cosas, se encarga de la modificación de las contraseñas de las cuentas de usuario en controladores de dominio de Active Directory. Explotando esta vulnerabilidad se puede obtener el hash de todos los usuarios del dominio y entrar a sistemas internos.</descripcion>
+    <verificacion> Herramienta: zerologon_tester.py SALTOLINEAComando: zerologon_tester.py NOMBRE-DC IP </verificacion>
     <recomendacion> En el paquete de actualizaciones que Microsoft lanzó en agosto del 2020 incluyó un parche para esta vulnerabilidad . </recomendacion> 
+    <recomendacionMatriz>  Actualizar los parches de seguridad recomendados.</recomendacionMatriz> 
+    <conclusion>Existe una ausencia de actualizaciones críticas en el controlador de dominio que pueden comprometer información sensible. </conclusion>        
 	<referencias> https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2020-1472</referencias>    
   </vuln>
   
@@ -117,7 +116,7 @@
     <impacto_tecnico> Acceso a documentos </impacto_tecnico>
     <impacto_negocio> Acceso a información sensible de la entidad </impacto_negocio>  
     <detallesTest>Con el uso de herramientas específicas para la verificación de esta vulnerabilidad se identificó que un equipo tiene esta vulnerabilidad. </detallesTest>    
-    <descripcion> La vulnerabilidad podría permitir a un atacante remoto no autenticado ejecutar código arbitrario y tomar el control de una computadora específica simplemente enviando solicitudes especialmente diseñadas al servicio de escritorio remoto (RDS) del dispositivo a través del RDP, sin necesidad de interacción alguna por parte del usuario. Esta vulnerabilidad puede ser explotada por ransomware</descripcion>
+    <descripcion> La vulnerabilidad podría permitir a un atacante remoto no autenticado ejecutar código arbitrario y tomar el control de una computadora específica simplemente enviando solicitudes especialmente diseñadas al servicio de escritorio remoto (RDS) del dispositivo a través del RDP, sin necesidad de interacción alguna por parte del usuario. Esta vulnerabilidad puede ser explotada por malware tipo ransomware.</descripcion>
     <verificacion> blueKeep 1.2.3.4 </verificacion>
     <recomendacion>Instalar los parches de seguridad del sitio oficial de Windows</recomendacion> 
 	<referencias>https://support.microsoft.com/en-us/help/4500705/customer-guidance-for-cve-2019-0708</referencias> 		     
@@ -266,24 +265,6 @@
 	<referencias>http://mis.fortunecook.ie/</referencias>    
   </vuln>
   
-   <vuln> 
-   	<cod>poisoning</cod> 
-    <nombre>Sniffing, captura de tráfico</nombre>
-    <codVul>ninguno</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic> Alto </riesgoAgetic>	
-    <probabilidad> Posible </probabilidad>
-    <impacto> Significativo </impacto>
-    <riesgoInforme> ALTO </riesgoInforme>        
-    <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
-    <impacto_tecnico> Interceptar tráfico de los equipos de la red </impacto_tecnico>
-    <impacto_negocio> La confidencialidad de los datos se veria comprometida </impacto_negocio>    
-    <detallesTest> Es posible envenenar la red con paquetes ARP, esto hace posible que se pueda interceptar el tráfico de los clientes a los servidores: SALTOLINEA --imagen-- SALTOLINEA Se pudo capturar:</detallesTest>    
-    <descripcion> Es posible que un atacante pueda realizar ataques man-in-the-middle (MITM) para obtener información sensible capturando tráfico no encriptado en la red</descripcion>
-    <verificacion>Ninguna</verificacion>
-    <recomendacion>Habilitar DHCP Snooping en los switches de capa 3</recomendacion> 
-	<referencias>https://community.cisco.com/t5/blogs-routing-y-switching/configurando-dhcp-snooping/ba-p/3101169</referencias>    
-  </vuln>
   
   <vuln>
   	<cod>ciscoASAVuln</cod> 
@@ -303,27 +284,7 @@
     <recomendacion>Actualizar el dispositivo CISCO</recomendacion> 
 	<referencias>https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/Cisco-SA-20140409-CVE-2014-2128</referencias> 
    </vuln>
-   
-   <vuln>
-  	<cod>llmnr</cod> 
-	<codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <nombre>Envenenamiento LLMNR y NBT-NS</nombre>
-    <riesgoAgetic>Alto</riesgoAgetic>	
-    <probabilidad>Posible</probabilidad>
-    <impacto>Significativo</impacto>
-    <riesgoInforme>ALTO</riesgoInforme>        
-    <agente_amenaza>USUARIO INTERNO</agente_amenaza>    
-    <impacto_tecnico>Control del equipo de red</impacto_tecnico>
-    <impacto_negocio>La integridad de los datos se vería afectada </impacto_negocio>   
-    <detallesTest>Se pudo capturar las respuestas NTLM de varios equipos de la red LAN</detallesTest>    
-    <descripcion>Los datos en la red al ser capturados permiten su análisis para identificar contraseñas y datos confidenciales que le brinden a un atacante la información para vulnerar los servicios y equipos críticos</descripcion>
-    <verificacion>responder -F -f -I eth0</verificacion>
-    <recomendacion>Deshabilitar LLMNR y NBT-NS SALTOLINEA
-				   Usar en lo posible contraseñas robustas que presenten una mayor dificultad para crackearlas</recomendacion> 
-	<referencias>https://www.4armed.com/blog/llmnr-nbtns-poisoning-using-responder/</referencias> 
-   </vuln>
-   
+
    <vuln>
   	<cod>vlanHop</cod> 
 	<codVul>N/A</codVul>
@@ -343,6 +304,43 @@
 	<referencias>https://learningnetwork.cisco.com/blogs/vip-perspectives/2019/07/12/vlan1-and-vlan-hopping-attackSALTOLINEA-http://blog.capacityacademy.com/2014/08/04/ccna-security-como-desactivar-el-protocolo-cdp-en-cisco-router/</referencias> 
    </vuln>
   
+  <vuln>  
+   	<cod>passwordHost</cod> 
+    <nombre>Passwords de estaciones de trabajo fáciles de adivinar</nombre>
+    <codVul>N/A</codVul>
+    <CVSS>N/A</CVSS>
+    <riesgoAgetic>Alto</riesgoAgetic>	
+    <probabilidad>Posible </probabilidad>
+    <impacto>Significativo </impacto>
+    <riesgoInforme> ALTO </riesgoInforme>        
+    <agente_amenaza>USUARIO INTERNO </agente_amenaza>    
+    <impacto_tecnico>Acceso a recursos con las credenciales obtenidas </impacto_tecnico>
+    <impacto_negocio>Acceso a información sensible </impacto_negocio>    
+    <detallesTest> Se recolectaron respuestas NTLM (XXX en total) correspondientes a los siguientes equipos:SALTOLINEAEn la siguiente imagen podemos apreciar la captura de la respuesta NTLM SALTOLINEADespués de realizar un ataque de diccionario utilizando contraseñas comunes y personalizadas, se pudo obtener las siguientes contraseñas en texto plano:SALTOLINEA </detallesTest>    
+    <descripcion>Las contraseñas están basadas en palabras de diccionarios y estas no son dificiles de adivinar. </descripcion>
+    <verificacion>Herramienta: pth-winexe SALTOLINEApth-winexe -U usuario%password //1.2.3.4 cmd </verificacion>
+    <recomendacion>Reforzar la política de contraseñas para que incluya caracteres alfanuméricos y mayúsculos. Se puede usar reglas mnemotécnicas para generar contraseñas fáciles de recordar por los usuarios, pero robustos para que sean difíciles de suponer por los atacantes. También se puede ampliar el tiempo de expiración de contraseñas Windows hasta un máximo de 90 días para equilibrar la política de complejidad de contraseñas. Deshabilitar el protocolo LLMNR y NBT-NS  para evitar la captura de respuestas NTLM (No recomendable si se tienen sistemas Windows 2000 o inferior) </recomendacion> 
+	<referencias> https://www.4armed.com/blog/llmnr-nbtns-poisoning-using-responder </referencias>  		
+  </vuln>
+  
+   <vuln>  
+   	<cod>hashRoto</cod> 
+    <nombre>Passwords facil de adivinar</nombre>
+    <codVul>N/A</codVul>
+    <CVSS>N/A</CVSS>
+    <riesgoAgetic>Alto</riesgoAgetic>	
+    <probabilidad>Posible </probabilidad>
+    <impacto>Significativo </impacto>
+    <riesgoInforme> ALTO </riesgoInforme>        
+    <agente_amenaza>USUARIO INTERNO </agente_amenaza>    
+    <impacto_tecnico>Acceso a recursos con las credenciales obtenidas </impacto_tecnico>
+    <impacto_negocio>Acceso a información sensible </impacto_negocio>    
+    <detallesTest> En base a los hashes obtenidos en ataques anteriores. Se procedio a realizar un ataque de diccionario utilizando contraseñas comunes. Se pudo obtener las siguientes contraseñas en texto plano:SALTOLINEA </detallesTest>    
+    <descripcion>Las contraseñas están basadas en palabras de diccionarios y estas no son dificiles de adivinar. </descripcion>
+    <verificacion>N/A</verificacion>
+    <recomendacion>Reforzar la política de contraseñas para que incluya caracteres alfanuméricos y mayúsculos. Se puede usar reglas mnemotécnicas para generar contraseñas fáciles de recordar por los usuarios, pero robustos para que sean difíciles de suponer por los atacantes. También se puede ampliar el tiempo de expiración de contraseñas Windows hasta un máximo de 90 días para equilibrar la política de complejidad de contraseñas. Deshabilitar el protocolo LLMNR y NBT-NS  para evitar la captura de respuestas NTLM (No recomendable si se tienen sistemas Windows 2000 o inferior) </recomendacion> 
+	<referencias>Ninguna</referencias>  		
+  </vuln>
   
    <vuln> 
    	<cod>conficker</cod> 
@@ -541,10 +539,12 @@
     <agente_amenaza>USUARIO EXTERNO (Internet)</agente_amenaza>    
     <impacto_tecnico>Acceso a archivos sensibles</impacto_tecnico>
     <impacto_negocio>La confidencialidad de los datos se puede ver afectada </impacto_negocio>    
-    <detallesTest> Se realizó un escaneo web, mediante la técnica de navegación forzada para identificar directorios con información sensible</detallesTest>    
+    <detallesTest> Se realizó un escaneo web, mediante la técnica de navegación forzada para identificar directorios con información sensible. XML-RPC es un protocolo de Internet popular que se utiliza para la comunicación entre plataformas. Tanto WordPress como Drupal incluyen XML-RPC en su estructura principal, usándolo para ejecutar llamadas API remotas. La vulnerabilidad aprovecha una laguna en el análisis XML-RPC, utilizando un método conocido como "expansión de entidad" para iniciar tareas de procesamiento amplificadas, estas tareas pueden agotar fácilmente grandes cantidades de recursos de CPU y memoria, lo que resulta en latencia y tiempo de inactividad del servidor.</detallesTest>    
     <descripcion>Se identificaron archivos/directorios que representan un riesgo de seguridad por la información que exponen </descripcion>
     <verificacion>Ninguna</verificacion>
-    <recomendacion> Eliminar los archivos/directorios identificados </recomendacion> 
+    <recomendacion> Eliminar los archivos/directorios identificados que presentan un riesgo de seguridad</recomendacion> 
+    <conclusion>Existen archivos en servidores web que presentan un riesgo de seguridad</conclusion> 
+    <recomendacionMatriz> Eliminar los archivos/directorios identificados que presentan un riesgo de seguridad</recomendacionMatriz> 
 	<referencias>Ninguna</referencias>     	   
   </vuln>
   
@@ -684,6 +684,28 @@
     <recomendacion>Asegurarse que la aplicación compruebe el uso de una sesión válida para todas las partes del sistema </recomendacion> 
 	<referencias>Ninguna</referencias> 
   </vuln>  
+  
+    <vuln>
+	<cod>phishing</cod> 			
+	<codVul>N/A</codVul>
+    <CVSS>N/A</CVSS>
+    <nombre>Phishing</nombre>
+    <riesgoAgetic>Alto</riesgoAgetic>	
+    <probabilidad>Posible</probabilidad>
+    <impacto>Mayor</impacto>
+    <riesgoInforme>ALTO</riesgoInforme>        
+    <agente_amenaza>USUARIO EXTERNO</agente_amenaza>    
+    <impacto_tecnico>Acceder a información sensible</impacto_tecnico>
+    <impacto_negocio>La confidencialidad de los datos se puede ver afectada </impacto_negocio>   
+    <detallesTest>Se preparó un sitio que simulaba ser el servidor de correos de la entidad:SALTOLINEASe envió un correo falso a los funcionarios de la entidad pidiendo que confirmen sus credenciales en el "nuevo" sistema de correos:SALTOLINEAEste correo se envió a las siguientes direcciones de correo electrónico:SALTOLINEASe pudo tener acceso a información sensible:SALTOLINEACredenciales obtenidas:
+</detallesTest> 
+    <descripcion>No todo el personal de la entidad está preparado para este tipo de ataques</descripcion>
+    <verificacion>Ninguna</verificacion>
+    <recomendacion>Realizar talleres de sensibilización para ataques de ingeniería social y revisar los sistemas anti-SPAM.</recomendacion> 
+	<referencias>https://softwarelab.org/es/que-es-ingenieria-social/</referencias> 
+  </vuln>  
+  
+  
    <vuln>
 	 <cod>openrelay</cod> 
     <nombre>Open Relay</nombre>
@@ -717,8 +739,7 @@
     <impacto_negocio> Acceso a información sensible de la entidad </impacto_negocio>    
     <detallesTest> Revisando los recursos compartidos se pudo acceder a las siguientes carpetas y archivos del negocio. Este recursos compartidos también pueden ser encriptados por ransomware. </detallesTest>    
     <descripcion>Revisando los recursos compartidos mediante el protocolo SMB se pudo observar que se comparte información sensible accesible por cualquier usuario de la red.Otra amenaza para los recursos compartidos son los virus de tipo ransonware.que cuando infectan a un equipo en la red cifran todos los recursos compartidos de la red. </descripcion>
-    <verificacion>smbmap -H 1.2.3.4 -u anonymous -p anonymous SALTOLINEA
-				  smbmap -H 1.2.3.4 </verificacion>
+    <verificacion>smbmap -H 1.2.3.4 -u anonymous -p anonymous SALTOLINEAsmbmap -H 1.2.3.4 </verificacion>
     <recomendacion> Limitar el acceso de recursos compartido solo a usuarios autorizados </recomendacion> 
 	<referencias>Ninguna</referencias> 
   </vuln>
@@ -758,7 +779,9 @@
     <detallesTest>Haciendo el análisis inicial de la configuración DNS se observó que el mismo no daba la protección suficiente para un ataque de suplantación de correos. El registro SPF está configurado para aplicar una regla suave (~all): ---IMAGEN--- SALTOLINEASe realizó la prueba de concepto enviando un correo falso a nombre de sistemas@DOMINIOENTIDAD  El correo llego a la bandeja de entrada: ---IMAGEN---</detallesTest>    
     <descripcion> Con esta vulnerabilidad un atacante puede enviar correos con el dominio de la entidad. Haciendo el análisis inicial de la configuración DNS se observó que el mismo no tiene protección para evitar que terceros envíen correos a nombre de la entidad </descripcion>
     <verificacion>Herramienta: spoofcheck.py SALTOLINEAspoofcheck.py DOMINIOENTIDAD  </verificacion>
+    <conclusion>Es posible suplantar el dominio de la entidad y enviar correos a nombre de la entidad</conclusion> 
     <recomendacion> Modificar el registro TXT en el servidor DNS con el siguiente contenido: SALTOLINEAv=DMARC1; p=quarantine; rua=mailto:dmarc@DOMINIOENTIDAD; ruf=mailto:dmarc@DOMINIOENTIDAD; sp=quarantine SALTOLINEA SALTOLINEACrear el registro TXT en el servidor DNS (registro SPF).  Usar la herramienta en línea para generar el contenido del registro SPF: https://mxtoolbox.com/SPFRecordGenerator.aspx?domain=DOMINIOENTIDADAMPERSANDprefill=true . Elegir regla dura (Strict). SALTOLINEA</recomendacion> 
+    <recomendacionMatriz>Realizar las configuraciones recomendadas en el servidor DNS para evitar la suplantación de correos</recomendacionMatriz> 
 	<referencias>https://blog.mailfence.com/es/spf-dkim-y-dmarc-defensa-contra-la-suplantacion-spoofing-en-dominios-personalizados/</referencias> 
   </vuln>   
   
@@ -800,6 +823,27 @@
     <verificacion>Ninguna</verificacion>
     <recomendacion>Asignar un password al equipo que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
 	<referencias>Ninguna</referencias>  
+  </vuln>
+  
+   <vuln> 
+   	<cod>poisoning</cod> 
+    <nombre>Sniffing, captura de tráfico</nombre>
+    <codVul>ninguno</codVul>
+    <CVSS>N/A</CVSS>
+    <riesgoAgetic> Alto </riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Significativo </impacto>
+    <riesgoInforme> ALTO </riesgoInforme>        
+    <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
+    <impacto_tecnico> Interceptar tráfico de los equipos de la red </impacto_tecnico>
+    <impacto_negocio> La confidencialidad de los datos se veria comprometida </impacto_negocio>    
+    <detallesTest> Es posible envenenar la red con paquetes ARP, esto hace posible que se pueda interceptar el tráfico de los clientes a los servidores: SALTOLINEA --imagen-- SALTOLINEA Se pudo capturar:</detallesTest>    
+    <descripcion>El envenenamiento ARP es un ataque en capa 2, del tipo MITM (Man in the middle) que permite interceptar las comunicaciones entre los equipos de la red. En este tipo de ataque se pueden capturar contraseñas en texto plano, si es que estas se transmiten por protocolos inseguros a través de la red,  además de generar una posible denegación de acceso a recursos, ya que se suplanta  los servidores.</descripcion>
+    <verificacion>Ninguna</verificacion>
+    <conclusion>No existen protecciones contra ataques de red en la capa 2, específicamente contra envenenamiento ARP. Este es uno de los ataques más peligrosos que se puede realizar en una red, y no solo por el alto riesgo de que la Confidencialidad, Disponibilidad e Integridad se vean comprometidas, sino porque es un ataque que puede ser fácilmente ejecutado por una persona que no disponga de altos conocimientos de informática. </conclusion>    
+    <recomendacionInforme>Se recomienda implementar Dynamic ARP Inspection en Switches</recomendacionInforme> 
+    <recomendacion>-Habilitar DHCP Snooping en los switches de capa 3SALTOLINEA-Implementar control ARP a nivel de dispositivos de red con el ‘’Dynamic ARP Inspection’’ en el Switch.SALTOLINEA-Configurar tablas ARP estáticas en los hosts, aunque en la práctica esto hace que la administración de la red sea más tediosa ya que se debe modificar manualmente la configuración de las tablas ARP cada vez que se realiza algún cambio en la red. Esta contramedida es igual de efectiva que la de los Switches y no implica ningún costo de implementación.SALTOLINEA-Para mitigar este tipo de ataques también se recomienda usar solo protocolos encriptados como HTTPS  y SSH.</recomendacion> 
+	<referencias>https://community.cisco.com/t5/blogs-routing-y-switching/configurando-dhcp-snooping/ba-p/3101169</referencias>    
   </vuln>
   
   
@@ -861,27 +905,7 @@
   </vuln>
   
  
- <vuln>  
-   	<cod>passwordHost</cod> 
-    <nombre>Passwords de estaciones de trabajo fáciles de adivinar</nombre>
-    <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
-    <probabilidad>Posible </probabilidad>
-    <impacto>Significativo </impacto>
-    <riesgoInforme> ALTO </riesgoInforme>        
-    <agente_amenaza>USUARIO INTERNO </agente_amenaza>    
-    <impacto_tecnico>Acceso a recursos con las credenciales obtenidas </impacto_tecnico>
-    <impacto_negocio>Acceso a información sensible </impacto_negocio>    
-    <detallesTest> Se recolectaron respuestas NTLM (XXX en total) correspondientes a los siguientes equipos:SALTOLINEA
-				En la siguiente imagen podemos apreciar la captura de la respuesta NTLM SALTOLINEA
-				Después de realizar un ataque de diccionario utilizando contraseñas comunes y personalizadas, se pudo obtener las siguientes contraseñas en texto plano:SALTOLINEA </detallesTest>    
-    <descripcion>Las contraseñas están basadas en palabras de diccionarios y estas no son dificiles de adivinar. </descripcion>
-    <verificacion>Herramienta: pth-winexe SALTOLINEA
-				  pth-winexe -U usuario%password //1.2.3.4 cmd </verificacion>
-    <recomendacion>Reforzar la política de contraseñas para que incluya caracteres alfanuméricos y mayúsculos. Se puede usar reglas mnemotécnicas para generar contraseñas fáciles de recordar por los usuarios, pero robustos para que sean difíciles de suponer por los atacantes. También se puede ampliar el tiempo de expiración de contraseñas Windows hasta un máximo de 90 días para equilibrar la política de complejidad de contraseñas. Deshabilitar el protocolo LLMNR y NBT-NS  para evitar la captura de respuestas NTLM (No recomendable si se tienen sistemas Windows 2000 o inferior) </recomendacion> 
-	<referencias> https://www.4armed.com/blog/llmnr-nbtns-poisoning-using-responder </referencias>  		
-  </vuln>
+ 
   
    <vuln>	   
    	<cod>logeoRemoto</cod> 
@@ -895,11 +919,9 @@
     <agente_amenaza>USUARIO INTERNO</agente_amenaza>    
     <impacto_tecnico> Acceso a recursos con las credenciales obtenidas</impacto_tecnico>
     <impacto_negocio> Acceso y modificación de información sensible </impacto_negocio>    
-    <detallesTest> Con el acceso a una computadora de la red se pudo extraer un hash NTLM del usuario Administrador, el cual se usó para acceder a XXX equipos que tenían la misma contraseña.SALTOLINEA
-				La lista completa de los equipos que se tuvo control: </detallesTest>    
+    <detallesTest> Con el acceso a una computadora de la red se pudo extraer un hash NTLM del usuario Administrador, el cual se usó para acceder a XXX equipos que tenían la misma contraseña.SALTOLINEALa lista completa de los equipos que se tuvo control: </detallesTest>    
     <descripcion>El logueo remoto está habilitado (Puerto 445) y permite a un usuario que conozca la contraseña del administrador ingresar a otros equipos de red de manera remota</descripcion>
-    <verificacion>Herramienta: pth-winexe SALTOLINEA
-				  pth-winexe -U USUARIO%HASH //1.2.3.4 cmd </verificacion>
+    <verificacion>Herramienta: pth-winexe SALTOLINEApth-winexe -U USUARIO%HASH //1.2.3.4 cmd </verificacion>
     <recomendacion>Se recomienda bloquear el logueo remoto de usuarios locales en las estaciones de trabajo</recomendacion> 
 	<referencias>https://support.microsoft.com/es-bo/help/555317 https://blogs.technet.microsoft.com/secguide/2014/09/02/blocking-remote-use-of-local-accounts/</referencias> 
  
@@ -917,12 +939,9 @@
     <agente_amenaza>EXTERNO (Internet)</agente_amenaza>    
     <impacto_tecnico>Leer memoria RAM del servidor vulnerable</impacto_tecnico>
     <impacto_negocio>Acceder información sensible de la organización</impacto_negocio>    
-    <detallesTest>  Revisando el escaneo de nessus alerta la existencia de la vulnerabilidad heartbleed en el puerto 443  IMAGEN SALTOLINEA
-				Sistema alojado en el servidor vulnerable IMAGEN SALTOLINEA
-				Al momento de la explotación se encontró un nombre de usuario y su contraseña cifrada: IMAGEN SALTOLINEA</detallesTest>    
+    <detallesTest>  Revisando el escaneo de nessus alerta la existencia de la vulnerabilidad heartbleed en el puerto 443  IMAGEN SALTOLINEASistema alojado en el servidor vulnerable IMAGEN SALTOLINEAAl momento de la explotación se encontró un nombre de usuario y su contraseña cifrada: IMAGEN SALTOLINEA</detallesTest>    
     <descripcion>Un atacante podría obtener cookies de autenticación, credenciales administrativas u otro dato sensible leyendo la memoria RAM del servidor afectado enviando peticiones modificadas al puerto 443.</descripcion>
-    <verificacion>Herramienta: nmap SALTOLINEA
-				  nmap -n -Pn -p 443 --script=ssl-heartbleed  1.2.3.4 </verificacion>
+    <verificacion>Herramienta: nmap SALTOLINEAnmap -n -Pn -p 443 --script=ssl-heartbleed  1.2.3.4 </verificacion>
     <recomendacion>Actualizar la versión de OpenSSL (Ver referencia)</recomendacion> 
 	<referencias>https://blog.sucuri.net/2014/04/patching-the-heartbleed-openssl-vulnerability.html</referencias> 
   </vuln>
@@ -943,8 +962,7 @@
     <impacto_negocio>Afecta a la confidencialidad de informacion confidencial </impacto_negocio>    
     <detallesTest>Se detectaron equipos con acceso remoto sin credenciales</detallesTest>    
     <descripcion> Se detectaron equipos con acceso remoto sin credenciales</descripcion>
-    <verificacion> Herramienta: vncviewer SALTOLINEA
-				  vncviewer 1.2.3.4  </verificacion>
+    <verificacion> Herramienta: vncviewer SALTOLINEAvncviewer 1.2.3.4  </verificacion>
     <recomendacion>Asignar un password al VNC que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
 	<referencias>Ninguna</referencias> 	          
   </vuln>
@@ -982,9 +1000,11 @@
     <impacto_tecnico> Acceder a sistemas	 </impacto_tecnico>
     <impacto_negocio> Acceder y modificar información sensible  </impacto_negocio>    
     <detallesTest> Se identificó a servidores que tienen esta vulnerabilidad </detallesTest>    
-    <descripcion>Existe una vulnerabilidad de ejecución de código remota en el software Microsoft Exchange cuando el software no puede manejar apropiadamente los objetos en la memoria.</descripcion>
+    <descripcion>Esta una vulnerabilidad crítica en Microsoft Exchange. Aunque la explotación requiere credenciales válidas (a nivel de usuario de correo electrónico). El mayor riesgo es la ejecución de código remota en el software Microsoft Exchange cuando el software no puede manejar apropiadamente los objetos en la memoria.</descripcion>
     <verificacion>owa.pl -host 1.2.3.4 -port 443 </verificacion>
-    <recomendacion>Instalar el parche liberado por el fabricante</recomendacion> 
+    <recomendacion>Instalar el parche liberado por el fabricante en el servidor de correos exchange</recomendacion> 
+    <recomendacionMatriz>Instalar el parche liberado por el fabricante en el servidor de correos exchange</recomendacionMatriz> 
+    <conclusion>Existe una ausencia de actualizaciones críticas. Lo que permitiría el acceso al servidor de correos y la posibilidad de comprometer información sensible.</conclusion> 
 	<referencias>https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2020-0688</referencias> 
   </vuln>
   
@@ -1031,11 +1051,9 @@
     <agente_amenaza>USUARIO INTERNO</agente_amenaza>    
     <impacto_tecnico>Acceso a los DVR como usuario privilegiado</impacto_tecnico>
     <impacto_negocio>Se podría perder la integridad de las grabaciones de seguridad</impacto_negocio>    
-    <detallesTest> La vulnerabilidad permite extraer la lista de usuarios y hashes de contraseñas IMAGEN SALTOLINEA
-				Después de realizar un ataque de diccionario a los hashes obtenidos previamente se obtuvo las siguientes combinaciones validas: IMAGEN </detallesTest>    
+    <detallesTest> La vulnerabilidad permite extraer la lista de usuarios y hashes de contraseñas IMAGEN SALTOLINEADespués de realizar un ataque de diccionario a los hashes obtenidos previamente se obtuvo las siguientes combinaciones validas: IMAGEN </detallesTest>    
     <descripcion> El equipo DVR permite extraer todos sus usuarios y hashes</descripcion>
-    <verificacion>Herramienta: metasploit SALTOLINEA
-				  msfconsole -x 'use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS 1.2.3.4; set ACTION USER;run;exit' </verificacion>
+    <verificacion>Herramienta: metasploit SALTOLINEAmsfconsole -x 'use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS 1.2.3.4; set ACTION USER;run;exit' </verificacion>
     <recomendacion> Dahua no saco un parche para esta vulnerabilidad. Para mitigar esta vulnerabilidad cambiar la contraseña por otra que sea difícil de adivinar y asignar el equipo DVR en otro segmento de red</recomendacion> 
 	<referencias> https://depthsecurity.com/blog/dahua-dvr-authentication-bypass-cve-2013-6117 </referencias> 	
   </vuln>
@@ -1060,6 +1078,25 @@
 	<referencias>https://www.fwhibbit.es/denegacion-de-servicio-slow-headers</referencias> 
   </vuln>
     
+   <vuln>  
+   	<cod>ddos</cod> 
+    <nombre>Denegacion de servicio </nombre>
+    <codVul>N/A</codVul>
+    <CVSS>N/A</CVSS>
+    <riesgoAgetic> Alto </riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Significativo </impacto>
+    <riesgoInforme> ALTO </riesgoInforme>        
+    <agente_amenaza> USUARIO EXTERNO </agente_amenaza>    
+    <impacto_tecnico> Los sistemas alojados en el servidor web dejarian de funcionar </impacto_tecnico>
+    <impacto_negocio> Se afecta la disponibilidad de servicios </impacto_negocio>    
+    <detallesTest>Estado previo al ataque:SALTOLINEADespues de realizar un ataque de denegación de servicio distribuido volumétrico por 2 minutos:</detallesTest>    
+    <descripcion>Los ataques de denegación de servicio distribuidos satura el archo de banda del servidor. </descripcion>
+    <verificacion>N/A</verificacion>
+    <recomendacion>La mayoría de ataques de denegación de servicio distribuidas son realizados desde IPs de países extranjeros. Le contramedida mas eficiente contra este tipo de ataques es bloquear IPs que no sean de Bolivia mientras dura el ataque.</recomendacion> 
+	<referencias>N/A</referencias> 
+  </vuln>
+  
   <vuln>	    
    	<cod>passwordDahua</cod> 
     <nombre>DVR Dahua con password por defecto</nombre>
@@ -1105,7 +1142,7 @@
   </vuln>
   
   <vuln>
-	<cod>VPNhandshake</cod>  	
+	<cod>VPNagresivo</cod>  	
     <nombre>Configuración no segura de la VPN</nombre>
     <codVul>N/A</codVul>
     <CVSS>N/A</CVSS>
@@ -1174,13 +1211,15 @@
     <agente_amenaza> USUARIO INTERNO </agente_amenaza>    
     <impacto_tecnico> Acceder a datos enviados en la red </impacto_tecnico>
     <impacto_negocio> Acceder a información sensible </impacto_negocio>    
-    <detallesTest> Esta vulnerabilidad no está orientado a comprometer el sistema, sino a obtener la información que antes se enviaba cifrada y un atacante no podía descifrar. </detallesTest>    
-    <descripcion> Un atacante podría obtener cookies de autenticación, credenciales administrativas u otro dato sensible</descripcion>
+    <detallesTest> Los servidores son vulnerables a DROWN, POODLE SSL, y BEAST. Estas vulnerabilidades no están orientado a comprometer el sistema, sino a obtener la información que envía cifrada y un atacante no podria descifrar. </detallesTest>    
+    <descripcion> Esta vulnerabilidad no está orientado a comprometer el sistema, sino a obtener la información que antes se enviaba cifrada y un atacante no podía descifrar. Un atacante podría obtener cookies de autenticación, credenciales administrativas u otro dato sensible</descripcion>
     <verificacion> Herramienta: testssl.sh SALTOLINEA
 					testssl.sh https://1.2.3.4 </verificacion>
-    <recomendacion></recomendacion> 
+    <recomendacion> Deshabilitar  SSL 2.0, SSL 3.0 o TLS 1.0:SALTOLINEA-https://support.microsoft.com/es-bo/help/187498/how-to-disable-pct-1-0-ssl-2-0-ssl-3-0-or-tls-1-0-in-internet-informat/SALTOLINEA-https://www.leaderssl.com/news/471-how-to-disable-outdated-versions-of-ssl-tls-in-apache </recomendacion> 
+    <recomendacionMatriz> Deshabilitar los protocolos antiguos: SSL 2.0, SSL 3.0 o TLS 1.0</recomendacionMatriz> 
 	<referencias>Ninguna</referencias>    
   </vuln>
+  
   
   
    <vuln>
@@ -1220,6 +1259,29 @@
     <recomendacion> Validar las variables de entrada ; Implementar sentencias try and catch para controlar los errores que se vayan a producir o deshabilitar el modo debug en el framework que se utiliza</recomendacion> 
 	<referencias>Ninguna</referencias>    
   </vuln>
+  
+     
+   <vuln>
+  	<cod>llmnr</cod> 
+	<codVul>N/A</codVul>
+    <CVSS>N/A</CVSS>
+    <nombre>Envenenamiento LLMNR y NBT-NS</nombre>
+    <riesgoAgetic> Medio </riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Moderado </impacto>
+    <riesgoInforme> MEDIO </riesgoInforme>        
+    <agente_amenaza>USUARIO INTERNO</agente_amenaza>    
+    <impacto_tecnico>Control del equipo de red</impacto_tecnico>
+    <impacto_negocio>La integridad de los datos se vería afectada </impacto_negocio>   
+    <detallesTest>Cuando un equipo Windows necesita resolver un nombre de red, utiliza estos servicios de resolución de nombres con la siguiente prioridad:SALTOLINEA1.	Localhost fileSALTOLINEA2.	DNSSALTOLINEA3.	LLMNR (A partir de Windows Vista) y NBT-NSSALTOLINEATanto LLMNR como NBT-NS utilizan peticiones multicast, por lo que cuando un host pregunta por un nombre y fallan las resoluciones (a través del archivo localhost y la petición DNS), una petición multicast es enviada a la red. En este escenario un atacante puede envenenar la red con el protocolo LLMNR y NBT-NS y obtener respuestas NTLM de varios equipos de la red LAN para luego después intentar crackerarlos y obtener la versión en texto plano de los passwords. De las respuestas LLMNR capturadas se pudo obtener un password en texto plano mostrado en el punto XXXXX "Passwords de estaciones de trabajo fáciles de predecir"</detallesTest>    
+    <descripcion>Los datos en la red al ser capturados permiten su análisis para identificar contraseñas y datos confidenciales que le brinden a un atacante la información para vulnerar los servicios y equipos críticos</descripcion>
+    <verificacion>responder -F -f -I eth0</verificacion>
+    <conclusion>Es posible realizar un envenenamiento con el protocolo LLMNR y NBT-NS</conclusion>
+    <recomendacion>Deshabilitar el protocolo LLMNR y NBT-NS en las estaciones de trabajo SALTOLINEAUsar en lo posible contraseñas robustas que presenten una mayor dificultad para crackearlas</recomendacion> 
+    <recomendacionMatriz>Deshabilitar el protocolo LLMNR y NBT-NS en las estaciones de trabajo</recomendacionMatriz>recomendacionMatriz>    
+	<referencias>https://www.4armed.com/blog/llmnr-nbtns-poisoning-using-responder/</referencias> 
+   </vuln>
+   
   
     <vuln>	  
    	<cod>registroHabilitado</cod> 
@@ -1447,12 +1509,13 @@
     <agente_amenaza>USUARIO EXTERNO (Internet)</agente_amenaza>
     <impacto_tecnico>Los archivos exponen datos del servidor como versiones exactas de PHP, módulos cargados, direcciones IP, etc</impacto_tecnico>
     <impacto_negocio>Ninguno</impacto_negocio>
-    <detallesTest>Se escaneo los servidores web identificados</detallesTest>    
+    <detallesTest> Se escaneo los servidores web identificando archivos phpinfo con datos informativos del servidor:</detallesTest>    
     <referencias>Ninguna</referencias>
     <descripcion>  Los archivos exponen datos del servidor como versiones exactas de PHP, módulos cargados, direcciones IP, etc.</descripcion>
-    <verificacion> Herramienta: wget SALTOLINEA
-					wget http://1.2.3.4/archivo.php </verificacion>
+    <verificacion> Herramienta: wget SALTOLINEAwget http://1.2.3.4/archivo.php </verificacion>
    <recomendacion> Eliminar los archivos identificados </recomendacion> 
+   <conclusion> Se identificó archivos que divulgación de información del servidor </conclusion> 
+   <recomendacionMatriz> Eliminar los archivos identificados que divulgan información del servidor</recomendacionMatriz> 
   </vuln>
   
   <vuln>
@@ -1513,7 +1576,7 @@
     <descripcion>Se identificó que el listado de directorios está activo y puede exponer información sensible</descripcion>
     <verificacion>Ninguna</verificacion>
     <recomendacion>Deshabilitar el listado de directorios</recomendacion> 
-	<referencias>Apache: https://www.linuxito.com/seguridad/334-como-permitir-y-denegar-listado-de-directorios-en-apacheSALTOLINEA-Apache: https://www.cgii.gob.bo/index.php/es/publicaciones/deshabilitar-listado-de-directorio-index-en-servidores-apacheSALTOLINEA-CPANEL:https://www.hostinet.com/formacion/panel-alojamiento/evitar-listado-directorios-archivos-cpanel/</referencias> 
+	<referencias>Apache: https://www.linuxito.com/seguridad/334-como-permitir-y-denegar-listado-de-directorios-en-apacheSALTOLINEA-Apache: https://www.cgii.gob.bo/index.php/es/publicaciones/deshabilitar-la-configuracion-de-listado-de-directorio-index-ofSALTOLINEA-CPANEL:https://www.hostinet.com/formacion/panel-alojamiento/evitar-listado-directorios-archivos-cpanel/</referencias> 
   </vuln> 
     
   <vuln>
@@ -1534,6 +1597,25 @@
 				  dig ANY google.com @1.2.3.4 +short ; grep --color=never google  </verificacion>
     <recomendacion>Configurar el servidor DNS de manera que no resuelva dominios de terceros</recomendacion> 
 	<referencias>https://www.incibe-cert.es/blog/dns</referencias> 			            
+  </vuln>  
+  
+    <vuln>
+	<cod>noTLS</cod> 		
+    <nombre>Sitio web con protocolo inseguro</nombre>
+    <codVul>N/A</codVul>
+    <CVSS>N/A</CVSS>
+    <riesgoAgetic>Medio</riesgoAgetic>	
+    <probabilidad>Posible</probabilidad>
+    <impacto>Leve</impacto>
+    <riesgoInforme>BAJO</riesgoInforme>        
+    <agente_amenaza>USUARIO EXTERNO (Internet)</agente_amenaza>    
+    <impacto_tecnico>Capturar credenciales</impacto_tecnico>
+    <impacto_negocio>Acceso a información sensible</impacto_negocio>       
+    <detallesTest>El sitio web transmite toda la información en texto plano</detallesTest>    
+    <descripcion>El sitio web no usa un protocolo seguro como TLS para el envio de datos</descripcion>
+    <verificacion></verificacion>
+    <recomendacion>Habilitar HTTPS instalando un certificado  de seguridad</recomendacion> 
+	<referencias>https://letsencrypt.org/es/</referencias> 			            
   </vuln>  
   
       
@@ -1572,7 +1654,9 @@
     <detallesTest> Realizando una revisión de los archivos y directorios comunes. Se pudo identificar que exponen la versión del software usado </detallesTest>    
     <descripcion> El servidor web aún tiene los archivos/directorios por defecto. Los mismos exponen la version del software usado </descripcion>
     <verificacion> Ninguna </verificacion>
+    <conclusion>Aún existen archivos por defecto en el servidor web</conclusion> 
     <recomendacion> Borrar los archivos y directorios por defecto </recomendacion> 
+    <recomendacionMatriz> Borrar los archivos y directorios por defecto </recomendacionMatriz> 
 	<referencias> https://www.owasp.org/images/5/5e/OWASP-Top-10-2017-es.pdf (A3: Exposición de dato sensibles) </referencias> 
   </vuln>
   
@@ -1672,6 +1756,28 @@
     <recomendacion>Validar las variables de entrada ; Implementar sentencias try and catch para controlar los errores que se vayan a producir o deshabilitar el modo debug en el framework que se utiliza</recomendacion> 
 	<referencias>Ninguna</referencias> 
   </vuln> 
+    
+  <vuln>	  
+   	<cod>captcha</cod> 
+    <nombre>Falta de captcha en un formulario </nombre>
+    <codVul>N/A</codVul>
+    <CVSS>N/A</CVSS>
+    <riesgoAgetic>Medio</riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Leve </impacto>
+    <riesgoInforme> BAJO </riesgoInforme>        
+    <agente_amenaza> USUARIO EXTERNO (Internet) </agente_amenaza>    
+    <impacto_tecnico> Realizar peticiones automáticas </impacto_tecnico>
+    <impacto_negocio> ninguno </impacto_negocio>    
+    <detallesTest> Se identificó que el formulario no tiene ningún tipo de protección contra peticiones automáticas </detallesTest>    
+    <descripcion>El formulario no tiene protección captcha</descripcion>
+    <verificacion>Ninguna</verificacion>
+    <conclusion>Se identificó un formulario no tiene protección contra  peticiones automáticas </conclusion>
+    <recomendacion>Implementar captcha en el formulario</recomendacion> 
+    <recomendacionMatriz>Implementar captcha en el formulario indicado en este informe</recomendacionMatriz> 
+	<referencias>Ninguna</referencias> 
+  </vuln> 
+  
   
     <vuln>	  
    	<cod>debugHabilitado</cod> 
@@ -1691,6 +1797,28 @@
     <recomendacion>Deshabilitar el modo 'debug'</recomendacion> 
 	<referencias>Ninguna</referencias> 
   </vuln> 
+    
+      
+    <vuln>	  
+   	<cod>contenidoIndebido</cod> 
+    <nombre>El sitio web tiene contenido no relacionado a la entidad</nombre>
+    <codVul>N/A</codVul>
+    <CVSS>N/A</CVSS>
+    <riesgoAgetic>Medio</riesgoAgetic>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Leve </impacto>
+    <riesgoInforme> BAJO </riesgoInforme>        
+    <agente_amenaza> USUARIO EXTERNO (Internet) </agente_amenaza>    
+    <impacto_tecnico> Ninguno </impacto_tecnico>
+    <impacto_negocio> Impacta la imagen coorporativa de la entidad </impacto_negocio>    
+    <detallesTest> Se procedio a revisar las URLs indexadas por google y se pudo identificar contenido no relacionado a la entidad </detallesTest>    
+    <descripcion>El contenido no relacionado a la entidad tiene un impacto reputacional</descripcion>
+    <verificacion>Ninguna</verificacion>
+    <recomendacion>Eliminar el contenido no relacionado a la entidad</recomendacion> 
+	<referencias>Ninguna</referencias> 
+  </vuln> 
+    
+    
     
     <vuln>
 	<cod>ACL</cod>  

@@ -1285,7 +1285,7 @@ fi
 
 if [ -f servicios/postgres.txt ]
 then
-	echo -e "$OKBLUE #################### TELNET (`wc -l servicios/postgres.txt`)######################$RESET"	    
+	echo -e "$OKBLUE #################### POSTGRES (`wc -l servicios/postgres.txt`)######################$RESET"	    
 	while read ip; do		
 	 	 grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_5432_passwordBD.tx > .vulnerabilidades/"$ip"_5432_passwordBD.tx 2>/dev/null
 		 echo ""
@@ -1312,6 +1312,9 @@ then
 	
 	interlace -tL servicios/telnet.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u root -p root -M telnet'>> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
 	interlace -tL servicios/telnet.txt -threads 5 -c "medusa -h _target_ -u root -p root -M telnet >> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
+	
+	interlace -tL servicios/telnet.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u root -p solokey -M telnet'>> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
+	interlace -tL servicios/telnet.txt -threads 5 -c "medusa -h _target_ -u root -p solokey -M telnet >> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
 	
 	interlace -tL servicios/telnet.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u root -e n -M telnet' >> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
 	interlace -tL servicios/telnet.txt -threads 5 -c "medusa -h _target_ -u root -e n -M telnet >> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent		
@@ -1424,7 +1427,7 @@ then
 			echo -e "\t$OKRED[!] Modo agresivo detectado \n $RESET"
 			echo $ike > .enumeracion/"$ip"_vpn_transforms.txt
 			cp .enumeracion/"$ip"_vpn_transforms.txt logs/enumeracion/"$ip"_vpn_transforms.txt					
-			ike-scan --aggressive --multiline --id=vpn --pskcrack=.vulnerabilidades/"$ip"_500_VPNhandshake.txt $ip > logs/vulnerabilidades/"$ip"_500_VPNagresivow.txt 2>/dev/null ;						
+			ike-scan --aggressive --multiline --id=vpn --pskcrack=.vulnerabilidades/"$ip"_500_VPNhandshake.txt $ip > logs/vulnerabilidades/"$ip"_500_VPNagresivo.txt 2>/dev/null ;						
 		fi			
 	done
 	#insert clean data	
@@ -1566,14 +1569,14 @@ then
 		port=`echo $line | cut -f2 -d":"`			
 		echo -e "[+] Escaneando $ip:$port"								
 		echo -e "\t[+] Probando vulnerabilidad de Dahua"		
-		echo "msfconsole -x 'use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS $ip; set ACTION USER;run;exit'" >> logs/vulnerabilidades/"$ip"_37777_vulndahua.txt 2>/dev/null
-		msfconsole -x "use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS $ip; set ACTION USER;run;exit" >> logs/vulnerabilidades/"$ip"_37777_vulndahua.txt 2>/dev/null
+		echo "msfconsole -x 'use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS $ip; set ACTION USER;run;exit'" >> logs/vulnerabilidades/"$ip"_37777_vulnDahua.txt 2>/dev/null
+		msfconsole -x "use auxiliary/scanner/misc/dahua_dvr_auth_bypass;set RHOSTS $ip; set ACTION USER;run;exit" >> logs/vulnerabilidades/"$ip"_37777_vulnDahua.txt 2>/dev/null
 					
-		egrep -iq "admin" logs/vulnerabilidades/"$ip"_37777_vulndahua.txt 2>/dev/null
+		egrep -iq "admin" logs/vulnerabilidades/"$ip"_37777_vulnDahua.txt 2>/dev/null
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t$OKRED[!] Dahua vulnerable \n $RESET"
-			cp logs/vulnerabilidades/"$ip"_37777_vulndahua.txt .vulnerabilidades/"$ip"_37777_vulndahua.txt
+			cp logs/vulnerabilidades/"$ip"_37777_vulnDahua.txt .vulnerabilidades/"$ip"_37777_vulnDahua.txt
 		else
 			echo -e "\t$OKGREEN[i] Dahua no vulnerable $RESET"
 		fi					
@@ -2048,11 +2051,11 @@ then
 							if [[ $greprc -eq 0 ]];then 		
 								wpscan  --update >/dev/null 						
 								echo -e "\t\t\t[+] Revisando vulnerabilidades de wordpress ($subdominio)"
-								wpscan --random-agent --url http://$subdominio/ --enumerate u --follow-redirection > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
-								wpscan --random-agent --url http://$subdominio/ --enumerate p --follow-redirection > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
+								wpscan --enumerate u  --random-user-agent http://$subdominio > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
+								wpscan --random-user-agent --url http://$subdominio/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U  > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
 								egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$subdominio"_"$port"_wpusers.txt
 							fi
-							###################################	
+							###################################	 
 							
 							#######  citrix (domain) ######
 							grep -qi citrix .enumeracion/"$subdominio"_"$port"_webData.txt
@@ -2080,7 +2083,7 @@ then
 							
 							
 							#######  OWA (domain) ######
-							grep -qi Outlook .enumeracion/"$subdominio"_"$port"_webData.txt
+							egrep -qi "Outlook|owa" .enumeracion/"$subdominio"_"$port"_webData.txt
 							greprc=$?
 							if [[ $greprc -eq 0 ]];then 		
 								echo -e "\t\t\t[+] Revisando vulnerabilidades de OWA($subdominio)"
@@ -2203,8 +2206,10 @@ then
 					if [[ $greprc -eq 0 ]];then 		
 						echo -e "\t\t\t[+] Revisando vulnerabilidades de wordpress (IP)"
 						wpscan  --update >/dev/null						
-						wpscan --random-agent --url http://$ip/ --enumerate u --follow-redirection > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
-						wpscan --random-agent --url http://$ip/ --enumerate p --follow-redirection > .enumeracion/"$ip"_"$port"_wpscanPlugins.txt
+						wpscan --enumerate u  --random-user-agent http://$ip > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
+						wpscan --random-user-agent --url http://$ip/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U  > .enumeracion/"$ip"_"$port"_wpscanPlugins.txt
+								
+								
 						egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$ip"_"$port"_wpusers.txt
 					fi
 					###########################
@@ -2240,7 +2245,7 @@ then
 					
 					
 					#######  OWA (ip) ######
-					grep -qi Outlook .enumeracion/"$ip"_"$port"_webData.txt
+					egrep -qi "Outlook|owa" .enumeracion/"$ip"_"$port"_webData.txt
 					greprc=$?
 					if [[ $greprc -eq 0 ]];then 		
 						echo -e "\t\t\t[+] Revisando vulnerabilidades de OWA($ip)"
@@ -2723,8 +2728,9 @@ then
 							greprc=$?
 							if [[ $greprc -eq 0 ]];then 		
 								echo -e "\t\t\t[+] Revisar wordpress "						    																
-								wpscan --random-agent --url https://$subdominio/ --enumerate u --follow-redirection --disable-tls-checks > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
-								wpscan --random-agent --url https://$subdominio/ --enumerate p --follow-redirection --disable-tls-checks > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
+								wpscan --enumerate u  --random-user-agent https://$subdominio --disable-tls-checks > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
+								wpscan --random-user-agent --url https://$subdominio/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U --disable-tls-checks  > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
+						
 								egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$subdominio"_"$port"_wpusers.txt
 							fi
 							###########################	
@@ -2769,7 +2775,7 @@ then
 							
 							
 							#######  OWA (domain) ######
-							grep -qi Outlook .enumeracion/"$subdominio"_"$port"_webData.txt
+							egrep -qi "Outlook|owa" .enumeracion/"$subdominio"_"$port"_webData.txt
 							greprc=$?
 							if [[ $greprc -eq 0 ]];then 														
 								echo -e "\t\t\t[+] Revisando vulnerabilidades de OWA($subdominio)"
@@ -2932,9 +2938,11 @@ then
 					greprc=$?
 					if [[ $greprc -eq 0 ]];then 		
 						echo -e "\t\t[+] Revisando vulnerabilidades de wordpress"
-						wpscan  --update												
-						wpscan --random-agent --url https://$ip/ --enumerate u --follow-redirection --disable-tls-checks > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
-						wpscan --random-agent --url https://$ip/ --enumerate p --follow-redirection --disable-tls-checks > .enumeracion/"$ip"_"$port"_wpscanPlugins.txt
+						wpscan  --update																		
+						
+						wpscan --enumerate u  --random-user-agent https://$ip --disable-tls-checks > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
+						wpscan --random-user-agent --url https://$ip/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U --disable-tls-checks  > .enumeracion/"$ip"_"$port"_wpscanPlugins.txt
+								
 						egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$ip"_"$port"_wpusers.txt
 					fi
 					###########################	
@@ -2991,7 +2999,7 @@ then
 					
 					
 					#######  OWA (ip) ######
-					grep -qi Outlook .enumeracion/"$ip"_"$port"_webData.txt
+					egrep -qi "Outlook|owa" .enumeracion/"$ip"_"$port"_webData.txt
 					greprc=$?
 					if [[ $greprc -eq 0 ]];then 													
 						echo -e "\t\t\t[+] Revisando vulnerabilidades de OWA($ip)"
@@ -3314,7 +3322,7 @@ find servicios -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
 if [ -f servicios/rdp.txt ]
 then
 	interlace -tL servicios/smb.txt -threads 5 -c "echo 'nmap -n -sS -p445 --script smb-vuln-ms08-067 _target_' >> logs/vulnerabilidades/_target__445_ms08067.txt >/dev/null" --silent
-	interlace -tL servicios/smb.txt -threads 5 -c "nmap -n -sS -p445 --script smb-vuln-ms08-067 _target_ > logs/vulnerabilidades/_target_445_ms08067.txt" --silent
+	interlace -tL servicios/smb.txt -threads 5 -c "nmap -n -sS -p445 --script smb-vuln-ms08-067 _target_ > logs/vulnerabilidades/_target__445_ms08067.txt" --silent
 fi
 
 	
