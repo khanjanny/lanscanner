@@ -469,6 +469,7 @@
   <vuln>
 	<cod>mailPass</cod>  
 	<codVul>N/A</codVul>	
+	<CVSS>N/A</CVSS>
     <nombre>Cuentas de correo con contraseñas inseguras</nombre>
     <riesgoAgetic>Alto</riesgoAgetic>	
     <probabilidad> Posible </probabilidad>

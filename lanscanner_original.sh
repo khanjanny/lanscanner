@@ -1373,7 +1373,7 @@ then
 		if [[ $greprc -eq 0 ]] ; then			
 			libsshauthbypass.py --host $ip --port 22 --command "whoami" > logs/vulnerabilidades/"$ip"_22_SSHBypass.txt 
 			
-			egrep -iq "Not Vulnerable" logs/vulnerabilidades/"$ip"_22_SSHBypass.txt  2>/dev/null
+			egrep -iq "Not Vulnerable|Error" logs/vulnerabilidades/"$ip"_22_SSHBypass.txt  2>/dev/null
 			greprc=$?
 			if [[ $greprc -eq 1 ]] ; then
 				echo "Vulnerable a libSSH bypass"  > .vulnerabilidades/"$ip"_22_SSHBypass.txt
