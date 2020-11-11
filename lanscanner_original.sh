@@ -2051,8 +2051,20 @@ then
 							if [[ $greprc -eq 0 ]];then 		
 								wpscan  --update >/dev/null 						
 								echo -e "\t\t\t[+] Revisando vulnerabilidades de wordpress ($subdominio)"
-								wpscan --enumerate u  --random-user-agent http://$subdominio > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
+								wpscan --enumerate u  --random-user-agent --url http://$subdominio > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt																
 								wpscan --random-user-agent --url http://$subdominio/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U  > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
+								
+								grep -qi "The URL supplied redirects to" logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
+								greprc=$?
+								if [[ $greprc -eq 0 ]];then 		
+									echo -e "\t\t\t[+] Rediccion en wordpress"
+									url=`cat logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt | perl -lne 'print $& if /http(.*?)\. /' |sed 's/\. //g'`
+									
+									wpscan --disable-tls-checks --enumerate u  --random-user-agent --url $url --disable-tls-checks > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
+									wpscan --disable-tls-checks --random-user-agent --url $url --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U --disable-tls-checks  > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
+									
+								fi										
+																							
 								egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$subdominio"_"$port"_wpusers.txt
 							fi
 							###################################	 
@@ -2206,7 +2218,7 @@ then
 					if [[ $greprc -eq 0 ]];then 		
 						echo -e "\t\t\t[+] Revisando vulnerabilidades de wordpress (IP)"
 						wpscan  --update >/dev/null						
-						wpscan --enumerate u  --random-user-agent http://$ip > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
+						wpscan --enumerate u  --random-user-agent --url http://$ip > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
 						wpscan --random-user-agent --url http://$ip/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U  > .enumeracion/"$ip"_"$port"_wpscanPlugins.txt
 								
 								
@@ -2728,9 +2740,19 @@ then
 							greprc=$?
 							if [[ $greprc -eq 0 ]];then 		
 								echo -e "\t\t\t[+] Revisar wordpress "						    																
-								wpscan --enumerate u  --random-user-agent https://$subdominio --disable-tls-checks > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
-								wpscan --random-user-agent --url https://$subdominio/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U --disable-tls-checks  > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
-						
+								wpscan --disable-tls-checks --enumerate u  --random-user-agent --url https://$subdominio --disable-tls-checks > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
+								wpscan --disable-tls-checks --random-user-agent --url https://$subdominio/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U --disable-tls-checks  > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
+								
+								grep -qi "The URL supplied redirects to" logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
+								greprc=$?
+								if [[ $greprc -eq 0 ]];then 		
+									echo -e "\t\t\t[+] Redireccion en wordpress"
+									url=`cat logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt | perl -lne 'print $& if /http(.*?)\. /' |sed 's/\. //g'`
+									
+									wpscan --disable-tls-checks --enumerate u  --random-user-agent --url $url --disable-tls-checks > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
+									wpscan --disable-tls-checks --random-user-agent --url $url --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U --disable-tls-checks  > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
+									
+								fi										
 								egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$subdominio"_"$port"_wpusers.txt
 							fi
 							###########################	
@@ -2940,8 +2962,8 @@ then
 						echo -e "\t\t[+] Revisando vulnerabilidades de wordpress"
 						wpscan  --update																		
 						
-						wpscan --enumerate u  --random-user-agent https://$ip --disable-tls-checks > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
-						wpscan --random-user-agent --url https://$ip/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U --disable-tls-checks  > .enumeracion/"$ip"_"$port"_wpscanPlugins.txt
+						wpscan --disable-tls-checks --enumerate u  --random-user-agent --url https://$ip --disable-tls-checks > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
+						wpscan --disable-tls-checks --random-user-agent --url https://$ip/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U --disable-tls-checks  > .enumeracion/"$ip"_"$port"_wpscanPlugins.txt
 								
 						egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$ip"_"$port"_wpusers.txt
 					fi
