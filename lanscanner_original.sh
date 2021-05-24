@@ -995,7 +995,7 @@ then
 		 
 	#smb-vuln-ms08-067
 	interlace -tL servicios/smb.txt -threads 5 -c "echo 'nmap -n -sS -p445 --script smb-vuln-ms08-067 _target_' >> logs/vulnerabilidades/_target__445_ms08067.txt >/dev/null" --silent
-	interlace -tL servicios/smb.txt -threads 5 -c "nmap -n -sS -p445 --script smb-vuln-ms08-067 _target_ > logs/vulnerabilidades/_target_445_ms08067.txt" --silent
+	interlace -tL servicios/smb.txt -threads 5 -c "nmap -n -sS -p445 --script smb-vuln-ms08-067 _target_ > logs/vulnerabilidades/_target__445_ms08067.txt" --silent
 
 	#smb-vuln-ms17-010 
 	interlace -tL servicios/smb.txt -threads 5 -c "echo 'nmap -n -sS -p445 --script smb-vuln-ms17-010 _target_' >> logs/vulnerabilidades/_target__445_ms17010.txt >/dev/null" --silent
@@ -1683,7 +1683,7 @@ then
 		
 		
 		###### zerologon ######
-		netbiosName=`nbtscan $ip | grep server | awk '{print $2}'`
+		netbiosName=`nmap -n -sS -Pn --script smb-os-discovery.nse -p445 $ip | grep -i netbios | awk '{print $5}' | cut -d '\' -f1 `
 		echo $netbiosName > logs/vulnerabilidades/"$ip"_"$port"_zerologon.txt 
 		zerologon_tester.py $netbiosName $ip >> logs/vulnerabilidades/"$ip"_"$port"_zerologon.txt 
 		grep "DC can be fully compromised by a Zerologon attack" logs/vulnerabilidades/"$ip"_"$port"_zerologon.txt  > .vulnerabilidades/"$ip"_"$port"_zerologon.txt

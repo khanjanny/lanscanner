@@ -4,8 +4,7 @@
    	<cod>ms17010</cod> 
     <nombre> Vulnerabilidad de Windows - Eternal blue </nombre>
     <codVul>MS17-010</codVul>
-    <CVSS>9.3</CVSS>
-    <riesgoAgetic> Crítico </riesgoAgetic>	
+    <CVSS>9.3</CVSS>    
     <probabilidad> Muy probable </probabilidad>
     <impacto> Crítico </impacto>
     <riesgoInforme> CRÍTICO </riesgoInforme>        
@@ -25,8 +24,7 @@
    	<cod>zerologon</cod> 
     <nombre> Vulnerabilidad de Windows - Zerologon </nombre>
     <codVul>CVE-2020-1472</codVul>
-    <CVSS>10</CVSS>
-    <riesgoAgetic> Crítico </riesgoAgetic>	
+    <CVSS>10</CVSS>    
     <probabilidad> Muy probable </probabilidad>
     <impacto> Crítico </impacto>
     <riesgoInforme> CRÍTICO </riesgoInforme>        
@@ -46,8 +44,7 @@
    	<cod>ransomware</cod> 
     <nombre>Presencia de ransomware en la entidad</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic> Crítico </riesgoAgetic>	
+    <CVSS>N/A</CVSS>    
     <probabilidad> Muy probable </probabilidad>
     <impacto> Crítico </impacto>
     <riesgoInforme> CRÍTICO </riesgoInforme>        
@@ -68,8 +65,7 @@
 	<cod>webshell</cod> 
     <nombre>Backdoor (webshell) en el sitio web</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Crítico</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Casi seguro</probabilidad>
     <impacto>Crítico</impacto>	
     <riesgoInforme>CRÍTICO</riesgoInforme>        
@@ -87,8 +83,7 @@
    	<cod>passwordSFI</cod> 
     <nombre>Password por defecto en el servidor SFI</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Crítico</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Casi seguro</probabilidad>
     <impacto>Crítico</impacto>
     <riesgoInforme>CRÍTICO</riesgoInforme>       
@@ -107,8 +102,7 @@
 	<cod>BlueKeep</cod> 
     <nombre>Vulnerabilidad en el escritorio remoto - BlueKeep</nombre>
     <codVul>CVE-2019-0708</codVul>
-    <CVSS>9.8</CVSS>
-    <riesgoAgetic>Crítico</riesgoAgetic>	
+    <CVSS>9.8</CVSS>	
     <probabilidad> Casi seguro </probabilidad>
     <impacto> Crítico </impacto>
     <riesgoInforme> CRÍTICO </riesgoInforme>        
@@ -127,8 +121,7 @@
 	<cod>backdoorFabrica</cod> 
     <nombre>Presencia de backdoor en el dispositivo</nombre>
     <codVul>CVE-2018-6211(Dlink) CVE-2014-0659(CISCO) CVE-2016-1909(Fortinet) CVE-2015-7755(Juniper)</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Crítico</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Casi seguro</probabilidad>
     <impacto>Crítico</impacto>
     <riesgoInforme>CRÍTICO</riesgoInforme>        
@@ -148,8 +141,7 @@
    	<cod>ms08067</cod> 
     <nombre>Vulnerabilidad de Windows - NetAPI </nombre>
     <codVul>MS08-067</codVul>
-    <CVSS>10</CVSS>
-    <riesgoAgetic>Crítico</riesgoAgetic>	
+    <CVSS>10</CVSS>	
     <probabilidad> Muy probable </probabilidad>
     <impacto> Crítico </impacto>
     <riesgoInforme> CRITICO </riesgoInforme>        
@@ -171,8 +163,7 @@
 	<cod>zimbraXXE</cod> 
 	<codVul>CVE-2019-9670</codVul>
     <CVSS>9.8</CVSS>
-    <nombre>Zimbra con vulnerabilidad XXE</nombre>
-    <riesgoAgetic>Crítico</riesgoAgetic>	
+    <nombre>Zimbra con vulnerabilidad XXE</nombre>	
     <probabilidad> Muy probable </probabilidad>
     <impacto> Crítico </impacto>
     <riesgoInforme> CRITICO </riesgoInforme>        
@@ -191,8 +182,7 @@
    	<cod>doublepulsar</cod> 
     <nombre> Double pulsar </nombre>
     <codVul>N/A</codVul>
-    <CVSS>10</CVSS>
-    <riesgoAgetic> Crítico </riesgoAgetic>	
+    <CVSS>10</CVSS>	
     <probabilidad> Muy probable </probabilidad>
     <impacto> Crítico </impacto>
     <riesgoInforme> CRITICO </riesgoInforme>        
@@ -212,8 +202,7 @@
    	<cod>rmiVuln</cod> 
     <nombre> Java RMI vulnerable </nombre>
     <codVul>CVE-2011-3556</codVul>
-    <CVSS>7.5</CVSS>
-    <riesgoAgetic> Alto </riesgoAgetic>	
+    <CVSS>7.5</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -231,8 +220,7 @@
    	<cod>apacheStruts</cod> 
     <nombre> Apache Struts vulnerable </nombre>
     <codVul>CVE-2016-3093</codVul>
-    <CVSS>5.3</CVSS>
-    <riesgoAgetic> Alto </riesgoAgetic>	
+    <CVSS>5.3</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -250,8 +238,7 @@
    	<cod>misfortune</cod> 
     <nombre>Misfortune Cookie </nombre>
     <codVul>CVE-2014-9222</codVul>
-    <CVSS>10</CVSS>
-    <riesgoAgetic> Alto </riesgoAgetic>	
+    <CVSS>10</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -270,8 +257,7 @@
   	<cod>ciscoASAVuln</cod> 
 	<codVul>CVE-2014-2128</codVul>
     <CVSS>5.0</CVSS>
-    <nombre>Vulnerabilidad en Cisco ASA SSL VPN</nombre>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <nombre>Vulnerabilidad en Cisco ASA SSL VPN</nombre>	
     <probabilidad>Posible</probabilidad>
     <impacto>Significativo</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
@@ -289,8 +275,7 @@
   	<cod>vlanHop</cod> 
 	<codVul>N/A</codVul>
     <CVSS>N/A</CVSS>
-    <nombre>Salto de VLAN </nombre>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <nombre>Salto de VLAN </nombre>	
     <probabilidad>Posible</probabilidad>
     <impacto>Significativo</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
@@ -308,8 +293,7 @@
    	<cod>passwordHost</cod> 
     <nombre>Passwords de estaciones de trabajo fáciles de adivinar</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible </probabilidad>
     <impacto>Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -327,8 +311,7 @@
    	<cod>hashRoto</cod> 
     <nombre>Passwords facil de adivinar</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible </probabilidad>
     <impacto>Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -346,8 +329,7 @@
    	<cod>conficker</cod> 
     <nombre> Conficker </nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic> Alto </riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -367,8 +349,7 @@
    	<cod>passwordBD</cod> 
     <nombre>Base de datos con password inseguro</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -386,8 +367,7 @@
    	<cod>noSQLDatabases</cod> 
     <nombre>Base de datos NoSQL sin autenticación</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -407,8 +387,7 @@
    	<cod>JoomlaJCKeditor</cod> 
     <nombre>Joomla JCK editor vulnerable a inyección SQL</nombre>
     <codVul>CVE-2018-17254</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -428,8 +407,7 @@
 	<cod>webdavVulnerable</cod> 
     <nombre>WebDAV vulnerable</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -450,8 +428,7 @@
 	<cod>IISwebdavVulnerable</cod> 
     <nombre>WebDAV vulnerable</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -470,8 +447,7 @@
 	<cod>mailPass</cod>  
 	<codVul>N/A</codVul>	
 	<CVSS>N/A</CVSS>
-    <nombre>Cuentas de correo con contraseñas inseguras</nombre>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <nombre>Cuentas de correo con contraseñas inseguras</nombre>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -489,8 +465,7 @@
 	<cod>shellshock</cod> 	
     <nombre>Vulnerabilidad en Bash - shellshock</nombre>
     <codVul>CVE-2014-6271</codVul>
-    <CVSS>9.8</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>9.8</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -511,8 +486,7 @@
    	<cod>winboxVuln</cod> 
     <nombre>Mikrotik vulnerable</nombre>
     <codVul>CVE-2018-14847</codVul>
-    <CVSS>9.1</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>9.1</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Significativo</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
@@ -532,8 +506,7 @@
 	<cod>archivosPeligrosos</cod> 
     <nombre>Archivos/directorios que presentan un riesgo de seguridad</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Significativo</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
@@ -553,8 +526,7 @@
 	<cod>backupWeb</cod> 
     <nombre>Backup en el servidor web</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Significativo</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
@@ -572,8 +544,7 @@
 	<cod>anonymousIPMI</cod> 
     <nombre>Acceso IPMI anónimo</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Mayor</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
@@ -591,8 +562,7 @@
 	<cod>intelVuln</cod> 
     <nombre>Intel Active Management vulnerable</nombre>
     <codVul>CVE-2017-5689</codVul>
-    <CVSS>9.8</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>9.8</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Mayor</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
@@ -610,8 +580,7 @@
 	<cod>jbossVuln</cod> 
     <nombre>Vulnerabilidades en JBOSS</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Mayor</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
@@ -629,8 +598,7 @@
 	<cod>cipherZeroIPMI</cod> 
     <nombre>IPMI con Cipher 0 habilitado</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Mayor</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
@@ -652,8 +620,7 @@
 	<cod>compartidoNFS</cod> 
     <nombre>Recursos compartidos (NFS)</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Mayor</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
@@ -671,8 +638,7 @@
 	<cod>perdidaAutenticacion</cod> 			
 	<codVul>N/A</codVul>
     <CVSS>N/A</CVSS>
-    <nombre>Perdida de autenticación</nombre>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <nombre>Perdida de autenticación</nombre>	
     <probabilidad>Posible</probabilidad>
     <impacto>Mayor</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
@@ -690,8 +656,7 @@
 	<cod>phishing</cod> 			
 	<codVul>N/A</codVul>
     <CVSS>N/A</CVSS>
-    <nombre>Phishing</nombre>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <nombre>Phishing</nombre>	
     <probabilidad>Posible</probabilidad>
     <impacto>Mayor</impacto>
     <riesgoInforme>ALTO</riesgoInforme>        
@@ -711,8 +676,7 @@
 	 <cod>openrelay</cod> 
     <nombre>Open Relay</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -730,8 +694,7 @@
    	<cod>compartidoSMB</cod> 
     <nombre>Recursos compartidos (SMB)</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -749,8 +712,7 @@
 	<cod>passwordMikroTik</cod>  		
 	<codVul>N/A</codVul>
     <CVSS>N/A</CVSS>
-    <nombre>Password no robusto (Mikrotik)</nombre>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <nombre>Password no robusto (Mikrotik)</nombre>	
     <probabilidad>Posible </probabilidad>
     <impacto>Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -769,8 +731,7 @@
 	 <cod>spoof</cod> 
     <nombre>Suplantacion de correos electrónicos</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Significativa</impacto>
     <riesgoInforme>ALTO</riesgoInforme>       
@@ -790,8 +751,7 @@
    	<cod>SSHBypass</cod> 
     <nombre>libSSH - Evasión de Autenticación  </nombre>
     <codVul>CVE-2018-10933</codVul>
-    <CVSS>9.1</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>9.1</CVSS>	
     <probabilidad>Posible </probabilidad>
     <impacto>Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -809,8 +769,7 @@
    	<cod>passwordZKSoftware</cod> 
     <nombre>Lector de huella digital con contraseña fácil de adivinar </nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -830,8 +789,7 @@
    	<cod>poisoning</cod> 
     <nombre>Sniffing, captura de tráfico</nombre>
     <codVul>ninguno</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic> Alto </riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -852,8 +810,7 @@
    	<cod>wordpressPass</cod> 
     <nombre>Contraseña fácil de adivinar del sitio wordpress </nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -864,15 +821,16 @@
     <descripcion>Se identificaron paneles de administración que no tienen un password robusto ( fácil de adivinar) y permiten acceder a datos sensibles</descripcion>
     <verificacion>Ninguna</verificacion>
     <recomendacion>Asignar un password al equipo que sea difícil de adivinar. El password debe tener una longitud mínima de 8 caracteres, al menos debe tener un carácter minúscula, uno mayúscula, un dígito y un carácter especial</recomendacion> 
-	<referencias>Ninguna</referencias>  
+	<referencias>Ninguna</referencias> 
+	<recomendacionMatriz></recomendacionMatriz> 
+    <conclusion></conclusion>        
   </vuln>
   
    <vuln>  
    	<cod>wordpressPlugin</cod> 
     <nombre>Plugin de wordress desactuactualizado </nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -882,16 +840,49 @@
     <detallesTest>Se identificó un plugin que están desactualizados y representan un riesgo de seguridad para el sitio web de la entidad</detallesTest>       
     <descripcion>Se identificó un plugin que están desactualizados y representan un riesgo de seguridad para el sitio web de la entidad</descripcion>
     <verificacion>Ninguna</verificacion>
-    <recomendacion>Actualizar los plugins desactualizados o desactivarlos si no es utilizado</recomendacion> 
-	<referencias>Ninguna</referencias>  
+    <recomendacion>Actualizar los plugins desactualizados o desactivarlos si no es utilizado.  
+    Habilitar actualizaciones de seguridad automáticas
+    [bullet] Ingresar al panel de administración https://DOMINIOENTIDAD/wp-admin/plugins.php
+    [bullet] Seleccionar todos los plugins 
+    [bullet] Seleccionar "Aplicar".</recomendacion> 
+	<referencias>Ninguna</referencias>
+	<recomendacionMatriz>  Actualizar los plugins listados en el presente informe </recomendacionMatriz> 
+    <conclusion>Se identifico plugins desactualizados</conclusion>        
+  </vuln>
+  
+  
+  <vuln>  
+   	<cod>wordpressPingbacks</cod> 
+    <nombre>Comentarios y pingbacks</nombre>
+    <codVul>N/A</codVul>
+    <CVSS>N/A</CVSS>	
+    <probabilidad> Posible </probabilidad>
+    <impacto> Significativo </impacto>
+    <riesgoInforme> MEDIO </riesgoInforme>        
+    <agente_amenaza> USUARIO EXTERNO </agente_amenaza>    
+    <impacto_tecnico> Creación de links y comentarios </impacto_tecnico>
+    <impacto_negocio> La imagen corporativa se puede ver afectada  </impacto_negocio>    
+    <detallesTest>La configuración actual permite:
+    [bullet] Comentarios de terceros
+    [bullet] Creación de enlaces mediante pingbacks</detallesTest>       
+    <descripcion></descripcion>
+    <verificacion>Ninguna</verificacion>
+    <recomendacion> En el panel https://DOMINIOENTIDAD/wp-admin/options-discussion.php deshabilitar 
+    [bullet] Intentar avisar a cualquier blog enlazado desde la entradas
+	[bullet] Permitir avisos de enlaces de otros blogs
+	[bullet] Permitir a la gente enviar comentarios en las nuevas entradas
+
+    Para las entradas existentes usar la guía: https://www.wpbeginner.com/wp-tutorials/how-to-disable-trackbacks-and-pings-on-existing-wordpress-posts/</recomendacion> 
+	<referencias>Ninguna</referencias> 
+	<recomendacionMatriz> Desactivar los comentarios y pingbacks </recomendacionMatriz> 
+    <conclusion>Se identifico configuraciones no seguras en el sitio wordpress </conclusion>   
   </vuln>
   
   <vuln>  
    	<cod>passwordAdivinado</cod> 
     <nombre>Contraseña fácil de adivinar </nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -912,8 +903,7 @@
    	<cod>logeoRemoto</cod> 
     <nombre>Logueo en red habilitado</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -932,8 +922,7 @@
    	<cod>heartbleed</cod> 
     <nombre>Vulnerabilidad en OpenSSL - Heartbleed</nombre>
     <codVul>CVE-2014-0160</codVul>
-    <CVSS>7.5</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>7.5</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>  
@@ -953,8 +942,7 @@
 	<cod>VNCnopass</cod> 
     <nombre>Acceso a equipos mediante VNC sin credenciales</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -973,8 +961,7 @@
     <cod>passwordDefecto</cod> 
     <nombre>Contraseña por defecto</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -992,8 +979,7 @@
     <cod>owaVul</cod> 
     <nombre>Vulnerabilidad en el software Microsoft Exchange</nombre>
     <codVul>CVE-2020-0688</codVul>
-    <CVSS>8.8</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>8.8</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -1009,24 +995,12 @@
 	<referencias>https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2020-0688</referencias> 
   </vuln>
   
-  <vuln>
-	<cod>openrelay2</cod> 
-    <nombre>Suplantación de correo electrónico</nombre>
-    <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>
-    <descripcion> Es posible acceder al servidor de correos mediante el puerto 25, y enviar correos anónimos o a nombre de otras cuentas. Esto implica que cualquier usuario que conozca esta vulnerabilidad podría enviar correos con mensajes fraudulentos o elaborados para un determinado fin a otros usuarios dentro del dominio. </descripcion>
-    <verificacion>Herramienta: telnet SALTOLINEA</verificacion>
-   <recomendacion> Deshabilitar o bloquear la funcionalidad de envío de correos anónimos. Revisar la instalación y configuración del servidor de correo e identificar configuraciones por defecto. Forzar la autenticación de usuarios previa interacción con el servidor. Servicio 25/tcp</recomendacion> 
-  </vuln> 
-  
-  
+
   <vuln>	
 	<cod>VNCbypass</cod> 
     <nombre>VNC vulnerable</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -1044,8 +1018,7 @@
    	<cod>vulnDahua</cod> 
     <nombre>DVR Dahua con vulnerabilidad </nombre>
     <codVul>CVE-2013-6117</codVul>    
-    <CVSS>7.5</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>7.5</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -1063,8 +1036,7 @@
    	<cod>slowloris</cod> 
     <nombre>Denegacion de servicio al servidor web - slowloris </nombre>
     <codVul>CVE-2007-6750</codVul>
-    <CVSS>5.0</CVSS>
-    <riesgoAgetic> Alto </riesgoAgetic>	
+    <CVSS>5.0</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -1083,8 +1055,7 @@
    	<cod>ddos</cod> 
     <nombre>Denegacion de servicio </nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic> Alto </riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -1102,8 +1073,7 @@
    	<cod>passwordDahua</cod> 
     <nombre>DVR Dahua con password por defecto</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -1123,8 +1093,7 @@
 	<cod>SambaCry</cod> 
     <nombre>SambaCry</nombre>
     <codVul>CVE-2017-7494</codVul>
-    <CVSS>9.8</CVSS>
-    <riesgoAgetic>Alto</riesgoAgetic>	
+    <CVSS>9.8</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Significativo </impacto>
     <riesgoInforme> ALTO </riesgoInforme>        
@@ -1146,8 +1115,7 @@
 	<cod>VPNagresivo</cod>  	
     <nombre>Configuración no segura de la VPN</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
      <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1165,8 +1133,7 @@
    	<cod>googlehacking</cod> 
     <nombre>Información sensible indexada por motores de búsqueda (google)</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1184,8 +1151,7 @@
    	<cod>openstreaming</cod> 
     <nombre> Cámara de seguridad con open streaming habilitado </nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic> Medio </riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1204,8 +1170,7 @@
    	<cod>vulTLS</cod> 
     <nombre> Vulnerabilidades en el protocolo TLS/SSL </nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic> Medio </riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1227,8 +1192,7 @@
 	<cod>hashesIPMI</cod> 
     <nombre>obtención remota de hashes de contraseñas de IPMI</nombre>
     <codVul>CVE-2013-4786</codVul>
-    <CVSS>7.5</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>7.5</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Importante</impacto>
     <riesgoInforme>MEDIO</riesgoInforme>        
@@ -1246,8 +1210,7 @@
    	<cod>exposicionUsuarios</cod> 
     <nombre> Exposicion de usuarios de la base de datos</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic> Medio </riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1266,8 +1229,7 @@
   	<cod>llmnr</cod> 
 	<codVul>N/A</codVul>
     <CVSS>N/A</CVSS>
-    <nombre>Envenenamiento LLMNR y NBT-NS</nombre>
-    <riesgoAgetic> Medio </riesgoAgetic>	
+    <nombre>Envenenamiento LLMNR y NBT-NS</nombre>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1288,8 +1250,7 @@
    	<cod>registroHabilitado</cod> 
     <nombre>Registro de usuarios habilitado del sitio web</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic> Medio </riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1308,8 +1269,7 @@
 	 <cod>directorioLDAP</cod> 
     <nombre>LDAP con acceso anónimo</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
 	<probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1328,8 +1288,7 @@
    	<cod>wpusers</cod> 
     <nombre> Enumeración de usuarios de wordpress</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic> Medio </riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1340,16 +1299,21 @@
     <descripcion> Se identificó que es posible enumerar a todos los usuarios que son administradores del sitio web. Esta información puede ser usada para realizar un ataque de diccionario al sitio web. </descripcion>
     <verificacion> Herramienta: wpscan SALTOLINEA
 				   wpscan --random-agent --url http://www.dominio.com --enumerate u </verificacion>
-    <recomendacion> Instalar el plugin 'Stop user enumeration' </recomendacion> 
-	<referencias>https://wordpress.org/plugins/stop-user-enumeration/</referencias>    
+    <recomendacion>No usar usuarios por defecto como "admin", "administrador" o "administrator"
+    [bullet] Bloquear el acceso a los archivos de instalación mediante el servidor web (apache/nginx)
+       
+location ~* ^/wp- json/wp/v2/users/ {
+  deny all;
+}
+    [bullet] Instalar y habilitar el plugin "WP Hardening" https://wordpress.org/plugins/wp-security-hardening/)</recomendacion> 
+	<referencias>Ninguna</referencias>    
   </vuln>
      
    <vuln>
   	<cod>stp</cod> 
 	<codVul>N/A</codVul>
     <CVSS>N/A</CVSS>
-    <nombre>Paquetes STP </nombre>
-    <riesgoAgetic> Medio </riesgoAgetic>	
+    <nombre>Paquetes STP </nombre>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1369,8 +1333,7 @@
    	<cod>HTTPsys</cod> 
     <nombre>Denegación del servidor web - HTTP.sys </nombre>
     <codVul>MS15-034</codVul>
-    <CVSS>10</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>10</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1390,8 +1353,7 @@
 	<cod>upnpAbierto</cod>  
     <nombre>uPnP Abierto</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>    
+    <CVSS>N/A</CVSS>    
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>     
@@ -1411,8 +1373,7 @@
 	<cod>enum4linux</cod> 
     <nombre>Enumeración de usuarios (Sesion nula en el servidor)</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1439,8 +1400,7 @@
 	<cod>transferenciaDNS</cod> 
     <nombre>Transferencia de zona</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1460,8 +1420,7 @@
 	 <cod>ms12020</cod> 
     <nombre>Denegación de servicio Remote Desktop Protocol</nombre>
     <codVul>MS12-020</codVul>
-    <CVSS>9.3</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>9.3</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Moderado </impacto>
     <riesgoInforme> MEDIO </riesgoInforme>        
@@ -1481,8 +1440,7 @@
    	<cod>confTLS</cod> 
     <nombre> Configuraciones no adecuadas para TLS/SSL </nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-   <riesgoAgetic>Medio</riesgoAgetic>    
+    <CVSS>N/A</CVSS>    
     <probabilidad>Posible</probabilidad>
     <impacto>Insignificante</impacto>
     <riesgoInforme>BAJO</riesgoInforme>    
@@ -1502,8 +1460,7 @@
 	<cod>divulgacionInformacion</cod>  
     <nombre>Divulgación de información del servidor</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>    
+    <CVSS>N/A</CVSS>    
     <probabilidad>Posible</probabilidad>
     <impacto>Insignificante</impacto>
     <riesgoInforme>BAJO</riesgoInforme>    
@@ -1523,8 +1480,7 @@
 	<cod>upnpEnum</cod>  
     <nombre>uPnP suceptible a ataques de DoS</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>    
+    <CVSS>N/A</CVSS>    
     <probabilidad>Posible</probabilidad>
     <impacto>Insignificante</impacto>
     <riesgoInforme>BAJO</riesgoInforme>      
@@ -1543,8 +1499,7 @@
    	<cod>snmpCommunity</cod> 
     <nombre>SNMP con cadena comunitaria por defecto</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Leve</impacto>
     <riesgoInforme>BAJO</riesgoInforme>        
@@ -1565,8 +1520,7 @@
   	<cod>listadoDirectorios</cod> 
     <nombre>Listado de directorios habilitado</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Leve</impacto>
     <riesgoInforme>BAJO</riesgoInforme>        
@@ -1584,8 +1538,7 @@
 	<cod>openresolver</cod> 		
     <nombre>DNS abierto</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Leve</impacto>
     <riesgoInforme>BAJO</riesgoInforme>        
@@ -1604,8 +1557,7 @@
 	<cod>noTLS</cod> 		
     <nombre>Sitio web con protocolo inseguro</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Leve</impacto>
     <riesgoInforme>BAJO</riesgoInforme>        
@@ -1624,8 +1576,7 @@
 	<cod>contenidoNoRelacionado</cod> 		
     <nombre>Contenido no relacionado al negocio</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Leve</impacto>
     <riesgoInforme>BAJO</riesgoInforme>        
@@ -1644,8 +1595,7 @@
    	<cod>archivosDefecto</cod> 
     <nombre> Archivos y directorios por defecto </nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic> Medio </riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Leve </impacto>
     <riesgoInforme> BAJO </riesgoInforme>        
@@ -1665,8 +1615,7 @@
    	<cod>IPinterna</cod> 
     <nombre> IPs internas divulgadas</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic> Medio </riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Leve </impacto>
     <riesgoInforme> BAJO </riesgoInforme>        
@@ -1684,8 +1633,7 @@
 	<cod>vrfyHabilitado</cod> 
     <nombre>Comando VRFY habilitado en el servidor de correos</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Leve</impacto>
     <riesgoInforme>BAJO</riesgoInforme>        
@@ -1703,8 +1651,7 @@
    	<cod>CVE15473</cod> 
     <nombre>Enumeración de usuarios SSH</nombre>
     <codVul>CVE-2018-15473</codVul>
-    <CVSS>5.3</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>5.3</CVSS>	
     <probabilidad>Posible</probabilidad>
     <impacto>Leve</impacto>
     <riesgoInforme>BAJO</riesgoInforme>        
@@ -1724,8 +1671,7 @@
    	<cod>ftpAnonymous</cod> 
     <nombre>Servidor FTP con usuario anónimo habilitado</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Leve </impacto>
     <riesgoInforme> BAJO </riesgoInforme>        
@@ -1743,8 +1689,7 @@
    	<cod>erroresWeb</cod> 
     <nombre>Errores en el sitio web</nombre>
     <codVul>N/A</codVul>
-    <CVSS>5.0</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>5.0</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Leve </impacto>
     <riesgoInforme> BAJO </riesgoInforme>        
@@ -1762,8 +1707,7 @@
    	<cod>captcha</cod> 
     <nombre>Falta de captcha en un formulario </nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Leve </impacto>
     <riesgoInforme> BAJO </riesgoInforme>        
@@ -1784,8 +1728,7 @@
    	<cod>debugHabilitado</cod> 
     <nombre>Debug habilitado en el sitio web</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Leve </impacto>
     <riesgoInforme> BAJO </riesgoInforme>        
@@ -1804,8 +1747,7 @@
    	<cod>contenidoIndebido</cod> 
     <nombre>El sitio web tiene contenido no relacionado a la entidad</nombre>
     <codVul>N/A</codVul>
-    <CVSS>N/A</CVSS>
-    <riesgoAgetic>Medio</riesgoAgetic>	
+    <CVSS>N/A</CVSS>	
     <probabilidad> Posible </probabilidad>
     <impacto> Leve </impacto>
     <riesgoInforme> BAJO </riesgoInforme>        
@@ -1819,17 +1761,5 @@
 	<referencias>Ninguna</referencias> 
   </vuln> 
     
-    
-    
-    <vuln>
-	<cod>ACL</cod>  
-    <nombre>ACL no implementadas</nombre>
-    <codVul>N/A</codVul>s
-    <riesgoAgetic>Medio</riesgoAgetic>
-    <descripcion> La VLAN actual tiene acceso a otros segmentos que no deberia.</descripcion>
-   <recomendacion> Aplicar las ACLs correspondientes. </recomendacion> 
-  </vuln> 
-          
-
 </vulnerabilidades>
 

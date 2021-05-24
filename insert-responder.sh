@@ -41,7 +41,7 @@ do
 	 ip=`grep -i "$username" responder/*.txt | cut -d "-" -f3 | cut -d "t" -f1 | head -1`
 	 ip=${ip//[$'\t\r\n']} # limpiar saltos de linea
 	 ip=`echo "${ip::-1}"` # limpiar .txt
-	 #echo "$ip $username ($domain) $password"
+	 echo "$ip $username ($domain) $password"
 	# [445][smb] host: 172.16.0.3   login: att   password: att	 
 	 echo -e "IP:$ip  $domain\\\\\\$username  Pasword:$password" > .vulnerabilidades/"$ip"_445_passwordHost.txt
 	 
