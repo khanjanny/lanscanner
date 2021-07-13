@@ -27,7 +27,7 @@ RESET="\033[00m"       # Normal
 
 echo -e "${GREEN} [+] Instalando herramientas disponibles en repositorio ${RESET}" 
 sudo apt-get update
-sudo apt-get -y install bc nbtscan nfs-common snmp finger sqlite3 sqlitebrowser python-pip nmap masscan onesixtyone whatweb libssl-dev ike-scan postgresql-client elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd exiftool libpq-dev libpcap-dev tshark p7zip-full default-mysql-client python3-pip libssl-dev swig python3-dev gcc libcrypt-ssleay-perl metasploit-framework patator hydra enum4linux wpscan dnsutils python3-setuptools
+sudo apt-get -y install bc nbtscan nfs-common snmp finger sqlite3 sqlitebrowser nmap masscan onesixtyone whatweb libssl-dev ike-scan postgresql-client elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd exiftool libpq-dev libpcap-dev tshark p7zip-full default-mysql-client python3-pip libssl-dev swig python3-dev gcc libcrypt-ssleay-perl metasploit-framework patator hydra enum4linux wpscan dnsutils python3-setuptools gedit crackmapexec
 
 pip3 install cryptography
 pip3 install pycryptodomex
@@ -96,6 +96,13 @@ cd Interlace
 python3 setup.py install
 echo ""
 cd ../
+
+
+echo -e "${RED}[+]${GREEN} Instalando impacket ${RESET}"
+git clone https://github.com/SecureAuthCorp/impacket
+cd impacket
+python3 -m pip install .
+
 
 echo -e "${RED}[+]${GREEN} Instalando wafw00f ${RESET}"
 cd wafw00f
