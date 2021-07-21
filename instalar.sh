@@ -27,7 +27,7 @@ RESET="\033[00m"       # Normal
 
 echo -e "${GREEN} [+] Instalando herramientas disponibles en repositorio ${RESET}" 
 sudo apt-get update
-sudo apt-get -y install bc nbtscan nfs-common snmp finger sqlite3 sqlitebrowser nmap masscan onesixtyone whatweb libssl-dev ike-scan postgresql-client elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd exiftool libpq-dev libpcap-dev tshark p7zip-full default-mysql-client python3-pip libssl-dev swig python3-dev gcc libcrypt-ssleay-perl metasploit-framework patator hydra enum4linux wpscan dnsutils python3-setuptools gedit crackmapexec
+sudo apt-get -y install bc npm nbtscan nfs-common snmp finger sqlite3 sqlitebrowser nmap masscan onesixtyone whatweb libssl-dev ike-scan postgresql-client elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd exiftool libpq-dev libpcap-dev tshark p7zip-full default-mysql-client python3-pip libssl-dev swig python3-dev gcc libcrypt-ssleay-perl metasploit-framework patator hydra enum4linux wpscan dnsutils python3-setuptools gedit crackmapexec
 
 pip3 install cryptography
 pip3 install pycryptodomex
@@ -65,7 +65,6 @@ cp -r pentest /usr/bin
 cp lanscanner.sh /usr/bin
 cp monitor.sh /usr/bin
 cp autohack.sh /usr/bin
-cp generarReporte.pl /usr/bin
 
 chmod a+x /usr/bin/generarReporte.pl
 chmod a+x /usr/bin/monitor.sh
@@ -99,14 +98,13 @@ cd ../
 
 
 echo -e "${RED}[+]${GREEN} Instalando impacket ${RESET}"
-git clone https://github.com/SecureAuthCorp/impacket
 cd impacket
 python3 -m pip install .
-
+cd ..
 
 echo -e "${RED}[+]${GREEN} Instalando wafw00f ${RESET}"
 cd wafw00f
-python setup.py install
+python3 setup.py install
 echo ""
 cd ../
 
@@ -117,9 +115,22 @@ echo export PATH="$PATH:/usr/bin/pentest" >> ~/.zshrc
 echo ""
 chmod a+x /usr/bin/pentest/*
 
+echo -e "${GREEN} [+] Habilitando samba ${RESET}"
+cat <<EOF | sudo tee -a /etc/samba/smb.conf
+[smb]
+    comment = Samba
+    path = /tmp/
+    guest ok = yes
+    read only = no
+    browsable = yes
+EOF
+
+    
+service smbd restart    
+
 mkdir -p /usr/share/wordlists/ 2>/dev/null
 cd /usr/share/wordlists/
-wget https://raw.githubusercontent.com/DanielTorres1/passwords/master/usuarios-es.txt
+#wget https://raw.githubusercontent.com/DanielTorres1/passwords/master/usuarios-es.txt
 
 echo -e "${GREEN} [+] LISTO!! TODO OK"
 echo -e "${RED} [i] IMPORTANTE: Para empezar a usar los scripts inicia otra terminal :V ${RED}"

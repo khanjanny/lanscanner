@@ -1689,6 +1689,10 @@ then
 		grep "DC can be fully compromised by a Zerologon attack" logs/vulnerabilidades/"$ip"_"$port"_zerologon.txt  > .vulnerabilidades/"$ip"_"$port"_zerologon.txt
 		#######################		
 		
+		###### PrintNightmare ######
+		rpcdump.py $ip  >> logs/vulnerabilidades/"$ip"_"$port"_PrintNightmare.txt 		
+		egrep "MS-RPRN|MS-PAR" logs/vulnerabilidades/"$ip"_"$port"_PrintNightmare.txt  > .vulnerabilidades/"$ip"_"$port"_PrintNightmare.txt
+		#######################		
 															
 		 echo ""
  	done <servicios/servers.txt		
@@ -5101,5 +5105,5 @@ fi
 #grep -ira "Can't connect" * logs/enumeracion/* 2>/dev/null | egrep -v "webClone|transfer not allowed" >> errores.log
 
 #Encritar resultados
-7z a .resultados.7z .resultados.db -pcANRHPeREPZsCYGB8L64 >/dev/null
-rm .resultados.db
+#7z a .resultados.7z .resultados.db -pcANRHPeREPZsCYGB8L64 >/dev/null
+#rm .resultados.db
