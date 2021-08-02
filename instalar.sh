@@ -27,13 +27,21 @@ RESET="\033[00m"       # Normal
 
 echo -e "${GREEN} [+] Instalando herramientas disponibles en repositorio ${RESET}" 
 sudo apt-get update
-sudo apt-get -y install bc npm nbtscan nfs-common snmp finger sqlite3 sqlitebrowser nmap masscan onesixtyone whatweb libssl-dev ike-scan postgresql-client elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd exiftool libpq-dev libpcap-dev tshark p7zip-full default-mysql-client python3-pip libssl-dev swig python3-dev gcc libcrypt-ssleay-perl metasploit-framework patator hydra enum4linux wpscan dnsutils python3-setuptools gedit crackmapexec
-
-pip3 install cryptography
-pip3 install pycryptodomex
+sudo apt-get -y install bc npm nbtscan nfs-common snmp finger sqlite3 sqlitebrowser nmap masscan onesixtyone whatweb libssl-dev ike-scan postgresql-client elinks smbclient bc libcurl4-openssl-dev xterm ipmitool lbd exiftool libpq-dev libpcap-dev tshark p7zip-full default-mysql-client python3-pip libssl-dev swig python3-dev gcc libcrypt-ssleay-perl metasploit-framework patator hydra enum4linux wpscan dnsutils python3-setuptools gedit crackmapexec tor
 
 echo -e "${GREEN} [+] Instalando ofuscador de bash ${RESET}" 
 npm install -g bash-obfuscate
+
+
+echo -e "${GREEN} [+] Instalando udp-hunter ${RESET}" 
+cd udp-hunter
+pip install -r requirements.txt
+cd ..
+
+echo -e "${GREEN} [+] Instalando naabu ${RESET}" 
+GO111MODULE=on go get -v github.com/projectdiscovery/naabu/v2/cmd/naabu
+sudo cp ~/go/bin/naabu /usr/bin/naabu 
+chmod a+x /usr/bin/naabu
 
 echo -e "${GREEN} [+] Instalando webhacks ${RESET}"
 git clone https://github.com/DanielTorres1/webhacks
@@ -66,7 +74,6 @@ cp lanscanner.sh /usr/bin
 cp monitor.sh /usr/bin
 cp autohack.sh /usr/bin
 
-chmod a+x /usr/bin/generarReporte.pl
 chmod a+x /usr/bin/monitor.sh
 chmod a+x /usr/bin/lanscanner.sh
 chmod a+x /usr/bin/autohack.sh
@@ -87,7 +94,25 @@ bash instalar.sh
 echo ""
 cd ../
 
+echo -e "${RED}[+]${GREEN} Instalando Covenant ${RESET}"
+sudo dpkg -i files/libicu57_57.1-6+deb9u4_amd64.deb
 
+cp -r exploits/Covenant/ /opt
+
+wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg
+sudo mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/
+wget -q https://packages.microsoft.com/config/debian/10/prod.list
+sudo mv prod.list /etc/apt/sources.list.d/microsoft-prod.list
+sudo chown root:root /etc/apt/trusted.gpg.d/microsoft.asc.gpg
+sudo chown root:root /etc/apt/sources.list.d/microsoft-prod.list
+sudo apt-get update
+sudo apt-get install apt-transport-https
+sudo apt-get update
+sudo apt install dotnet-sdk-3.1
+cd /opt/Covenant/Covenant
+dotnet build
+echo ""
+cd ../
 
 
 echo -e "${RED}[+]${GREEN} Instalando Interlace ${RESET}"

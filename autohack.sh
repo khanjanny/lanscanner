@@ -52,7 +52,7 @@ if [ $TYPE == "internet" ]; then
 	cd EXTERNO
 	recon.sh -d $DOMAIN 
 	cd $DOMAIN
-	lanscanner.sh -t completo -i reportes/subdominios.csv -d $DOMAIN
+	lanscanner.sh -t completo -i importarMaltego/subdominios.csv -d $DOMAIN
 #	cracker.sh -e $CLAVE -t completo
 else
 	# escaneo LAN

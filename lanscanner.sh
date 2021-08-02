@@ -160,9 +160,9 @@ if [ ! -d "servicios" ]; then # si ya ejecutamos recon.sh antes
 	mkdir .arp
 	mkdir .escaneos
 	mkdir .datos
-	mkdir .nmap
-	mkdir .nmap_1000p
-	mkdir .nmap_banners
+	mkdir .escaneo_puertos
+	mkdir .escaneo_puertos_1000p
+	mkdir .escaneo_puertos_banners
 	mkdir .enumeracion
 	mkdir .enumeracion2 
 	mkdir .banners
@@ -234,14 +234,14 @@ sleep 5
 
 # Using ip list   
 if [ $FILE != NULL ] ; then  
-	#Lista de IPs como parametro (generalmente IPs publicas/subdominios)
+	#Lista de IPs como parametro (generalmente IPs publicas/subdominios) separadas por ,
      echo -e  "[+] Usando  archivo : $FILE " 
      if [ ! -f $prefijo$FILE ]; then
 		echo -e  "$OKRED El archivo no existe ! $RESET"
 		exit
 	 fi	
      
-     cat $prefijo$FILE | cut -d "," -f 1 | sort | uniq > $live_hosts        
+     cat $prefijo$FILE | cut -d "," -f 3 | sort | uniq > $live_hosts        
 else
   
   echo -e "[+] Buscar host vivos en otras redes usando ICMP,SMB,TCP21,22,80,443 \n" 
@@ -511,190 +511,113 @@ fi
    
 if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then 
 	echo -e "#################### Escaneo de puertos TCP ######################"	  
-	
-	if [ $TYPE == 'completo' ]        	    
-	then		
-		if [ $total_hosts -gt 200 ]
-		then			
-			max_nmap_ins=3 #fix
-		else
-			max_nmap_ins2=`echo "$total_hosts/15 + 1" | bc -l`
-			max_nmap_ins=3 #`echo $max_nmap_ins2 | awk '{print int($1+0.5)}'`	# redondeado #fix
-		fi	
-		echo -e "$OKBLUE [+]Escaneado los 1000 puertos mas usados $RESET"
-		echo -e "$OKBLUE [+]Número máximo de instancias de nmap: $max_nmap_ins $RESET"	
-	else
-		echo -e "$OKBLUE Configurar escaneo de puertos TCP: $RESET"		
-		echo -e "\t Opcion 1: Los 1000 puertos mas usados (nmap) "
-		echo -e "\t Opcion 2: Los 65535 puertos (masscan)"		
-		echo -e "$OKBLUE Escribe el numero de la opcion: $RESET"	
-		read port_scan_num
-			
-		echo -e "$OKBLUE ¿Cuantas instancias de nmap permitiremos (1-15)? $RESET"
-		read max_nmap_ins  
-	fi
-	
-     
-     if [ $port_scan_num == '1' ]   
-     then   	
-     	echo -e "[+] Realizando escaneo de puertos especificos (informix, Web services)"  
-     	nmap -n -sS -Pn -iL $live_hosts -p21,22,23,110,80,443,8080,81,32764,82,83,84,85,37777,5432,3306,1525,1530,1526,1433,8728,1521,6379,27017,8291 -oG .nmap/nmap2-tcp.grep >> reportes/nmap-tcp.txt 2>/dev/null 
-     	sleep 1;        			
-			
-     	echo -e "[+] Realizando escaneo tcp (solo 1000 puertos)" 
-     	while read ip           
-		do    			
-			nmap_instancias=$((`ps aux | grep nmap | wc -l` - 1)) 
-			#echo -e "\tinstancias de nmap ($nmap_instancias)"
-			if [ "$nmap_instancias" -lt $max_nmap_ins ] #Max 5 instances
-			then
-				#echo -e "\tnmap $ip"
-				nmap -n -sS -Pn $ip -oG .nmap_1000p/"$ip"_tcp.grep > .nmap_1000p/"$ip"_tcp.txt 2>/dev/null &					
-				sleep 0.2;	
-			else				
-				while true; do
-					echo -e "\tMax instancias de nmap ($nmap_instancias)"
-					sleep 10;
-					nmap_instancias=$((`ps aux | grep nmap | wc -l` - 1)) 
-					if [ "$nmap_instancias" -lt $max_nmap_ins ] #Max 5 instances
-					then
-						# ejecutamos 
-						nmap -n -sS -Pn $ip -oG .nmap_1000p/"$ip"_tcp.grep > .nmap_1000p/"$ip"_tcp.txt 2>/dev/null &
-						break
-					fi							
-				done														
-			fi		
-			 #echo -e "\t[+] Done $ip"
-		done <$live_hosts
-     	
-     	
-     	########## esperar a que termine el escaneo
-     	while true; do
-			nmap_instancias=`pgrep nmap | wc -l`								
-			if [ "$nmap_instancias" -gt 0  ];then	
-				echo -e "\t[i] Todavia hay escaneos de nmap ($nmap_instancias) activos"  
-				sleep 10
-			else
-				break		  		 
-			fi				
-		done	
-		#####################
-				
-		echo -e "\n$OKBLUE\t[+] Revisando falsos positivos en el escaneo de puertos $RESET"
-     	while read ip           
-		do    			
-			puertos_abiertos=`grep -o open .nmap_1000p/"$ip"_tcp.grep | wc -l`
-			echo -e "La ip $ip  tiene $puertos_abiertos puertos abiertos"
-			if [ "$puertos_abiertos" -gt 25 ]
-			then				
-				echo -e "\t$OKYELLOW [i] Sospechoso!!. Muchos puertos abiertos ($puertos_abiertos)$RESET"
-				echo -e "[+] Volviendo a escanear solo 100 puertos $ip "
-				#Borrar escaneo anterior
-				rm .nmap_1000p/"$ip"_tcp.grep .nmap_1000p/"$ip"_tcp.txt 				
-				nmap -n -sS -Pn --top-ports 100 $ip -oG .nmap_1000p/"$ip"_tcp.grep > .nmap_1000p/"$ip"_tcp.txt 2>/dev/null
-			fi	
-						
-			if [[ "$puertos_abiertos" -eq 0 && $internet == "s"   ]];then 														
-				echo -e "\t$OKYELLOW [i] Nmap no descubrio ningun puerto abierto.$RESET"
-				echo -e "[+]\tEscaneando con masscan $ip "
-				#Borrar escaneo anterior
-				rm .nmap_1000p/"$ip"_tcp.grep
-				masscan --interface $iface --rate 500 -p53,104,110,111,10000,10001,16992,143,1521,1433,1900,17185,11211,1723,21,22,23,25,102,20000,2096,3221,3128,3306,389,37777,3389,443,445,465,4443,4433,4786,47808,502,554,5432,5222,5555,5601,587,5900,27017,28017,636,631,6379,6380,79,80,1099,7547,7071,8000,9001,8009,8080,8010,8081,8180,81,82,9443,8098,8443,9160,902,993,995,9000,9090,8728,82,83,84,85,8291,9200,9100,4786 $ip --output-format grepable --output-filename .nmap_1000p/"$ip"_tcp.grep
-				#nmap -n -sS -Pn --top-ports 100 $ip -oG .nmap_1000p/"$ip"_tcp.grep > .nmap_1000p/"$ip"_tcp.txt 2>/dev/null
-			fi
-						
-		done <$live_hosts
 		
+       	
+	echo -e "[+] Realizando escaneo de puertos especificos (informix, Web services)"  
+	#nmap -n -sS -Pn -iL $live_hosts -p21,22,23,110,80,443,8080,81,32764,82,83,84,85,37777,5432,3306,1525,1530,1526,1433,8728,1521,6379,27017,8291 -oG .escaneo_puertos/nmap2-tcp.grep >> reportes/nmap-tcp.txt 2>/dev/null 
+	naabu -iL $live_hosts -p 21,22,23,110,80,443,8080,81,32764,82,83,84,85,37777,5432,3306,1525,1530,1526,1433,8728,1521,6379,27017,8291 -exclude-cdn -o .escaneo_puertos/tcp-especificos.txt
+	sleep 1;        			
 		
-     	
-     	# Solo puertos abiertos (sin banner)
-     	cat .nmap_1000p/*.grep > .nmap/nmap1-tcp.grep 
-     	cat .nmap_1000p/*.txt  >reportes/nmap-tcp.txt
-     	
-     	#     1000 puertos   +  puertos especifios
-     	cat .nmap/nmap1-tcp.grep .nmap/nmap2-tcp.grep > .nmap/nmap-tcp.grep # join nmap scans
-     	rm .nmap/nmap1-tcp.grep .nmap/nmap2-tcp.grep           
-     fi	
-     
+	echo -e "[+] Realizando escaneo tcp (solo 1000 puertos)" 
+	naabu -iL $live_hosts -top-ports 1000 -exclude-cdn  -o .escaneo_puertos/tcp.txt
+	#while read ip           
+	#do    			
+		#nmap_instancias=$((`ps aux | grep nmap | wc -l` - 1)) 
+		#echo -e "\tinstancias de nmap ($nmap_instancias)"
+#		if [ "$nmap_instancias" -lt $max_nmap_ins ] #Max 5 instances
+		#then
+			#echo -e "\tnmap $ip"
+			#nmap -n -sS -Pn $ip -oG .escaneo_puertos_1000p/"$ip"_tcp.grep > .escaneo_puertos_1000p/"$ip"_tcp.txt 2>/dev/null &					
+			#sleep 0.2;	
+		#else				
+			#while true; do
+				#echo -e "\tMax instancias de nmap ($nmap_instancias)"
+				#sleep 10;
+				#nmap_instancias=$((`ps aux | grep nmap | wc -l` - 1)) 
+				#if [ "$nmap_instancias" -lt $max_nmap_ins ] #Max 5 instances
+				#then
+					# ejecutamos 
+#					nmap -n -sS -Pn $ip -oG .escaneo_puertos_1000p/"$ip"_tcp.grep > .escaneo_puertos_1000p/"$ip"_tcp.txt 2>/dev/null &
+					#break
+				#fi							
+			#done														
+		#fi		
+		 #echo -e "\t[+] Done $ip"
+	#done <$live_hosts
+	
+	
+	########## esperar a que termine el escaneo
+	#while true; do
+		#nmap_instancias=`pgrep nmap | wc -l`								
+		#if [ "$nmap_instancias" -gt 0  ];then	
+			#echo -e "\t[i] Todavia hay escaneos de nmap ($nmap_instancias) activos"  
+			#sleep 10
+		#else
+			#break		  		 
+		#fi				
+	#done	
+	#####################
 			
-	if [ $port_scan_num == '2' ]
-    then    			
-		for ip in $( cat $live_hosts  ); do        
-			echo -e "[+] Escaneando todos los puertos de $ip con mass-escaneando (TCP)"   		
-			masscan --interface $iface -p1-65535 --rate 700 $ip --output-format grepable --output-filename .masscan/$ip.tcp 2>/dev/null ;
-			ports=`cat .masscan/$ip.tcp  | grep -o "[0-9][0-9]*/open" | tr '\n' ',	' | tr -d '/open'`		
-			num_ports=`echo $ports | tr -cd ',' | wc -c`		
-
-			if [ "$num_ports" -gt 35 ]
-			then
-				echo -e "\tSospechoso!!. Muchos puertos abiertos ($num_ports)"
-			else				
-				echo -e "[+] Identificando servicios de $ip ($ports)"
-				nmap -n -sS -sV -O -p $ports $ip -oG .escaneos/"$ip"_tcp.grep2 >> reportes/nmap-tcp.txt 2>/dev/null &						
-			fi					                            			
-        done 
-        
-        cat .escaneos/*.grep2 > .nmap/nmap-tcp.grep       
-                       
-     fi  # opcion 3   
+	echo -e "\n$OKBLUE\t[+] Revisando falsos positivos en el escaneo de puertos $RESET"
+	while read ip           
+	do    			
+		puertos_abiertos=`grep -o open .escaneo_puertos_1000p/"$ip"_tcp.grep | wc -l`
+		echo -e "La ip $ip  tiene $puertos_abiertos puertos abiertos"
+		#if [ "$puertos_abiertos" -gt 25 ]
+		#then				
+			#echo -e "\t$OKYELLOW [i] Sospechoso!!. Muchos puertos abiertos ($puertos_abiertos)$RESET"
+			#echo -e "[+] Volviendo a escanear solo 100 puertos $ip "
+			#Borrar escaneo anterior
+			#rm .escaneo_puertos_1000p/"$ip"_tcp.grep .escaneo_puertos_1000p/"$ip"_tcp.txt 				
+			#nmap -n -sS -Pn --top-ports 100 $ip -oG .escaneo_puertos_1000p/"$ip"_tcp.grep > .escaneo_puertos_1000p/"$ip"_tcp.txt 2>/dev/null
+		#fi	
+					
+		#if [[ "$puertos_abiertos" -eq 0 && $internet == "s"   ]];then 														
+			#echo -e "\t$OKYELLOW [i] Nmap no descubrio ningun puerto abierto.$RESET"
+			#echo -e "[+]\tEscaneando con masscan $ip "
+			#Borrar escaneo anterior
+			#rm .escaneo_puertos_1000p/"$ip"_tcp.grep
+			#masscan --interface $iface --rate 500 -p53,104,110,111,10000,10001,16992,143,1521,1433,1900,17185,11211,1723,21,22,23,25,102,20000,2096,3221,3128,3306,389,37777,3389,443,445,465,4443,4433,4786,47808,502,554,5432,5222,5555,5601,587,5900,27017,28017,636,631,6379,6380,79,80,1099,7547,7071,8000,9001,8009,8080,8010,8081,8180,81,82,9443,8098,8443,9160,902,993,995,9000,9090,8728,82,83,84,85,8291,9200,9100,4786 $ip --output-format grepable --output-filename .escaneo_puertos_1000p/"$ip"_tcp.grep
+			#nmap -n -sS -Pn --top-ports 100 $ip -oG .escaneo_puertos_1000p/"$ip"_tcp.grep > .escaneo_puertos_1000p/"$ip"_tcp.txt 2>/dev/null
+		#fi
+					
+	done <$live_hosts
+	
+	
+	
+	# Solo puertos abiertos (sin banner)
+	#cat .escaneo_puertos_1000p/*.grep > .escaneo_puertos/nmap1-tcp.grep 
+	#cat .escaneo_puertos_1000p/*.txt  >reportes/nmap-tcp.txt
+	
+	#     1000 puertos   +  puertos especifios
+	#cat .escaneo_puertos/nmap1-tcp.grep .escaneo_puertos/nmap2-tcp.grep > .escaneo_puertos/nmap-tcp.grep # join nmap scans
+	#rm .escaneo_puertos/nmap1-tcp.grep .escaneo_puertos/nmap2-tcp.grep	
      	
  fi # completo 
     
 
-################### TCP/UDP escaneo  ###################
- if [ $TYPE = "parcial" ] ; then	
-	echo -e "\n$OKBLUE Realizar escaneo de puertos UDP?: s/n $RESET"
-    read udp_scan
- fi
+################### TCP/UDP escaneo  ###################  
 
- if [ $TYPE = "parcial" ] ; then	
-	echo -e "\n$OKBLUE Realizar escaneo de puertos TCP?: s/n $RESET"
-    read tcp_scan
-  fi
-   
-
- if [[ $TYPE = "completo" ]] || [ $udp_escaneando == "s" ]; then 	
-    echo -e "#################### Escaneo de puertos UDP ######################"	  
-       
-		
-	nmap -n -sU -p 53,161,500,67,1604,1900,623  -iL $live_hosts -oG .nmap/nmap-udp.grep > reportes/nmap-udp.txt 2>/dev/null 
-		
+echo -e "#################### Escaneo de puertos UDP ######################"	  
+#nmap -n -sU -p 53,161,500,67,1604,1900,623  -iL $live_hosts -oG .escaneo_puertos/nmap-udp.grep > reportes/escaneo-udp.txt 2>/dev/null 
+udp-hunter.sh --file $live_hosts --output .escaneo_puertos/udp.txt 2>/dev/null
 	
-	if [ $internet == "n" ]; then 	
-	
-		for subnet in $(cat .datos/subnets.txt); do
-			echo -e "[+] Escaneando $subnet.0/24"	  
-			masscan --interface $iface -pU:161 $subnet".0/24" --rate 100 | grep --color=never -i Discovered  > .masscan/$subnet-snmp.txt 2>/dev/null #fix
-			masscan --interface $iface -pU:500 $subnet".0/24" --rate 100 | grep --color=never -i Discovered  > .masscan/$subnet-vpn.txt 2>/dev/null   #fix 						
-		done;    
-    fi	
-	
-	echo -e "\t"			
- fi	      
-    
+	#if [ $internet == "n" ]; then 		
+		#for subnet in $(cat .datos/subnets.txt); do
+		#	echo -e "[+] Escaneando $subnet.0/24"	  
+		#	masscan --interface $iface -pU:161 $subnet".0/24" --rate 100 | grep --color=never -i Discovered  > .masscan/$subnet-snmp.txt 2>/dev/null #fix
+		#	masscan --interface $iface -pU:500 $subnet".0/24" --rate 100 | grep --color=never -i Discovered  > .masscan/$subnet-vpn.txt 2>/dev/null   #fix 						
+		#done;    
+    #fi	
+	    
 ########## making reportes #######
 if [[ $TYPE == "completo"  || $tcp_escaneando == "s"   || $udp_escaneando == "s" ]] ; then 
 	echo -e "[+] Creando reporte nmap"
 	# clean tcp wrapped
 	
-	#if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then 
-	#	cd reportes
-	#	cat nmap-tcp2.txt | grep -v tcpwrapped > nmap-tcp.txt    
-	#	rm nmap-tcp2.txt
-	#	cd ..
-	#fi
-	
-		
-	# replace IP with subdominio
-	#cat nmap-tcp.grep  | grep -v "Status: Up" >nmap-tcp.grep
-	#rm nmap-tcp.grep
-	#for dominio in `grep "Nmap escaneando reportes for" nmap-tcp.txt | cut -d " " -f 5`
-	#do	   	             
-		# echo -e "\tdominio $dominio"			
-		#sed -i "1,/[0-9]\{2,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/s/[0-9]\{2,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/$dominio/g" nmap-tcp.grep
-	#done	  
+  
 	#### generar reporte nmap ######   
-	cd .nmap
+	cd .escaneo_puertos
 	report-open-ports.pl -l ../$live_hosts -t nmap-tcp.grep -u nmap-udp.grep
 	cd ../
 fi
@@ -702,7 +625,7 @@ fi
   
 ################### Ordernar IPs por servicio ###################
 if [[ $TYPE = "completo" ]] || [ $tcp_escaneando == "s" ]; then 
-	cd .nmap	
+	cd .escaneo_puertos	
 					
 	grep '/rtsp/' nmap-tcp.grep | grep --color=never -o -P '(?<=Host: ).*(?=\(\))'>../servicios/camaras-ip.txt
 	grep '/http-proxy/' nmap-tcp.grep | grep --color=never -o -P '(?<=Host: ).*(?=\(\))'>../servicios/proxy-http.txt
@@ -836,7 +759,7 @@ fi
   
  ##################UDP#########
 if [[ $TYPE = "completo" ]] || [ $udp_escaneando == "s" ]; then 
-	cd .nmap
+	cd .escaneo_puertos
 	
 	grep "53/open/" nmap-udp.grep | awk '{print $2}' | perl -ne '$_ =~ s/\n//g; print "$_:53\n"' >> ../servicios/dns.txt
 	
@@ -1793,8 +1716,8 @@ then
 				sleep 0.1;
 			
 				######## revisar por dominio #######
-				if grep -q ";" "$prefijo$FILE" 2>/dev/null; then			
-					lista_subdominios=`grep $ip $prefijo$FILE | cut -d ";" -f2`
+				if grep -q "," "$prefijo$FILE" 2>/dev/null; then			
+					lista_subdominios=`grep $ip $prefijo$FILE | cut -d "," -f2`
 					for subdominio in $lista_subdominios; do					
 						echo -e "\t\t[+] Obteniendo informacion web (subdominio: $subdominio)"	
 						# Una sola rediccion (-r 1) para evitar que escaneemos 2 veces el mismo sitio
@@ -1838,8 +1761,8 @@ then
 			if [[ $free_ram -gt $min_ram && $perl_instancias -lt 4  ]];then 
 			#echo "FILE $prefijo$FILE"			
 				#################  Realizar el escaneo por dominio  ##############				
-				if grep -q ";" "$prefijo$FILE" 2>/dev/null; then
-					lista_subdominios=`grep --color=never $ip -a $prefijo$FILE | cut -d ";" -f2`
+				if grep -q "," "$prefijo$FILE" 2>/dev/null; then
+					lista_subdominios=`grep --color=never $ip -a $prefijo$FILE | cut -d "," -f2`
 					#echo "lista_subdominios $lista_subdominios"
 					for subdominio in $lista_subdominios; do													
 						echo -e "\t[+] subdominio: $subdominio"							
@@ -2136,7 +2059,7 @@ then
 							#######  clone site (domain) ####### 									
 							cd webClone
 								echo -e "\t\t[+] Clonando sitio ($subdominio) tardara un rato"	
-								wget -mirror --convert-links -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp,ttf,svg,woff2,css,ico --exclude-directories /calendar,/noticias,/blog,/xnoticias,/article,/component,/index.php --timeout=5 --tries=1 --adjust-extension  --level=3 --no-check-certificate http://$subdominio 2>/dev/null
+								wget -mirror --convert-links --adjust-extension --no-parent -U "Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0" --reject gif,jpg,bmp,png,mp4,jpeg,flv,webm,mkv,ogg,gifv,avi,wmv,3gp,ttf,svg,woff2,css,ico --exclude-directories /calendar,/noticias,/blog,/xnoticias,/article,/component,/index.php --timeout=5 --tries=1 --adjust-extension  --level=3 --no-check-certificate http://$subdominio 2>/dev/null
 								rm index.html.orig 2>/dev/null
 							cd ..										
 							###################################							
@@ -2532,8 +2455,8 @@ then
 				sleep 0.5;	
 				
 				######## revisar por dominio #######
-				if grep -q ";" "$prefijo$FILE" 2>/dev/null; then			
-					lista_subdominios=`grep --color=never $ip $prefijo$FILE | cut -d ";" -f2`
+				if grep -q "," "$prefijo$FILE" 2>/dev/null; then			
+					lista_subdominios=`grep --color=never $ip $prefijo$FILE | cut -d "," -f2`
 					#echo "lista_subdominios $lista_subdominios"
 					for subdominio in $lista_subdominios; do					
 						echo -e "\t\t[+] Obteniendo informacion web (subdominio: $subdominio)"	
@@ -2578,8 +2501,8 @@ then
 			 				
 				#echo "FILE $prefijo$FILE"				
 				######## revisar por dominio #######
-				if grep -q ";" "$prefijo$FILE" 2>/dev/null; then
-					lista_subdominios=`grep --color=never $ip -a $prefijo$FILE | cut -d ";" -f2`
+				if grep -q "," "$prefijo$FILE" 2>/dev/null; then
+					lista_subdominios=`grep --color=never $ip -a $prefijo$FILE | cut -d "," -f2`
 					#echo "lista_subdominios $lista_subdominios"
 					for subdominio in $lista_subdominios; do
 						echo -e "\t[+] subdominio: $subdominio"	
@@ -3581,7 +3504,7 @@ fi
 ##################################### banners ##########################
 echo ""
 echo -e "$OKBLUE ############# Obteniendo banners de los servicios ############## $RESET"
-getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
+getBanners.pl -l .datos/total-host-vivos.txt -t .escaneo_puertos/nmap-tcp.grep
 
 
 ######## wait to finish########
@@ -3597,13 +3520,13 @@ getBanners.pl -l .datos/total-host-vivos.txt -t .nmap/nmap-tcp.grep
   done
 ##############################
 
-cat .nmap_banners/*.grep > .nmap/nmap-tcp-banners.grep 2>/dev/null
-cat .nmap_banners/*.txt > reportes/nmap-tcp-banners.txt 2>/dev/null
+cat .escaneo_puertos_banners/*.grep > .escaneo_puertos/nmap-tcp-banners.grep 2>/dev/null
+cat .escaneo_puertos_banners/*.txt > reportes/nmap-tcp-banners.txt 2>/dev/null
 #############################################################################
 
 
 
-cd .nmap		
+cd .escaneo_puertos		
 	grep -i "MikroTik" nmap-tcp-banners.grep 2>/dev/null| awk '{print $2}' >> ../servicios/MikroTik2.txt
 	grep ' 8728/open' nmap-tcp.grep 2>/dev/null| awk '{print $2}' >> ../servicios/MikroTik2.txt 
 	sort ../servicios/MikroTik2.txt | sort | uniq > ../servicios/MikroTik.txt; rm ../servicios/MikroTik2.txt
@@ -3816,7 +3739,7 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"` 	
 		
-		egrep -iq "23/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "23/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
@@ -3830,7 +3753,7 @@ then
 			fi				
 		fi		
 
-		egrep -iq "22/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "22/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
@@ -3926,7 +3849,7 @@ then
 		echo -e "[+] Escaneando $ip"		
 		
 		
-		egrep -iq "23/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "23/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
@@ -3943,7 +3866,7 @@ then
 			fi
 		fi	
 					
-		egrep -iq "22/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "22/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
@@ -3990,7 +3913,7 @@ then
 		echo -e "[+] Escaneando $ip"
 		
 		
-		egrep -iq "23/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "23/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"			
@@ -4023,7 +3946,7 @@ then
 
 		fi		
 
-		egrep -iq "22/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "22/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
@@ -4073,7 +3996,7 @@ then
 	do     						
 		echo -e "[+] Escaneando $ip"	
 		
-		egrep -iq "23/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "23/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
@@ -4088,7 +4011,7 @@ then
 			
 		fi		
 
-		egrep -iq "22/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "22/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
@@ -4116,7 +4039,7 @@ then
 	do     						
 		echo -e "[+] Escaneando $ip"	
 		
-		egrep -iq "23/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "23/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
@@ -4129,7 +4052,7 @@ then
 			
 		fi		
 
-		egrep -iq "22/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "22/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
@@ -4154,7 +4077,7 @@ then
 	do     						
 		echo -e "[+] Escaneando $ip"	
 		
-		egrep -iq "23/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "23/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
@@ -4168,7 +4091,7 @@ then
 			fi								
 		fi		
 
-		egrep -iq "22/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "22/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
@@ -4245,7 +4168,7 @@ then
 		ip=`echo $line | cut -f1 -d":"`
 		port=`echo $line | cut -f2 -d":"` 	
 
-		egrep -iq "22/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "22/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
@@ -4295,7 +4218,7 @@ then
 	do     						
 		echo -e "[+] Escaneando $ip"	
 		
-		egrep -iq "23/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "23/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
@@ -4310,7 +4233,7 @@ then
 			
 		fi		
 
-		egrep -iq "22/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "22/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
@@ -4340,7 +4263,7 @@ then
 	do     						
 		echo -e "[+] Escaneando $ip"	
 		
-		egrep -iq "23/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "23/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
@@ -4356,7 +4279,7 @@ then
 			
 		fi		
 
-		egrep -iq "22/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "22/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
@@ -4386,7 +4309,7 @@ then
 	do     						
 		echo -e "[+] Escaneando $ip"	
 		
-		egrep -iq "23/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "23/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
@@ -4403,7 +4326,7 @@ then
 			
 		fi		
 
-		egrep -iq "22/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "22/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
@@ -4434,7 +4357,7 @@ then
 	do     						
 		echo -e "[+] Escaneando $ip"	
 		
-		egrep -iq "23/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "23/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
@@ -4447,7 +4370,7 @@ then
 			
 		fi		
 
-		egrep -iq "22/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "22/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
@@ -4473,7 +4396,7 @@ then
 	do     						
 		echo -e "[+] Escaneando $ip"	
 		
-		egrep -iq "23/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "23/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando Telnet \n $RESET"
@@ -4493,7 +4416,7 @@ then
 		#exploit 
 		#sendcmd 1 DB p DevAuthInfo
 
-		egrep -iq "22/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "22/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando SSH \n $RESET"
@@ -4515,7 +4438,7 @@ then
 		#sendcmd 1 DB p DevAuthInfo	
 		
 		
-		egrep -iq "80/open" .nmap_1000p/"$ip"_tcp.grep
+		egrep -iq "80/open" .escaneo_puertos_1000p/"$ip"_tcp.grep
 		greprc=$?
 		if [[ $greprc -eq 0 ]] ; then			
 			echo -e "\t Probando HTTP \n $RESET"	
