@@ -78,7 +78,7 @@ else
 		pwd
 		echo "entrando al directorio $directory"
 		cd $directory
-#		cracker.sh -e $CLAVE -t completo
+		cracker.sh -e $CLAVE -t completo
 		pwd
 	fi
 	if [ "$IPS" != NULL ]; then 	
@@ -93,7 +93,7 @@ else
 		pwd
 		echo "entrando al directorio $directory"
 		cd $directory
-#		cracker.sh -e $CLAVE -t completo
+		cracker.sh -e $CLAVE -t completo
 		pwd
 	fi
 	
@@ -109,7 +109,7 @@ else
 		pwd
 		echo "entrando al directorio $directory"
 		cd $directory
-		#cracker.sh -e $CLAVE -t completo
+		cracker.sh -e $CLAVE -t completo
 		pwd
 	fi		
 	mv /usr/bin/pentest/Responder/logs/* `pwd`/responder 2>/dev/null

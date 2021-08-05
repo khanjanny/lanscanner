@@ -2,13 +2,10 @@
 # Author: Daniel Torres
 # daniel.torres@owasp.org
 ##
-# ######### buscar links de amazon EC2
 # PoC Suite3
 # https://medium.com/tenable-techblog/gpon-home-gateway-rce-threatens-tens-of-thousands-users-c4a17fd25b97
-# metasploit scanner/http/enum_wayback
 # Identificar redes con  http://www.ip-calc.com/
 # https://github.com/Exploit-install/Routerhunter-2.0
-# Sacar herramientas de https://github.com/1N3/Sn1per https://github.com/Yukinoshita47/Yuki-Chan-The-Auto-Pentest https://github.com/skavngr/rapidscan
 # curl --max-time 20 --connect-timeout 20 --insecure --retry 2 --retry-delay 0 --retry-max-time 40  https://$subdominio > webClone/https-$subdominio.html
 ##
 
@@ -1174,22 +1171,54 @@ then
 fi
 
 
+
+## Telnet
+if [ -f servicios/telnet.txt ]
+then
+	
+	cat servicios/telnet.txt  | cut -d ":" -f1 > servicios/telnet_onlyhost.txt 
+
+	echo -e "\t[+] Obteniendo banner"	
+	interlace -tL servicios/telnet_onlyhost.txt -threads 5 -c "echo -e '\tquit' | nc -w 4 _target_ 23 | strings > .banners/_target__23.txt 2>/dev/null" --silent
+	
+	echo -e "\t[+] Probando passwords"	
+	interlace -tL servicios/telnet_onlyhost.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u admin -p admin -M telnet' >> logs/vulnerabilidades/_target__23_passwordDefecto.txt 2>/dev/null" --silent
+	interlace -tL servicios/telnet_onlyhost.txt -threads 5 -c "medusa -h _target_ -u admin -p admin -M telnet >> logs/vulnerabilidades/_target__23_passwordDefecto.txt 2>/dev/null" --silent
+
+	interlace -tL servicios/telnet_onlyhost.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u admin -e n -M telnet' >> logs/vulnerabilidades/_target__23_passwordDefecto.txt 2>/dev/null" --silent
+	interlace -tL servicios/telnet_onlyhost.txt -threads 5 -c "medusa -h _target_ -u admin -e n -M telnet >> logs/vulnerabilidades/_target__23_passwordDefecto.txt 2>/dev/null" --silent
+	
+	interlace -tL servicios/telnet_onlyhost.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u root -p root -M telnet'>> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
+	interlace -tL servicios/telnet_onlyhost.txt -threads 5 -c "medusa -h _target_ -u root -p root -M telnet >> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
+	
+	interlace -tL servicios/telnet_onlyhost.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u root -p solokey -M telnet'>> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
+	interlace -tL servicios/telnet_onlyhost.txt -threads 5 -c "medusa -h _target_ -u root -p solokey -M telnet >> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
+	
+	interlace -tL servicios/telnet_onlyhost.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u root -e n -M telnet' >> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
+	interlace -tL servicios/telnet_onlyhost.txt -threads 5 -c "medusa -h _target_ -u root -e n -M telnet >> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
+			
+	
+fi
+
 if [ -f servicios/postgres.txt ]
 then
 		
 	echo -e "\t[+] Probando passwords"	
-	interlace -tL servicios/postgres.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u postgres -p postgres -M postgres' >> logs/vulnerabilidades/_target__5432_passwordBD.txt 2>/dev/null" --silent
-	interlace -tL servicios/postgres.txt -threads 5 -c "medusa -h _target_ -u postgres -p postgres -M postgres >> logs/vulnerabilidades/_target__5432_passwordBD.txt 2>/dev/null" --silent
+	cat servicios/postgres.txt  | cut -d ":" -f1 > servicios/postgres_onlyhost.txt 
+	interlace -tL servicios/postgres_onlyhost.txt  -threads 5 -c "echo -e '\n medusa -h _target_ -u postgres -p postgres -M postgres' >> logs/vulnerabilidades/_target__5432_passwordBD.txt 2>/dev/null" --silent
+	interlace -tL servicios/postgres_onlyhost.txt  -threads 5 -c "medusa -h _target_ -u postgres -p postgres -M postgres >> logs/vulnerabilidades/_target__5432_passwordBD.txt 2>/dev/null" --silent
 	
-	interlace -tL servicios/telnet.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u postgres -e n -M postgres' >> logs/vulnerabilidades/_target__5432_passwordBD.txt 2>/dev/null" --silent
-	interlace -tL servicios/telnet.txt -threads 5 -c "medusa -h _target_ -u postgres -e n -M postgres >> logs/vulnerabilidades/_target__5432_passwordBD.txt 2>/dev/null" --silent
+	interlace -tL servicios/telnet_onlyhost.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u postgres -e n -M postgres' >> logs/vulnerabilidades/_target__5432_passwordBD.txt 2>/dev/null" --silent
+	interlace -tL servicios/telnet_onlyhost.txt -threads 5 -c "medusa -h _target_ -u postgres -e n -M postgres >> logs/vulnerabilidades/_target__5432_passwordBD.txt 2>/dev/null" --silent
 	
 fi
 
 if [ -f servicios/postgres.txt ]
 then
 	echo -e "$OKBLUE #################### POSTGRES (`wc -l servicios/postgres.txt`)######################$RESET"	    
-	while read ip; do		
+	while read line; do		
+		ip=`echo $line | cut -f1 -d";"`		
+		port=`echo $line | cut -f2 -d":"`
 	 	 grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_5432_passwordBD.tx > .vulnerabilidades/"$ip"_5432_passwordBD.tx 2>/dev/null
 		 echo ""
  	done <servicios/postgres.txt
@@ -1199,35 +1228,13 @@ then
 fi # postgres
 
 
-## Telnet
-if [ -f servicios/telnet.txt ]
-then
-	
-	echo -e "\t[+] Obteniendo banner"	
-	interlace -tL servicios/telnet.txt -threads 5 -c "echo -e '\tquit' | nc -w 4 _target_ 23 | strings > .banners/_target__23.txt 2>/dev/null" --silent
-	
-	echo -e "\t[+] Probando passwords"	
-	interlace -tL servicios/telnet.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u admin -p admin -M telnet' >> logs/vulnerabilidades/_target__23_passwordDefecto.txt 2>/dev/null" --silent
-	interlace -tL servicios/telnet.txt -threads 5 -c "medusa -h _target_ -u admin -p admin -M telnet >> logs/vulnerabilidades/_target__23_passwordDefecto.txt 2>/dev/null" --silent
-
-	interlace -tL servicios/telnet.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u admin -e n -M telnet' >> logs/vulnerabilidades/_target__23_passwordDefecto.txt 2>/dev/null" --silent
-	interlace -tL servicios/telnet.txt -threads 5 -c "medusa -h _target_ -u admin -e n -M telnet >> logs/vulnerabilidades/_target__23_passwordDefecto.txt 2>/dev/null" --silent
-	
-	interlace -tL servicios/telnet.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u root -p root -M telnet'>> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
-	interlace -tL servicios/telnet.txt -threads 5 -c "medusa -h _target_ -u root -p root -M telnet >> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
-	
-	interlace -tL servicios/telnet.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u root -p solokey -M telnet'>> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
-	interlace -tL servicios/telnet.txt -threads 5 -c "medusa -h _target_ -u root -p solokey -M telnet >> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
-	
-	interlace -tL servicios/telnet.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u root -e n -M telnet' >> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent
-	interlace -tL servicios/telnet.txt -threads 5 -c "medusa -h _target_ -u root -e n -M telnet >> logs/vulnerabilidades/'_target_'_23_passwordDefecto.txt 2>/dev/null" --silent		
-	
-fi
 
 if [ -f servicios/telnet.txt ]
 then
 	echo -e "$OKBLUE #################### TELNET (`wc -l servicios/telnet.txt`)######################$RESET"	    
-	while read ip; do		
+	while read line; do		
+		ip=`echo $line | cut -f1 -d";"`		
+		port=`echo $line | cut -f2 -d":"`
 	 	 grep --color=never SUCCESS logs/vulnerabilidades/"$ip"_23_passwordDefecto.txt > .vulnerabilidades/"$ip"_23_passwordDefecto.txt 2>/dev/null
 		 echo ""
  	done <servicios/telnet.txt
@@ -1240,33 +1247,36 @@ fi # telnet
 if [ -f servicios/ssh.txt ]
 then
 	echo -e "\t[+] Obtener banner"
-	interlace -tL servicios/ssh.txt -threads 5 -c "echo -e '\tquit' | nc -w 4 _target_ 22 | strings | uniq> .banners/_target__22.txt 2>/dev/null	" --silent
+	cat servicios/ssh.txt | cut -d ":" -f1 > servicios/ssh_onlyhost.txt 
+	interlace -tL servicios/ssh_onlyhost.txt -threads 5 -c "echo -e '\tquit' | nc -w 4 _target_ 22 | strings | uniq> .banners/_target__22.txt 2>/dev/null	" --silent
 	
 	echo -e "\t[+] Probando vulnerabilidad CVE-2018-15473"				
 	#usuario root123445 no existe, si sale "is a valid user" el target no es vulnerable
-	interlace -tL servicios/ssh.txt -threads 5 -c "enumeracionUsuariosSSH.py --username root123445 --port 22 _target_ > logs/vulnerabilidades/_target__22_CVE15473.txt 2>/dev/null" --silent
+	interlace -tL servicios/ssh_onlyhost.txt -threads 5 -c "enumeracionUsuariosSSH.py --username root123445 --port 22 _target_ > logs/vulnerabilidades/_target__22_CVE15473.txt 2>/dev/null" --silent
 
 	echo -e "\t[+] Probando passwords"	
-	interlace -tL servicios/ssh.txt -threads 5 -c "enumeracionUsuariosSSH.py --username root123445 --port 22 _target_ > logs/vulnerabilidades/_target__22_CVE15473.txt 2>/dev/null" --silent
+	interlace -tL servicios/ssh_onlyhost.txt -threads 5 -c "enumeracionUsuariosSSH.py --username root123445 --port 22 _target_ > logs/vulnerabilidades/_target__22_CVE15473.txt 2>/dev/null" --silent
 	
-	interlace -tL servicios/ssh.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u admin -p admin -M ssh' >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
-	interlace -tL servicios/ssh.txt -threads 5 -c "medusa -h _target_ -u admin -p admin -M ssh >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
+	interlace -tL servicios/ssh_onlyhost.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u admin -p admin -M ssh' >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
+	interlace -tL servicios/ssh_onlyhost.txt -threads 5 -c "medusa -h _target_ -u admin -p admin -M ssh >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
 	
-	interlace -tL servicios/ssh.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u admin -e n -M ssh' >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
-	interlace -tL servicios/ssh.txt -threads 5 -c "medusa -h _target_ -u admin -e n -M ssh >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
+	interlace -tL servicios/ssh_onlyhost.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u admin -e n -M ssh' >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
+	interlace -tL servicios/ssh_onlyhost.txt -threads 5 -c "medusa -h _target_ -u admin -e n -M ssh >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
 	
-	interlace -tL servicios/ssh.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u root -p root -M ssh' >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
-	interlace -tL servicios/ssh.txt -threads 5 -c "medusa -h _target_ -u root -p root -M ssh >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
+	interlace -tL servicios/ssh_onlyhost.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u root -p root -M ssh' >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
+	interlace -tL servicios/ssh_onlyhost.txt -threads 5 -c "medusa -h _target_ -u root -p root -M ssh >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
 	
-	interlace -tL servicios/ssh.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u root -e n -M ssh' >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
-	interlace -tL servicios/ssh.txt -threads 5 -c "medusa -h _target_ -u root -e n -M ssh >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent					
+	interlace -tL servicios/ssh_onlyhost.txt -threads 5 -c "echo -e '\n medusa -h _target_ -u root -e n -M ssh' >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent
+	interlace -tL servicios/ssh_onlyhost.txt -threads 5 -c "medusa -h _target_ -u root -e n -M ssh >> logs/vulnerabilidades/'_target_'_22_passwordDefecto.txt 2>/dev/null" --silent					
 
 fi
 
 if [ -f servicios/ssh.txt ]
 then
 	echo -e "$OKBLUE #################### SSH (`wc -l servicios/ssh.txt`)######################$RESET"	    
-	while read ip; do
+	while read line; do
+		ip=`echo $line | cut -f1 -d";"`		
+		port=`echo $line | cut -f2 -d":"`
 		
 		#SSHBypass
 		echo -e "\t[+] Probando vulnerabilidad libSSH bypass"	
@@ -1320,7 +1330,9 @@ fi
 if [ -f servicios/vpn.txt ]
 then
 	echo -e "$OKBLUE #################### VPN (`wc -l servicios/vpn.txt`) ######################$RESET"	    
-	for ip in $(cat servicios/vpn.txt); do		
+	for line in $(cat servicios/vpn.txt); do		
+		ip=`echo $line | cut -f1 -d";"`		
+		port=`echo $line | cut -f2 -d":"`
 			
 		echo -e "[+] Escaneando $ip:500"
 		echo -e "\t[+] Probando si el modo agresivo esta habilitado "
@@ -3243,8 +3255,56 @@ egrep -ira --color=never "mysql_query| mysql_fetch_array|access denied for user|
 # correos presentes en los sitios web
 grep -Eirao "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b" webClone/* | cut -d ":" -f2 | egrep --color=never $"com|net|org|bo|es" |  sort |uniq  >> .enumeracion/"$DOMAIN"_web_correos.txt
 
-insert_data
+# aws_access_key 
+egrep -ira --color=never "aws_access_key_id|aws_secret_access_key" webClone/* > .vulnerabilidades/"$DOMINIO"_aws_secrets.txt 
+
+echo -e "[+] Buscar datos sensible en archivos clonados"	
+cd webClone
+# Creando repositorio temporal para que pueda ser escaneado por las herramientas
+git init                                                                                                                                                                                                           (master✱) 
+git add .
+git commit -m "test"
+
+#copiar archivos de configuracion
+cp /usr/share/recon-config/truffle-exclude.txt .
+cp /usr/share/recon-config/truffle-rules.json .
+
+
+# llaves SSH
+echo -e "\nllaves SSH" >> logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+docker run -v `pwd`:/files -it dumpster-diver -p files --min-key 70 --max-key 72 --entropy 5.1 >>  logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+
+# AWS Secret Access Key
+echo -e "\nAWS Secret Access Key" >> logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+docker run -v `pwd`:/files -it dumpster-diver -p files --min-key 40 --max-key 40 --entropy 4.3 >>  logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+
+# Azure Shared Key
+echo -e "\nAzure Shared Key" >> logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+docker run -v `pwd`:/files -it dumpster-diver -p files --min-key 66 --max-key 66 --entropy 5.1 >>  logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+
+# RSA private key 
+echo -e "\n RSA private key " >> logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+docker run -v `pwd`:/files -it dumpster-diver -p files --min-key 76 --max-key 76 --entropy 5.1 >>  logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+
+# passwords 
+echo -e "\n passwords " >> logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+docker run -v `pwd`:/files -it dumpster-diver -p files --min-pass 9 --max-pass 15 --pass-complex 8 >>  logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+
+
+# generic token - dumpster-diver
+echo -e "\n generic token (dumpster-diver)" >> logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+docker run -v `pwd`:/files -it dumpster-diver -p files --min-key 25 --max-key 40 --entropy 4.6 >> logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+
+# generic token - truffle
+echo -e "\n generic token (truffle)" >> logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+docker run --rm -v "$(pwd):/proj" dxa4481/trufflehog file:///proj --rules truffle-rules.json --exclude_paths /proj/truffle-exclude.txt --regex --json | trufflehog-parser.py
+
+
+grep "found" logs/vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt > .vulnerabilidades/"$DOMINIO"_dumpster_secrets.txt 
+cd ..
+
 find servicios -size  0 -print0 |xargs -0 rm 2>/dev/null # delete empty files
+insert_data
 ###################
 
 
