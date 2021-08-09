@@ -33,10 +33,8 @@ echo -e "${GREEN} [+] Instalando ofuscador de bash ${RESET}"
 npm install -g bash-obfuscate
 
 
-echo -e "${GREEN} [+] Instalando udp-hunter ${RESET}" 
-cd udp-hunter
-pip install -r requirements.txt
-cd ..
+echo -e "${GREEN} [+] Instalando requisitos udp-hunter ${RESET}" 
+pip install netaddr colorama argparse ifaddr datetime
 
 echo -e "${GREEN} [+] Instalando naabu ${RESET}" 
 GO111MODULE=on go get -v github.com/projectdiscovery/naabu/v2/cmd/naabu
