@@ -145,7 +145,7 @@ sudo apt-get update
 sudo apt-get install -y apt-transport-https
 sudo apt-get update
 sudo apt install -y dotnet-sdk-3.1
-cd /opt/Covenant/Covenant
+cd /opt/Covenant2/Covenant
 dotnet build
 echo ""
 
