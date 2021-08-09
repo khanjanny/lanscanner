@@ -148,8 +148,6 @@ sudo apt install -y dotnet-sdk-3.1
 cd /opt/Covenant/Covenant
 dotnet build
 echo ""
-cd ../
-
 
 
 echo -e "${GREEN} [+] LISTO!! TODO OK"
