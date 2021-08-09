@@ -55,7 +55,7 @@ cp fingerprints-domain.json /usr/share/lanscanner
 cp amass-config.ini /usr/share/lanscanner
 cp community.txt /usr/share/lanscanner
 cp .resultados.db /usr/share/lanscanner
-cp -r postExploiter /usr/share/lanscanner
+#cp -r postExploiter /usr/share/lanscanner
 cp vulnerabilidades.xml /usr/share/lanscanner 2>/dev/null
 
 cp smb-vuln-ms17-010.nse /usr/share/nmap/scripts/
@@ -85,35 +85,9 @@ sudo cpan M/MA/MAKAMAKA/JSON-2.90.tar.gz
 sudo cpan I/IS/ISHIGAKI/JSON-4.02.tar.gz
 sudo cpan G/GR/GRANTM/XML-Simple-2.25.tar.gz
 
-echo -e "${RED}[+]${GREEN} Instalando GeoIP ${RESET}"
-git clone https://github.com/DanielTorres1/geoIP
-cd geoIP
-bash instalar.sh
-echo ""
-cd ../
-
-echo -e "${RED}[+]${GREEN} Instalando Covenant ${RESET}"
-sudo dpkg -i files/libicu57_57.1-6+deb9u4_amd64.deb
-
-cp -r exploits/Covenant/ /opt
-
-wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg
-sudo mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/
-wget -q https://packages.microsoft.com/config/debian/10/prod.list
-sudo mv prod.list /etc/apt/sources.list.d/microsoft-prod.list
-sudo chown root:root /etc/apt/trusted.gpg.d/microsoft.asc.gpg
-sudo chown root:root /etc/apt/sources.list.d/microsoft-prod.list
-sudo apt-get update
-sudo apt-get install apt-transport-https
-sudo apt-get update
-sudo apt install dotnet-sdk-3.1
-cd /opt/Covenant/Covenant
-dotnet build
-echo ""
-cd ../
-
 
 echo -e "${RED}[+]${GREEN} Instalando Interlace ${RESET}"
+pwd
 cd Interlace
 python3 setup.py install
 echo ""
@@ -154,6 +128,35 @@ service smbd restart
 mkdir -p /usr/share/wordlists/ 2>/dev/null
 cd /usr/share/wordlists/
 #wget https://raw.githubusercontent.com/DanielTorres1/passwords/master/usuarios-es.txt
+
+
+echo -e "${RED}[+]${GREEN} Instalando GeoIP ${RESET}"
+git clone https://github.com/DanielTorres1/geoIP
+cd geoIP
+bash instalar.sh
+echo ""
+cd ../
+
+echo -e "${RED}[+]${GREEN} Instalando Covenant ${RESET}"
+sudo dpkg -i files/libicu57_57.1-6+deb9u4_amd64.deb
+
+cp -r exploits/Covenant/ /opt
+
+wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg
+sudo mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/
+wget -q https://packages.microsoft.com/config/debian/10/prod.list
+sudo mv prod.list /etc/apt/sources.list.d/microsoft-prod.list
+sudo chown root:root /etc/apt/trusted.gpg.d/microsoft.asc.gpg
+sudo chown root:root /etc/apt/sources.list.d/microsoft-prod.list
+sudo apt-get update
+sudo apt-get install -y apt-transport-https
+sudo apt-get update
+sudo apt install -y dotnet-sdk-3.1
+cd /opt/Covenant/Covenant
+dotnet build
+echo ""
+cd ../
+
 
 echo -e "${GREEN} [+] LISTO!! TODO OK"
 echo -e "${RED} [i] IMPORTANTE: Para empezar a usar los scripts inicia otra terminal :V ${RED}"
