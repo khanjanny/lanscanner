@@ -130,13 +130,6 @@ cd /usr/share/wordlists/
 #wget https://raw.githubusercontent.com/DanielTorres1/passwords/master/usuarios-es.txt
 
 
-echo -e "${RED}[+]${GREEN} Instalando GeoIP ${RESET}"
-git clone https://github.com/DanielTorres1/geoIP
-cd geoIP
-bash instalar.sh
-echo ""
-cd ../
-
 echo -e "${RED}[+]${GREEN} Instalando Covenant ${RESET}"
 sudo dpkg -i files/libicu57_57.1-6+deb9u4_amd64.deb
 
@@ -156,6 +149,7 @@ cd /opt/Covenant/Covenant
 dotnet build
 echo ""
 cd ../
+
 
 
 echo -e "${GREEN} [+] LISTO!! TODO OK"
