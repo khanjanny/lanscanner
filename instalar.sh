@@ -126,7 +126,7 @@ EOF
 service smbd restart    
 
 mkdir -p /usr/share/wordlists/ 2>/dev/null
-cd /usr/share/wordlists/
+#cd /usr/share/wordlists/
 #wget https://raw.githubusercontent.com/DanielTorres1/passwords/master/usuarios-es.txt
 
 
