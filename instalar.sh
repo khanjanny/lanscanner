@@ -95,7 +95,7 @@ cd ../
 
 
 echo -e "${RED}[+]${GREEN} Instalando impacket ${RESET}"
-cd impacket
+cd impacket2
 python3 -m pip install .
 cd ..
 
@@ -133,7 +133,7 @@ mkdir -p /usr/share/wordlists/ 2>/dev/null
 echo -e "${RED}[+]${GREEN} Instalando Covenant ${RESET}"
 sudo dpkg -i files/libicu57_57.1-6+deb9u4_amd64.deb
 
-cp -r exploits/Covenant/ /opt
+cp -r exploits/Covenant2/ /opt
 
 wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg
 sudo mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/
