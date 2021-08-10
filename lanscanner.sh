@@ -3261,7 +3261,7 @@ egrep -ira --color=never "aws_access_key_id|aws_secret_access_key" webClone/* > 
 echo -e "[+] Buscar datos sensible en archivos clonados"	
 cd webClone
 # Creando repositorio temporal para que pueda ser escaneado por las herramientas
-git init                                                                                                                                                                                                           (master✱) 
+git init
 git add .
 git commit -m "test"
 
