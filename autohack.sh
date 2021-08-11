@@ -60,7 +60,7 @@ else
 	echo -e "$OKBLUE Iniciando Responder $RESET"	
 	iface=`ip addr | grep -iv DOWN | awk '/UP/ {print $2}' | egrep -v "lo|dummy|rmnet|vmnet" | sed 's/.$//'`
 	#Borrar logs pasados
-	rm /usr/bin/pentest/Responder/logs/*
+	rm /usr/bin/pentest/Responder/logs/* 2>/dev/null
 	xterm -hold -e responder.sh -F -f -I $iface 2>/dev/null& 	
 	
 		
@@ -76,7 +76,7 @@ else
 		
 		directory=`ls -hlt | grep '^d' | head -1 | awk '{print $9}'`
 		pwd
-		echo "entrando al directorio $directory"
+		echo "entrando al directorio $directory" # creado por lanscanner
 		cd $directory
 		cracker.sh -e $CLAVE -t completo
 		pwd
@@ -91,7 +91,7 @@ else
 				
 		directory=`ls -hlt | grep '^d' | head -1 | awk '{print $9}'`
 		pwd
-		echo "entrando al directorio $directory"
+		echo "entrando al directorio $directory" # creado por lanscanner
 		cd $directory
 		cracker.sh -e $CLAVE -t completo
 		pwd
@@ -107,7 +107,7 @@ else
 				
 		directory=`ls -hlt | grep '^d' | head -1 | awk '{print $9}'`
 		pwd
-		echo "entrando al directorio $directory"
+		echo "entrando al directorio $directory" # creado por lanscanner
 		cd $directory
 		cracker.sh -e $CLAVE -t completo
 		pwd

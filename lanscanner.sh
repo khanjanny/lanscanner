@@ -15,7 +15,7 @@ OKBLUE='\033[94m'
 OKRED='\033[91m'
 OKYELLOW="\033[0;33m" 
 OKGREEN='\033[92m'
-RESET='\e[0m'	
+RESET='\e[0m'
 
 
 ################## Config HERE ####################
@@ -3308,10 +3308,10 @@ insert_data
 ###################
 
 
-if [ -f servicios/rdp.txt ]
+if [ -f servicios/smb_uniq.txt ]
 then
-	interlace -tL servicios/smb.txt -threads 5 -c "echo 'nmap -n -sS -p445 --script smb-vuln-ms08-067 _target_' >> logs/vulnerabilidades/_target__445_ms08067.txt >/dev/null" --silent
-	interlace -tL servicios/smb.txt -threads 5 -c "nmap -n -sS -p445 --script smb-vuln-ms08-067 _target_ > logs/vulnerabilidades/_target__445_ms08067.txt" --silent
+	interlace -tL servicios/smb_uniq.txt -threads 5 -c "echo 'nmap -n -sS -p445 --script smb-vuln-ms08-067 _target_' >> logs/vulnerabilidades/_target__445_ms08067.txt >/dev/null" --silent
+	interlace -tL servicios/smb_uniq.txt -threads 5 -c "nmap -n -sS -p445 --script smb-vuln-ms08-067 _target_ > logs/vulnerabilidades/_target__445_ms08067.txt" --silent
 fi
 
 	
