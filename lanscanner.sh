@@ -87,8 +87,8 @@ DOMAIN=${DOMAIN:=NULL}
 OFFSEC=${OFFSEC:=NULL}
 
 #if [ $TYPE = NULL ] ; then
-#if [[ $TYPE == NULL] || [ $DOMAIN == NULL ]]; then
-if [ "$TYPE" = NULL ] || [ "$DOMAIN" = NULL ]; then
+#if [[ $TYPE == NULL] || [ $DOMINIO == NULL ]]; then
+if [ "$TYPE" = NULL ] || [ "$DOMINIO" = NULL ]; then
 
 cat << "EOF"
 
@@ -787,15 +787,15 @@ if [ -f servicios/smtp.txt ]
 						
 			########## VRFY #######
 			echo -e "\t[+] Comprobando comando vrfy"
-			echo "vrfy-test.py $ip $port $DOMAIN " >> logs/vulnerabilidades/"$ip"_"$port"_vrfyHabilitado.txt
+			echo "vrfy-test.py $ip $port $DOMINIO " >> logs/vulnerabilidades/"$ip"_"$port"_vrfyHabilitado.txt
 			
 			#prueba usuario@dominio.com
-			vrfy-test.py $ip $port $DOMAIN >> logs/vulnerabilidades/"$ip"_"$port"_vrfyHabilitado.txt 
+			vrfy-test.py $ip $port $DOMINIO >> logs/vulnerabilidades/"$ip"_"$port"_vrfyHabilitado.txt 
 			echo "" >> logs/vulnerabilidades/"$ip"_"$port"_vrfyHabilitado.txt
 			
 			#prueba usuario
-			echo "vrfy-test2.py $ip $port $DOMAIN " >> logs/vulnerabilidades/"$ip"_"$port"_vrfyHabilitado.txt
-			vrfy-test2.py $ip $port $DOMAIN >> logs/vulnerabilidades/"$ip"_"$port"_vrfyHabilitado.txt 
+			echo "vrfy-test2.py $ip $port $DOMINIO " >> logs/vulnerabilidades/"$ip"_"$port"_vrfyHabilitado.txt
+			vrfy-test2.py $ip $port $DOMINIO >> logs/vulnerabilidades/"$ip"_"$port"_vrfyHabilitado.txt 
 			
 			egrep -iq "User unknown" logs/vulnerabilidades/"$ip"_"$port"_vrfyHabilitado.txt 
 			greprc=$?
@@ -814,37 +814,37 @@ if [ -f servicios/smtp.txt ]
 			echo ""
 			echo -e "\t[+] Probando si es un open relay"
 			
-			#### probar con root@$DOMAIN
-			echo -e "\t\t[+] Probando con el correo root@$DOMAIN"
+			#### probar con root@$DOMINIO
+			echo -e "\t\t[+] Probando con el correo root@$DOMINIO"
 			#if [ $internet == "s" ]; then 
-				#hackWeb.pl -t $ip -p $port -m openrelay -c "root@$DOMAIN" -s 0 > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
+				#hackWeb.pl -t $ip -p $port -m openrelay -c "root@$DOMINIO" -s 0 > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
 			#else	
-				open-relay.py $ip $port "root@$DOMAIN" > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
+				open-relay.py $ip $port "root@$DOMINIO" > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
 			#fi	
 									
 			sleep 5							
 			
-			#### si no existe el correo probar con info@$DOMAIN
+			#### si no existe el correo probar con info@$DOMINIO
 			egrep -iq "Sender unknown|Recipient unknown|No Such User Here|no valid recipients" logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 
 			greprc=$?
 			if [[ $greprc -eq 0 ]] ; then	
-				echo -e "\t\t[+] Upps el correo root@$DOMAIN no existe probando con info@$DOMAIN"
+				echo -e "\t\t[+] Upps el correo root@$DOMINIO no existe probando con info@$DOMINIO"
 				#if [ $internet == "s" ]; then 
-					#hackWeb.pl -t $ip -p $port -m openrelay -c "info@$DOMAIN" -s 0> logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
+					#hackWeb.pl -t $ip -p $port -m openrelay -c "info@$DOMINIO" -s 0> logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
 				#else	
-					open-relay.py $ip $port "info@$DOMAIN" > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
+					open-relay.py $ip $port "info@$DOMINIO" > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
 				#fi							
 			fi	
 			
-			#### si no existe el correo probar con sistemas@$DOMAIN
+			#### si no existe el correo probar con sistemas@$DOMINIO
 			egrep -iq "Sender unknown|Recipient unknown|No Such User Here|no valid recipients" logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 
 			greprc=$?
 			if [[ $greprc -eq 0 ]] ; then			
-				echo -e "\t\t[+] Upps el correo info@$DOMAIN no existe probando con sistemas@$DOMAIN"
+				echo -e "\t\t[+] Upps el correo info@$DOMINIO no existe probando con sistemas@$DOMINIO"
 				#if [ $internet == "s" ]; then 
-					hackWeb.pl -t $ip -p $port -m openrelay -c "sistemas@$DOMAIN" -s 0> logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
+					hackWeb.pl -t $ip -p $port -m openrelay -c "sistemas@$DOMINIO" -s 0> logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
 				#else	
-					#open-relay.py $ip $port "sistemas@$DOMAIN" > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
+					#open-relay.py $ip $port "sistemas@$DOMINIO" > logs/vulnerabilidades/"$ip"_"$port"_openrelay.txt 2>/dev/null 
 				#fi							
 			fi	
 			
@@ -2064,16 +2064,16 @@ then
 					cd webClone
 						echo ""
 						echo -e "\t\t[+] Extrayendo URL de los sitios clonados"	
-						grep --color=never -irao "http://[^ ]*"  * 2>/dev/null| cut -d ":" -f3 | grep --color=never -ia "$DOMAIN" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > http.txt 				     
+						grep --color=never -irao "http://[^ ]*"  * 2>/dev/null| cut -d ":" -f3 | grep --color=never -ia "$DOMINIO" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > http.txt 				     
 						lines=`wc -l http.txt  | cut -d " " -f1`
 						perl -E "say \"http://\n\" x $lines" > prefijo.txt # file with the domain (n times)
-						paste -d '' prefijo.txt http.txt >> ../logs/enumeracion/"$DOMAIN"_web_wget2.txt # adicionar http:// a cada linea
+						paste -d '' prefijo.txt http.txt >> ../logs/enumeracion/"$DOMINIO"_web_wget2.txt # adicionar http:// a cada linea
 						rm http.txt 2>/dev/null
 					
-						grep --color=never -irao "https://[^ ]*"  * 2>/dev/null | cut -d ":" -f3 | grep --color=never -ia "$DOMAIN" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > https.txt 
+						grep --color=never -irao "https://[^ ]*"  * 2>/dev/null | cut -d ":" -f3 | grep --color=never -ia "$DOMINIO" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > https.txt 
 						lines=`wc -l https.txt  | cut -d " " -f1`
 						perl -E "say \"https://\n\" x $lines" > prefijo.txt # file with the domain (n times)
-						paste -d '' prefijo.txt https.txt >> ../logs/enumeracion/"$DOMAIN"_web_wget2.txt  # adicionar https:// a cada linea
+						paste -d '' prefijo.txt https.txt >> ../logs/enumeracion/"$DOMINIO"_web_wget2.txt  # adicionar https:// a cada linea
 						rm https.txt 2>/dev/null						
 					cd ../
 					###################################				    
@@ -3129,20 +3129,20 @@ fi
 
 cd webClone
 	echo -e "[+] Extrayendo URLs de todos los sitios clonados"
-	grep --color=never -irao "http://[^ ]*"  * 2>/dev/null | cut -d ":" -f3 | grep --color=never -ia "$DOMAIN" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > http.txt
+	grep --color=never -irao "http://[^ ]*"  * 2>/dev/null | cut -d ":" -f3 | grep --color=never -ia "$DOMINIO" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > http.txt
 	lines=`wc -l http.txt  | cut -d " " -f1`
 	perl -E "say \"http://\n\" x $lines" > prefijo.txt # file with the domain (n times)
-	paste -d '' prefijo.txt http.txt >> ../logs/enumeracion/"$DOMAIN"_web_wget2.txt
+	paste -d '' prefijo.txt http.txt >> ../logs/enumeracion/"$DOMINIO"_web_wget2.txt
 	rm http.txt 2>/dev/null
 				
-	grep --color=never -irao "https://[^ ]*"  * 2>/dev/null | cut -d ":" -f3 | grep --color=never -ia "$DOMAIN" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > https.txt
+	grep --color=never -irao "https://[^ ]*"  * 2>/dev/null | cut -d ":" -f3 | grep --color=never -ia "$DOMINIO" | grep -v '\?'| cut -d "/" -f3-4 | egrep -iv "galeria|images|plugin" | sort | uniq > https.txt
 	lines=`wc -l https.txt  | cut -d " " -f1`
 	perl -E "say \"https://\n\" x $lines" > prefijo.txt # file with the domain (n times)
-	paste -d '' prefijo.txt https.txt >> ../logs/enumeracion/"$DOMAIN"_web_wget2.txt
+	paste -d '' prefijo.txt https.txt >> ../logs/enumeracion/"$DOMINIO"_web_wget2.txt
 	rm https.txt 2>/dev/null
 				 
-	#grep --color=never -irao "http://[^ ]*"  * | egrep -av "fontawesome|adobe|w3\.org|fontello|sil.org|campivisivi|isiaurbino|scriptype|tht|mit-license|HttpRequest|http-equiv|css|png|angularjs|example|openstreet|zkysky|angular-leaflet|angular-formly|yahoo|spotify|twitch|instagram|facebook|live.com|chieffancypants|angular-ui" | tr -d '>' | sort | uniq >> ../enumeracion/"$DOMAIN"_web_wget2.txt
-	#grep --color=never -irao "https://[^ ]*"  * | egrep -av "fontawesome|adobe|w3\.org|fontello|sil.org|campivisivi|isiaurbino|scriptype|tht|mit-license|HttpRequest|http-equiv|css|png|angularjs|example|openstreet|zkysky|angular-leaflet|angular-formly|yahoo|spotify|twitch|instagram|facebook|live.com|chieffancypants|angular-ui" | tr -d '>' | sort | uniq >> ../enumeracion/"$DOMAIN"_web_wget2.txt
+	#grep --color=never -irao "http://[^ ]*"  * | egrep -av "fontawesome|adobe|w3\.org|fontello|sil.org|campivisivi|isiaurbino|scriptype|tht|mit-license|HttpRequest|http-equiv|css|png|angularjs|example|openstreet|zkysky|angular-leaflet|angular-formly|yahoo|spotify|twitch|instagram|facebook|live.com|chieffancypants|angular-ui" | tr -d '>' | sort | uniq >> ../enumeracion/"$DOMINIO"_web_wget2.txt
+	#grep --color=never -irao "https://[^ ]*"  * | egrep -av "fontawesome|adobe|w3\.org|fontello|sil.org|campivisivi|isiaurbino|scriptype|tht|mit-license|HttpRequest|http-equiv|css|png|angularjs|example|openstreet|zkysky|angular-leaflet|angular-formly|yahoo|spotify|twitch|instagram|facebook|live.com|chieffancypants|angular-ui" | tr -d '>' | sort | uniq >> ../enumeracion/"$DOMINIO"_web_wget2.txt
 					
 						
 	echo -e "[+] Buscando archivos sin extension"
@@ -3201,59 +3201,59 @@ cd webClone
 						
 	######### buscar IPs privadas
 	echo -e "\t\t\t[+] Revisando si hay divulgación de IPs privadas"	
-	grep -ira "192.168." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
-	grep -ira "172.16." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
+	grep -ira "192.168." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMINIO"_web_IPinterna.txt
+	grep -ira "172.16." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMINIO"_web_IPinterna.txt
 							
-	grep -ira "http://172." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
-	grep -ira "http://10." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
-	grep -ira "http://192." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
+	grep -ira "http://172." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMINIO"_web_IPinterna.txt
+	grep -ira "http://10." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMINIO"_web_IPinterna.txt
+	grep -ira "http://192." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMINIO"_web_IPinterna.txt
 
-	grep -ira "https://172" * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
-	grep -ira "https://10." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
-	grep -ira "https://192." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMAIN"_web_IPinterna.txt
+	grep -ira "https://172" * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMINIO"_web_IPinterna.txt
+	grep -ira "https://10." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMINIO"_web_IPinterna.txt
+	grep -ira "https://192." * | grep -v "checksumsEscaneados" | sort | uniq >> ../.vulnerabilidades/"$DOMINIO"_web_IPinterna.txt
 	###############################	
 	
 	######### buscar links de amazon EC2
-	grep --color=never -ir 'amazonaws.com' * >> ../.enumeracion/"$DOMAIN"_web_amazon.txt
+	grep --color=never -ir 'amazonaws.com' * >> ../.enumeracion/"$DOMINIO"_web_amazon.txt
 	
 	######### buscar comentarios 
 	echo -e "\t\t\t[+] Revisando si hay comentarios html, JS"	
-	grep --color=never -ir '// ' * | egrep -v "http|https|header|footer|div|class" >> ../.enumeracion/"$DOMAIN"_web_comentario.txt
-	grep --color=never -r '<!-- ' * | egrep -v "header|footer|div|class" >> ../.enumeracion/"$DOMAIN"_web_comentario.txt
-	grep --color=never -r ' \-\->' * | egrep -v "header|footer|div|class" >> ../.enumeracion/"$DOMAIN"_web_comentario.txt
-	#egrep -i " password | contrase| pin | firma| key | api " ../.enumeracion/"$DOMAIN"_web_comentario.txt | egrep -v "shift key|Key event|return key|key and mouse|bind key" > ../.vulnerabilidades/"$DOMAIN"_web_comentario.txt
+	grep --color=never -ir '// ' * | egrep -v "http|https|header|footer|div|class" >> ../.enumeracion/"$DOMINIO"_web_comentario.txt
+	grep --color=never -r '<!-- ' * | egrep -v "header|footer|div|class" >> ../.enumeracion/"$DOMINIO"_web_comentario.txt
+	grep --color=never -r ' \-\->' * | egrep -v "header|footer|div|class" >> ../.enumeracion/"$DOMINIO"_web_comentario.txt
+	#egrep -i " password | contrase| pin | firma| key | api " ../.enumeracion/"$DOMINIO"_web_comentario.txt | egrep -v "shift key|Key event|return key|key and mouse|bind key" > ../.vulnerabilidades/"$DOMINIO"_web_comentario.txt
 	###############################						
 cd ../	 # salir de webCLone
 
 ############################################################################
 echo -e "[+] Extraer metadatos de sitios clonados"										
-exiftool archivos > logs/enumeracion/"$DOMAIN"_metadata_exiftool.txt
-egrep -i "Author|creator" logs/enumeracion/"$DOMAIN"_metadata_exiftool.txt | awk '{print $3}' | egrep -iv "tool|adobe|microsoft|PaperStream|Acrobat|JasperReports|Mozilla" |sort |uniq  > .enumeracion/"$DOMAIN"_metadata_exiftool.txt
+exiftool archivos > logs/enumeracion/"$DOMINIO"_metadata_exiftool.txt
+egrep -i "Author|creator" logs/enumeracion/"$DOMINIO"_metadata_exiftool.txt | awk '{print $3}' | egrep -iv "tool|adobe|microsoft|PaperStream|Acrobat|JasperReports|Mozilla" |sort |uniq  > .enumeracion/"$DOMINIO"_metadata_exiftool.txt
 
 ##### Reporte metadatos (sitio web) ##
-sed 's/ /-/g' -i .enumeracion/"$DOMAIN"_metadata_exiftool.txt # cambiar espacios por "-"
+sed 's/ /-/g' -i .enumeracion/"$DOMINIO"_metadata_exiftool.txt # cambiar espacios por "-"
 echo "Nombre;Apellido;Correo;Cargo" > reportes/correos_metadata.csv
-for nombreCompleto in `more .enumeracion/"$DOMAIN"_metadata_exiftool.txt`; do	
+for nombreCompleto in `more .enumeracion/"$DOMINIO"_metadata_exiftool.txt`; do	
 #echo "nombreCompleto $nombreCompleto"
 	if [[ ${nombreCompleto} == *"-"*  ]];then 			
 		nombre=`echo $nombreCompleto | cut -f1 -d "-"`
 		apellido=`echo $nombreCompleto | cut -f2 -d "-"`
-		echo "$nombre;$apellido;$apellido@$DOMAIN;n/a" > reportes/correos_metadata.csv 
+		echo "$nombre;$apellido;$apellido@$DOMINIO;n/a" > reportes/correos_metadata.csv 
 	fi
 done
 ################
 
 #  Eliminar URLs repetidas (clonacion)
 echo -e "[+] Eliminar URLs repetidas (Extraidos de la clonacion)"										
-sort logs/enumeracion/"$DOMAIN"_web_wget2.txt 2>/dev/null | uniq > .enumeracion/"$DOMAIN"_web_wgetURLs.txt
+sort logs/enumeracion/"$DOMINIO"_web_wget2.txt 2>/dev/null | uniq > .enumeracion/"$DOMINIO"_web_wgetURLs.txt
 insert_data
 
 
 # filtrar error de conexion a base de datos y otros errores
-egrep -ira --color=never "mysql_query| mysql_fetch_array|access denied for user|mysqli|Undefined index" webClone/* 2>/dev/null| sed 's/webClone\///g' >> .enumeracion/"$DOMAIN"_web_errores.txt
+egrep -ira --color=never "mysql_query| mysql_fetch_array|access denied for user|mysqli|Undefined index" webClone/* 2>/dev/null| sed 's/webClone\///g' >> .enumeracion/"$DOMINIO"_web_errores.txt
 
 # correos presentes en los sitios web
-grep -Eirao "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b" webClone/* | cut -d ":" -f2 | egrep --color=never $"com|net|org|bo|es" |  sort |uniq  >> .enumeracion/"$DOMAIN"_web_correos.txt
+grep -Eirao "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b" webClone/* | cut -d ":" -f2 | egrep --color=never $"com|net|org|bo|es" |  sort |uniq  >> .enumeracion/"$DOMINIO"_web_correos.txt
 
 # aws_access_key 
 egrep -ira --color=never "aws_access_key_id|aws_secret_access_key" webClone/* > .vulnerabilidades/"$DOMINIO"_aws_secrets.txt 
@@ -3469,7 +3469,7 @@ then
 		echo -e "\t [+] Probando transferencia de zona"
 			
 			### zone transfer ###			
-			zone_transfer=`dig -tAXFR @$ip $DOMAIN`
+			zone_transfer=`dig -tAXFR @$ip $DOMINIO`
 			echo "dig -tAXFR @$ip $dominio" > logs/vulnerabilidades/"$ip"_53_transferenciaDNS.txt 
 			echo $zone_transfer >> logs/vulnerabilidades/"$ip"_53_transferenciaDNS.txt 
 			if [[ ${zone_transfer} != *"failed"*  && ${zone_transfer} != *"timed out"* && ${zone_transfer} != *"error"* ]];then
@@ -4636,7 +4636,7 @@ for line in $(cat .enumeracion2/*webdirectorios.txt 2>/dev/null); do
 				#echo "webData.pl -t $ip -d $path -p $port -e todo -l /dev/null -r 4 "	
 				#https://escritorio.abc.gob.bo/usuarios/computer/
 				#http://186.121.249.245:80/Login/				
-				if [[ (${path} == *"usuarios"* || ${path} == *"login"* || ${path} == *"rep"* || ${path} == *"almacen"*  || ${path} == *"app"*  || ${path} == *"personal"* ) && (${internet} == "s" )]];then 
+				if [[ (${path} == *"usuarios"* || ${path} == *"login"* || ${path} == *"rep"* || ${path} == *"almacen"*  || ${path} == *"app"*  || ${path} == *"personal"* || ${path} == *"frontend"* || ${path} == *"backend"* ) && (${internet} == "s" )]];then 
 					echo -e "\t\t[+] Enumerando directorios de 2do nivel ($path)" 
 					web-buster.pl -t $ip -p $port -h 1 -d "/$path/" -m folders >> logs/enumeracion/"$ip"_"$port"_webdirectorios2.txt &
 										
