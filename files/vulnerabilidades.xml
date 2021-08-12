@@ -750,6 +750,8 @@
     <descripcion>Revisando los recursos compartidos mediante el protocolo SMB se pudo observar que se comparte información sensible accesible por cualquier usuario de la red.Otra amenaza para los recursos compartidos son los virus de tipo ransonware.que cuando infectan a un equipo en la red cifran todos los recursos compartidos de la red. </descripcion>
     <verificacion>smbmap -H 1.2.3.4 -u anonymous -p anonymous SALTOLINEAsmbmap -H 1.2.3.4 </verificacion>
     <recomendacion> Limitar el acceso de recursos compartido solo a usuarios autorizados </recomendacion> 
+    <recomendacionMatriz>Limitar el acceso de recursos compartido solo a usuarios autorizados</recomendacionMatriz> 
+    <conclusion>Existe información compartida en estaciones de trabajo y que no requieren autenticación </conclusion>        
 	<referencias>Ninguna</referencias> 
   </vuln>
   

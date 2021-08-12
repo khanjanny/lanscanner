@@ -71,6 +71,9 @@ cp -r pentest /usr/bin
 cp lanscanner.sh /usr/bin
 cp monitor.sh /usr/bin
 cp autohack.sh /usr/bin
+cp files/image.png /usr/share/lanscanner/image.png
+cp files/vulnerabilidades.xml /usr/share/lanscanner/vulnerabilidades.xml
+
 
 chmod a+x /usr/bin/monitor.sh
 chmod a+x /usr/bin/lanscanner.sh
@@ -123,7 +126,7 @@ cat <<EOF | sudo tee -a /etc/samba/smb.conf
 EOF
 
     
-service smbd restart    
+#service smbd restart
 
 mkdir -p /usr/share/wordlists/ 2>/dev/null
 #cd /usr/share/wordlists/
