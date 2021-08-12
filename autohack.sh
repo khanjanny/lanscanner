@@ -4,12 +4,12 @@ OKRED='\033[91m'
 OKGREEN='\033[92m'
 RESET='\e[0m'
 
-while getopts ":d:n:t:c:m:i:s:" OPTIONS
+while getopts ":d:n:t:k:m:i:s:" OPTIONS
 do
             case $OPTIONS in            
             d)     DOMAIN=$OPTARG;;
             n)     NOMBRE=$OPTARG;;
-            c)     CLAVE=$OPTARG;;
+            k)     KEYWORD=$OPTARG;;
             t)     TYPE=$OPTARG;;
             i)     IPS=$OPTARG;;
             s)     SUBNET=$OPTARG;;
@@ -24,22 +24,22 @@ DOMAIN=${DOMAIN:=NULL}
 MODE=${MODE:=NULL}
 SUBNET=${SUBNET:=NULL}
 IPS=${IPS:=NULL}
-CLAVE=${CLAVE:=NULL} # para cracker
+KEYWORD=${KEYWORD:=NULL} # para cracker
 
-if [ "$CLAVE" = NULL ] || [ "$DOMAIN" = NULL ]; then
+if [ "$KEYWORD" = NULL ] || [ "$DOMAIN" = NULL ]; then
 
 cat << "EOF"
 
 Opciones: 
 
--c : palabra clave para generar passwords
+-c : palabra KEYWORD para generar passwords
 -d : dominio
 
 Ejemplo 1: Escanear el listado de subredes (completo)
-	autohack.sh -d agetic.gob.bo -c agetic -t internet
-	autohack.sh -d agetic.gob.bo -c agetic -t lan -s subnet.txt
-	autohack.sh -d agetic.gob.bo -c agetic -t lan -s subnet.txt -m vpn
-	autohack.sh -d agetic.gob.bo -c agetic -t lan -i ips.txt 
+	autohack.sh -d agetic.gob.bo -k agetic -t internet
+	autohack.sh -d agetic.gob.bo -k agetic -t lan -s subnet.txt
+	autohack.sh -d agetic.gob.bo -k agetic -t lan -s subnet.txt -m vpn
+	autohack.sh -d agetic.gob.bo -k agetic -t lan -i ips.txt 
 	
 EOF
 
@@ -50,10 +50,10 @@ if [ $TYPE == "internet" ]; then
 	mkdir INTERNO
 	mkdir EXTERNO
 	cd EXTERNO
-	recon.sh -d $DOMAIN 
+	recon.sh -d $DOMAIN -k $KEYWORD
 	cd $DOMAIN
 	lanscanner.sh -t completo -i importarMaltego/subdominios.csv -d $DOMAIN
-#	cracker.sh -e $CLAVE -t completo
+#	cracker.sh -e $KEYWORD -t completo
 else
 	# escaneo LAN
 	
@@ -78,7 +78,7 @@ else
 		pwd
 		echo "entrando al directorio $directory" # creado por lanscanner
 		cd $directory
-		cracker.sh -e $CLAVE -t completo
+		cracker.sh -e $KEYWORD -t completo
 		pwd
 	fi
 	if [ "$IPS" != NULL ]; then 	
@@ -93,7 +93,7 @@ else
 		pwd
 		echo "entrando al directorio $directory" # creado por lanscanner
 		cd $directory
-		cracker.sh -e $CLAVE -t completo
+		cracker.sh -e $KEYWORD -t completo
 		pwd
 	fi
 	
@@ -109,7 +109,7 @@ else
 		pwd
 		echo "entrando al directorio $directory" # creado por lanscanner
 		cd $directory
-		cracker.sh -e $CLAVE -t completo
+		cracker.sh -e $KEYWORD -t completo
 		pwd
 	fi		
 	mv /usr/bin/pentest/Responder/logs/* `pwd`/responder 2>/dev/null
