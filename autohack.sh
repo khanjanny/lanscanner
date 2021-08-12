@@ -53,14 +53,15 @@ if [ $TYPE == "internet" ]; then
 	recon.sh -d $DOMAIN -k $KEYWORD
 	cd $DOMAIN
 	lanscanner.sh -t completo -i importarMaltego/subdominios.csv -d $DOMAIN
-#	cracker.sh -e $KEYWORD -t completo
+	cracker.sh -e $KEYWORD -t completo
 else
 	# escaneo LAN
 	
 	echo -e "$OKBLUE Iniciando Responder $RESET"	
 	iface=`ip addr | grep -iv DOWN | awk '/UP/ {print $2}' | egrep -v "lo|dummy|rmnet|vmnet" | sed 's/.$//'`
 	#Borrar logs pasados
-	rm /usr/bin/pentest/Responder/logs/* 2>/dev/null
+	#rm /usr/bin/pentest/Responder/logs/* 2>/dev/null
+	/etc/init.d/smbd stop 
 	xterm -hold -e responder.sh -F -f -I $iface 2>/dev/null& 	
 	
 		
