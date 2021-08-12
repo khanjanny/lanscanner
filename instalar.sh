@@ -41,12 +41,6 @@ GO111MODULE=on go get -v github.com/projectdiscovery/naabu/v2/cmd/naabu
 sudo cp ~/go/bin/naabu /usr/bin/naabu 
 chmod a+x /usr/bin/naabu
 
-echo -e "${GREEN} [+] Instalando webhacks ${RESET}"
-git clone https://github.com/DanielTorres1/webhacks
-cd webhacks
-bash instalar.sh
-cd ..
-
 
 echo -e "${GREEN} [+] Copiando archivos ${RESET}"
 mkdir /usr/share/lanscanner 2>/dev/null
@@ -103,6 +97,7 @@ python3 -m pip install .
 cd ..
 
 echo -e "${RED}[+]${GREEN} Instalando wafw00f ${RESET}"
+pwd
 cd wafw00f
 python3 setup.py install
 echo ""
@@ -126,7 +121,12 @@ cat <<EOF | sudo tee -a /etc/samba/smb.conf
 EOF
 
     
-#service smbd restart
+echo -e "${GREEN} [+] Instalando webhacks ${RESET}"
+git clone https://github.com/DanielTorres1/webhacks
+cd webhacks
+bash instalar.sh
+cd ..
+
 
 mkdir -p /usr/share/wordlists/ 2>/dev/null
 #cd /usr/share/wordlists/
