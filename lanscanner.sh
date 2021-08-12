@@ -71,7 +71,7 @@ do
             t)     TYPE=$OPTARG;;
             s)     SUBNET_FILE=$OPTARG;;
             i)     FILE=$OPTARG;;
-            d)     DOMAIN=$OPTARG;;
+            d)     DOMINIO=$OPTARG;;
             m)     MODE=$OPTARG;;
             o)     OFFSEC=$OPTARG;;
             ?)     printf "Opcion invalida: -$OPTARG\n" $0
@@ -83,7 +83,7 @@ TYPE=${TYPE:=NULL}
 SUBNET_FILE=${SUBNET_FILE:=NULL}
 FILE=${FILE:=NULL}
 MODE=${MODE:=NULL}
-DOMAIN=${DOMAIN:=NULL}
+DOMINIO=${DOMINIO:=NULL}
 OFFSEC=${OFFSEC:=NULL}
 
 #if [ $TYPE = NULL ] ; then
@@ -3141,9 +3141,7 @@ cd webClone
 	paste -d '' prefijo.txt https.txt >> ../logs/enumeracion/"$DOMINIO"_web_wget2.txt
 	rm https.txt 2>/dev/null
 				 
-	#grep --color=never -irao "http://[^ ]*"  * | egrep -av "fontawesome|adobe|w3\.org|fontello|sil.org|campivisivi|isiaurbino|scriptype|tht|mit-license|HttpRequest|http-equiv|css|png|angularjs|example|openstreet|zkysky|angular-leaflet|angular-formly|yahoo|spotify|twitch|instagram|facebook|live.com|chieffancypants|angular-ui" | tr -d '>' | sort | uniq >> ../enumeracion/"$DOMINIO"_web_wget2.txt
-	#grep --color=never -irao "https://[^ ]*"  * | egrep -av "fontawesome|adobe|w3\.org|fontello|sil.org|campivisivi|isiaurbino|scriptype|tht|mit-license|HttpRequest|http-equiv|css|png|angularjs|example|openstreet|zkysky|angular-leaflet|angular-formly|yahoo|spotify|twitch|instagram|facebook|live.com|chieffancypants|angular-ui" | tr -d '>' | sort | uniq >> ../enumeracion/"$DOMINIO"_web_wget2.txt
-					
+				
 						
 	echo -e "[+] Buscando archivos sin extension"
 	find . -type f ! \( -iname \*.pdf -o -iname \*.html -o -iname \*.htm -o -iname \*.doc -o -iname \*.docx -o -iname \*.xls -o -iname \*.ppt -o -iname \*.pptx -o -iname \*.xlsx -o -iname \*.js -o -iname \*.PNG  -o -iname \*.txt  -o -iname \*.css  -o -iname \*.php -o -iname \*.orig \) > archivos-sin-extension.txt
