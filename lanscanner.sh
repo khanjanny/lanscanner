@@ -1970,24 +1970,25 @@ then
 							if [[ $greprc -eq 0 ]];then 		
 								wpscan  --update >/dev/null 						
 								echo -e "\t\t\t[+] Revisando vulnerabilidades de wordpress ($subdominio)"
-								wpscan --enumerate u  --random-user-agent --url http://$subdominio > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt																
+								wpscan --enumerate u  --random-user-agent --url http://$subdominio --format json > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt																
 								wpscan --random-user-agent --url http://$subdominio/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U  > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
 								
 								grep -qi "The URL supplied redirects to" logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
 								greprc=$?
 								if [[ $greprc -eq 0 ]];then 		
-									echo -e "\t\t\t[+] Rediccion en wordpress"
+									echo -e "\t\t\t[+] Redireccion en wordpress"
 									url=`cat logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt | perl -lne 'print $& if /http(.*?)\. /' |sed 's/\. //g'`
 									
 									wpscan --disable-tls-checks --enumerate u  --random-user-agent --url $url --disable-tls-checks > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
 									wpscan --disable-tls-checks --random-user-agent --url $url --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U --disable-tls-checks  > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
 									
-								fi										
-																							
-								egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$subdominio"_"$port"_wpusers.txt
+								fi																																								
 							fi
-							###################################	 
 							
+							grep "Title" .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt | cut -d ":" -f2 > .vulnerabilidades/"$subdominio"_"$port"_pluginDesactualizado.txt
+							cat logs/enumeracion/"$subdominio"_"$port"_wpscanUsers.txt | wpscan-parser.py > .vulnerabilidades/"$subdominio"_"$port"_wpusers.txt
+							###################################	 
+
 							#######  citrix (domain) ######
 							grep -qi citrix .enumeracion/"$subdominio"_"$port"_webData.txt
 							greprc=$?
@@ -2137,11 +2138,11 @@ then
 					if [[ $greprc -eq 0 ]];then 		
 						echo -e "\t\t\t[+] Revisando vulnerabilidades de wordpress (IP)"
 						wpscan  --update >/dev/null						
-						wpscan --enumerate u  --random-user-agent --url http://$ip > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
+						wpscan --enumerate u  --random-user-agent --url http://$ip --format json > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
 						wpscan --random-user-agent --url http://$ip/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U  > .enumeracion/"$ip"_"$port"_wpscanPlugins.txt
 								
-								
-						egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$ip"_"$port"_wpusers.txt
+						grep "Title" .enumeracion/"$ip"_"$port"_wpscanPlugins.txt | cut -d ":" -f2 > .vulnerabilidades/"$ip"_"$port"_pluginDesactualizado.txt
+						cat logs/enumeracion/"$ip"_"$port"_wpscanUsers.txt | wpscan-parser.py > .vulnerabilidades/"$ip"_"$port"_wpusers.txt						
 					fi
 					###########################
 					
@@ -2659,7 +2660,7 @@ then
 							greprc=$?
 							if [[ $greprc -eq 0 ]];then 		
 								echo -e "\t\t\t[+] Revisar wordpress "						    																
-								wpscan --disable-tls-checks --enumerate u  --random-user-agent --url https://$subdominio --disable-tls-checks > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
+								wpscan --disable-tls-checks --enumerate u  --random-user-agent --url https://$subdominio --disable-tls-checks --format json > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
 								wpscan --disable-tls-checks --random-user-agent --url https://$subdominio/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U --disable-tls-checks  > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
 								
 								grep -qi "The URL supplied redirects to" logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
@@ -2668,11 +2669,13 @@ then
 									echo -e "\t\t\t[+] Redireccion en wordpress"
 									url=`cat logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt | perl -lne 'print $& if /http(.*?)\. /' |sed 's/\. //g'`
 									
-									wpscan --disable-tls-checks --enumerate u  --random-user-agent --url $url --disable-tls-checks > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
+									wpscan --disable-tls-checks --enumerate u  --random-user-agent --url $url --disable-tls-checks --format json > logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt
 									wpscan --disable-tls-checks --random-user-agent --url $url --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U --disable-tls-checks  > .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt
 									
 								fi										
-								egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$subdominio"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$subdominio"_"$port"_wpusers.txt
+								
+								grep "Title" .enumeracion/"$subdominio"_"$port"_wpscanPlugins.txt | cut -d ":" -f2 > .vulnerabilidades/"$subdominio"_"$port"_pluginDesactualizado.txt
+								cat logs/enumeracion/"$subdominio"_"$port"_wpscanUsers.txt | wpscan-parser.py > .vulnerabilidades/"$subdominio"_"$port"_wpusers.txt
 							fi
 							###########################	
 							
@@ -2881,10 +2884,11 @@ then
 						echo -e "\t\t[+] Revisando vulnerabilidades de wordpress"
 						wpscan  --update																		
 						
-						wpscan --disable-tls-checks --enumerate u  --random-user-agent --url https://$ip --disable-tls-checks > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
+						wpscan --disable-tls-checks --enumerate u  --random-user-agent --url https://$ip --disable-tls-checks --format json  > logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt
 						wpscan --disable-tls-checks --random-user-agent --url https://$ip/ --enumerate p --api-token vFOFqWfKPapIbUPvqQutw5E1MTwKtqdauixsjoo197U --disable-tls-checks  > .enumeracion/"$ip"_"$port"_wpscanPlugins.txt
 								
-						egrep --color=never "\| [0-9]{1}" logs/vulnerabilidades/"$ip"_"$port"_wpscanUsers.txt | grep -v plugin | awk '{print $4}' > .vulnerabilidades/"$ip"_"$port"_wpusers.txt
+						grep "Title" .enumeracion/"$ip"_"$port"_wpscanPlugins.txt | cut -d ":" -f2 > .vulnerabilidades/"$ip"_"$port"_pluginDesactualizado.txt
+						cat logs/enumeracion/"$ip"_"$port"_wpscanUsers.txt | wpscan-parser.py > .vulnerabilidades/"$ip"_"$port"_wpusers.txt
 					fi
 					###########################	
 					
@@ -3754,9 +3758,9 @@ then
 	do     						
 		echo -e "[+] Escaneando $ip:443"		
 		echo -e "\t[+]Probando vulnerabilidad de Cisco ASA \n $RESET"
-		echo "nmap -n -sS -Pn  -p 443 --script http-vuln-cve2014-2128 $ip" > logs/vulnerabilidades/"$ip"_443_ciscoASAVuln.txt 2>/dev/null		
-		nmap -n -sS -Pn  -p 443 --script http-vuln-cve2014-2128 $ip >> logs/vulnerabilidades/"$ip"_443_ciscoASAVuln.txt 2>/dev/null		
-		grep "|" logs/vulnerabilidades/"$ip"_443_ciscoASAVuln.txt  | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/"$ip"_443_ciscoASAVuln.txt
+		echo "nmap -n -sS -Pn  -p 443 --script http-vuln-cve2014-2128 $ip" > logs/vulnerabilidades/"$ip"_"$port"_ciscoASAVuln.txt 2>/dev/null		
+		nmap -n -sS -Pn  -p 443 --script http-vuln-cve2014-2128 $ip >> logs/vulnerabilidades/"$ip"_"$port"_ciscoASAVuln.txt 2>/dev/null		
+		grep "|" logs/vulnerabilidades/"$ip"_"$port"_ciscoASAVuln.txt  | egrep -iv "ACCESS_DENIED|false|Could|ERROR|DISABLED" > .vulnerabilidades/"$ip"_"$port"_ciscoASAVuln.txt
 		
 #		nmap -n -sS -Pn  -p 443 --script http_vuln-cve2014-2129 $ip > logs/vulnerabilidades/"$ip"_cisco-dos.txt 2>/dev/null		
 		#grep "|" logs/vulnerabilidades/"$ip"_cisco-dos.txt  > .vulnerabilidades/"$ip"_cisco-dos.txt
@@ -4700,7 +4704,7 @@ echo -e "[i] Revisar vulnerabilidades relacionadas a aplicaciones web"
 egrep -i "Debug habilitado" .enumeracion2/* 2>/dev/null| while read -r line ; do	
 	echo -e  "$OKRED[!] Debug habilitado $RESET"
     archivo_origen=`echo $line | cut -d ':' -f1`
-    # .enumeracion2/181.115.186.245_443_webData.txt:~~~~ ~~~~~~Debug habilitado~~
+    # .enumeracion2/181.115.186.245_"$port"_webData.txt:~~~~ ~~~~~~Debug habilitado~~
     url_debug=${archivo_origen/_webData.txt/} #   $archivo_origen
     url_debug=${url_debug/.enumeracion2\//}   	
     url_debug=${url_debug/_/:}"/nonexistroute123"    	
@@ -4766,7 +4770,7 @@ grep -i "index of" .enumeracion2/* | egrep -v "HTTPSredirect|web_comentario" 2>/
     archivo_origen=`echo $line | cut -d ':' -f1`
     #echo "archivo_origen $archivo_origen"
     archivo_destino=$archivo_origen       
-    #archivo_origen= .enumeracion2/seguridad-cod.abc.gob.bo_443_webData.txt -->  url_listado= seguridad-cod.abc.gob.bo:443
+    #archivo_origen= .enumeracion2/seguridad-cod.abc.gob.bo_"$port"_webData.txt -->  url_listado= seguridad-cod.abc.gob.bo:443
     url_listado=`echo $archivo_origen | cut -d "/" -f 2 | cut -d "_" -f1-2 | tr "_" ":"`
 	archivo_destino=${archivo_destino/.enumeracion2/.vulnerabilidades}   
 	archivo_destino=${archivo_destino/webData/listadoDirectorios}   	
@@ -4833,8 +4837,8 @@ insert_data
 
 ########## extrayendo informacion de divulgacionInformacion ###
 for archivo in `ls logs/enumeracion/*_divulgacionInformacion.txt 2>/dev/null;`; do	
-	#archivo = logs/enumeracion/190.186.131.162_443_divulgacionInformacion.txt	
-	#archivo2 = 190.186.131.162_443_divulgacionInformacion.txt
+	#archivo = logs/enumeracion/190.186.131.162_"$port"_divulgacionInformacion.txt	
+	#archivo2 = 190.186.131.162_"$port"_divulgacionInformacion.txt
 	archivo2=`echo $archivo | cut -f3 -d"/"`	
 	ip=`echo $archivo2 | cut -f1 -d"_"`
 	port=`echo $archivo2 | cut -f2 -d"_"`
